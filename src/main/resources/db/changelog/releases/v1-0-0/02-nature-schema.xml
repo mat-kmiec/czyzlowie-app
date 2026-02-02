@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="v1-0-0-07-create-fish-species" author="mateusz kmiec">
+        <createTable tableName="fish_species">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false" />
+            </column>
+            <column name="name" type="varchar(100)">
+                <constraints nullable="false" />
+            </column>
+            <column name="latin_name" type="varchar(100)" />
+            <column name="english_name" type="varchar(100)" />
+
+            <column name="preferred_depth_min" type="decimal(5,2)" />
+            <column name="preferred_depth_max" type="decimal(5,2)" />
+            <column name="bottom_type" type="varchar(50)"  />
+            <column name="feeding_layer" type="varchar(50)"  />
+
+            <column name="min_size_cm" type="integer" />
+            <column name="closed_season_start" type="date" />
+            <column name="closed_season_end" type="date" />
+            <column name="daily_limit" type="integer" />
+        </createTable>
+    </changeSet>
+
+    <changeSet id="v1-0-0-08-create-feeding-profiles" author="mateusz kmiec">
+        <createTable tableName="species_feeding_profiles">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false" />
+            </column>
+            <column name="species_id" type="bigint">
+                <constraints nullable="false" unique="true" foreignKeyName="fk_profile_species" referencedTableName="fish_species" referencedColumnNames="id" />
+            </column>
+
+            <column name="optimal_pressure_hpa" type="integer" />
+            <column name="pressure_tolerance_hpa" type="integer" />
+            <column name="max_wind_speed_ms" type="decimal(4,1)" />
+            <column name="max_wind_gust_ms" type="decimal(4,1)" />
+            <column name="max_rain_10min_mm" type="decimal(4,1)" />
+            <column name="likes_rain" type="boolean" />
+
+            <column name="min_water_temp_c" type="decimal(4,1)" />
+            <column name="max_water_temp_c" type="decimal(4,1)" />
+            <column name="opt_water_temp_c" type="decimal(4,1)" />
+            <column name="preferred_water_trend" type="varchar(20)" />
+            <column name="max_flow_m3s" type="decimal(6,2)" />
+
+            <column name="weight_pressure" type="integer" defaultValueNumeric="25" />
+            <column name="weight_water_temp" type="integer" defaultValueNumeric="25" />
+            <column name="weight_wind" type="integer" defaultValueNumeric="25" />
+            <column name="weight_water_level" type="integer" defaultValueNumeric="25" />
+
+            <column name="is_night_active" type="boolean" />
+            <column name="peak_activity_offset_h" type="integer" />
+        </createTable>
+    </changeSet>
+
+    <changeSet id="v1-0-0-09-create-solunar-data" author="mateusz kmiec">
+        <createTable tableName="solunar_data">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false" />
+            </column>
+            <column name="date" type="date">
+                <constraints unique="true" nullable="false" />
+            </column>
+            <column name="moon_phase" type="varchar(20)" />
+            <column name="moon_illumination" type="integer" />
+            <column name="moonrise" type="timestamp" />
+            <column name="moonset" type="timestamp" />
+            <column name="major_feeding_start_1" type="timestamp" />
+            <column name="major_feeding_end_1" type="timestamp" />
+            <column name="minor_feeding_start_1" type="timestamp" />
+            <column name="minor_feeding_end_1" type="timestamp" />
+        </createTable>
+    </changeSet>
+
+</databaseChangeLog>

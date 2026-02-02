@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="v1-0-0-16-create-fishing-logs" author="mateusz kmiec">
+        <createTable tableName="fishing_logs">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false" />
+            </column>
+            <column name="user_id" type="bigint">
+                <constraints nullable="false" foreignKeyName="fk_log_user" referencedTableName="users" referencedColumnNames="id" />
+            </column>
+            <column name="fish_species_id" type="bigint">
+                <constraints nullable="false" foreignKeyName="fk_log_species" referencedTableName="fish_species" referencedColumnNames="id" />
+            </column>
+
+            <column name="length_cm" type="integer" />
+            <column name="weight_kg" type="decimal(6,3)" />
+            <column name="photo_url" type="varchar(255)" />
+            <column name="caught_at" type="timestamp">
+                <constraints nullable="false" />
+            </column>
+
+            <column name="geo_latitude" type="decimal(10,8)" />
+            <column name="geo_longitude" type="decimal(10,8)" />
+            <column name="atmosphere_pressure" type="decimal(6,1)"/>
+            <column name="atmosphere_temp" type="decimal(4,1)"/>
+            <column name="wind_direction" type="integer"/>
+            <column name="moon_phase" type="varchar(20)"/>
+            <column name="water_level" type="integer"/>
+            <column name="water_temp" type="decimal(4,1)"/>
+
+            <column name="created_at" type="timestamp" defaultValueComputed="CURRENT_TIMESTAMP" />
+        </createTable>
+    </changeSet>
+
+    <changeSet id="v1-0-0-17-create-badges" author="mateusz kmiec">
+        <createTable tableName="badges">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false" />
+            </column>
+            <column name="name" type="varchar(100)">
+                <constraints nullable="false" />
+            </column>
+            <column name="description" type="text" />
+            <column name="icon_url" type="varchar(255)" />
+        </createTable>
+    </changeSet>
+
+    <changeSet id="v1-0-0-18-create-user-badges" author="mateusz kmiec">
+        <createTable tableName="user_badges">
+            <column name="user_id" type="bigint">
+                <constraints nullable="false" foreignKeyName="fk_ubadge_user" referencedTableName="users" referencedColumnNames="id" />
+            </column>
+            <column name="badge_id" type="bigint">
+                <constraints nullable="false" foreignKeyName="fk_ubadge_badge" referencedTableName="badges" referencedColumnNames="id" />
+            </column>
+            <column name="earned_at" type="timestamp" defaultValueComputed="CURRENT_TIMESTAMP" />
+        </createTable>
+        <addPrimaryKey tableName="user_badges" columnNames="user_id, badge_id" constraintName="pk_user_badges" />
+    </changeSet>
+
+</databaseChangeLog>

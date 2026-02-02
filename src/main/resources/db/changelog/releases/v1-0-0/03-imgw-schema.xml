@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="v1-0-0-10-create-meteo-stations" author="mateusz kmiec">
+        <createTable tableName="imgw_meteo_stations">
+            <column name="id" type="varchar(20)">
+                <constraints primaryKey="true" nullable="false" />
+            </column>
+            <column name="name" type="varchar(100)">
+                <constraints nullable="false" />
+            </column>
+            <column name="latitude" type="decimal(10,8)">
+                <constraints nullable="false" />
+            </column>
+            <column name="longitude" type="decimal(10,8)">
+                <constraints nullable="false" />
+            </column>
+            <column name="is_active" type="boolean" defaultValueBoolean="true" />
+        </createTable>
+    </changeSet>
+
+    <changeSet id="v1-0-0-11-create-hydro-stations" author="mateusz kmiec">
+        <createTable tableName="imgw_hydro_stations">
+            <column name="id" type="varchar(20)">
+                <constraints primaryKey="true" nullable="false" />
+            </column>
+            <column name="name" type="varchar(100)">
+                <constraints nullable="false" />
+            </column>
+            <column name="river" type="varchar(100)">
+                <constraints nullable="false" />
+            </column>
+            <column name="province" type="varchar(100)">
+                <constraints nullable="false" />
+            </column>
+            <column name="latitude" type="decimal(10,8)">
+                <constraints nullable="false" />
+            </column>
+            <column name="longitude" type="decimal(10,8)">
+                <constraints nullable="false" />
+            </column>
+            <column name="is_active" type="boolean" defaultValueBoolean="true" />
+        </createTable>
+    </changeSet>
+
+    <changeSet id="v1-0-0-12-create-hydro-data" author="mateusz kmiec">
+        <createTable tableName="imgw_hydro_data">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false" />
+            </column>
+            <column name="station_id" type="varchar(20)">
+                <constraints nullable="false" foreignKeyName="fk_hydro_data_station" referencedTableName="imgw_hydro_stations" referencedColumnNames="id" />
+            </column>
+            <column name="water_level" type="integer" />
+            <column name="water_level_date" type="timestamp" />
+            <column name="water_temperature" type="decimal(4,1)" />
+            <column name="water_temperature_date" type="timestamp" />
+            <column name="discharge" type="decimal(8,3)" />
+            <column name="discharge_date" type="timestamp" />
+            <column name="ice_phenomenon" type="integer" />
+            <column name="overgrowth_phenomenon" type="integer" />
+            <column name="created_at" type="timestamp" defaultValueComputed="CURRENT_TIMESTAMP" />
+        </createTable>
+    </changeSet>
+
+    <changeSet id="v1-0-0-13-create-meteo-data" author="mateusz kmiec">
+        <createTable tableName="imgw_meteo_data">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false" />
+            </column>
+            <column name="station_id" type="varchar(20)">
+                <constraints nullable="false" foreignKeyName="fk_meteo_data_station" referencedTableName="imgw_meteo_stations" referencedColumnNames="id" />
+            </column>
+            <column name="measurement_date" type="date" />
+            <column name="measurement_hour" type="integer" />
+            <column name="temperature" type="decimal(4,1)" />
+            <column name="wind_speed" type="decimal(4,1)" />
+            <column name="wind_direction" type="integer" />
+            <column name="relative_humidity" type="decimal(4,1)" />
+            <column name="total_precipitation" type="decimal(5,2)" />
+            <column name="pressure" type="decimal(6,1)" />
+            <column name="observed_at" type="timestamp" />
+            <column name="created_at" type="timestamp" defaultValueComputed="CURRENT_TIMESTAMP" />
+        </createTable>
+    </changeSet>
+
+    <changeSet id="v1-0-0-14-create-weather-trends" author="mateusz kmiec">
+        <createTable tableName="imgw_meteo_trends">
+            <column name="station_id" type="varchar(20)">
+                <constraints primaryKey="true" nullable="false" foreignKeyName="fk_meteo_trend_station" referencedTableName="imgw_meteo_stations" referencedColumnNames="id" />
+            </column>
+            <column name="pressure_delta_3h" type="decimal(5,2)" />
+            <column name="pressure_delta_24h" type="decimal(5,2)" />
+            <column name="pressure_direction" type="varchar(20)" />
+            <column name="temp_delta_3h" type="decimal(4,1)" />
+            <column name="is_warming_trend" type="boolean" />
+            <column name="wind_force_trend" type="varchar(20)" />
+            <column name="weather_stability_index" type="integer" />
+            <column name="updated_at" type="timestamp" />
+        </createTable>
+
+        <createTable tableName="imgw_hydro_trends">
+            <column name="station_id" type="varchar(20)">
+                <constraints primaryKey="true" nullable="false" foreignKeyName="fk_hydro_trend_station" referencedTableName="imgw_hydro_stations" referencedColumnNames="id" />
+            </column>
+            <column name="water_level_delta_3h" type="integer" />
+            <column name="water_level_delta_24h" type="integer" />
+            <column name="water_direction" type="varchar(20)" />
+            <column name="water_temp_delta_12h" type="decimal(4,1)" />
+            <column name="is_flooding_risk" type="boolean" defaultValueBoolean="false" />
+            <column name="updated_at" type="timestamp" />
+        </createTable>
+    </changeSet>
+
+    <changeSet id="v1-0-0-15-create-weather-forecast" author="mateusz kmiec">
+        <createTable tableName="weather_forecast">
+            <column name="station_id" type="varchar(20)">
+                <constraints nullable="false" foreignKeyName="fk_forecast_station" referencedTableName="imgw_meteo_stations" referencedColumnNames="id" />
+            </column>
+            <column name="forecast_slot" type="varchar(10)" />
+            <column name="forecast_date" type="date" />
+            <column name="temperature" type="decimal(4,1)" />
+            <column name="pressure_hpa" type="decimal(6,1)" />
+            <column name="wind_speed_ms" type="decimal(4,1)" />
+            <column name="wind_direction" type="integer" />
+            <column name="precipitation_probability" type="integer" />
+            <column name="cloud_cover_pct" type="integer" />
+            <column name="uv_index" type="decimal(3,1)" />
+            <column name="visibility_meters" type="integer" />
+            <column name="sunrise_time" type="timestamp" />
+            <column name="sunset_time" type="timestamp" />
+            <column name="weather_condition_code" type="varchar(10)" />
+            <column name="updated_at" type="timestamp" defaultValueComputed="CURRENT_TIMESTAMP" />
+        </createTable>
+        <addUniqueConstraint tableName="weather_forecast" columnNames="station_id, forecast_slot, forecast_date" constraintName="uq_forecast_slot" />
+    </changeSet>
+
+</databaseChangeLog>
