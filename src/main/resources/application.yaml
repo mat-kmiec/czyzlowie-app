@@ -1,0 +1,46 @@
+spring:
+  application:
+    name: czyzlowie
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/czyzlowie
+    username: user
+    password: secret
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: validate
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        highlight_sql: true
+
+  liquibase:
+    change-log: classpath:db/changelog/db.changelog-master.xml
+    enabled: true
+
+  mail:
+    host: localhost
+    port: 1025
+
+logging:
+  level:
+    pl.czyzlowie: DEBUG
+    org.springframework.web: INFO
+    org.hibernate.SQL: DEBUG
+    liquibase: INFO
+
+  docker:
+    compose:
+      lifecycle-management: start_and_stop
+      startup:
+        readiness:
+          tcp:
+            timeout: 10s
+management:
+  health:
+    mail:
+      enabled: false
