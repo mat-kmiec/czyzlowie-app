@@ -26,13 +26,10 @@
     </changeSet>
 
     <changeSet id="v1-0-0-21-data-cleanup-indexes" author="mateusz kmiec">
-        <createIndex indexName="idx_meteo_observed_at" tableName="imgw_meteo_data">
-            <column name="observed_at"/>
+        <createIndex tableName="imgw_meteo_data" indexName="idx_meteo_measurement_time">
+            <column name="wind_measurement_time"/>
         </createIndex>
 
-        <createIndex indexName="idx_hydro_created_at" tableName="imgw_hydro_data">
-            <column name="created_at"/>
-        </createIndex>
     </changeSet>
 
 </databaseChangeLog>
