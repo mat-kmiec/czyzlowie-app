@@ -10,7 +10,7 @@ import pl.czyzlowie.modules.imgw.client.dto.ImgwHydroResponseDto;
 import pl.czyzlowie.modules.imgw.config.ImgwApiProperties;
 import pl.czyzlowie.modules.imgw.entity.ImgwHydroData;
 import pl.czyzlowie.modules.imgw.entity.ImgwHydroStation;
-import pl.czyzlowie.modules.imgw.mapper.ImgwMapper;
+import pl.czyzlowie.modules.imgw.mapper.ImgwHydroMapper;
 import pl.czyzlowie.modules.imgw.repository.ImgwHydroDataRepository;
 import pl.czyzlowie.modules.imgw.repository.ImgwHydroStationRepository;
 
@@ -29,7 +29,7 @@ public class ImgwHydroFetchService extends AbstractImgwFetchService<ImgwHydroRes
     private final ImgwApiProperties properties;
     private final ImgwHydroStationRepository stationRepo;
     private final ImgwHydroDataRepository dataRepo;
-    private final ImgwMapper mapper;
+    private final ImgwHydroMapper mapper;
 
     @Override
     protected List<ImgwHydroResponseDto> fetchFromApi() {

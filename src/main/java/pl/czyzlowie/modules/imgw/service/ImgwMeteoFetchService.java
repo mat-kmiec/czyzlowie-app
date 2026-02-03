@@ -10,7 +10,7 @@ import pl.czyzlowie.modules.imgw.client.dto.ImgwMeteoResponseDto;
 import pl.czyzlowie.modules.imgw.config.ImgwApiProperties;
 import pl.czyzlowie.modules.imgw.entity.ImgwMeteoData;
 import pl.czyzlowie.modules.imgw.entity.ImgwMeteoStation;
-import pl.czyzlowie.modules.imgw.mapper.ImgwMapper;
+import pl.czyzlowie.modules.imgw.mapper.ImgwMeteoMapper;
 import pl.czyzlowie.modules.imgw.repository.ImgwMeteoDataRepository;
 import pl.czyzlowie.modules.imgw.repository.ImgwMeteoStationRepository;
 
@@ -29,7 +29,7 @@ public class ImgwMeteoFetchService extends AbstractImgwFetchService<ImgwMeteoRes
     private final ImgwApiProperties properties;
     private final ImgwMeteoStationRepository stationRepo;
     private final ImgwMeteoDataRepository dataRepo;
-    private final ImgwMapper mapper;
+    private final ImgwMeteoMapper mapper;
 
     @Override
     protected List<ImgwMeteoResponseDto> fetchFromApi() {

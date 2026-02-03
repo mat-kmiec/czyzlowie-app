@@ -10,7 +10,7 @@ import pl.czyzlowie.modules.imgw.client.dto.ImgwSynopResponseDto;
 import pl.czyzlowie.modules.imgw.config.ImgwApiProperties;
 import pl.czyzlowie.modules.imgw.entity.ImgwSynopData;
 import pl.czyzlowie.modules.imgw.entity.ImgwSynopStation;
-import pl.czyzlowie.modules.imgw.mapper.ImgwMapper;
+import pl.czyzlowie.modules.imgw.mapper.ImgwSynopMapper;
 import pl.czyzlowie.modules.imgw.repository.ImgwSynopDataRepository;
 import pl.czyzlowie.modules.imgw.repository.ImgwSynopStationRepository;
 
@@ -29,7 +29,7 @@ public class ImgwSynopFetchService extends AbstractImgwFetchService<ImgwSynopRes
     private final ImgwApiProperties properties;
     private final ImgwSynopStationRepository stationRepo;
     private final ImgwSynopDataRepository dataRepo;
-    private final ImgwMapper mapper;
+    private final ImgwSynopMapper mapper;
 
     @Override
     protected List<ImgwSynopResponseDto> fetchFromApi() {
