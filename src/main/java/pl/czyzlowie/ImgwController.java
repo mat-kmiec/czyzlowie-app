@@ -5,14 +5,15 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import pl.czyzlowie.modules.imgw.service.ImgwFetchService;
+import pl.czyzlowie.modules.imgw.service.ImgwFetchFacade;
+
 
 @RestController
 @RequestMapping("/api/imgw")
 @RequiredArgsConstructor
 public class ImgwController {
 
-    private final ImgwFetchService fetchService;
+    private final ImgwFetchFacade fetchService;
 
     @PostMapping("/synop")
     public ResponseEntity<String> updateSynop() {

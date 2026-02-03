@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import pl.czyzlowie.modules.imgw.utils.ImgwDateUtils;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -74,4 +75,12 @@ public class ImgwMeteoData {
 
     @Column(name = "created_at", insertable = false, updatable = false)
     private LocalDateTime createdAt;
+
+    public boolean isNewerThan(ImgwMeteoData other) {
+        if (other == null) return true;
+        return ImgwDateUtils.isDateChanged(other.getAirTempTime(), this.getAirTempTime()) ||
+                ImgwDateUtils.isDateChanged(other.getWindMeasurementTime(), this.getWindMeasurementTime()) ||
+                ImgwDateUtils.isDateChanged(other.getPrecipitation10minTime(), this.getPrecipitation10minTime()) ||
+                ImgwDateUtils.isDateChanged(other.getWindGust10minTime(), this.getWindGust10minTime());
+    }
 }

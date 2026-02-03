@@ -46,9 +46,8 @@ management:
       enabled: false
 
 
-external-api:
-  imgw:
-    meteo-url: https://danepubliczne.imgw.pl/api/data/synop
+imgw:
+  api:
+    meteo-url: https://danepubliczne.imgw.pl/api/data/meteo
+    synop-url: https://danepubliczne.imgw.pl/api/data/synop
     hydro-url: https://danepubliczne.imgw.pl/api/data/hydro
-    timeout-ms: 5000
-    retry-attempts: 3
