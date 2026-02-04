@@ -25,7 +25,6 @@ import java.util.stream.Collectors;
  * This class facilitates fetching data from an external source, mapping it to domain entities,
  * and storing it in the appropriate repositories. It also provides mechanisms to compare and
  * update meteorological data when newer information is available.
- *
  * This service extends the {@code AbstractImgwFetchService} class, leveraging its structure
  * for implementations specific to meteorological data use cases.
  */

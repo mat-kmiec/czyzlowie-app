@@ -9,12 +9,10 @@ import pl.czyzlowie.modules.imgw.repository.ImgwImportLogRepository;
 
 /**
  * Service responsible for managing import logs related to IMiGW (Polish Institute of
- * Meteorology and Water Management) data processing activities.
- *
+ * Meteorology and Water Management) data processing activities.*
  * This service provides functionality to record import operations for different data
  * types (e.g., METEO, HYDRO, SYNOP) by saving relevant log information into the
  * associated repository. It also includes structured logging to track these operations.
- *
  * The service interacts with the {@code ImgwImportLogRepository} to persist import log
  * entries and leverages the {@code ImgwImportType} to differentiate between the types
  * of data imports being logged. This ensures traceability and visibility into data-import
@@ -30,7 +28,6 @@ public class ImgwImportLogService {
 
     /**
      * Records an import operation with the specified type and count of records.
-     *
      * This method logs the import details and saves an import log entry into the repository.
      *
      * @param importType the type of the import, representing categories such as METEO, HYDRO, or SYNOP

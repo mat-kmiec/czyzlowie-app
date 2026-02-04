@@ -7,15 +7,12 @@ import lombok.Data;
  * Data Transfer Object (DTO) representing synoptic response data from the
  * IMGW service. This class is designed to map synoptic weather data returned
  * by the service into a structured Java object for easier access and manipulation.
- *
  * The fields within this class represent key weather measurements, including
  * station metadata, measurement time, temperature, wind details, humidity,
  * precipitation, and atmospheric pressure.
- *
  * Each field is annotated with {@code @JsonProperty}, allowing JSON properties
  * from the service response to be correctly mapped to their corresponding Java
  * fields during data deserialization.
- *
  * The class leverages Lombok's {@code @Data} annotation to generate common methods
  * such as getters, setters, equals, hashCode, and toString, promoting cleaner
  * and more concise code.

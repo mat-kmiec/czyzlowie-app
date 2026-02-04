@@ -13,7 +13,6 @@ import java.util.stream.Collectors;
  * data from an external API and synchronizing it with a database. The flow involves
  * fetching station data, mapping it to entities, and determining the need for updates
  * or new entries based on comparison with existing data.
- *
  * This class is designed to be extended by a concrete implementation that provides
  * specific mappings and repository logic for the data and station entities.
  *
@@ -40,7 +39,6 @@ public abstract class AbstractImgwFetchService<DTO, S, D> {
     /**
      * Fetches data from an external API and processes it by updating the database with new or updated
      * station and data records.
-     *
      * This method performs the following steps:
      * 1. Retrieves data from the external API. If no data is retrieved, logs a message and exits.
      * 2. Identifies station IDs from the retrieved data.
@@ -49,10 +47,8 @@ public abstract class AbstractImgwFetchService<DTO, S, D> {
      * 5. Retrieves the latest data for the affected stations from the database.
      * 6. For each data record, determines if it is newer than the currently recorded data in the database.
      * 7. Saves the new data in batch if there are any new records.
-     *
      * Logging is included at various stages of the process to provide traceability
      * and highlight significant actions, such as creating new stations and saving new data records.
-     *
      * The method is annotated with {@code @Transactional}, ensuring that all database operations
      * are executed within the same transaction, either entirely succeeding or entirely failing.
      */

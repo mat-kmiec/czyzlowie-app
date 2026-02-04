@@ -21,20 +21,13 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
- * A service responsible for fetching and processing synoptic data from the IMGW API.
- * This service extends the {@link AbstractImgwFetchService} to handle operations specific
- * to synoptic data and stations, including API data fetching, mapping, and repository interactions.
- *
- * The service utilizes the following components:
- * - {@link ImgwClient} for API communication.
- * - {@link ImgwApiProperties} for accessing configuration related to API URLs.
- * - {@link ImgwSynopStationRepository} for CRUD operations on synoptic weather stations.
- * - {@link ImgwSynopDataRepository} for CRUD operations on synoptic weather data.
- * - {@link ImgwSynopMapper} to map between DTOs and entities.
- *
- * Overrides abstract methods to implement functionality specific to synoptic data fetching,
- * including determining whether new data is more recent, mapping API responses to entities,
- * and persistently storing the resulting objects.
+ * Service class responsible for fetching and processing synoptic data from the IMGW API.
+ * This class extends {@link AbstractImgwFetchService} and provides the implementation details
+ * for handling synoptic data, including fetching data from the API, mapping it to entities,
+ * and managing updates within the application's database.
+ * The service uses the {@link ImgwClient} for API communication, and JpaRepositories
+ * for accessing and managing synoptic station and data entities in the database.
+ * Additionally, it employs the {@link ImgwSynopMapper} for DTO-to-entity mapping.
  */
 @Service
 @RequiredArgsConstructor
@@ -49,7 +42,6 @@ public class ImgwSynopFetchService extends AbstractImgwFetchService<ImgwSynopRes
 
     /**
      * Fetches a list of synoptic data from the IMGW API.
-     *
      * This method communicates with the IMGW API using the configured client
      * and retrieves a list of synoptic data DTOs based on the provided API URL.
      *
@@ -67,7 +59,6 @@ public class ImgwSynopFetchService extends AbstractImgwFetchService<ImgwSynopRes
     /**
      * Retrieves the latest synoptic data for the given set of station IDs and maps it to a dictionary
      * where the key is the station ID and the value is the corresponding synoptic data entity.
-     *
      * The method queries the database to fetch the most recent data for each station in the provided set.
      *
      * @param stationIds a set of station IDs for which the latest synoptic data should be retrieved
@@ -85,7 +76,6 @@ public class ImgwSynopFetchService extends AbstractImgwFetchService<ImgwSynopRes
 
     /**
      * Determines whether the new synoptic data is more recent compared to the last known data.
-     *
      * This method compares the measurement date and hour of the new data
      * with those of the last known data to establish if the new data represents
      * a more recent entry. If the last known data is null, the new data is considered newer.
@@ -114,7 +104,6 @@ public class ImgwSynopFetchService extends AbstractImgwFetchService<ImgwSynopRes
 
     /**
      * Extracts the station ID from the given entity.
-     *
      * This method retrieves the unique identifier of the station from the provided
      * {@link ImgwSynopStation} entity.
      *
@@ -124,19 +113,15 @@ public class ImgwSynopFetchService extends AbstractImgwFetchService<ImgwSynopRes
     @Override protected String getStationIdFromEntity(ImgwSynopStation station) { return station.getId(); }
 
     /**
-     * Maps the provided DTO object to an instance of {@link ImgwSynopStation}.
+     * Maps the provided {@link ImgwSynopResponseDto} to an {@link ImgwSynopStation} entity.
      *
-     * This method utilizes the mapper to transform the data transfer object into
-     * a corresponding entity representation.
-     *
-     * @param dto the {@link ImgwSynopResponseDto} object containing the data to be mapped
-     * @return an instance of {@link ImgwSynopStation} representing the mapped data
+     * @param dto the {@link ImgwSynopResponseDto} containing data about the station to be mapped
+     * @return an instance of {@link ImgwSynopStation} representing the mapped station
      */
     @Override protected ImgwSynopStation mapToStation(ImgwSynopResponseDto dto) { return mapper.toSynopStation(dto); }
 
     /**
      * Maps the provided DTO object to an instance of {@link ImgwSynopData}.
-     *
      * This method uses the {@link ImgwSynopMapper} to transform the data transfer object
      * into a corresponding entity representation.
      *
@@ -147,7 +132,6 @@ public class ImgwSynopFetchService extends AbstractImgwFetchService<ImgwSynopRes
 
     /**
      * Sets the station information for the given synoptic data entity.
-     *
      * This method associates the specified {@link ImgwSynopStation} with the provided
      * {@link ImgwSynopData} entity by assigning the station to the data object.
      *

@@ -22,25 +22,21 @@ import java.util.stream.Collectors;
 
 /**
  * Service responsible for fetching and processing hydrological data from the IMGW API.
- *
  * This class extends {@code AbstractImgwFetchService} to provide specific implementations
  * for working with hydrological data entities, including stations and measurement data.
  * It handles the fetching of data from an external API, mapping it to internal entities,
  * comparing it with the most recent stored data, and saving new or updated data to the database.
- *
  * Key Responsibilities:
  * - Fetch hydrological data from the IMGW API.
  * - Map API responses to internal DTOs and entities.
  * - Identify and persist new or updated station and data records.
  * - Leverage repositories for database interactions and manage transactions.
- *
  * Dependencies:
  * - {@code ImgwClient} for making HTTP requests to the external API.
  * - {@code ImgwApiProperties} for API URL configurations.
  * - {@code ImgwHydroStationRepository} for station entity persistence.
  * - {@code ImgwHydroDataRepository} for hydrological data entity persistence.
  * - {@code ImgwHydroMapper} for mapping between DTOs and entities.
- *
  * This service is constructed with Spring's Dependency Injection mechanism,
  * facilitated by the {@code @RequiredArgsConstructor} and {@code @Service} annotations.
  */
@@ -73,7 +69,6 @@ public class ImgwHydroFetchService extends AbstractImgwFetchService<ImgwHydroRes
 
     /**
      * Retrieves the latest hydrological data for a specified set of station IDs.
-     *
      * This method fetches the most recent data for the provided station identifiers
      * and constructs a map where the key is the station ID, and the value is
      * the corresponding {@code ImgwHydroData} entity.

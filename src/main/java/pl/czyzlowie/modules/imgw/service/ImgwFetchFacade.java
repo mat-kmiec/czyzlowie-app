@@ -9,7 +9,6 @@ import pl.czyzlowie.modules.imgw.entity.enums.ImgwImportType;
 /**
  * Facade class responsible for orchestrating the fetching and processing of
  * meteorological, hydrological, and synoptic data.
- *
  * This class consolidates operations for retrieving and processing various
  * data types by delegating to specific services for each type. It also
  * provides structured logging to improve traceability and facilitate debugging.
@@ -26,9 +25,8 @@ public class ImgwFetchFacade {
 
     /**
      * Fetches and processes meteorological, hydrological, and synoptic data sequentially.
-     *
      * This method acts as a unified entry point for orchestrating the fetching
-     * and processing of multiple types of environmental data. It sequentially
+     * and processing multiple types of environmental data. It sequentially
      * triggers the following operations:
      * <ul>
      * - Fetching and processing meteorological data via {@code fetchMeteo}
@@ -49,7 +47,6 @@ public class ImgwFetchFacade {
 
     /**
      * Fetches and processes meteorological data.
-     *
      * This method delegates the fetching and processing of data to the {@code meteoService}.
      * The number of processed records is logged and recorded using the {@code imgwImportLogService}
      * with the {@code METEO} import type. Structured logging is used to indicate
@@ -75,13 +72,11 @@ public class ImgwFetchFacade {
 
     /**
      * Fetches and processes synoptic data.
-     *
      * This method delegates the task of fetching and processing synoptic data
      * to the {@code synopService}. The total number of processed records is
      * logged and subsequently recorded using the {@code imgwImportLogService}
      * with the {@code SYNOP} import type.
-     *
-     * Structured logging is employed to mark the start and end of the operation
+     * Structured logging mark the start and end of the operation
      * for easier traceability and debugging.
      */
     public void fetchSynop() {
