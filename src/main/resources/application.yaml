@@ -12,11 +12,16 @@ spring:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
       ddl-auto: validate
-    show-sql: true
+    show-sql: false
     properties:
       hibernate:
+        jdbc:
+          batch_size: 50
+          order_inserts: true
+          order_updates: true
         format_sql: true
         highlight_sql: true
+        generate_statistics: true
 
   liquibase:
     change-log: classpath:db/changelog/db.changelog-master.xml
@@ -30,7 +35,7 @@ logging:
   level:
     pl.czyzlowie: DEBUG
     org.springframework.web: INFO
-    org.hibernate.SQL: DEBUG
+    org.hibernate.SQL: INFO
     liquibase: INFO
 
   docker:

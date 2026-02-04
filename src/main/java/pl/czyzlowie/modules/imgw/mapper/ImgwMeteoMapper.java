@@ -6,15 +6,36 @@ import pl.czyzlowie.modules.imgw.client.dto.ImgwMeteoResponseDto;
 import pl.czyzlowie.modules.imgw.entity.ImgwMeteoData;
 import pl.czyzlowie.modules.imgw.entity.ImgwMeteoStation;
 
+/**
+ * Mapper interface for converting between ImgwMeteoResponseDto, ImgwMeteoStation, and ImgwMeteoData objects.
+ * Uses ImgwTypeConverter for parsing and data transformation tasks.
+ * Implements field-level mapping and customization through MapStruct annotations.
+ */
 @Mapper(componentModel = "spring", uses = ImgwTypeConverter.class)
 public interface ImgwMeteoMapper {
 
+    /**
+     * Converts an instance of ImgwMeteoResponseDto to an instance of ImgwMeteoStation.
+     * Maps the fields in the source object to the corresponding fields in the target object,
+     * applying transformations where necessary (e.g., parsing numeric values).
+     *
+     * @param dto the ImgwMeteoResponseDto instance containing the source data for mapping
+     * @return an ImgwMeteoStation instance with fields mapped and transformed based on the source data
+     */
     @Mapping(target = "id", source = "stationId")
     @Mapping(target = "name", source = "stationName")
     @Mapping(target = "latitude", qualifiedByName = "parseDecimal")
     @Mapping(target = "longitude", qualifiedByName = "parseDecimal")
     ImgwMeteoStation toMeteoStation(ImgwMeteoResponseDto dto);
 
+    /**
+     * Maps an instance of ImgwMeteoResponseDto to an instance of ImgwMeteoData.
+     * Field values from the input object are converted and assigned to the corresponding
+     * fields in the output object based on predefined mappings and converters.
+     *
+     * @param dto the ImgwMeteoResponseDto instance containing the source data for mapping
+     * @return an ImgwMeteoData instance containing the mapped data
+     */
     @Mapping(target = "airTemp", qualifiedByName = "parseDecimal")
     @Mapping(target = "airTempTime", qualifiedByName = "parseDateTime")
     @Mapping(target = "groundTemp", qualifiedByName = "parseDecimal")

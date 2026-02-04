@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="v2-create-sequences-for-batching" author="mateusz kmiec">
+
+        <createSequence sequenceName="imgw_hydro_data_seq" dataType="bigint" incrementBy="50" startValue="1"/>
+        <sql dbms="postgresql">
+            SELECT setval('imgw_hydro_data_seq', COALESCE((SELECT MAX(id) FROM imgw_hydro_data), 0) + 100);
+        </sql>
+
+        <createSequence sequenceName="imgw_meteo_data_seq" dataType="bigint" incrementBy="50" startValue="1"/>
+        <sql dbms="postgresql">
+            SELECT setval('imgw_meteo_data_seq', COALESCE((SELECT MAX(id) FROM imgw_meteo_data), 0) + 100);
+        </sql>
+
+        <createSequence sequenceName="imgw_synop_data_seq" dataType="bigint" incrementBy="50" startValue="1"/>
+        <sql dbms="postgresql">
+            SELECT setval('imgw_synop_data_seq', COALESCE((SELECT MAX(id) FROM imgw_synop_data), 0) + 100);
+        </sql>
+
+    </changeSet>
+</databaseChangeLog>

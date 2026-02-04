@@ -19,7 +19,8 @@ import java.time.LocalDateTime;
 public class ImgwSynopData {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "hydro_seq_gen")
+    @SequenceGenerator(name = "hydro_seq_gen", sequenceName = "imgw_hydro_data_seq", allocationSize = 50)
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)

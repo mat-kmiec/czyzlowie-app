@@ -14,6 +14,13 @@ import java.util.Optional;
 public interface ImgwHydroDataRepository extends JpaRepository<ImgwHydroData, Long> {
     Optional<ImgwHydroData> findTopByStationIdOrderByIdDesc(String stationId);
 
+    /**
+     * Retrieves the latest data entries for a collection of station IDs. The latest data is determined
+     * by the highest ID for each station.
+     *
+     * @param stationIds a collection of station IDs for which the latest data is to be fetched
+     * @return a list of {@code ImgwHydroData} objects representing the latest data for the specified stations
+     */
     @Query("SELECT d FROM ImgwHydroData d " +
             "WHERE d.id IN (" +
             "    SELECT MAX(d2.id) FROM ImgwHydroData d2 " +
