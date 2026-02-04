@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="v2-create-hybrid-weather-forecast" author="mateusz kmiec">
+        <createTable tableName="weather_forecast">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+
+            <column name="forecast_time" type="timestamp">
+                <constraints nullable="false"/>
+            </column>
+            <column name="fetched_at" type="timestamp" defaultValueComputed="CURRENT_TIMESTAMP"/>
+
+            <column name="synop_station_id" type="varchar(20)">
+                <constraints foreignKeyName="fk_forecast_synop"
+                             referencedTableName="imgw_synop_stations"
+                             referencedColumnNames="id"
+                             deleteCascade="true"/>
+            </column>
+
+            <column name="virtual_station_id" type="varchar(20)">
+                <constraints foreignKeyName="fk_forecast_virtual"
+                             referencedTableName="virtual_stations"
+                             referencedColumnNames="id"
+                             deleteCascade="true"/>
+            </column>
+
+            <column name="temp_c" type="decimal(4,1)" />
+            <column name="apparent_temp_c" type="decimal(4,1)" />
+            <column name="pressure_hpa" type="decimal(6,1)" />
+            <column name="wind_speed_kmh" type="decimal(5,1)" />
+            <column name="wind_gusts_kmh" type="decimal(5,1)" />
+            <column name="wind_dir_deg" type="integer" />
+            <column name="rain_mm" type="decimal(6,2)" />
+            <column name="cloud_cover_pct" type="integer" />
+            <column name="weather_code" type="integer" />
+            <column name="uv_index" type="decimal(4,2)" />
+        </createTable>
+
+        <createIndex tableName="weather_forecast" indexName="idx_uq_forecast_synop" unique="true">
+            <column name="synop_station_id"/>
+            <column name="forecast_time"/>
+        </createIndex>
+
+        <createIndex tableName="weather_forecast" indexName="idx_uq_forecast_virtual" unique="true">
+            <column name="virtual_station_id"/>
+            <column name="forecast_time"/>
+        </createIndex>
+
+    </changeSet>
+    <changeSet id="v2-add-forecast-check-constraint" author="mateusz kmiec">
+        <sql dbms="postgresql" splitStatements="false">
+            <![CDATA[
+            ALTER TABLE weather_forecast
+                ADD CONSTRAINT chk_forecast_owner
+                    CHECK (
+                        (synop_station_id IS NOT NULL AND virtual_station_id IS NULL)
+                            OR
+                        (synop_station_id IS NULL AND virtual_station_id IS NOT NULL)
+                        );
+            ]]>
+        </sql>
+    </changeSet>
+</databaseChangeLog>
