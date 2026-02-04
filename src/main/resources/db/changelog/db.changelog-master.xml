@@ -11,5 +11,6 @@
     <include file="db/changelog/releases/v1-0-0/04-social-schema.xml"/>
     <include file="db/changelog/releases/v1-0-0/05-constraints.xml"/>
     <include file="db/changelog/releases/v1-0-0/06-create-sequences-for-batching.xml"/>
+    <include file="db/changelog/releases/v1-0-0/07-create-imgw-import-logs.xml"/>
 
 </databaseChangeLog>

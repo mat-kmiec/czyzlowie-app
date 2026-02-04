@@ -57,11 +57,11 @@ public abstract class AbstractImgwFetchService<DTO, S, D> {
      * are executed within the same transaction, either entirely succeeding or entirely failing.
      */
     @Transactional
-    public void fetchAndProcess() {
+    public int fetchAndProcess() {
         List<DTO> dtos = fetchFromApi();
         if (dtos == null || dtos.isEmpty()) {
             log.info("Brak danych z API.");
-            return;
+            return 0;
         }
 
         Set<String> affectedStationIds = dtos.stream()
@@ -117,8 +117,10 @@ public abstract class AbstractImgwFetchService<DTO, S, D> {
         if (!entitiesToSave.isEmpty()) {
             getDataRepository().saveAll(entitiesToSave);
             log.info("Zapisano {} nowych rekordów (Batch).", entitiesToSave.size());
+            return entitiesToSave.size();
         } else {
             log.info("Brak nowych danych do zapisu.");
+            return 0;
         }
     }
 }
