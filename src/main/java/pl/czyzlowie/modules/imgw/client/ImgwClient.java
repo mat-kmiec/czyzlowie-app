@@ -28,3 +28,8 @@ public class ImgwClient {
         }
     }
 }
+
+
+https://api.open-meteo.com/v1/forecast?
+// latitude=52.22&longitude=21.01&
+// current=temperature_2m,apparent_temperature,surface_pressure,wind_speed_10m,wind_gusts_10m,wind_direction_10m,cloud_cover,rain,weather_code&hourly=temperature_2m,apparent_temperature,surface_pressure,rain,weather_code,wind_speed_10m,wind_gusts_10m,wind_direction_10m,uv_index&daily=sunrise,sunset,uv_index_max&forecast_days=4&timezone=Europe%2FWarsaw
