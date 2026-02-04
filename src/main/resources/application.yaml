@@ -56,3 +56,10 @@ imgw:
     meteo-url: https://danepubliczne.imgw.pl/api/data/meteo
     synop-url: https://danepubliczne.imgw.pl/api/data/synop
     hydro-url: https://danepubliczne.imgw.pl/api/data/hydro
+  scheduler:
+    # Meteo: 10 min
+    meteo-rate: 600000
+    # Hydro: 15 min
+    hydro-rate: 900000
+    # Synop: 60min
+    synop-rate: 3600000
