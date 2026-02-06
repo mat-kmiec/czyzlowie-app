@@ -5,6 +5,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import pl.czyzlowie.modules.forecast.service.VirtualStationDataService;
 import pl.czyzlowie.modules.forecast.service.WeatherForecastService;
 
 @RestController
@@ -13,6 +14,7 @@ import pl.czyzlowie.modules.forecast.service.WeatherForecastService;
 public class ForecastController {
 
     private final WeatherForecastService forecastService;
+    private final VirtualStationDataService virtualStationDataService;
 
     /**
      * Ręczne wyzwolenie aktualizacji prognoz.
@@ -20,9 +22,15 @@ public class ForecastController {
      */
     @PostMapping("/update")
     public ResponseEntity<String> updateForecasts() {
-        // Ta metoda uruchamia logikę "Smart Update" (Batch) dla wszystkich stacji
         forecastService.updateAllForecasts();
 
         return ResponseEntity.ok("Zlecono aktualizację prognoz pogody (Open-Meteo).");
+    }
+
+    @PostMapping("/update-hour")
+    public ResponseEntity<String> updateHourForecasts() {
+        virtualStationDataService.fetchAndSaveCurrentData();
+
+        return ResponseEntity.ok("Zlecono aktualizację prognozy godzinowej dla stacji wirtualnych pogody (Open-Meteo).");
     }
 }

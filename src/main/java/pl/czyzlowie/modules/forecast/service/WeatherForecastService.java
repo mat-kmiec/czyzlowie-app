@@ -1,5 +1,10 @@
 package pl.czyzlowie.modules.forecast.service;
 
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import pl.czyzlowie.modules.forecast.client.OpenMeteoClient;
 import pl.czyzlowie.modules.forecast.client.dto.OpenMeteoResponse;
 import pl.czyzlowie.modules.forecast.entity.VirtualStation;
@@ -9,11 +14,6 @@ import pl.czyzlowie.modules.forecast.repository.VirtualStationRepository;
 import pl.czyzlowie.modules.forecast.repository.WeatherForecastRepository;
 import pl.czyzlowie.modules.imgw.entity.ImgwSynopStation;
 import pl.czyzlowie.modules.imgw.repository.ImgwSynopStationRepository;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -37,10 +37,11 @@ public class WeatherForecastService {
     @Value("${forecast.api.url}")
     private String urlTemplate;
 
+    private static final String HOURLY_PARAMS = "&hourly=temperature_2m,apparent_temperature,rain,weather_code,cloud_cover,wind_speed_10m,wind_direction_10m,wind_gusts_10m,surface_pressure,uv_index&daily=sunrise,sunset,uv_index_max&timezone=Europe/Warsaw";
 
     @Transactional
     public void updateAllForecasts() {
-        log.info("START: Aktualizacja prognoz pogody...");
+        log.info("START: Aktualizacja prognoz pogody (Hourly)...");
 
         List<ImgwSynopStation> synopStations = synopStationRepository.findAllByIsActiveTrue();
         log.info("Pobieram prognozę dla {} stacji IMGW Synop", synopStations.size());
@@ -59,51 +60,57 @@ public class WeatherForecastService {
 
     private void updateForecastForSynop(ImgwSynopStation station) {
         try {
-            String url = String.format(urlTemplate, station.getLatitude(), station.getLongitude());
-
-            Optional<OpenMeteoResponse> responseOpt = openMeteoClient.fetchData(url, OpenMeteoResponse.class);
+            String baseUrl = String.format(urlTemplate, station.getLatitude(), station.getLongitude());
+            String fullUrl = baseUrl + HOURLY_PARAMS;
+            Optional<OpenMeteoResponse> responseOpt = openMeteoClient.fetchData(fullUrl, OpenMeteoResponse.class);
             if (responseOpt.isEmpty()) return;
 
             List<WeatherForecast> incomingForecasts = mapper.toSynopForecasts(responseOpt.get(), station);
             if (incomingForecasts.isEmpty()) return;
 
-            LocalDateTime start = incomingForecasts.get(0).getForecastTime();
-            LocalDateTime end = incomingForecasts.get(incomingForecasts.size() - 1).getForecastTime();
-
-            List<WeatherForecast> existingForecasts = forecastRepository
-                    .findBySynopStation_IdAndForecastTimeBetweenOrderByForecastTimeAsc(station.getId(), start, end);
-
-            performSmartMerge(existingForecasts, incomingForecasts);
+            processForecastMerge(incomingForecasts, station.getId(), true);
 
         } catch (Exception e) {
             log.error("Błąd aktualizacji prognozy dla stacji Synop: {} (ID: {})", station.getName(), station.getId(), e);
         }
     }
+
     private void updateForecastForVirtual(VirtualStation station) {
         try {
-            String url = String.format(urlTemplate, station.getLatitude(), station.getLongitude());
+            String baseUrl = String.format(urlTemplate, station.getLatitude(), station.getLongitude());
+            String fullUrl = baseUrl + HOURLY_PARAMS;
 
-            Optional<OpenMeteoResponse> responseOpt = openMeteoClient.fetchData(url, OpenMeteoResponse.class);
+            Optional<OpenMeteoResponse> responseOpt = openMeteoClient.fetchData(fullUrl, OpenMeteoResponse.class);
             if (responseOpt.isEmpty()) return;
 
             List<WeatherForecast> incomingForecasts = mapper.toVirtualForecasts(responseOpt.get(), station);
             if (incomingForecasts.isEmpty()) return;
 
-            LocalDateTime start = incomingForecasts.get(0).getForecastTime();
-            LocalDateTime end = incomingForecasts.get(incomingForecasts.size() - 1).getForecastTime();
-
-            List<WeatherForecast> existingForecasts = forecastRepository
-                    .findByVirtualStation_IdAndForecastTimeBetweenOrderByForecastTimeAsc(station.getId(), start, end);
-
-            performSmartMerge(existingForecasts, incomingForecasts);
+            processForecastMerge(incomingForecasts, station.getId(), false);
 
         } catch (Exception e) {
             log.error("Błąd aktualizacji prognozy dla stacji Virtual: {} (ID: {})", station.getName(), station.getId(), e);
         }
     }
 
-    private void performSmartMerge(List<WeatherForecast> existingList, List<WeatherForecast> incomingList) {
+    private void processForecastMerge(List<WeatherForecast> incomingForecasts, String stationId, boolean isSynop) {
+        LocalDateTime start = incomingForecasts.get(0).getForecastTime();
+        LocalDateTime end = incomingForecasts.get(incomingForecasts.size() - 1).getForecastTime();
 
+        List<WeatherForecast> existingForecasts;
+
+        if (isSynop) {
+            existingForecasts = forecastRepository
+                    .findBySynopStation_IdAndForecastTimeBetweenOrderByForecastTimeAsc(stationId, start, end);
+        } else {
+            existingForecasts = forecastRepository
+                    .findByVirtualStation_IdAndForecastTimeBetweenOrderByForecastTimeAsc(stationId, start, end);
+        }
+
+        performSmartMerge(existingForecasts, incomingForecasts);
+    }
+
+    private void performSmartMerge(List<WeatherForecast> existingList, List<WeatherForecast> incomingList) {
         Map<LocalDateTime, WeatherForecast> dbMap = existingList.stream()
                 .collect(Collectors.toMap(WeatherForecast::getForecastTime, Function.identity()));
 

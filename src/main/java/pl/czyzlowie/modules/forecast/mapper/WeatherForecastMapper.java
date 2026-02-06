@@ -1,14 +1,17 @@
 package pl.czyzlowie.modules.forecast.mapper;
 
+import pl.czyzlowie.modules.forecast.client.dto.OpenMeteoLightResponse;
 import pl.czyzlowie.modules.forecast.client.dto.OpenMeteoResponse;
 import org.mapstruct.Mapper;
 import org.mapstruct.ReportingPolicy;
 import pl.czyzlowie.modules.forecast.entity.VirtualStation;
+import pl.czyzlowie.modules.forecast.entity.VirtualStationData;
 import pl.czyzlowie.modules.forecast.entity.WeatherForecast;
 import pl.czyzlowie.modules.imgw.entity.ImgwSynopStation;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -99,5 +102,35 @@ public interface WeatherForecastMapper {
         }
 
         return list;
+    }
+
+    default VirtualStationData toVirtualStationData(OpenMeteoLightResponse dto, VirtualStation station) {
+        if (dto == null || dto.getCurrent() == null) {
+            return null;
+        }
+
+        var current = dto.getCurrent();
+        VirtualStationData entity = new VirtualStationData();
+        entity.setVirtualStation(station);
+        entity.setFetchedAt(LocalDateTime.now());
+
+        if (current.getTime() != null) {
+            LocalDateTime apiTime = LocalDateTime.parse(current.getTime(), ISO_FORMATTER);
+            entity.setMeasurementTime(apiTime.truncatedTo(ChronoUnit.HOURS));
+        } else {
+            entity.setMeasurementTime(LocalDateTime.now().truncatedTo(ChronoUnit.HOURS));
+        }
+
+        if (current.getTemperature() != null) entity.setTemperature(BigDecimal.valueOf(current.getTemperature()));
+        if (current.getPressure() != null) entity.setPressure(BigDecimal.valueOf(current.getPressure()));
+        if (current.getWindSpeed() != null) entity.setWindSpeed(BigDecimal.valueOf(current.getWindSpeed()));
+        if (current.getWindGusts() != null) entity.setWindGusts(BigDecimal.valueOf(current.getWindGusts()));
+        if (current.getWindDirection() != null) entity.setWindDirection(current.getWindDirection());
+        if (current.getRain() != null) entity.setRain(BigDecimal.valueOf(current.getRain()));
+        if (current.getWeatherCode() != null) entity.setWeatherCode(current.getWeatherCode());
+        if (current.getApparentTemperature() != null) entity.setApparentTemperature(BigDecimal.valueOf(current.getApparentTemperature()));
+        if (current.getHumidity() != null) entity.setHumidity(BigDecimal.valueOf(current.getHumidity()));
+
+        return entity;
     }
 }

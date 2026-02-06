@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="create-virtual-station-data-table" author="mateusz kmiec">
+        <createTable tableName="virtual_station_data">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="virtual_station_id" type="VARCHAR(20)">
+                <constraints nullable="false" foreignKeyName="fk_vsd_station" references="virtual_stations(id)"/>
+            </column>
+            <column name="measurement_time" type="DATETIME">
+                <constraints nullable="false"/>
+            </column>
+            <column name="fetched_at" type="DATETIME"/>
+
+            <column name="temp_c" type="DECIMAL(5,2)"/>
+            <column name="apparent_temp_c" type="DECIMAL(5,2)"/>
+            <column name="pressure_hpa" type="DECIMAL(6,2)"/>
+            <column name="wind_speed_kmh" type="DECIMAL(5,2)"/>
+            <column name="wind_gusts_kmh" type="DECIMAL(5,2)"/>
+            <column name="wind_dir_deg" type="INT"/>
+            <column name="rain_mm" type="DECIMAL(5,2)"/>
+            <column name="weather_code" type="INT"/>
+
+            <column name="humidity_pct" type="DECIMAL(5,2)"/>
+        </createTable>
+
+        <createIndex tableName="virtual_station_data" indexName="idx_vsd_station_time" unique="true">
+            <column name="virtual_station_id"/>
+            <column name="measurement_time"/>
+        </createIndex>
+    </changeSet>
+</databaseChangeLog>
