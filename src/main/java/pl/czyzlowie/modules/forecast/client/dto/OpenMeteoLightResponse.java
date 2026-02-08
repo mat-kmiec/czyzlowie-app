@@ -42,7 +42,6 @@ public class OpenMeteoLightResponse {
         @JsonProperty("weather_code")
         private Integer weatherCode;
 
-        // To opcjonalne, IMGW tego nie ma wprost, ale warto mieć odczuwalną
         @JsonProperty("apparent_temperature")
         private Double apparentTemperature;
     }

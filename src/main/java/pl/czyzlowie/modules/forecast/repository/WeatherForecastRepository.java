@@ -5,6 +5,7 @@ import org.springframework.stereotype.Repository;
 import pl.czyzlowie.modules.forecast.entity.WeatherForecast;
 
 import java.time.LocalDateTime;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -24,4 +25,9 @@ public interface WeatherForecastRepository extends JpaRepository<WeatherForecast
 
     Optional<WeatherForecast> findByVirtualStation_IdAndForecastTime(String stationId, LocalDateTime forecastTime);
 
+    List<WeatherForecast> findAllBySynopStationIdInAndForecastTimeBetween(
+            Collection<String> stationIds, LocalDateTime start, LocalDateTime end);
+
+    List<WeatherForecast> findAllByVirtualStationIdInAndForecastTimeBetween(
+            Collection<String> stationIds, LocalDateTime start, LocalDateTime end);
 }

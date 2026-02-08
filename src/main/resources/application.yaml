@@ -65,4 +65,4 @@ imgw:
     synop-rate: 3600000
 forecast:
   api:
-    url: "https://api.open-meteo.com/v1/forecast?latitude=%s&longitude=%s"
+    url: "https://api.open-meteo.com/v1/forecast"
