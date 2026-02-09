@@ -12,18 +12,6 @@ import java.util.Optional;
 @Repository
 public interface WeatherForecastRepository extends JpaRepository<WeatherForecast, Long> {
 
-    List<WeatherForecast> findBySynopStation_IdAndForecastTimeBetweenOrderByForecastTimeAsc(
-            String stationId, LocalDateTime start, LocalDateTime end
-    );
-
-    List<WeatherForecast> findByVirtualStation_IdAndForecastTimeBetweenOrderByForecastTimeAsc(
-            String stationId, LocalDateTime start, LocalDateTime end
-    );
-
-
-    Optional<WeatherForecast> findBySynopStation_IdAndForecastTime(String stationId, LocalDateTime forecastTime);
-
-    Optional<WeatherForecast> findByVirtualStation_IdAndForecastTime(String stationId, LocalDateTime forecastTime);
 
     List<WeatherForecast> findAllBySynopStationIdInAndForecastTimeBetween(
             Collection<String> stationIds, LocalDateTime start, LocalDateTime end);

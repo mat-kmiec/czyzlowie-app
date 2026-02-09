@@ -15,11 +15,9 @@ import pl.czyzlowie.modules.forecast.repository.VirtualStationDataRepository;
 import pl.czyzlowie.modules.forecast.repository.VirtualStationRepository;
 
 import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
-import java.util.concurrent.CompletableFuture;
+import java.util.*;
+import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
 @Service
@@ -27,14 +25,22 @@ import java.util.stream.Collectors;
 @Slf4j
 public class VirtualStationDataService {
 
+    private static final int BATCH_SIZE = 7;
+    private static final long RATE_LIMIT_PAUSE_MS = 1100L;
+
+    private static final String API_PARAMS = "temperature_2m,apparent_temperature,rain,weather_code," +
+            "wind_speed_10m,wind_direction_10m,wind_gusts_10m," +
+            "surface_pressure,relative_humidity_2m";
+    private static final String TIMEZONE = "Europe/Warsaw";
+
     private final VirtualStationRepository virtualStationRepository;
     private final VirtualStationDataRepository virtualStationDataRepository;
     private final OpenMeteoClient openMeteoClient;
     private final WeatherForecastMapper mapper;
+    private final ExecutorService taskExecutor = Executors.newFixedThreadPool(4);
 
     @Value("${forecast.api.url}")
     private String apiUrl;
-
 
     public void fetchAndSaveCurrentData() {
         log.info("START: Pobieranie danych bieżących (Light)...");
@@ -45,60 +51,107 @@ public class VirtualStationDataService {
             return;
         }
 
-        List<VirtualStationData> fetchedData = stations.stream()
-                .map(station -> CompletableFuture.supplyAsync(() -> fetchDataFromApi(station)))
-                .toList()
-                .stream()
-                .map(CompletableFuture::join)
-                .filter(Objects::nonNull)
-                .toList();
+        AtomicBoolean criticalErrorOccurred = new AtomicBoolean(false);
 
-        if (fetchedData.isEmpty()) {
-            log.warn("Nie udało się pobrać danych dla żadnej stacji.");
-            return;
+        List<List<VirtualStation>> batches = splitIntoBatches(stations, BATCH_SIZE);
+        log.info("Plan: {} stacji podzielono na {} paczek.", stations.size(), batches.size());
+
+        for (int i = 0; i < batches.size(); i++) {
+            if (criticalErrorOccurred.get()) {
+                log.warn("ABORT: Wykryto błąd krytyczny. Przerywam pobieranie pozostałych paczek.");
+                break;
+            }
+
+            long startBatch = System.currentTimeMillis();
+            List<VirtualStation> batch = batches.get(i);
+            List<VirtualStationData> fetchedData = fetchBatch(batch, criticalErrorOccurred);
+
+            if (!fetchedData.isEmpty() && !criticalErrorOccurred.get()) {
+                saveNewDataOnly(fetchedData);
+            }
+
+            if (i < batches.size() - 1 && !criticalErrorOccurred.get()) {
+                enforceRateLimit(startBatch);
+            }
         }
 
-        saveNewDataOnly(fetchedData);
+        if (!criticalErrorOccurred.get()) {
+            log.info("KONIEC: Pobieranie danych bieżących zakończone sukcesem.");
+        }
+    }
+
+    private List<VirtualStationData> fetchBatch(List<VirtualStation> batch, AtomicBoolean errorFlag) {
+        List<CompletableFuture<VirtualStationData>> futures = batch.stream()
+                .map(station -> CompletableFuture.supplyAsync(() -> {
+                    if (errorFlag.get()) return null;
+
+                    try {
+                        String url = buildUrl(station);
+                        // Mapper.toVirtualStationData tworzy nowy obiekt (nie potrzebujemy update'u)
+                        return openMeteoClient.fetchData(url, OpenMeteoLightResponse.class)
+                                .map(response -> mapper.toVirtualStationData(response, station))
+                                .orElse(null);
+                    } catch (Exception e) {
+                        log.error("API ERROR dla stacji '{}': {}. Ustawiam flagę CRITICAL.", station.getName(), e.getMessage());
+                        errorFlag.set(true);
+                        throw new CompletionException(e);
+                    }
+                }, taskExecutor))
+                .toList();
+
+        try {
+            return futures.stream()
+                    .map(CompletableFuture::join)
+                    .filter(Objects::nonNull)
+                    .toList();
+        } catch (Exception e) {
+            log.error("Błąd podczas przetwarzania paczki: {}", e.getMessage());
+            errorFlag.set(true);
+            return Collections.emptyList();
+        }
     }
 
     @Transactional
     protected void saveNewDataOnly(List<VirtualStationData> fetchedData) {
-        Set<LocalDateTime> measurementTimes = fetchedData.stream()
+        if (fetchedData.isEmpty()) return;
+
+        Set<String> stationIds = fetchedData.stream()
+                .map(d -> d.getVirtualStation().getId())
+                .collect(Collectors.toSet());
+
+        Set<LocalDateTime> times = fetchedData.stream()
                 .map(VirtualStationData::getMeasurementTime)
                 .collect(Collectors.toSet());
 
-        Set<String> existingKeys = new HashSet<>();
-        for (LocalDateTime time : measurementTimes) {
-            Set<String> existingIds = virtualStationDataRepository.findStationIdsByMeasurementTime(time);
-            existingIds.forEach(id -> existingKeys.add(generateKey(id, time)));
-        }
+        List<VirtualStationData> existingData = virtualStationDataRepository
+                .findAllByVirtualStationIdInAndMeasurementTimeIn(stationIds, times);
+
+        Set<String> existingKeys = existingData.stream()
+                .map(this::generateUniqueKey)
+                .collect(Collectors.toSet());
 
         List<VirtualStationData> toSave = fetchedData.stream()
-                .filter(data -> {
-                    String key = generateKey(data.getVirtualStation().getId(), data.getMeasurementTime());
-                    return !existingKeys.contains(key);
-                })
+                .filter(data -> !existingKeys.contains(generateUniqueKey(data)))
                 .toList();
 
         if (!toSave.isEmpty()) {
             virtualStationDataRepository.saveAll(toSave);
-            log.info("SUKCES: Zapisano {} nowych pomiarów dla czasów: {}.", toSave.size(), measurementTimes);
+            log.info("Zapisano {} nowych pomiarów.", toSave.size());
         } else {
-            log.info("SKIP: Wszystkie pobrane dane już istnieją w bazie.");
+            // log.debug("Brak nowych danych do zapisu.");
         }
     }
 
-    private VirtualStationData fetchDataFromApi(VirtualStation station) {
-        try {
-            String url = buildUrl(station);
-            return openMeteoClient.fetchData(url, OpenMeteoLightResponse.class)
-                    .map(response -> mapper.toVirtualStationData(response, station))
-                    .orElse(null);
+    private void enforceRateLimit(long startBatchTime) {
+        long elapsed = System.currentTimeMillis() - startBatchTime;
+        long sleepTime = RATE_LIMIT_PAUSE_MS - elapsed;
 
-        } catch (Exception e) {
-            log.error("Błąd pobierania danych dla stacji '{}' (ID: {}): {}",
-                    station.getName(), station.getId(), e.getMessage());
-            return null;
+        if (sleepTime > 0) {
+            try {
+                Thread.sleep(sleepTime);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
         }
     }
 
@@ -106,15 +159,21 @@ public class VirtualStationDataService {
         return UriComponentsBuilder.fromUriString(apiUrl)
                 .queryParam("latitude", station.getLatitude())
                 .queryParam("longitude", station.getLongitude())
-                .queryParam("current", "temperature_2m,apparent_temperature,rain,weather_code," +
-                        "wind_speed_10m,wind_direction_10m,wind_gusts_10m," +
-                        "surface_pressure,relative_humidity_2m")
-                .queryParam("timezone", "Europe/Warsaw")
+                .queryParam("current", API_PARAMS)
+                .queryParam("timezone", TIMEZONE)
                 .build()
                 .toUriString();
     }
 
-    private String generateKey(String stationId, LocalDateTime time) {
-        return stationId + "_" + time;
+    private String generateUniqueKey(VirtualStationData data) {
+        return data.getVirtualStation().getId() + "|" + data.getMeasurementTime();
+    }
+
+    private <T> List<List<T>> splitIntoBatches(List<T> list, int size) {
+        List<List<T>> batches = new ArrayList<>();
+        for (int i = 0; i < list.size(); i += size) {
+            batches.add(list.subList(i, Math.min(i + size, list.size())));
+        }
+        return batches;
     }
 }

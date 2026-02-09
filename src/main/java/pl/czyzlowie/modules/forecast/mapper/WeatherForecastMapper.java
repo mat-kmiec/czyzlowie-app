@@ -1,13 +1,16 @@
 package pl.czyzlowie.modules.forecast.mapper;
 
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
+import org.mapstruct.ReportingPolicy;
 import pl.czyzlowie.modules.forecast.client.dto.OpenMeteoLightResponse;
 import pl.czyzlowie.modules.forecast.client.dto.OpenMeteoResponse;
-import org.mapstruct.Mapper;
-import org.mapstruct.ReportingPolicy;
 import pl.czyzlowie.modules.forecast.entity.VirtualStation;
 import pl.czyzlowie.modules.forecast.entity.VirtualStationData;
 import pl.czyzlowie.modules.forecast.entity.WeatherForecast;
 import pl.czyzlowie.modules.imgw.entity.ImgwSynopStation;
+
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -20,6 +23,12 @@ import java.util.List;
 public interface WeatherForecastMapper {
 
     DateTimeFormatter ISO_FORMATTER = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
+
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "synopStation", ignore = true)
+    @Mapping(target = "virtualStation", ignore = true)
+    @Mapping(target = "forecastTime", ignore = true)
+    void updateForecast(@MappingTarget WeatherForecast target, WeatherForecast source);
 
     default List<WeatherForecast> toSynopForecasts(OpenMeteoResponse dto, ImgwSynopStation station) {
         List<WeatherForecast> forecasts = mapCommonData(dto);
@@ -41,62 +50,26 @@ public interface WeatherForecastMapper {
         var hourly = dto.getHourly();
         int size = hourly.getTime().size();
         List<WeatherForecast> list = new ArrayList<>(size);
+        LocalDateTime now = LocalDateTime.now();
 
         for (int i = 0; i < size; i++) {
             WeatherForecast entity = new WeatherForecast();
-
-            String timeStr = hourly.getTime().get(i);
+            String timeStr = getSafe(hourly.getTime(), i);
             if (timeStr != null) {
                 entity.setForecastTime(LocalDateTime.parse(timeStr, ISO_FORMATTER));
             }
-            entity.setFetchedAt(LocalDateTime.now());
+            entity.setFetchedAt(now);
+            entity.setTemperature(toBigDecimal(getSafe(hourly.getTemperature2m(), i)));
+            entity.setPressure(toBigDecimal(getSafe(hourly.getSurfacePressure(), i)));
+            entity.setWindSpeed(toBigDecimal(getSafe(hourly.getWindSpeed10m(), i)));
+            entity.setWindGusts(toBigDecimal(getSafe(hourly.getWindGusts10m(), i)));
+            entity.setRain(toBigDecimal(getSafe(hourly.getRain(), i)));
+            entity.setUvIndex(toBigDecimal(getSafe(hourly.getUvIndex(), i)));
+            entity.setApparentTemperature(toBigDecimal(getSafe(hourly.getApparentTemperature(), i)));
 
-            if (hourly.getTemperature2m() != null) {
-                Double val = hourly.getTemperature2m().get(i);
-                if (val != null) entity.setTemperature(BigDecimal.valueOf(val));
-            }
-
-            if (hourly.getSurfacePressure() != null) {
-                Double val = hourly.getSurfacePressure().get(i);
-                if (val != null) entity.setPressure(BigDecimal.valueOf(val));
-            }
-
-            if (hourly.getWindSpeed10m() != null) {
-                Double val = hourly.getWindSpeed10m().get(i);
-                if (val != null) entity.setWindSpeed(BigDecimal.valueOf(val));
-            }
-
-            if (hourly.getWindGusts10m() != null) {
-                Double val = hourly.getWindGusts10m().get(i);
-                if (val != null) entity.setWindGusts(BigDecimal.valueOf(val));
-            }
-
-            if (hourly.getRain() != null) {
-                Double val = hourly.getRain().get(i);
-                if (val != null) entity.setRain(BigDecimal.valueOf(val));
-            }
-
-            if (hourly.getUvIndex() != null) {
-                Double val = hourly.getUvIndex().get(i);
-                if (val != null) entity.setUvIndex(BigDecimal.valueOf(val));
-            }
-
-            if (hourly.getApparentTemperature() != null) {
-                Double val = hourly.getApparentTemperature().get(i);
-                if (val != null) entity.setApparentTemperature(BigDecimal.valueOf(val));
-            }
-
-            if (hourly.getWindDirection10m() != null) {
-                entity.setWindDirection(hourly.getWindDirection10m().get(i));
-            }
-
-            if (hourly.getCloudCover() != null) {
-                entity.setCloudCover(hourly.getCloudCover().get(i));
-            }
-
-            if (hourly.getWeatherCode() != null) {
-                entity.setWeatherCode(hourly.getWeatherCode().get(i));
-            }
+            entity.setWindDirection(getSafe(hourly.getWindDirection10m(), i));
+            entity.setCloudCover(getSafe(hourly.getCloudCover(), i));
+            entity.setWeatherCode(getSafe(hourly.getWeatherCode(), i));
 
             list.add(entity);
         }
@@ -121,16 +94,32 @@ public interface WeatherForecastMapper {
             entity.setMeasurementTime(LocalDateTime.now().truncatedTo(ChronoUnit.HOURS));
         }
 
-        if (current.getTemperature() != null) entity.setTemperature(BigDecimal.valueOf(current.getTemperature()));
-        if (current.getPressure() != null) entity.setPressure(BigDecimal.valueOf(current.getPressure()));
-        if (current.getWindSpeed() != null) entity.setWindSpeed(BigDecimal.valueOf(current.getWindSpeed()));
-        if (current.getWindGusts() != null) entity.setWindGusts(BigDecimal.valueOf(current.getWindGusts()));
-        if (current.getWindDirection() != null) entity.setWindDirection(current.getWindDirection());
-        if (current.getRain() != null) entity.setRain(BigDecimal.valueOf(current.getRain()));
-        if (current.getWeatherCode() != null) entity.setWeatherCode(current.getWeatherCode());
-        if (current.getApparentTemperature() != null) entity.setApparentTemperature(BigDecimal.valueOf(current.getApparentTemperature()));
-        if (current.getHumidity() != null) entity.setHumidity(BigDecimal.valueOf(current.getHumidity()));
+        entity.setTemperature(toBigDecimal(current.getTemperature()));
+        entity.setPressure(toBigDecimal(current.getPressure()));
+        entity.setWindSpeed(toBigDecimal(current.getWindSpeed()));
+        entity.setWindGusts(toBigDecimal(current.getWindGusts()));
+        entity.setRain(toBigDecimal(current.getRain()));
+        entity.setApparentTemperature(toBigDecimal(current.getApparentTemperature()));
+        entity.setHumidity(toBigDecimal(current.getHumidity()));
+
+        entity.setWindDirection(current.getWindDirection());
+        entity.setWeatherCode(current.getWeatherCode());
 
         return entity;
+    }
+
+    private <T> T getSafe(List<T> list, int index) {
+        if (list != null && index >= 0 && index < list.size()) {
+            return list.get(index);
+        }
+        return null;
+    }
+
+    private BigDecimal toBigDecimal(Double value) {
+        return value != null ? BigDecimal.valueOf(value) : null;
+    }
+
+    private BigDecimal toBigDecimal(Integer value) {
+        return value != null ? BigDecimal.valueOf(value) : null;
     }
 }

@@ -6,14 +6,14 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import pl.czyzlowie.modules.forecast.service.VirtualStationDataService;
-import pl.czyzlowie.modules.forecast.service.WeatherForecastService;
+import pl.czyzlowie.modules.forecast.service.WeatherForecastDataService;
 
 @RestController
 @RequestMapping("/api/forecast")
 @RequiredArgsConstructor
 public class ForecastController {
 
-    private final WeatherForecastService forecastService;
+    private final WeatherForecastDataService forecastService;
     private final VirtualStationDataService virtualStationDataService;
 
     /**

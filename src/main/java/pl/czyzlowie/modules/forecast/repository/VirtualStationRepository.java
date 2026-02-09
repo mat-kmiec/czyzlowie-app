@@ -12,5 +12,4 @@ public interface VirtualStationRepository extends JpaRepository<VirtualStation, 
 
     List<VirtualStation> findAllByActiveTrue();
 
-    List<VirtualStation> findByNameContainingIgnoreCase(String name);
 }
