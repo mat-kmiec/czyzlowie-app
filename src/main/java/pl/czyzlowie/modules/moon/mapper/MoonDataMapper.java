@@ -41,7 +41,7 @@ public interface MoonDataMapper {
                 switch (event.getType()) {
                     case "rise" -> builder.moonrise(time);
                     case "set" -> builder.moonset(time);
-                    case "meridian", "transit" -> builder.majorPeriodStart(time); // ! WAŻNE
+                    case "meridian", "transit" -> builder.majorPeriodStart(time);
                 }
             }
         }

@@ -34,7 +34,6 @@ public class MoonDataService {
     private final Executor moonExecutor;
 
     @EventListener(ApplicationReadyEvent.class)
-    @Scheduled(cron = "0 0 2 * * ?")
     public void ensureMoonData() {
         log.info("START: Aktualizacja danych księżycowych (Async)...");
         LocalDate today = LocalDate.now();
