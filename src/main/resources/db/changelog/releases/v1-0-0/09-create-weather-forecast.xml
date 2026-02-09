@@ -65,4 +65,11 @@
             ]]>
         </sql>
     </changeSet>
+    <changeSet id="v3-add-astronomy-data-to-forecast" author="mateusz kmiec">
+        <addColumn tableName="weather_forecast">
+            <column name="sunrise" type="timestamp"/>
+            <column name="sunset" type="timestamp"/>
+            <column name="uv_index_max" type="decimal(4,2)"/>
+        </addColumn>
+    </changeSet>
 </databaseChangeLog>

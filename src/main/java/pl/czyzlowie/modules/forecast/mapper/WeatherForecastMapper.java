@@ -48,16 +48,34 @@ public interface WeatherForecastMapper {
         }
 
         var hourly = dto.getHourly();
+        var daily = dto.getDaily();
         int size = hourly.getTime().size();
         List<WeatherForecast> list = new ArrayList<>(size);
         LocalDateTime now = LocalDateTime.now();
 
         for (int i = 0; i < size; i++) {
             WeatherForecast entity = new WeatherForecast();
+
+            // --- MAPOWANIE HOURLY (to co miałeś) ---
             String timeStr = getSafe(hourly.getTime(), i);
             if (timeStr != null) {
-                entity.setForecastTime(LocalDateTime.parse(timeStr, ISO_FORMATTER));
+                LocalDateTime forecastTime = LocalDateTime.parse(timeStr, ISO_FORMATTER);
+                entity.setForecastTime(forecastTime);
+
+                // --- NOWOŚĆ: MAPOWANIE DAILY DO KAŻDEJ GODZINY ---
+                if (daily != null && daily.getTime() != null) {
+                    // Szukamy indeksu dnia w tablicy daily na podstawie daty prognozy godzinowej
+                    int dayIndex = findDayIndex(daily.getTime(), forecastTime);
+                    if (dayIndex != -1) {
+                        entity.setSunrise(parseDateTime(getSafe(daily.getSunrise(), dayIndex)));
+                        entity.setSunset(parseDateTime(getSafe(daily.getSunset(), dayIndex)));
+                        entity.setUvIndexMax(toBigDecimal(getSafe(daily.getUvIndexMax(), dayIndex)));
+                        // Jeśli dodasz moon_phase do DTO, odkomentuj poniższe:
+                        // entity.setMoonPhase(toBigDecimal(getSafe(daily.getMoonPhase(), dayIndex)));
+                    }
+                }
             }
+
             entity.setFetchedAt(now);
             entity.setTemperature(toBigDecimal(getSafe(hourly.getTemperature2m(), i)));
             entity.setPressure(toBigDecimal(getSafe(hourly.getSurfacePressure(), i)));
@@ -66,14 +84,12 @@ public interface WeatherForecastMapper {
             entity.setRain(toBigDecimal(getSafe(hourly.getRain(), i)));
             entity.setUvIndex(toBigDecimal(getSafe(hourly.getUvIndex(), i)));
             entity.setApparentTemperature(toBigDecimal(getSafe(hourly.getApparentTemperature(), i)));
-
             entity.setWindDirection(getSafe(hourly.getWindDirection10m(), i));
             entity.setCloudCover(getSafe(hourly.getCloudCover(), i));
             entity.setWeatherCode(getSafe(hourly.getWeatherCode(), i));
 
             list.add(entity);
         }
-
         return list;
     }
 
@@ -121,5 +137,18 @@ public interface WeatherForecastMapper {
 
     private BigDecimal toBigDecimal(Integer value) {
         return value != null ? BigDecimal.valueOf(value) : null;
+    }
+
+    // Dodaj te metody pomocnicze do mappera:
+    private int findDayIndex(List<String> days, LocalDateTime forecastTime) {
+        String targetDate = forecastTime.toLocalDate().toString(); // "2026-02-09"
+        for (int i = 0; i < days.size(); i++) {
+            if (targetDate.equals(days.get(i))) return i;
+        }
+        return -1;
+    }
+
+    private LocalDateTime parseDateTime(String dateTimeStr) {
+        return (dateTimeStr != null) ? LocalDateTime.parse(dateTimeStr, ISO_FORMATTER) : null;
     }
 }

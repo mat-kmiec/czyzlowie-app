@@ -66,6 +66,15 @@ public class WeatherForecast {
     @Column(name = "uv_index")
     private BigDecimal uvIndex;
 
+    @Column(name = "sunrise")
+    private LocalDateTime sunrise;
+
+    @Column(name = "sunset")
+    private LocalDateTime sunset;
+
+    @Column(name = "uv_index_max")
+    private BigDecimal uvIndexMax;
+
     public boolean isVirtual() {
         return virtualStation != null;
     }
