@@ -36,9 +36,10 @@ public class VirtualStationDataService {
     private static final String TIMEZONE = "Europe/Warsaw";
 
     private final VirtualStationRepository virtualStationRepository;
-    private final VirtualStationStorageService storageService; // To jest kluczowe dla transakcji!
+    private final VirtualStationStorageService storageService;
     private final OpenMeteoClient openMeteoClient;
     private final WeatherForecastMapper mapper;
+    private final WeatherImportMonitor importMonitor;
 
     private final Executor weatherExecutor;
 
@@ -55,6 +56,7 @@ public class VirtualStationDataService {
         }
 
         AtomicBoolean criticalErrorOccurred = new AtomicBoolean(false);
+        int totalSaved = 0;
 
         List<List<VirtualStation>> batches = splitIntoBatches(stations, BATCH_SIZE);
         log.info("Plan: {} stacji podzielono na {} paczek.", stations.size(), batches.size());
@@ -73,6 +75,7 @@ public class VirtualStationDataService {
             if (!fetchedData.isEmpty() && !criticalErrorOccurred.get()) {
                 try {
                     storageService.saveNewDataOnly(fetchedData);
+                    totalSaved += fetchedData.size();
                 } catch (Exception e) {
                     log.error("Błąd zapisu do bazy: {}", e.getMessage());
                 }
@@ -82,7 +85,7 @@ public class VirtualStationDataService {
                 enforceRateLimit(startBatch);
             }
         }
-
+        importMonitor.logImport("OPEN_METEO", "CURRENT_DATA", totalSaved, criticalErrorOccurred.get());
         if (!criticalErrorOccurred.get()) {
             log.info("KONIEC: Pobieranie danych bieżących zakończone sukcesem.");
         }

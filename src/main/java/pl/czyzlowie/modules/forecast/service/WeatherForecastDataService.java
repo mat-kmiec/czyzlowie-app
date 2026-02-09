@@ -11,6 +11,7 @@ import pl.czyzlowie.modules.forecast.entity.VirtualStation;
 import pl.czyzlowie.modules.forecast.entity.WeatherForecast;
 import pl.czyzlowie.modules.forecast.mapper.WeatherForecastMapper;
 import pl.czyzlowie.modules.forecast.repository.VirtualStationRepository;
+import pl.czyzlowie.modules.forecast.repository.WeatherImportLogRepository;
 import pl.czyzlowie.modules.imgw.entity.ImgwSynopStation;
 import pl.czyzlowie.modules.imgw.repository.ImgwSynopStationRepository;
 
@@ -22,6 +23,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
@@ -45,6 +47,7 @@ public class WeatherForecastDataService {
     private final OpenMeteoClient openMeteoClient;
     private final WeatherForecastMapper mapper;
     private final Executor weatherExecutor;
+    private final WeatherImportMonitor importMonitor;
 
     @Value("${forecast.api.url}")
     private String apiUrl;
@@ -53,28 +56,31 @@ public class WeatherForecastDataService {
         log.info("START: Aktualizacja prognoz pogody (Hourly)...");
 
         AtomicBoolean criticalErrorOccurred = new AtomicBoolean(false);
+        AtomicInteger totalRecords = new AtomicInteger(0);
 
-        List<ImgwSynopStation> synopStations = synopStationRepository.findAllByIsActiveTrue();
-        processStationsBatched(synopStations,
-                s -> buildUrl(s.getLatitude(), s.getLongitude()),
-                mapper::toSynopForecasts,
-                true,
-                criticalErrorOccurred);
+        try {
+            // 1. Synop
+            List<ImgwSynopStation> synopStations = synopStationRepository.findAllByIsActiveTrue();
+            processStationsBatched(synopStations,
+                    s -> buildUrl(s.getLatitude(), s.getLongitude()),
+                    mapper::toSynopForecasts,
+                    true, criticalErrorOccurred, totalRecords);
 
-        if (criticalErrorOccurred.get()) {
-            log.error("CRITICAL: Przerwano proces po błędach w stacjach SYNOP.");
-            return;
+            // 2. Virtual - wywołujemy tylko jeśli nie było błędu wcześniej
+            if (!criticalErrorOccurred.get()) {
+                List<VirtualStation> virtualStations = virtualStationRepository.findAllByActiveTrue();
+                processStationsBatched(virtualStations,
+                        s -> buildUrl(s.getLatitude(), s.getLongitude()),
+                        mapper::toVirtualForecasts,
+                        false, criticalErrorOccurred, totalRecords);
+            }
+        } finally {
+            // Zawsze logujemy wynik, nawet jeśli wystąpił błąd lub exception
+            importMonitor.logImport("OPEN_METEO", "FORECAST_HOURLY", totalRecords.get(), criticalErrorOccurred.get());
         }
 
-        List<VirtualStation> virtualStations = virtualStationRepository.findAllByActiveTrue();
-        processStationsBatched(virtualStations,
-                s -> buildUrl(s.getLatitude(), s.getLongitude()),
-                mapper::toVirtualForecasts,
-                false,
-                criticalErrorOccurred);
-
         if (criticalErrorOccurred.get()) {
-            log.error("CRITICAL: Przerwano proces w trakcie stacji WIRTUALNYCH.");
+            log.error("KONIEC: Proces aktualizacji zakończony błędem krytycznym.");
         } else {
             log.info("KONIEC: Aktualizacja prognoz zakończona sukcesem.");
         }
@@ -84,7 +90,8 @@ public class WeatherForecastDataService {
                                             Function<T, String> urlBuilder,
                                             BiFunction<OpenMeteoResponse, T, List<WeatherForecast>> mappingStrategy,
                                             boolean isSynop,
-                                            AtomicBoolean criticalErrorOccurred) {
+                                            AtomicBoolean criticalErrorOccurred,
+                                            AtomicInteger recordCounter) {
         if (stations.isEmpty() || criticalErrorOccurred.get()) return;
 
         List<List<T>> batches = splitIntoBatches(stations, BATCH_SIZE);
@@ -104,6 +111,7 @@ public class WeatherForecastDataService {
             if (!fetchedData.isEmpty() && !criticalErrorOccurred.get()) {
                 try {
                     storageService.saveForecasts(fetchedData, isSynop);
+                    recordCounter.addAndGet(fetchedData.size());
                 } catch (Exception e) {
                     log.error("Błąd zapisu bazy danych: {}", e.getMessage());
                 }
