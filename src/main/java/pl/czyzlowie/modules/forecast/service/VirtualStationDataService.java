@@ -2,7 +2,6 @@ package pl.czyzlowie.modules.forecast.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -37,12 +36,11 @@ public class VirtualStationDataService {
     private static final String TIMEZONE = "Europe/Warsaw";
 
     private final VirtualStationRepository virtualStationRepository;
-    private final VirtualStationStorageService storageService;
+    private final VirtualStationStorageService storageService; // To jest kluczowe dla transakcji!
     private final OpenMeteoClient openMeteoClient;
     private final WeatherForecastMapper mapper;
 
-    @Qualifier("applicationTaskExecutor")
-    private final Executor taskExecutor;
+    private final Executor weatherExecutor;
 
     @Value("${forecast.api.url}")
     private String apiUrl;
@@ -93,14 +91,13 @@ public class VirtualStationDataService {
     private List<VirtualStationData> fetchBatch(List<VirtualStation> batch, AtomicBoolean errorFlag) {
         List<CompletableFuture<VirtualStationData>> futures = batch.stream()
                 .map(station -> CompletableFuture.supplyAsync(() -> {
-
                             if (errorFlag.get()) return null;
 
                             String url = buildUrl(station);
                             return openMeteoClient.fetchData(url, OpenMeteoLightResponse.class)
                                     .map(response -> mapper.toVirtualStationData(response, station))
                                     .orElse(null);
-                        }, taskExecutor)
+                        }, weatherExecutor) // <--- ZMIANA: używamy weatherExecutor
                         .orTimeout(API_TIMEOUT_SECONDS, TimeUnit.SECONDS)
                         .exceptionally(ex -> {
                             log.error("API ERROR/TIMEOUT dla stacji '{}': {}. Ustawiam flagę CRITICAL.",

@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.util.UriComponentsBuilder;
 import pl.czyzlowie.modules.forecast.client.OpenMeteoClient;
 import pl.czyzlowie.modules.forecast.client.dto.OpenMeteoResponse;
@@ -12,18 +11,19 @@ import pl.czyzlowie.modules.forecast.entity.VirtualStation;
 import pl.czyzlowie.modules.forecast.entity.WeatherForecast;
 import pl.czyzlowie.modules.forecast.mapper.WeatherForecastMapper;
 import pl.czyzlowie.modules.forecast.repository.VirtualStationRepository;
-import pl.czyzlowie.modules.forecast.repository.WeatherForecastRepository;
 import pl.czyzlowie.modules.imgw.entity.ImgwSynopStation;
 import pl.czyzlowie.modules.imgw.repository.ImgwSynopStationRepository;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.util.*;
-import java.util.concurrent.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.BiFunction;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -32,6 +32,7 @@ public class WeatherForecastDataService {
 
     private static final int BATCH_SIZE = 10;
     private static final long RATE_LIMIT_PAUSE_MS = 1050L;
+    private static final int API_TIMEOUT_SECONDS = 12;
 
     private static final String API_HOURLY_PARAMS = "temperature_2m,apparent_temperature,rain,weather_code," +
             "cloud_cover,wind_speed_10m,wind_direction_10m,wind_gusts_10m," +
@@ -40,11 +41,10 @@ public class WeatherForecastDataService {
 
     private final ImgwSynopStationRepository synopStationRepository;
     private final VirtualStationRepository virtualStationRepository;
-    private final WeatherForecastRepository forecastRepository;
+    private final WeatherForecastStorageService storageService;
     private final OpenMeteoClient openMeteoClient;
     private final WeatherForecastMapper mapper;
-
-    private final ExecutorService taskExecutor = Executors.newFixedThreadPool(4);
+    private final Executor weatherExecutor;
 
     @Value("${forecast.api.url}")
     private String apiUrl;
@@ -62,7 +62,7 @@ public class WeatherForecastDataService {
                 criticalErrorOccurred);
 
         if (criticalErrorOccurred.get()) {
-            log.error("CRITICAL: Przerwano proces aktualizacji po błędach w stacjach SYNOP.");
+            log.error("CRITICAL: Przerwano proces po błędach w stacjach SYNOP.");
             return;
         }
 
@@ -74,7 +74,7 @@ public class WeatherForecastDataService {
                 criticalErrorOccurred);
 
         if (criticalErrorOccurred.get()) {
-            log.error("CRITICAL: Przerwano proces aktualizacji w trakcie stacji WIRTUALNYCH.");
+            log.error("CRITICAL: Przerwano proces w trakcie stacji WIRTUALNYCH.");
         } else {
             log.info("KONIEC: Aktualizacja prognoz zakończona sukcesem.");
         }
@@ -92,17 +92,21 @@ public class WeatherForecastDataService {
 
         for (int i = 0; i < batches.size(); i++) {
             if (criticalErrorOccurred.get()) {
-                log.warn("ABORT: Wykryto błąd krytyczny. Pomijam pozostałe {} paczek.", batches.size() - i);
+                log.warn("ABORT: Wykryto błąd krytyczny. Pomijam resztę.");
                 break;
             }
 
-            List<T> batch = batches.get(i);
             long startBatch = System.currentTimeMillis();
+            List<T> batch = batches.get(i);
 
             List<WeatherForecast> fetchedData = fetchBatch(batch, urlBuilder, mappingStrategy, criticalErrorOccurred);
 
             if (!fetchedData.isEmpty() && !criticalErrorOccurred.get()) {
-                saveForecastsInternal(fetchedData, isSynop);
+                try {
+                    storageService.saveForecasts(fetchedData, isSynop);
+                } catch (Exception e) {
+                    log.error("Błąd zapisu bazy danych: {}", e.getMessage());
+                }
             }
 
             if (i < batches.size() - 1 && !criticalErrorOccurred.get()) {
@@ -118,19 +122,19 @@ public class WeatherForecastDataService {
 
         List<CompletableFuture<List<WeatherForecast>>> futures = batch.stream()
                 .map(station -> CompletableFuture.supplyAsync(() -> {
-                    if (errorFlag.get()) return Collections.<WeatherForecast>emptyList();
+                            if (errorFlag.get()) return Collections.<WeatherForecast>emptyList();
 
-                    try {
-                        String url = urlBuilder.apply(station);
-                        return openMeteoClient.fetchData(url, OpenMeteoResponse.class)
-                                .map(response -> mappingStrategy.apply(response, station))
-                                .orElse(Collections.emptyList());
-                    } catch (Exception e) {
-                        log.error("API ERROR dla stacji: {}. Ustawiam flagę CRITICAL.", e.getMessage());
-                        errorFlag.set(true);
-                        throw new CompletionException(e);
-                    }
-                }, taskExecutor))
+                            String url = urlBuilder.apply(station);
+                            return openMeteoClient.fetchData(url, OpenMeteoResponse.class)
+                                    .map(response -> mappingStrategy.apply(response, station))
+                                    .orElse(Collections.emptyList());
+                        }, weatherExecutor)
+                        .orTimeout(API_TIMEOUT_SECONDS, TimeUnit.SECONDS)
+                        .exceptionally(ex -> {
+                            log.error("API ERROR/TIMEOUT: {}. Ustawiam flagę CRITICAL.", ex.getMessage());
+                            errorFlag.set(true);
+                            return Collections.emptyList();
+                        }))
                 .toList();
 
         try {
@@ -139,7 +143,7 @@ public class WeatherForecastDataService {
                     .flatMap(List::stream)
                     .toList();
         } catch (Exception e) {
-            log.error("Błąd podczas przetwarzania paczki: {}", e.getMessage());
+            log.error("Błąd wątku/paczki: {}", e.getMessage());
             errorFlag.set(true);
             return Collections.emptyList();
         }
@@ -151,54 +155,11 @@ public class WeatherForecastDataService {
 
         if (sleepTime > 0) {
             try {
-                // log.debug("Rate Limit: Pauza {} ms...", sleepTime);
                 Thread.sleep(sleepTime);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             }
         }
-    }
-
-    @Transactional
-    protected void saveForecastsInternal(List<WeatherForecast> incomingForecasts, boolean isSynop) {
-        if (incomingForecasts.isEmpty()) return;
-
-        LocalDateTime minDate = incomingForecasts.stream().map(WeatherForecast::getForecastTime).min(LocalDateTime::compareTo).orElseThrow();
-        LocalDateTime maxDate = incomingForecasts.stream().map(WeatherForecast::getForecastTime).max(LocalDateTime::compareTo).orElseThrow();
-
-        Set<String> stationIds = incomingForecasts.stream()
-                .map(f -> isSynop ? f.getSynopStation().getId() : f.getVirtualStation().getId())
-                .collect(Collectors.toSet());
-
-        List<WeatherForecast> existingForecasts = isSynop
-                ? forecastRepository.findAllBySynopStationIdInAndForecastTimeBetween(stationIds, minDate, maxDate)
-                : forecastRepository.findAllByVirtualStationIdInAndForecastTimeBetween(stationIds, minDate, maxDate);
-
-        Map<String, WeatherForecast> dbMap = existingForecasts.stream()
-                .collect(Collectors.toMap(this::generateUniqueKey, Function.identity()));
-
-        List<WeatherForecast> toSave = new ArrayList<>();
-
-        for (WeatherForecast incoming : incomingForecasts) {
-            String key = generateUniqueKey(incoming);
-            WeatherForecast existing = dbMap.get(key);
-
-            if (existing != null) {
-                mapper.updateForecast(existing, incoming);
-                toSave.add(existing);
-            } else {
-                toSave.add(incoming);
-            }
-        }
-
-        forecastRepository.saveAll(toSave);
-        log.info("Zapisano {} rekordów (Typ Synop: {}).", toSave.size(), isSynop);
-    }
-
-
-    private String generateUniqueKey(WeatherForecast wf) {
-        String stationId = wf.getSynopStation() != null ? wf.getSynopStation().getId() : wf.getVirtualStation().getId();
-        return stationId + "|" + wf.getForecastTime();
     }
 
     private String buildUrl(BigDecimal lat, BigDecimal lon) {
