@@ -63,3 +63,6 @@ imgw:
     hydro-rate: 900000
     # Synop: 60min
     synop-rate: 3600000
+forecast:
+  api:
+    url: "https://api.open-meteo.com/v1/forecast"

@@ -12,5 +12,9 @@
     <include file="db/changelog/releases/v1-0-0/05-constraints.xml"/>
     <include file="db/changelog/releases/v1-0-0/06-create-sequences-for-batching.xml"/>
     <include file="db/changelog/releases/v1-0-0/07-create-imgw-import-logs.xml"/>
+    <include file="db/changelog/releases/v1-0-0/08-create-virtual-stations.xml"/>
+    <include file="db/changelog/releases/v1-0-0/09-create-weather-forecast.xml"/>
+    <include file="db/changelog/releases/v1-0-0/10-create-virtual-stations-data.xml"/>
+    <include file="db/changelog/releases/v1-0-0/11-create-weather-import-logs.xml"/>
 
 </databaseChangeLog>
