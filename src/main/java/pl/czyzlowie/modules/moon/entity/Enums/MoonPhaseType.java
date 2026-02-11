@@ -1,12 +1,19 @@
 package pl.czyzlowie.modules.moon.entity.Enums;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+
+@Getter
+@AllArgsConstructor
 public enum MoonPhaseType {
-    NEW_MOON,
-    WAXING_CRESCENT,
-    FIRST_QUARTER,
-    WAXING_GIBBOUS,
-    FULL_MOON,
-    WANING_GIBBOUS,
-    LAST_QUARTER,
-    WANING_CRESCENT;
+    NEW_MOON("Nów"),
+    WAXING_CRESCENT("Przybywający Sierp"),
+    FIRST_QUARTER("Pierwsza Kwadra"),
+    WAXING_GIBBOUS("Przybywający Garb"),
+    FULL_MOON("Pełnia"),
+    WANING_GIBBOUS("Ubywający Garb"),
+    LAST_QUARTER("Ostatnia Kwadra"),
+    WANING_CRESCENT("Ubywający Sierp");
+
+    private final String name;
 }
