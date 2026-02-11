@@ -8,6 +8,26 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import java.util.concurrent.Executor;
 
+/**
+ * Configuration class for weather forecasting application.
+ *
+ * This class configures and initializes a thread pool task executor
+ * named "weatherExecutor" for handling asynchronous tasks related to
+ * weather processing. It utilizes the Spring Framework annotations
+ * to enable asynchronous capabilities and task scheduling.
+ *
+ * Annotations:
+ * - @Configuration: Indicates that this class is a source of
+ *   bean definitions.
+ * - @EnableAsync: Enables Spring's asynchronous method execution capability.
+ * - @EnableScheduling: Enables scheduling of tasks within
+ *   the application context.
+ *
+ * Methods:
+ * - weatherExecutor(): Configures and provides a thread pool task
+ *   executor with specific properties such as core pool size,
+ *   maximum pool size, queue capacity, and thread name prefix.
+ */
 @Configuration
 @EnableAsync
 @EnableScheduling
@@ -22,4 +42,5 @@ public class ForecastConfig {
         executor.initialize();
         return executor;
     }
+
 }

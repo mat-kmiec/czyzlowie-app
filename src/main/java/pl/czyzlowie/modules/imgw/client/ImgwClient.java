@@ -9,17 +9,16 @@ import org.springframework.web.client.RestClient;
 import java.util.List;
 
 /**
- * Client for fetching data from external APIs, specifically designed to interact with the IMiGW API.
- * This class uses a {@link RestClient} to make HTTP GET requests and retrieve data, which is then deserialized
- * into the specified list of objects of a given type.
- * Additionally, it handles logging and error management, ensuring robust error handling for API communication.
+ * The ImgwClient class provides functionality to fetch data from an external
+ * source using an HTTP client. It leverages a RestClient to perform HTTP
+ * requests and process the responses.
  */
 @Component
 @RequiredArgsConstructor
 @Slf4j
 public class ImgwClient {
 
-    private final RestClient restClient = RestClient.create();
+    private final RestClient restClient;
 
     /**
      * Fetches a list of data from the given URL using the provided response type for deserialization.

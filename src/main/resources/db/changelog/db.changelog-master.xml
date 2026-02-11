@@ -17,4 +17,5 @@
     <include file="db/changelog/releases/v1-0-0/10-create-virtual-stations-data.xml"/>
     <include file="db/changelog/releases/v1-0-0/11-create-weather-import-logs.xml"/>
 
+
 </databaseChangeLog>
