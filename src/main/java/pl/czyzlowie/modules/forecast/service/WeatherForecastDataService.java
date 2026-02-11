@@ -27,6 +27,12 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
+/**
+ * The WeatherForecastDataService is responsible for managing the retrieval and processing of weather forecast data
+ * for synoptic and virtual weather stations. It handles fetching external API data, transforming it into domain-specific
+ * objects, and storing the results. The service ensures data is processed in batches and adheres to rate limiting and timeout
+ * policies to prevent system overloads or API violations.
+ */
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -52,6 +58,18 @@ public class WeatherForecastDataService {
     @Value("${forecast.api.url}")
     private String apiUrl;
 
+    /**
+     * Updates weather forecasts for both synoptic and virtual stations by fetching data from external sources.
+     *
+     * The method performs the following operations:
+     * - Retrieves active synoptic stations and processes them in batches, converting retrieved data into synoptic forecasts.
+     * - If no critical errors occur during the synoptic station update, retrieves active virtual stations and processes them in batches, converting the data into virtual forecasts
+     * .
+     * - Logs the import process, indicating the source, type, number of processed records, and whether a critical error occurred.
+     * - Outputs appropriate log messages to indicate the start, success, or failure of the update process.
+     *
+     * Critical errors during processing of synoptic or virtual stations will halt subsequent updates and result in an appropriate error log.
+     */
     public void updateAllForecasts() {
         log.info("START: Aktualizacja prognoz pogody (Hourly)...");
 
@@ -66,7 +84,7 @@ public class WeatherForecastDataService {
                     mapper::toSynopForecasts,
                     true, criticalErrorOccurred, totalRecords);
 
-            // 2. Virtual - wywołujemy tylko jeśli nie było błędu wcześniej
+            // 2. Virtual
             if (!criticalErrorOccurred.get()) {
                 List<VirtualStation> virtualStations = virtualStationRepository.findAllByActiveTrue();
                 processStationsBatched(virtualStations,
@@ -75,7 +93,6 @@ public class WeatherForecastDataService {
                         false, criticalErrorOccurred, totalRecords);
             }
         } finally {
-            // Zawsze logujemy wynik, nawet jeśli wystąpił błąd lub exception
             importMonitor.logImport("OPEN_METEO", "FORECAST_HOURLY", totalRecords.get(), criticalErrorOccurred.get());
         }
 
@@ -86,6 +103,19 @@ public class WeatherForecastDataService {
         }
     }
 
+    /**
+     * Processes a list of station data in batches, fetches weather forecast data,
+     * and saves the data to storage. It supports custom strategies for building URLs
+     * and mapping the response to weather forecast objects. The process stops if a critical error occurs.
+     *
+     * @param stations the list of station objects to be processed
+     * @param urlBuilder a function to build the URL for each station
+     *                   based on the station object
+     * @param mappingStrategy a strategy to map the response to a list of weather forecast objects
+     * @param isSynop a flag indicating the type of station (true if Synop, false otherwise)
+     * @param criticalErrorOccurred an atomic boolean flag indicating if a critical error has occurred
+     *                              that should abort the process
+     * @param recordCounter an atomic counter used*/
     private <T> void processStationsBatched(List<T> stations,
                                             Function<T, String> urlBuilder,
                                             BiFunction<OpenMeteoResponse, T, List<WeatherForecast>> mappingStrategy,
@@ -123,6 +153,19 @@ public class WeatherForecastDataService {
         }
     }
 
+    /**
+     * Fetches a batch of weather forecasts by asynchronously processing a list of items and mapping
+     * the responses from an API.
+     *
+     * @param batch The list of input items, each representing a unit of data to process.
+     * @param urlBuilder A function to build the URL for each item in the batch.
+     * @param mappingStrategy A bi-function used to map the API response to a list of weather forecasts
+     *                        based on the input item.
+     * @param errorFlag An atomic boolean flag to track if an error has occurred and interrupt processing
+     *                  if necessary.
+     * @return A list of weather forecasts derived from successfully processed items in the batch.
+     *         Returns an empty list if an error occurs or no forecasts are available.
+     */
     private <T> List<WeatherForecast> fetchBatch(List<T> batch,
                                                  Function<T, String> urlBuilder,
                                                  BiFunction<OpenMeteoResponse, T, List<WeatherForecast>> mappingStrategy,
@@ -157,6 +200,15 @@ public class WeatherForecastDataService {
         }
     }
 
+    /**
+     * Ensures that the execution respects a rate limit by enforcing a pause
+     * between consecutive operations if the elapsed time since the start of
+     * the batch is less than the predefined rate limit pause duration.
+     *
+     * @param startBatchTime the start time of the batch process in milliseconds
+     *                       since the epoch, used to calculate the elapsed time
+     *                       and enforce the rate limit.
+     */
     private void enforceRateLimit(long startBatchTime) {
         long elapsed = System.currentTimeMillis() - startBatchTime;
         long sleepTime = RATE_LIMIT_PAUSE_MS - elapsed;
@@ -170,6 +222,13 @@ public class WeatherForecastDataService {
         }
     }
 
+    /**
+     * Constructs a URL string with the specified latitude and longitude, applying predefined query parameters.
+     *
+     * @param lat the latitude value to be included as a query parameter
+     * @param lon the longitude value to be included as a query parameter
+     * @return the constructed URL as a string
+     */
     private String buildUrl(BigDecimal lat, BigDecimal lon) {
         return UriComponentsBuilder.fromUriString(apiUrl)
                 .queryParam("latitude", lat)
@@ -182,6 +241,14 @@ public class WeatherForecastDataService {
                 .toUriString();
     }
 
+    /**
+     * Splits a given list into smaller batches of a specified size.
+     *
+     * @param list the list to be split into batches
+     * @param size the size of each batch; must be a positive integer
+     * @return a list of batches, where each batch is a sublist of the original list
+     *         and the last batch may contain fewer elements if the total count is not divisible by the batch size
+     */
     private <T> List<List<T>> splitIntoBatches(List<T> list, int size) {
         List<List<T>> batches = new ArrayList<>();
         for (int i = 0; i < list.size(); i += size) {
