@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="12-1-create-global-moon-data" author="mateusz kmiec">
+        <createTable tableName="moon_global_data">
+            <column name="calculation_date" type="DATE">
+                <constraints primaryKey="true" nullable="false" />
+            </column>
+            <column name="phase_enum" type="VARCHAR(30)">
+                <constraints nullable="false" />
+            </column>
+            <column name="phase_moon_pl" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="illumination_pct" type="DECIMAL(5,2)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="moon_age_days" type="DECIMAL(4,2)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="is_super_moon" type="boolean" defaultValueBoolean="false">
+                <constraints nullable="false"/>
+            </column>
+            <column name="distance_km" type="INTEGER"/>
+        </createTable>
+        
+        <createIndex tableName="moon_global_data" indexName="idx_moon_global_data">
+            <column name="calculation_date"/>
+        </createIndex>
+    </changeSet>
+    
+    <changeSet id="12-2-create-moon-station-data" author="mateusz kmiec">
+        <createTable tableName="moon_station_data">
+            <column name="station_id" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="station_type" type="VARCHAR(20)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="calculation_date" type="DATE">
+                <constraints nullable="false"/>
+            </column>
+            <column name="moonrise" type="DATETIME" />
+            <column name="moonset" type="DATETIME" />
+            <column name="transit" type="DATETIME" />
+            <column name="max_altitude" type="DECIMAL(4,2)"/>
+        </createTable>
+        <addPrimaryKey tableName="moon_station_data"
+                       columnNames="station_id, station_type, calculation_date"
+                       constraintName="pk_moon_station_data_composite"/>
+        <createIndex indexName="idx_moon_station_lookup" tableName="moon_station_data">
+            <column name="station_id"/>
+            <column name="station_type"/>
+        </createIndex>
+        
+    </changeSet>
+</databaseChangeLog>
