@@ -9,6 +9,13 @@ import pl.czyzlowie.modules.moon.entity.MoonStationDataId;
 import java.time.LocalDate;
 import java.util.Set;
 
+/**
+ * Repository interface for accessing and managing MoonStationData entities in the database.
+ * Provides various methods for querying and retrieving MoonStationData records,
+ * including custom queries based on calculation dates.
+ *
+ * Extends JpaRepository to inherit common CRUD operations for the MoonStationData entity.
+ */
 public interface MoonStationDataRepository extends JpaRepository<MoonStationData, MoonStationDataId>{
 
     @Query("SELECT m.id FROM MoonStationData m WHERE m.id.calculationDate BETWEEN :startDate AND :endDate")

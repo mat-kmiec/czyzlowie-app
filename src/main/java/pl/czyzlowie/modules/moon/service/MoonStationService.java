@@ -13,9 +13,25 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 
+/**
+ * Service class responsible for generating moon station data, including calculations
+ * related to sun and moon positions for a specific geographical location and date.
+ */
 @Service
 public class MoonStationService {
 
+    /**
+     * Calculates and returns the moon station data based on the provided date, station details,
+     * and geographical coordinates.
+     *
+     * @param date the specific date for which the calculation is performed
+     * @param stationId a unique identifier for the station
+     * @param stationType the type or category of the station
+     * @param lat the latitude of the station in degrees
+     * @param lon the longitude of the station in degrees
+     * @return a MoonStationData object containing calculated sunrise, sunset, day length,
+     *         moonrise, moonset, transit time, and maximum altitude
+     */
     public MoonStationData calculationStationData(LocalDate date, String stationId, String stationType, double lat, double lon) {
         ZoneId zone = ZoneId.systemDefault();
 
@@ -55,6 +71,18 @@ public class MoonStationService {
                 .build();
     }
 
+    /**
+     * Determines the time of the moon's transit (the point at which it reaches its
+     * highest point in the sky) and calculates its maximum altitude for a specified
+     * date and geographical location.
+     *
+     * @param date the date for which the transit time and maximum altitude are calculated
+     * @param lat the latitude of the location in degrees
+     * @param lon the longitude of the location in degrees
+     * @param zone the time zone of the location
+     * @return a TransitInfo object containing the transit time as a LocalDateTime and the
+     *         maximum altitude as a BigDecimal
+     */
     private TransitInfo findTransitAndMaxAltitude(LocalDate date, double lat, double lon, ZoneId zone) {
         double maxAlt = -90.0;
         ZonedDateTime bestHourTime = date.atStartOfDay(zone);
@@ -89,8 +117,28 @@ public class MoonStationService {
     }
 
 
+    /**
+     * Represents the moon's transit information, including the time at which the moon
+     * reaches its highest point in the sky and the corresponding maximum altitude.
+     *
+     * This record is an immutable data structure that encapsulates:
+     * - The transit time as a LocalDateTime.
+     * - The maximum altitude of the moon during transit as a BigDecimal.
+     *
+     * Typically used to store computed transit details for a given geographical location
+     * and date in the context of moon-related calculations.
+     */
     private record TransitInfo(LocalDateTime time, BigDecimal maxAltitude) {}
 
+    /**
+     * Filters the input ZonedDateTime to return its LocalDateTime representation
+     * if its date matches the specified target date.
+     *
+     * @param zdt the ZonedDateTime to be checked and converted; may be null
+     * @param targetDate the target LocalDate to match against
+     * @return the LocalDateTime representation of the input ZonedDateTime if the dates match;
+     *         otherwise, null
+     */
     private LocalDateTime filterToDate(ZonedDateTime zdt, LocalDate targetDate) {
         if (zdt == null) return null;
         if (zdt.toLocalDate().equals(targetDate)) {

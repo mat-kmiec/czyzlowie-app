@@ -16,6 +16,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * Service responsible for batch processing and generating moon station data for specified
+ * date ranges by interfacing with repositories and other domain services. The class verifies
+ * against existing records to prevent duplication and utilizes parallel processing for efficiency.
+ */
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -30,6 +35,13 @@ public class MoonStationBatchService {
     private record StationTask(LocalDate date, String stationId, String stationType, double lat, double lon) {}
     private record StationDef(String id, String type, double lat, double lon) {}
 
+    /**
+     * Generates and stores station data for a specified date range by processing active stations
+     * and verifying against existing records in the database to avoid duplication.
+     *
+     * @param startDate the starting date of the range for which station data should be generated
+     * @param endDate the ending date of the range for which station data should be generated
+     */
     @Transactional
     public void generateStationDataForDateRange(LocalDate startDate, LocalDate endDate) {
         log.info("Rozpoczynam weryfikację i generowanie lokalnych danych księżyca od {} do {}.", startDate, endDate);

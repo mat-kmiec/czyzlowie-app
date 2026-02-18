@@ -3,6 +3,10 @@ package pl.czyzlowie.modules.moon.entity.Enums;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
+/**
+ * Represents the different phases of the Moon as enumerated types.
+ * Each phase is associated with a localized name in Polish.
+ */
 @Getter
 @AllArgsConstructor
 public enum MoonPhaseType {
