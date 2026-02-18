@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<th:block th:fragment="head-content">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" th:content="${pageDescription != null ? pageDescription : 'Najdokładniejszy kalkulator brań online. Analizujemy dane hydrologiczne i meteo, by wskazać Ci idealny czas na ryby.'}">
+    <meta name="keywords" content="kalkulator brań, barometr wędkarski, fazy księżyca ryby, kiedy na ryby">
+    <meta name="robots" content="index, follow">
+    <meta name="language" content="pl">
+    <meta name="geo.region" content="PL">
+    <meta name="geo.placename" content="Poland">
+
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="CzyZlowie">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="referrer" content="no-referrer-when-downgrade">
+
+    <meta property="og:type" content="website">
+    <meta property="og:url" th:content="${currentUrl != null ? currentUrl : '/'}">
+    <meta property="og:title" th:content="${pageTitle != null ? pageTitle : 'CzyZlowie | Kalkulator Brań'}">
+    <meta property="og:description" th:content="${pageDescription != null ? pageDescription : 'Planujesz wyprawę na ryby? Sprawdź aktualną prognozę brań i warunki meteo!'}">
+    <meta property="og:image" th:content="@{/assets/og-preview.jpg}">
+
+    <title th:text="${pageTitle != null ? pageTitle + ' | CzyZlowie' : 'CzyZlowie | Kalkulator Brań'}">CzyZlowie</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="canonical" th:href="${currentUrl != null ? currentUrl : '/'}">
+
+    <link rel="icon" type="image/png" th:href="@{/assets/favicon-32x32.png}">
+
+    <link rel="stylesheet" th:href="@{/webjars/bootstrap/5.3.2/css/bootstrap.min.css}">
+    <link rel="stylesheet" th:href="@{/webjars/bootstrap-icons/1.11.1/font/bootstrap-icons.css}">
+    <link rel="stylesheet" th:href="@{/css/navbar.css}">
+
+    <script th:src="@{/webjars/bootstrap/5.3.2/js/bootstrap.bundle.min.js}" defer></script>
+
+    <script type="application/ld+json">
+        {
+            "@context": "https://schema.org",
+            "@type": "WebApplication",
+            "name": "CzyZlowie.pl - Kalkulator Brań",
+            "url": "https://czyzlowie.pl",
+            "description": "Profesjonalna prognoza brań ryb oparta o parametry meteo i barometr.",
+            "applicationCategory": "Narzędzie Wędkarskie",
+            "operatingSystem": "All",
+            "author": {
+                "@type": "Person",
+                "name": "Mateusz Kmiec"
+            }
+        }
+    </script>
+</th:block>
+</html>
