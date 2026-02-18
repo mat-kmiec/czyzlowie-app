@@ -2,6 +2,7 @@ package pl.czyzlowie.modules.moon.service;
 
 import org.shredzone.commons.suncalc.MoonPosition;
 import org.shredzone.commons.suncalc.MoonTimes;
+import org.springframework.stereotype.Service;
 import pl.czyzlowie.modules.moon.entity.MoonStationData;
 import pl.czyzlowie.modules.moon.entity.MoonStationDataId;
 
@@ -12,6 +13,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZonedDateTime;
 
+@Service
 public class MoonStationService {
 
     public MoonStationData calculationStationData(LocalDate date, String stationId, String stationType, double lat, double lon) {
