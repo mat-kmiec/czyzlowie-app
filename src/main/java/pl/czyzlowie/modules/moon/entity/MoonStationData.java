@@ -24,6 +24,13 @@ public class MoonStationData {
 
     private LocalDateTime transit;
 
+    private LocalDateTime sunrise;
+
+    private LocalDateTime sunset;
+
+    @Column(name = "day_length_sec")
+    private Long dayLengthSec;
+
     @Column(name = "max_altitude", precision = 4, scale = 2)
     private BigDecimal maxAltitude;
 }

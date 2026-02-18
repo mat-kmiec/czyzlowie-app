@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="12-3-add-sun-columns-to-moon-station-data" author="mateusz kmiec">
+        <addColumn tableName="moon_station_data">
+            <column name="sunrise" type="DATETIME">
+            </column>
+            <column name="sunset" type="DATETIME">
+            </column>
+            <column name="day_length_sec" type="BIGINT">
+            </column>
+        </addColumn>
+    </changeSet>
+</databaseChangeLog>

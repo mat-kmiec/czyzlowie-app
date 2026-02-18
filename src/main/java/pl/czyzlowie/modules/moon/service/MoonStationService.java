@@ -10,59 +10,92 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
+import java.time.ZoneId;
 import java.time.ZonedDateTime;
 
 @Service
 public class MoonStationService {
 
     public MoonStationData calculationStationData(LocalDate date, String stationId, String stationType, double lat, double lon) {
-        MoonTimes times = MoonTimes.compute()
+        ZoneId zone = ZoneId.systemDefault();
+
+        org.shredzone.commons.suncalc.SunTimes sunTimes = org.shredzone.commons.suncalc.SunTimes.compute()
                 .on(date)
                 .at(lat, lon)
+                .timezone(zone)
                 .execute();
 
-        TransitInfo transitInfo = findTransitAndMaxAltitude(date, lat, lon);
-        MoonStationDataId id = new MoonStationDataId(stationId, stationType, date);
+        LocalDateTime sunrise = filterToDate(sunTimes.getRise(), date);
+        LocalDateTime sunset = filterToDate(sunTimes.getSet(), date);
+
+        Long dayLength = null;
+        if (sunrise != null && sunset != null) {
+            dayLength = java.time.Duration.between(sunrise, sunset).getSeconds();
+        }
+
+        MoonTimes moonTimes = MoonTimes.compute()
+                .on(date)
+                .at(lat, lon)
+                .timezone(zone)
+                .execute();
+
+        LocalDateTime moonrise = filterToDate(moonTimes.getRise(), date);
+        LocalDateTime moonset = filterToDate(moonTimes.getSet(), date);
+        TransitInfo transitInfo = findTransitAndMaxAltitude(date, lat, lon, zone);
 
         return MoonStationData.builder()
-                .id(id)
-                .moonrise(toLocalDateTime(times.getRise()))
-                .moonset(toLocalDateTime(times.getSet()))
-                .transit(transitInfo.time)
-                .maxAltitude(transitInfo.altitude)
+                .id(new MoonStationDataId(stationId, stationType, date))
+                .sunrise(sunrise)
+                .sunset(sunset)
+                .dayLengthSec(dayLength)
+                .moonrise(moonrise)
+                .moonset(moonset)
+                .transit(transitInfo.time())
+                .maxAltitude(transitInfo.maxAltitude())
                 .build();
     }
 
-    private LocalDateTime toLocalDateTime(ZonedDateTime zdt) {
-        return zdt != null ? zdt.toLocalDateTime() : null;
-    }
-
-    private TransitInfo findTransitAndMaxAltitude(LocalDate date, double lat, double lon) {
+    private TransitInfo findTransitAndMaxAltitude(LocalDate date, double lat, double lon, ZoneId zone) {
         double maxAlt = -90.0;
-        LocalDateTime bestTime = null;
+        ZonedDateTime bestHourTime = date.atStartOfDay(zone);
 
         for (int hour = 0; hour < 24; hour++) {
-            for (int minute = 0; minute < 60; minute += 10) {
-                LocalDateTime localTime = LocalDateTime.of(date, LocalTime.of(hour, minute));
-                ZonedDateTime zdt = localTime.atZone(java.time.ZoneId.systemDefault());
-
-                MoonPosition pos = MoonPosition.compute()
-                        .on(zdt)
-                        .at(lat, lon)
-                        .execute();
-
-                if (pos.getAltitude() > maxAlt) {
-                    maxAlt = pos.getAltitude();
-                    bestTime = localTime;
-                }
+            ZonedDateTime time = date.atTime(hour, 0).atZone(zone);
+            double alt = MoonPosition.compute().on(time).at(lat, lon).execute().getAltitude();
+            if (alt > maxAlt) {
+                maxAlt = alt;
+                bestHourTime = time;
             }
         }
 
-        BigDecimal altBd = BigDecimal.valueOf(maxAlt).setScale(2, RoundingMode.HALF_UP);
-        return new TransitInfo(bestTime, altBd);
+        maxAlt = -90.0;
+        ZonedDateTime exactBestTime = bestHourTime;
+
+        for (int i = -60; i <= 60; i++) {
+            ZonedDateTime time = bestHourTime.plusMinutes(i);
+            if (!time.toLocalDate().equals(date)) {
+                continue;
+            }
+
+            double alt = MoonPosition.compute().on(time).at(lat, lon).execute().getAltitude();
+            if (alt > maxAlt) {
+                maxAlt = alt;
+                exactBestTime = time;
+            }
+        }
+
+        BigDecimal maxAltBd = BigDecimal.valueOf(maxAlt).setScale(2, RoundingMode.HALF_UP);
+        return new TransitInfo(exactBestTime.toLocalDateTime(), maxAltBd);
     }
 
 
-    private record  TransitInfo(LocalDateTime time, BigDecimal altitude){}
+    private record TransitInfo(LocalDateTime time, BigDecimal maxAltitude) {}
+
+    private LocalDateTime filterToDate(ZonedDateTime zdt, LocalDate targetDate) {
+        if (zdt == null) return null;
+        if (zdt.toLocalDate().equals(targetDate)) {
+            return zdt.toLocalDateTime();
+        }
+        return null;
+    }
 }
