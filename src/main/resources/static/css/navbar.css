@@ -1,0 +1,224 @@
+:root {
+    --nav-bg-main: #020617;
+    --nav-accent-green: #2ecc71;
+    --nav-accent-blue: #38bdf8;
+    --nav-accent-red: #ef4444;
+    --nav-accent-purple: #a855f7;
+    --nav-accent-orange: #f59e0b;
+    --nav-text-high: #ffffff;
+    --nav-text-muted: #94a3b8;
+    --nav-glass-bg: rgba(15, 23, 42, 0.95);
+    --nav-glass-border: rgba(255, 255, 255, 0.08);
+}
+
+.navbar {
+    backdrop-filter: blur(20px);
+    background: var(--nav-glass-bg);
+    border-bottom: 1px solid var(--nav-glass-border);
+    padding: 0px;
+    box-shadow: 0 5px 25px rgba(0,0,0,0.5);
+}
+
+.navbar-brand img {
+    height: 60px;
+    width: auto;
+    transition: 0.3s;
+}
+
+.navbar-brand:hover img {
+    transform: scale(1.05);
+}
+
+.nav-link {
+    color: #cbd5e1 !important;
+    font-weight: 600;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 10px 16px !important;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.nav-link svg {
+    width: 24px;
+    height: 24px;
+    opacity: 0.7;
+    transition: 0.2s ease;
+}
+
+.dropdown-toggle::after {
+    display: none;
+}
+
+.nav-link:hover, .nav-link.active {
+    color: var(--nav-text-high) !important;
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.nav-link:hover svg {
+    opacity: 1;
+    color: var(--nav-accent-blue);
+}
+
+/* =========================================
+   PRZYCISK LOGOWANIA
+   ========================================= */
+.btn-nav-primary-custom {
+    background: rgba(17, 243, 92, 0.1);
+    color: var(--nav-accent-green);
+    border: 1px solid rgb(48, 145, 41);
+    font-weight: 600;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 10px 24px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    box-shadow: none;
+}
+
+.btn-nav-primary-custom:hover {
+    background: var(--nav-accent-green);
+    color: var(--nav-bg-main);
+    border-color: var(--nav-accent-green);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(55, 237, 5, 0.3);
+}
+
+/* =========================================
+   DROPDOWNY I ICH WYŚRODKOWANIE
+   ========================================= */
+.nav-item.dropdown {
+    position: relative;
+}
+
+.dropdown-menu {
+    background: #0f172a;
+    border: 1px solid var(--nav-glass-border);
+    border-radius: 16px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.7);
+    margin-top: 15px;
+    padding: 10px;
+}
+
+@media (min-width: 992px) {
+    .dropdown-menu-standard {
+        min-width: 260px;
+        left: 50% !important;
+        transform: translateX(-50%) !important;
+    }
+
+    .dropdown-menu-mega {
+        width: 600px;
+        left: 50% !important;
+        transform: translateX(-50%) !important;
+    }
+    .col-divider { border-right: 1px solid var(--nav-glass-border); }
+
+    .dropdown-menu.show {
+        animation: fadeInCenter 0.2s ease forwards;
+    }
+
+    @keyframes fadeInCenter {
+        from { opacity: 0; transform: translate(-50%, 15px) !important; }
+        to { opacity: 1; transform: translate(-50%, 0) !important; }
+    }
+
+    .dropdown-menu-end {
+        left: auto !important;
+        right: 0 !important;
+        transform: none !important;
+    }
+
+    .dropdown-menu-end.show {
+        animation: fadeInRight 0.2s ease forwards !important;
+    }
+
+    @keyframes fadeInRight {
+        from { opacity: 0; transform: translateY(15px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+}
+
+.icon-box {
+    width: 40px; height: 40px;
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+}
+.bg-icon-blue { background: rgba(56, 189, 248, 0.15); color: var(--nav-accent-blue); }
+.bg-icon-red { background: rgba(239, 68, 68, 0.15); color: var(--nav-accent-red); }
+.bg-icon-green { background: rgba(46, 204, 113, 0.15); color: var(--nav-accent-green); }
+.bg-icon-purple { background: rgba(168, 85, 247, 0.15); color: var(--nav-accent-purple); }
+.bg-icon-orange { background: rgba(245, 158, 11, 0.15); color: var(--nav-accent-orange); }
+
+.menu-item {
+    display: flex; align-items: flex-start; gap: 12px;
+    padding: 10px; border-radius: 10px;
+    color: var(--nav-text-muted); text-decoration: none; transition: 0.2s;
+}
+
+.menu-item:hover { background: rgba(255,255,255,0.04); color: var(--nav-text-high); transform: translateX(4px); }
+.menu-item h6 { margin: 0; font-size: 0.9rem; font-weight: 700; color: #e2e8f0; }
+.menu-item p { margin: 0; font-size: 0.75rem; color: #64748b; margin-top: 2px; }
+.menu-item:hover h6 { color: var(--nav-accent-blue); }
+
+.menu-header { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; color: #64748b; font-weight: 700; margin-bottom: 12px; padding-left: 10px; display: flex; align-items: center; gap: 8px; }
+
+@media (max-width: 991px) {
+    .dropdown-menu.show {
+        animation: fadeInMobile 0.2s ease forwards;
+    }
+
+    @keyframes fadeInMobile {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .navbar-collapse {
+        background: transparent !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        border: none !important;
+        box-shadow: none !important;
+    }
+
+    .mobile-menu-container {
+        background: #0a1128;
+        padding: 24px;
+        border-radius: 20px;
+        border: 1px solid var(--nav-glass-border);
+        max-height: 85vh;
+        overflow-y: auto;
+        width: auto !important;
+        margin: 15px 16px !important;
+        box-shadow: 0 20px 50px rgba(0,0,0,0.8);
+    }
+
+    .dropdown-menu-mega, .dropdown-menu-standard {
+        width: 100%; min-width: auto; left: 0 !important; transform: none !important;
+        position: static; background: transparent; border: none; padding: 0;
+        box-shadow: none; margin-top: 5px;
+    }
+
+    .col-divider { border: none; margin-bottom: 20px; border-bottom: 1px solid var(--nav-glass-border); padding-bottom: 15px; }
+
+    .nav-link {
+        padding: 12px 16px !important;
+        margin-bottom: 4px;
+    }
+
+    .mobile-auth-section { margin-top: 24px; }
+
+    .btn-primary-custom {
+        padding: 12px 24px;
+        background: rgba(56, 189, 248, 0.15);
+    }
+}
