@@ -64,9 +64,6 @@
     color: var(--nav-accent-blue);
 }
 
-/* =========================================
-   PRZYCISK LOGOWANIA
-   ========================================= */
 .btn-nav-primary-custom {
     background: rgba(17, 243, 92, 0.1);
     color: var(--nav-accent-green);
@@ -92,9 +89,6 @@
     box-shadow: 0 6px 20px rgba(55, 237, 5, 0.3);
 }
 
-/* =========================================
-   DROPDOWNY I ICH WYŚRODKOWANIE
-   ========================================= */
 .nav-item.dropdown {
     position: relative;
 }
