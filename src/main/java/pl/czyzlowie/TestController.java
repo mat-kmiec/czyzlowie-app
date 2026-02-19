@@ -10,4 +10,9 @@ public class TestController {
     public String map(){
         return "map";
     }
+
+    @GetMapping("/ryby/*")
+    public String atlas(){
+        return "atlas-details";
+    }
 }

@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pl">
+<head>
+    <th:block th:replace="~{fragments/head :: head-content(
+        pageTitle='Szczupak (Esox lucius) - Kompletny poradnik wędkarski | Atlas Ryb',
+        pageDescription='Jak łowić szczupaki? Poznaj optymalne warunki meteo, kalendarz brań, najlepsze przynęty, wymiary ochronne i złóż idealny zestaw spinningowy.'
+    )}"></th:block>
+
+    <link rel="stylesheet" th:href="@{/css/main.css}">
+    <link rel="stylesheet" th:href="@{/css/atlas.css}">
+</head>
+<body class="atlas-page">
+
+<nav th:replace="~{fragments/navbar :: navbar}"></nav>
+
+<main class="atlas-main-wrapper">
+
+    <header class="atlas-hero">
+        <picture class="hero-bg">
+            <source media="(max-width: 768px)" srcset="/assets/fish/szczupak.jpg">
+            <img src="/assets/fish/szczupak.jpg" alt="Ogromny szczupak w naturalnym środowisku" class="img-fluid">
+        </picture>
+        <div class="hero-overlay"></div>
+
+        <div class="container-xl position-relative z-2 h-100 d-flex flex-column justify-content-end pb-5">
+            <nav aria-label="breadcrumb" class="mb-4">
+                <ol class="breadcrumb custom-breadcrumb shadow-lg">
+                    <li class="breadcrumb-item"><a th:href="@{/}"><i data-lucide="home" class="bc-icon"></i> Główna</a></li>
+                    <li class="breadcrumb-item"><a th:href="@{/atlas}">Atlas Ryb</a></li>
+                    <li class="breadcrumb-item"><a th:href="@{/atlas/drapiezne}">Drapieżniki</a></li>
+                    <li class="breadcrumb-item active text-white fw-bold" aria-current="page">Szczupak</li>
+                </ol>
+            </nav>
+
+            <div class="hero-titles d-flex justify-content-between align-items-end flex-wrap gap-4">
+                <div class="hero-text-content">
+                    <div class="badge-category mb-2"><i data-lucide="crosshair"></i> Apex Predator</div>
+                    <h1 class="display-3 fw-black text-white mb-0 text-glow">Szczupak</h1>
+                    <h2 class="fst-italic text-accent-blue fs-4 mt-1">Esox lucius</h2>
+                </div>
+
+                <div class="fish-rpg-stats d-none d-md-flex gap-4">
+                    <div class="rpg-stat">
+                        <span class="rpg-label">Agresja <i data-lucide="zap" class="ms-1" style="width: 12px;"></i></span>
+                        <div class="rpg-bar"><div class="rpg-fill bg-danger glow-danger" style="width: 95%;"></div></div>
+                    </div>
+                    <div class="rpg-stat">
+                        <span class="rpg-label">Waleczność <i data-lucide="dumbbell" class="ms-1" style="width: 12px;"></i></span>
+                        <div class="rpg-bar"><div class="rpg-fill bg-warning glow-warning" style="width: 75%;"></div></div>
+                    </div>
+                    <div class="rpg-stat">
+                        <span class="rpg-label">Trudność <i data-lucide="brain" class="ms-1" style="width: 12px;"></i></span>
+                        <div class="rpg-bar"><div class="rpg-fill bg-info glow-info" style="width: 50%;"></div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="container-xl py-5">
+        <div class="row g-5">
+
+            <article class="col-lg-8">
+
+                <nav class="toc-panel glass-panel mb-5 p-4">
+                    <h4 class="fs-6 text-uppercase fw-bold text-muted mb-3 d-flex align-items-center"><i data-lucide="list" class="me-2 text-accent-blue" style="width:20px;"></i> Szybka nawigacja</h4>
+                    <ul class="toc-list">
+                        <li><a href="#warunki">Optymalne warunki meteo (Kalkulator)</a></li>
+                        <li><a href="#kalendarz">Roczny kalendarz żerowania</a></li>
+                        <li><a href="#biologia">Biologia, anatomia i zmysły drapieżnika</a></li>
+                        <li><a href="#miejscowki">Czytanie wody: Gdzie szukać szczupaka?</a></li>
+                        <li><a href="#przynety">Zabójcze przynęty i zasady doboru kolorów</a></li>
+                        <li><a href="#sprzet">Konfiguracja sprzętu (Setup Spinningowy)</a></li>
+                    </ul>
+                </nav>
+
+                <section id="warunki" class="content-section glass-panel mb-5 highlight-panel">
+                    <div class="section-header border-0 mb-0 pb-0">
+                        <div class="icon-wrapper bg-orange"><i data-lucide="bar-chart-2"></i></div>
+                        <div>
+                            <h3 class="mb-1">Idealne warunki do brań</h3>
+                            <p class="text-muted-pro fs-7 mb-0">Parametry wyzwalające agresję (Dane algorytmu CzyZlowie)</p>
+                        </div>
+                    </div>
+
+                    <div class="row g-4 mt-3">
+                        <div class="col-6 col-md-3">
+                            <div class="data-block">
+                                <i data-lucide="thermometer-sun" class="data-icon text-warning"></i>
+                                <span class="data-val">10 - 16°C</span>
+                                <span class="data-lbl">Temp. wody</span>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <div class="data-block">
+                                <i data-lucide="gauge" class="data-icon text-info"></i>
+                                <span class="data-val">Lekki spadek</span>
+                                <span class="data-lbl">Ciśnienie hPa</span>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <div class="data-block">
+                                <i data-lucide="cloud-rain" class="data-icon text-primary"></i>
+                                <span class="data-val">Pochmurno/Wiatr</span>
+                                <span class="data-lbl">Pogoda</span>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <div class="data-block">
+                                <i data-lucide="moon" class="data-icon text-purple"></i>
+                                <span class="data-val">1 Kwad. / Nów</span>
+                                <span class="data-lbl">Faza księżyca</span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="kalendarz" class="content-section glass-panel mb-5">
+                    <div class="section-header">
+                        <div class="icon-wrapper bg-green"><i data-lucide="calendar-days"></i></div>
+                        <h3>Roczny kalendarz aktywności</h3>
+                    </div>
+                    <div class="activity-calendar">
+                        <div class="month-block level-1" title="Zimowisko / Okres ochronny"><span>Sty</span></div>
+                        <div class="month-block level-1" title="Okres ochronny"><span>Lut</span></div>
+                        <div class="month-block level-1" title="Tarło i okres ochronny"><span>Mar</span></div>
+                        <div class="month-block level-1" title="Okres ochronny"><span>Kwi</span></div>
+                        <div class="month-block level-5" title="Szczyt brań - odbudowa wagi po tarle"><span>Maj</span></div>
+                        <div class="month-block level-4" title="Stabilne, dobre brania"><span>Cze</span></div>
+                        <div class="month-block level-2" title="Woda za ciepła, ryba ospała"><span>Lip</span></div>
+                        <div class="month-block level-2" title="Letnie upały - łowienie tylko o świcie"><span>Sie</span></div>
+                        <div class="month-block level-4" title="Początek jesiennego żerowania"><span>Wrz</span></div>
+                        <div class="month-block level-5" title="Szczyt sezonu - grube ryby"><span>Paź</span></div>
+                        <div class="month-block level-5" title="Intensywne gromadzenie tłuszczu na zimę"><span>Lis</span></div>
+                        <div class="month-block level-3" title="Spowolnienie metabolizmu"><span>Gru</span></div>
+                    </div>
+                    <div class="calendar-legend mt-3">
+                        <span class="legend-item"><span class="color-dot level-1"></span> Okres ochronny</span>
+                        <span class="legend-item"><span class="color-dot level-2"></span> Słabe brania</span>
+                        <span class="legend-item"><span class="color-dot level-4"></span> Dobre brania</span>
+                        <span class="legend-item"><span class="color-dot level-5"></span> Szczyt sezonu</span>
+                    </div>
+                </section>
+
+                <section id="biologia" class="content-section glass-panel mb-5">
+                    <div class="section-header">
+                        <div class="icon-wrapper bg-purple"><i data-lucide="dna"></i></div>
+                        <h3>Biologia, anatomia i tarło</h3>
+                    </div>
+                    <div class="section-body text-muted-pro">
+                        <p><strong>Szczupak pospolity (Esox lucius)</strong> to perfekcyjnie zaprojektowana maszyna do zabijania, ewoluująca od milionów lat w kierunku jednego celu: błyskawicznego ataku z ukrycia. Nie goni ofiary na długich dystansach – polega na jednym, potężnym zrywie.</p>
+
+                        <div class="row g-4 my-4">
+                            <div class="col-md-6">
+                                <h6 class="text-white fw-bold"><i data-lucide="eye" class="text-accent-blue me-2 mb-1" style="width:16px;"></i>Zmysł wzroku i wibracji</h6>
+                                <p class="fs-7">Szczupak jest wzrokowcem. Oczy umieszczone na górze czaszki pozwalają mu skanować to, co dzieje się nad nim. W mętnej wodzie z kolei do gry wchodzi niesamowicie czuła <strong>linia boczna</strong>, wyłapująca najdrobniejsze drgania – dlatego w brudnej wodzie "grające" gumy to absolutny hit.</p>
+                            </div>
+                            <div class="col-md-6">
+                                <h6 class="text-white fw-bold"><i data-lucide="scissors" class="text-accent-red me-2 mb-1" style="width:16px;"></i>Anatomia paszczy</h6>
+                                <p class="fs-7">Pysk przypominający kaczy dziób kryje w sobie ponad <strong>700 zębów</strong> skierowanych do tyłu (do gardzieli). Kiedy ofiara tam trafi, nie ma szans na ucieczkę. To wymusza na wędkarzach absolutny nakaz stosowania odpornych na cięcie przyponów.</p>
+                            </div>
+                        </div>
+
+                        <div class="callout-box bg-dark-glass border-accent-purple p-4 rounded-4 mt-3">
+                            <h5 class="text-accent-purple fw-bold mb-2">Kiedy szczupak ma tarło?</h5>
+                            <p class="mb-0 fs-7">Tarło szczupaka przypada najwcześniej ze wszystkich naszych drapieżników – <strong>od marca do połowy kwietnia</strong>. Często odbywa się tuż po zejściu lodów, na bardzo płytkich rozlewiskach i zalanych łąkach. Z tego powodu bezwzględnie musimy przestrzegać wiosennego okresu ochronnego.</p>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="miejscowki" class="content-section glass-panel mb-5">
+                    <div class="section-header">
+                        <div class="icon-wrapper bg-blue"><i data-lucide="map-pin"></i></div>
+                        <h3>Czytanie wody: Gdzie go szukać?</h3>
+                    </div>
+                    <div class="section-body text-muted-pro">
+                        <p>Drapieżnik ten rzadko zmienia teren, jest terytorialny. Szukaj miejsc, które oferują mu schronienie i dostęp do pokarmu (drobnicy).</p>
+
+                        <div class="row g-4 mt-2">
+                            <div class="col-md-6">
+                                <div class="tip-card border-accent-blue h-100">
+                                    <h5 class="text-accent-blue"><i data-lucide="waves" class="me-2"></i> Jeziora i zbiorniki zaporowe</h5>
+                                    <ul class="custom-list">
+                                        <li><strong>Wiosna/Wczesne lato:</strong> Płytkie zatoki, granica trzcin, pas grążeli i lilii wodnych (1 - 2.5m głębokości).</li>
+                                        <li><strong>Środek lata:</strong> Szczyty podwodnych górek i gęsto zarośnięte blaty.</li>
+                                        <li><strong>Późna jesień:</strong> Głębokie stoki i spady dna (4 - 10m). Szczupak schodzi tam, gdzie zimuje stado leszczy czy płoci.</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="tip-card border-accent-green h-100">
+                                    <h5 class="text-accent-green"><i data-lucide="navigation" class="me-2"></i> Rzeki nizinne</h5>
+                                    <ul class="custom-list">
+                                        <li><strong>Starorzecza:</strong> Zarośnięte, odcięte od głównego nurtu łuki rzeki to mekka jeziorowego szczupaka.</li>
+                                        <li><strong>Główki (Ostrogi):</strong> Klatki między ostrogami, warkocz nurtu za główką. Tu rzeka zwalnia, a drobnica czuje się bezpiecznie.</li>
+                                        <li><strong>Podmyte burty:</strong> Nawisy drzew i zwalone konary przerywające główny nurt.</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="przynety" class="content-section glass-panel mb-5">
+                    <div class="section-header">
+                        <div class="icon-wrapper bg-red"><i data-lucide="hook"></i></div>
+                        <h3>Zabójcze przynęty i kolory</h3>
+                    </div>
+                    <div class="section-body text-muted-pro">
+                        <p>Złota zasada łowców okazów: <strong>Duża przynęta to selekcja dużej ryby.</strong> W jesiennym amoku szczupak nie będzie tracił energii na gonienie za 5-centymetrową rybką. Zaatakuje taką, która ma 20-30% jego rozmiaru.</p>
+
+                        <ul class="custom-list mb-4">
+                            <li><strong>Swimbaity i gumy (Kopyta):</strong> 15 do nawet 30 cm. Uzbrajane w dozbrojki. Idealne do penetrowania jesiennych głębin.</li>
+                            <li><strong>Jerki (np. Salmo Slider):</strong> Królowie płycizn i wiosennego łowienia. Wymagają agresywnego podszarpywania wędką.</li>
+                            <li><strong>Wahadłówki (Mors, Gnom, Alga):</strong> Stara szkoła, która wciąż regularnie przynosi okazy. Pracują pięknie przy tzw. opadzie.</li>
+                        </ul>
+
+                        <div class="custom-alert mt-4" style="background: rgba(56, 189, 248, 0.05); border: 1px dashed rgba(56, 189, 248, 0.4);">
+                            <i data-lucide="palette" class="alert-icon text-accent-blue"></i>
+                            <div>
+                                <h6 class="text-white fw-bold mb-1">Zasada doboru kolorów</h6>
+                                <p class="mb-1 fs-7"><strong>Woda klarowna (i słońce):</strong> Kolory naturalne (imitacja płoci, uklei, okonka), srebro, motoroil, stonowane barwy z brokatem.</p>
+                                <p class="mb-0 fs-7"><strong>Woda mętna / potorfowa (i chmury):</strong> Uderzaj w agresywne kolory fluo: seledyn, żarówa-pomarańcz, słynny <em>Firetiger</em> oraz wściekły róż.</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="sprzet" class="content-section glass-panel mb-5">
+                    <div class="section-header">
+                        <div class="icon-wrapper bg-orange"><i data-lucide="wrench"></i></div>
+                        <h3>Setup Sprzętowy (Spinning)</h3>
+                    </div>
+                    <div class="setup-grid">
+                        <div class="setup-item">
+                            <i data-lucide="navigation" class="setup-icon text-accent-blue"></i>
+                            <div class="setup-content">
+                                <h6>Wędzisko (Kij)</h6>
+                                <p>Szybka akcja (Fast). Długość: 2.10m-2.40m z łodzi, do 2.70m z brzegu. Ciężar wyrzutu (CW): średni to 15-40g, pod grube gumy (Heavy Pike) to 50-120g.</p>
+                            </div>
+                        </div>
+                        <div class="setup-item">
+                            <i data-lucide="aperture" class="setup-icon text-accent-purple"></i>
+                            <div class="setup-content">
+                                <h6>Kołowrotek / Multiplikator</h6>
+                                <p>Rozmiar 3000 lub 4000. Wymagany bardzo mocny hamulec przedni i stalowa przekładnia, która wytrzyma zwijanie stawiających gigantyczny opór przynęt.</p>
+                            </div>
+                        </div>
+                        <div class="setup-item">
+                            <i data-lucide="git-commit" class="setup-icon text-accent-green"></i>
+                            <div class="setup-content">
+                                <h6>Plecionka (Nie używaj żyłki)</h6>
+                                <p>Grubość od 0.16 mm do 0.22 mm (wersja 8-splotowa). Brak rozciągliwości plecionki jest absolutnie kluczowy, by siła zacięcia przebiła twardy pysk ryby.</p>
+                            </div>
+                        </div>
+                        <div class="setup-item border-danger border border-2 bg-danger bg-opacity-10 position-relative overflow-hidden">
+                            <div class="absolute-glow bg-danger"></div>
+                            <i data-lucide="shield-alert" class="setup-icon text-danger position-relative z-1"></i>
+                            <div class="setup-content position-relative z-1">
+                                <h6 class="text-danger fw-black">Przypon (Krytyczne!)</h6>
+                                <p>Zęby tną plecionkę w ułamku sekundy. <strong>Zawsze stosuj przypon:</strong> stalowy, wolframowy, tytanowy lub bardzo gruby fluorocarbon (min. 0.80 mm grubości).</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="spolecznosc" class="community-feedback-panel mt-5 mb-5 p-4 rounded-4">
+                    <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-4">
+                        <div class="d-flex align-items-start gap-3">
+                            <div class="icon-pulse bg-accent-blue"><i data-lucide="message-square-plus" class="text-white"></i></div>
+                            <div>
+                                <h5 class="text-white fw-bold mb-1">Masz sprawdzony tip na szczupaka?</h5>
+                                <p class="text-muted-pro fs-7 mb-0">Atlas CzyZlowie tworzymy razem z Wami. Zauważyłeś nieścisłość w regulaminie lub znasz nową, skuteczną metodę? Podziel się wiedzą!</p>
+                            </div>
+                        </div>
+                        <a th:href="@{/kontakt}" class="btn btn-outline-info text-nowrap rounded-pill px-4 py-2 border-2 fw-bold">
+                            Zgłoś uwagę <i data-lucide="arrow-right" class="ms-1" style="width: 16px;"></i>
+                        </a>
+                    </div>
+                </section>
+
+            </article>
+
+            <aside class="col-lg-4">
+                <div class="sticky-sidebar">
+
+                    <div class="glass-panel text-center mb-4 cta-panel border-accent-blue position-relative overflow-hidden" style="border-width: 2px;">
+                        <div class="cta-glow bg-accent-blue"></div>
+                        <i data-lucide="radar" class="text-accent-blue mb-3 position-relative z-1" style="width: 46px; height: 46px; animation: pulse 2s infinite;"></i>
+                        <h4 class="text-white fw-black mb-2 position-relative z-1">Będzie dzisiaj brał?</h4>
+                        <p class="text-muted-pro fs-7 mb-4 position-relative z-1">Wprowadź swoje łowisko i sprawdź prognozę aktywności w oparciu o dokładny skok ciśnienia i fazę księżyca.</p>
+                        <a th:href="@{/prognoza}" class="btn btn-nav-primary-custom w-100 py-3 fs-6 position-relative z-1">Sprawdź szanse LIVE</a>
+                    </div>
+
+                    <div class="glass-panel stats-card mb-4">
+                        <h4 class="sidebar-title"><i data-lucide="scale" class="me-2 text-primary"></i> Regulamin PZW</h4>
+
+                        <div class="stat-row">
+                            <div class="stat-icon bg-icon-red"><i data-lucide="ruler"></i></div>
+                            <div class="stat-info">
+                                <span class="stat-label">Wymiar ochronny</span>
+                                <span class="stat-value text-danger">do 50 cm</span>
+                            </div>
+                        </div>
+
+                        <div class="stat-row">
+                            <div class="stat-icon bg-icon-orange"><i data-lucide="calendar-x"></i></div>
+                            <div class="stat-info">
+                                <span class="stat-label">Okres ochronny</span>
+                                <span class="stat-value text-warning">1 sty - 30 kwi</span>
+                            </div>
+                        </div>
+
+                        <div class="stat-row">
+                            <div class="stat-icon bg-icon-purple"><i data-lucide="fish"></i></div>
+                            <div class="stat-info">
+                                <span class="stat-label">Limit dobowy</span>
+                                <span class="stat-value">2 szt.</span>
+                            </div>
+                        </div>
+
+                        <div class="alert mt-4 mb-0 d-flex gap-3 align-items-start" style="background: rgba(56, 189, 248, 0.1); border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 12px; padding: 15px;">
+                            <i data-lucide="info" class="text-accent-blue mt-1" style="width: 20px; flex-shrink:0;"></i>
+                            <p class="text-white fs-7 mb-0 lh-base"><strong>Ważne:</strong> Zawsze sprawdzaj regulamin swojego okręgu. PZW coraz częściej wprowadza wymiar widełkowy np. do 50cm i powyżej 90cm (tzw. "Górny Wymiar Ochronny").</p>
+                        </div>
+                    </div>
+
+                    <div class="glass-panel record-card border-accent-orange">
+                        <div class="record-badge"><i data-lucide="award"></i> Oficjalny Rekord Polski</div>
+                        <div class="record-data mt-3">
+                            <div class="d-flex align-items-end gap-2">
+                                <span class="display-4 fw-black text-white lh-1">24.10</span>
+                                <span class="fs-5 text-accent-orange fw-bold pb-1">kg</span>
+                            </div>
+                            <div class="text-white-50 mt-2 fs-7 lh-lg">
+                                Potężny okaz złowiony w <strong>1997 roku</strong>, mierzący równe <strong>128 cm</strong> długości.
+                            </div>
+                        </div>
+                    </div>
+
+
+                </div>
+            </aside>
+
+        </div>
+    </div>
+</main>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        lucide.createIcons();
+
+        document.querySelectorAll('.toc-list a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    const headerOffset = 90; // offset omijający stały nagłówek
+                    const elementPosition = target.getBoundingClientRect().top;
+                    const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+                    window.scrollTo({
+                        top: offsetPosition,
+                        behavior: "smooth"
+                    });
+                }
+            });
+        });
+    });
+</script>
+</body>
+</html>
