@@ -15,4 +15,9 @@ public class TestController {
     public String atlas(){
         return "atlas-details";
     }
+
+    @GetMapping("/drapiezniki")
+    public String predators(){
+        return "predators";
+    }
 }

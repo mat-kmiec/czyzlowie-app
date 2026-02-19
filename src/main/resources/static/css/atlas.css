@@ -595,3 +595,115 @@ body.atlas-page {
 
     .rpg-stat { width: 30%; }
 }
+
+.category-hero {
+    height: 40vh !important;
+    min-height: 350px !important;
+    max-height: 450px !important;
+}
+
+.fish-card {
+    background: rgba(15, 23, 42, 0.5);
+    backdrop-filter: blur(15px);
+    border: 1px solid var(--panel-border);
+    border-radius: 24px;
+    overflow: hidden;
+    position: relative;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+}
+
+.fish-card:hover {
+    transform: translateY(-8px);
+    background: rgba(15, 23, 42, 0.8);
+    border-color: rgba(56, 189, 248, 0.5);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.6), 0 0 20px rgba(56, 189, 248, 0.2);
+}
+
+.fish-card-img-wrapper {
+    position: relative;
+    height: 220px;
+    overflow: hidden;
+}
+
+.fish-card-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.6s ease;
+}
+
+.fish-card:hover .fish-card-img {
+    transform: scale(1.08);
+}
+
+.fish-card-img-wrapper::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0; height: 100px;
+    background: linear-gradient(to bottom, transparent, rgba(15, 23, 42, 0.5) 70%, rgba(15, 23, 42, 1));
+}
+
+.fish-card-badge {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    padding: 6px 14px;
+    border-radius: 30px;
+    font-size: 0.75rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    z-index: 2;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+}
+
+.fish-card-body {
+    padding: 25px;
+    position: relative;
+    z-index: 2;
+    margin-top: -30px;
+}
+
+.fish-card-title {
+    color: var(--text-primary);
+    font-weight: 900;
+    font-size: 1.5rem;
+}
+
+.fish-card-latin {
+    font-size: 0.85rem;
+    font-weight: 600;
+    opacity: 0.9;
+}
+
+.fish-card-desc {
+    color: var(--text-muted);
+    font-size: 0.95rem;
+    line-height: 1.6;
+    margin-bottom: 0;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.fish-icon {
+    width: 42px; height: 42px;
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+}
+.fish-icon svg { width: 20px; height: 20px; }
+
+.fish-card-stats {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    border-top: 1px solid rgba(255,255,255,0.05);
+    padding-top: 20px;
+}
+
+.mini-rpg-stat { display: flex; align-items: center; gap: 10px; }
+.mini-label { font-size: 0.7rem; text-transform: uppercase; font-weight: 800; color: #64748b; width: 60px; }
+.mini-rpg-stat .rpg-bar { flex-grow: 1; height: 6px; }
