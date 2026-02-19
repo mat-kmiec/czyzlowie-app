@@ -20,4 +20,24 @@ public class TestController {
     public String predators(){
         return "predators";
     }
+
+    @GetMapping("/login")
+    public String login(){
+        return "login";
+    }
+
+    @GetMapping("/register")
+    public String register(){
+        return "register";
+    }
+
+    @GetMapping("/forgot-password")
+    public String forgotPass(){
+        return "forgot-password";
+    }
+
+    @GetMapping("/reset-password")
+    public String resetPass(){
+        return "reset-password";
+    }
 }
