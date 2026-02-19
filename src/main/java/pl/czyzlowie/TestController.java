@@ -23,22 +23,22 @@ public class TestController {
 
     @GetMapping("/login")
     public String login(){
-        return "login";
+        return "auth/login";
     }
 
     @GetMapping("/register")
     public String register(){
-        return "register";
+        return "auth/register";
     }
 
     @GetMapping("/forgot-password")
     public String forgotPass(){
-        return "forgot-password";
+        return "auth/forgot-password";
     }
 
     @GetMapping("/reset-password")
     public String resetPass(){
-        return "reset-password";
+        return "auth/reset-password";
     }
 
     @GetMapping("/error")
