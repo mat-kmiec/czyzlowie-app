@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pl">
+<head>
+    <th:block th:replace="~{fragments/head :: head-content(
+        pageTitle='Ryby Drapieżne - Atlas Ryb',
+        pageDescription='Poznaj najgroźniejsze drapieżniki polskich wód. Szczupak, Sandacz, Okoń, Sum i inne. Sprawdź jak i gdzie je łowić.'
+    )}"></th:block>
+
+    <link rel="stylesheet" th:href="@{/css/main.css}">
+    <link rel="stylesheet" th:href="@{/css/atlas.css}">
+    <script src="https://unpkg.com/lucide@latest" defer></script>
+</head>
+<body class="atlas-page">
+
+<nav th:replace="~{fragments/navbar :: navbar}"></nav>
+
+<main class="atlas-main-wrapper">
+
+    <header class="atlas-hero category-hero">
+        <picture class="hero-bg">
+            <img src="/assets/predators.jpg" alt="Dno jeziora i drapieżniki" class="img-fluid" style="filter: blur(4px) brightness(0.7);">
+        </picture>
+        <div class="hero-overlay" style="background: linear-gradient(to bottom, rgba(2,6,23,0.3) 0%, rgba(2,6,23,1) 100%);"></div>
+
+        <div class="container-xl position-relative z-2 h-100 d-flex flex-column justify-content-end pb-4">
+            <nav aria-label="breadcrumb" class="mb-3">
+                <ol class="breadcrumb custom-breadcrumb">
+                    <li class="breadcrumb-item"><a th:href="@{/}"><i data-lucide="home" class="bc-icon"></i> Główna</a></li>
+                    <li class="breadcrumb-item"><a th:href="@{/atlas}">Atlas Ryb</a></li>
+                    <li class="breadcrumb-item active text-white fw-bold" aria-current="page">Drapieżniki</li>
+                </ol>
+            </nav>
+
+            <div class="d-flex align-items-center gap-3">
+                <div class="icon-pulse bg-accent-red"><i data-lucide="crosshair" class="text-white"></i></div>
+                <div>
+                    <h1 class="display-4 fw-black text-white mb-0 text-glow">Ryby Drapieżne</h1>
+                    <p class="text-muted-pro fs-6 mt-1 mb-0">Poznaj królów podwodnego polowania. Techniki, sprzęt i biologie.</p>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="container-xl py-5">
+
+        <div class="row g-4">
+
+            <div class="col-12 col-md-6 col-lg-4">
+                <a th:href="@{/atlas/szczupak}" class="fish-card text-decoration-none d-block h-100">
+                    <div class="fish-card-img-wrapper">
+                        <img src="/assets/fish/szczupak.jpg" alt="Szczupak" class="fish-card-img">
+                    </div>
+                    <div class="fish-card-body">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <div>
+                                <h3 class="fish-card-title mb-0">Szczupak</h3>
+                                <span class="fish-card-latin text-accent-blue">Esox lucius</span>
+                            </div>
+                            <div class="fish-icon bg-icon-red"><i data-lucide="scissors"></i></div>
+                        </div>
+
+                        <p class="fish-card-desc mt-3">Król wód słodkich. Wzrokowiec polujący z zasadzki. Osiąga długość nawet do 130 cm.</p>
+
+                        <div class="fish-card-stats mt-4">
+                            <div class="mini-rpg-stat">
+                                <span class="mini-label">Agresja</span>
+                                <div class="rpg-bar"><div class="rpg-fill bg-danger glow-danger" style="width: 95%;"></div></div>
+                            </div>
+                            <div class="mini-rpg-stat">
+                                <span class="mini-label">Trudność</span>
+                                <div class="rpg-bar"><div class="rpg-fill bg-info glow-info" style="width: 50%;"></div></div>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+
+            <div class="col-12 col-md-6 col-lg-4">
+                <a th:href="@{/atlas/sandacz}" class="fish-card text-decoration-none d-block h-100">
+                    <div class="fish-card-img-wrapper">
+                        <img src="/assets/fish/sandacz.jpg" alt="Sandacz" class="fish-card-img">
+                    </div>
+                    <div class="fish-card-body">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <div>
+                                <h3 class="fish-card-title mb-0">Sandacz</h3>
+                                <span class="fish-card-latin text-accent-purple">Sander lucioperca</span>
+                            </div>
+                            <div class="fish-icon bg-icon-purple"><i data-lucide="eye"></i></div>
+                        </div>
+
+                        <p class="fish-card-desc mt-3">Duch mętnych wód i głębokich spadów. Niezwykle ostrożny i kapryśny, wymaga perfekcyjnego sprzętu.</p>
+
+                        <div class="fish-card-stats mt-4">
+                            <div class="mini-rpg-stat">
+                                <span class="mini-label">Agresja</span>
+                                <div class="rpg-bar"><div class="rpg-fill bg-danger glow-danger" style="width: 70%;"></div></div>
+                            </div>
+                            <div class="mini-rpg-stat">
+                                <span class="mini-label">Trudność</span>
+                                <div class="rpg-bar"><div class="rpg-fill bg-info glow-info" style="width: 90%;"></div></div>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+
+            <div class="col-12 col-md-6 col-lg-4">
+                <a th:href="@{/atlas/sum}" class="fish-card text-decoration-none d-block h-100">
+                    <div class="fish-card-img-wrapper">
+                        <img src="/assets/fish/sum.jpg" alt="Sum" class="fish-card-img">
+                        <div class="fish-card-badge bg-accent-orange text-white">Gigant</div>
+                    </div>
+                    <div class="fish-card-body">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <div>
+                                <h3 class="fish-card-title mb-0">Sum</h3>
+                                <span class="fish-card-latin text-accent-orange">Silurus glanis</span>
+                            </div>
+                            <div class="fish-icon bg-icon-orange"><i data-lucide="anchor"></i></div>
+                        </div>
+
+                        <p class="fish-card-desc mt-3">Największa ryba słodkowodna w Europie. Prawdziwy potwór wymagający ekstremalnie mocnego sprzętu.</p>
+
+                        <div class="fish-card-stats mt-4">
+                            <div class="mini-rpg-stat">
+                                <span class="mini-label">Waleczność</span>
+                                <div class="rpg-bar"><div class="rpg-fill bg-warning glow-warning" style="width: 100%;"></div></div>
+                            </div>
+                            <div class="mini-rpg-stat">
+                                <span class="mini-label">Trudność</span>
+                                <div class="rpg-bar"><div class="rpg-fill bg-info glow-info" style="width: 85%;"></div></div>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+
+            <div class="col-12 col-md-6 col-lg-4">
+                <a th:href="@{/atlas/okon}" class="fish-card text-decoration-none d-block h-100">
+                    <div class="fish-card-img-wrapper">
+                        <img src="/assets/fish/okon.jpg" alt="Okoń" class="fish-card-img">
+                    </div>
+                    <div class="fish-card-body">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <div>
+                                <h3 class="fish-card-title mb-0">Okoń</h3>
+                                <span class="fish-card-latin text-accent-green">Perca fluviatilis</span>
+                            </div>
+                            <div class="fish-icon bg-icon-green"><i data-lucide="users"></i></div>
+                        </div>
+
+                        <p class="fish-card-desc mt-3">Mniejszy kuzyn sandacza, ale niezwykle waleczny. Ukochana ryba fanów ultra-lekkiego spinningu.</p>
+
+                        <div class="fish-card-stats mt-4">
+                            <div class="mini-rpg-stat">
+                                <span class="mini-label">Agresja</span>
+                                <div class="rpg-bar"><div class="rpg-fill bg-danger glow-danger" style="width: 85%;"></div></div>
+                            </div>
+                            <div class="mini-rpg-stat">
+                                <span class="mini-label">Trudność</span>
+                                <div class="rpg-bar"><div class="rpg-fill bg-info glow-info" style="width: 30%;"></div></div>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+
+        </div> </div>
+</main>
+<footer th:replace="~{fragments/footer :: footer}"></footer>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        lucide.createIcons();
+    });
+</script>
+</body>
+</html>

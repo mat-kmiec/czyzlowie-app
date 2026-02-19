@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pl">
+<body>
+<footer th:fragment="footer" class="main-footer">
+    <div class="footer-top-gradient"></div>
+
+    <div class="container-xl pt-5 pb-4">
+        <div class="row g-4 mb-5">
+
+            <div class="col-lg-4 col-md-6 pe-lg-5">
+                <a class="d-inline-block mb-3" th:href="@{/}">
+                    <img th:src="@{/assets/logo.png}" alt="CzyZlowie Logo" class="footer-logo">
+                </a>
+                <p class="footer-text mb-4">
+                    Twoje osobiste centrum dowodzenia nad wodą. Sprawdzaj prognozy brań, analizuj ciśnienie i prowadź dziennik połowów. Z nami nie ma pustych przelotów.
+                </p>
+                <div class="footer-socials d-flex gap-3">
+                    <a href="#" class="social-icon" aria-label="Facebook">
+                        <i data-lucide="facebook"></i>
+                    </a>
+                    <a href="#" class="social-icon" aria-label="Instagram">
+                        <i data-lucide="instagram"></i>
+                    </a>
+                    <a href="#" class="social-icon" aria-label="YouTube">
+                        <i data-lucide="youtube"></i>
+                    </a>
+                </div>
+            </div>
+
+            <div class="col-lg-2 col-md-6">
+                <h5 class="footer-heading">Odkrywaj</h5>
+                <ul class="footer-links list-unstyled">
+                    <li><a th:href="@{/prognoza}">Prognoza Brań</a></li>
+                    <li><a th:href="@{/mapa}">Mapa Łowisk <span class="badge bg-danger rounded-pill ms-1" style="font-size: 0.55rem;">LIVE</span></a></li>
+                    <li><a th:href="@{/dziennik}">Dziennik Połowów</a></li>
+                    <li><a th:href="@{/atlas}">Atlas Ryb</a></li>
+                    <li><a th:href="@{/ryby/szczupak}">Jak łowić szczupaka?</a></li>
+                </ul>
+            </div>
+
+            <div class="col-lg-3 col-md-6">
+                <h5 class="footer-heading">Narzędzia</h5>
+                <ul class="footer-links list-unstyled">
+                    <li><a th:href="@{/barometr}">Barometr Wędkarski</a></li>
+                    <li><a th:href="@{/ksiezyc}">Kalendarz Solunarny</a></li>
+                    <li><a th:href="@{/slonce}">Wschody i Zachody Słońca</a></li>
+                    <li><a th:href="@{/pogoda}">Radary Pogodowe</a></li>
+                    <li><a th:href="@{/kalkulator}">Kalkulator Wagi Ryb</a></li>
+                </ul>
+            </div>
+
+            <div class="col-lg-3 col-md-6">
+                <h5 class="footer-heading">Informacje</h5>
+                <ul class="footer-links list-unstyled">
+                    <li><a th:href="@{/o-nas}">O aplikacji</a></li>
+                    <li><a th:href="@{/kontakt}">Kontakt / Pomoc</a></li>
+                    <li><a th:href="@{/regulamin}">Regulamin serwisu</a></li>
+                    <li><a th:href="@{/polityka-prywatnosci}">Polityka prywatności</a></li>
+                    <li><a th:href="@{/sitemap.xml}" target="_blank">Mapa strony (XML)</a></li>
+                </ul>
+            </div>
+
+        </div>
+
+        <div class="footer-bottom pt-4 d-flex flex-column flex-md-row justify-content-between align-items-center">
+            <p class="mb-0 fs-7 footer-text">
+                &copy; <span th:text="${#dates.year(#dates.createNow())}">2026</span> CzyZlowie.pl. Wszelkie prawa zastrzeżone.
+            </p>
+            <div class="mt-2 mt-md-0 fs-7 footer-text d-flex align-items-center gap-1">
+                Stworzone z <i data-lucide="heart" class="text-danger" style="width: 14px; height: 14px; fill: currentColor;"></i> dla wędkarzy.
+            </div>
+        </div>
+    </div>
+</footer>
+</body>
+</html>

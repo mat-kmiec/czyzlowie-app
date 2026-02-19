@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="~{fragments/head :: head-content}"></th:block>
+
+    <link rel="stylesheet" th:href="@{/css/home-hero.css}">
+</head>
+<body class="bg-dark">
+    <nav th:replace="~{fragments/navbar :: navbar}"></nav>
+    <main class="container mt-5 bg-dark">
+        <h1>Witaj na łowisku!</h1>
+    </main>
+
+
+    <footer th:replace="~{fragments/footer :: footer}"></footer>
+</body>
+</html>

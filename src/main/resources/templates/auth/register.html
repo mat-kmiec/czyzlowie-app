@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pl">
+<head>
+    <th:block th:replace="~{fragments/head :: head-content(
+        pageTitle='Zarejestruj się | CzyZlowie',
+        pageDescription='Dołącz do społeczności łowców! Załóż darmowe konto, aby uzyskać dostęp do precyzyjnego kalkulatora brań i osobistego dziennika.'
+    )}"></th:block>
+
+    <link rel="stylesheet" th:href="@{/css/main.css}">
+    <link rel="stylesheet" th:href="@{/css/auth.css}">
+    <script src="https://unpkg.com/lucide@latest" defer></script>
+</head>
+<body class="auth-page">
+
+<nav th:replace="~{fragments/navbar :: navbar}"></nav>
+
+<main class="auth-wrapper">
+    <picture class="auth-bg-picture">
+        <source media="(max-width: 768px)" srcset="/assets/ryby/predators-bg.jpg">
+        <img src="/assets/ryby/predators-bg.jpg" alt="Podwodny świat" class="auth-bg-image">
+    </picture>
+    <div class="auth-bg-overlay"></div>
+
+    <div class="container-xl d-flex justify-content-center align-items-center min-vh-100 py-5 position-relative z-2" style="margin-top: 30px;">
+
+        <div class="auth-card glass-panel w-100">
+            <div class="row g-0">
+
+                <div class="col-lg-6 auth-form-section pe-lg-5">
+
+                    <div class="text-center text-lg-start mb-4">
+                        <a th:href="@{/}">
+                            <img src="/assets/logo.png" alt="CzyZlowie Logo" class="auth-logo mb-4">
+                        </a>
+                        <h1 class="auth-title">Zarzuć wędki z nami!</h1>
+                        <p class="auth-subtitle">Załóż darmowe konto w 15 sekund i zyskaj dostęp do narzędzi PRO.</p>
+                    </div>
+
+                    <div th:if="${param.error}" class="alert auth-alert alert-danger d-flex align-items-center gap-2">
+                        <i data-lucide="shield-alert" style="width: 20px;"></i>
+                        <span>Konto o podanym adresie e-mail już istnieje!</span>
+                    </div>
+
+                    <form th:action="@{/rejestracja}" method="post" class="auth-form mt-4">
+
+                        <div class="form-group mb-3">
+                            <label for="nickname" class="form-label text-white-50 fs-7 fw-bold text-uppercase mb-2">Jak się nazywasz? (Nick)</label>
+                            <div class="input-icon-wrapper">
+                                <i data-lucide="user" class="input-icon"></i>
+                                <input type="text" id="nickname" name="nickname" class="form-control auth-input" placeholder="Wędkarski Świrus" required autofocus>
+                            </div>
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label for="username" class="form-label text-white-50 fs-7 fw-bold text-uppercase mb-2">Adres E-mail</label>
+                            <div class="input-icon-wrapper">
+                                <i data-lucide="mail" class="input-icon"></i>
+                                <input type="email" id="username" name="username" class="form-control auth-input" placeholder="wedkarz@pzw.pl" required>
+                            </div>
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label for="password" class="form-label text-white-50 fs-7 fw-bold text-uppercase mb-2">Utwórz hasło</label>
+                            <div class="input-icon-wrapper">
+                                <i data-lucide="lock" class="input-icon"></i>
+                                <input type="password" id="password" name="password" class="form-control auth-input" placeholder="Min. 8 znaków" required minlength="8">
+                                <button type="button" class="btn-toggle-pass" aria-label="Pokaż hasło">
+                                    <i data-lucide="eye" style="width: 18px;"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="form-check custom-checkbox mb-4 mt-3">
+                            <input type="checkbox" class="form-check-input" id="terms" name="terms" required>
+                            <label class="form-check-label text-white-50 fs-7" for="terms">
+                                Akceptuję <a th:href="@{/regulamin}" class="auth-link fw-bold">Regulamin</a> oraz <a th:href="@{/polityka-prywatnosci}" class="auth-link fw-bold">Politykę Prywatności</a>.
+                            </label>
+                        </div>
+
+                        <button type="submit" class="btn btn-auth-primary w-100 position-relative overflow-hidden">
+                            <span class="position-relative z-1 d-flex align-items-center justify-content-center">
+                                ZAŁÓŻ DARMOWE KONTO <i data-lucide="user-plus" class="ms-2" style="width: 20px;"></i>
+                            </span>
+                            <div class="btn-shine"></div>
+                        </button>
+                    </form>
+
+                    <div class="auth-footer mt-4 text-center text-lg-start">
+                        <span class="text-white-50">Masz już konto?</span>
+                        <a th:href="@{/login}" class="auth-link fw-bold ms-1">Zaloguj się</a>
+                    </div>
+                </div>
+
+                <div class="col-auto d-none d-lg-flex flex-column align-items-center justify-content-center px-4">
+                    <div class="auth-divider-line"></div>
+                    <div class="auth-divider-text">LUB</div>
+                    <div class="auth-divider-line"></div>
+                </div>
+
+                <div class="col-12 d-lg-none my-4 position-relative text-center">
+                    <hr class="auth-divider-mobile">
+                    <span class="auth-divider-text-mobile">LUB ZAŁÓŻ PRZEZ</span>
+                </div>
+
+                <div class="col-lg ps-lg-4 d-flex flex-column justify-content-center">
+
+                    <div class="social-login-wrapper">
+                        <h4 class="social-title d-none d-lg-block mb-4 text-center text-lg-start">Szybka rejestracja</h4>
+
+                        <a th:href="@{/oauth2/authorization/google}" class="btn btn-social btn-google mb-3">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 48 48"><path fill="#FFC107" d="M43.611,20.083H42V20H24v8h11.303c-1.649,4.657-6.08,8-11.303,8c-6.627,0-12-5.373-12-12c0-6.627,5.373-12,12-12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C12.955,4,4,12.955,4,24c0,11.045,8.955,20,20,20c11.045,0,20-8.955,20-20C44,22.659,43.862,21.35,43.611,20.083z"/><path fill="#FF3D00" d="M6.306,14.691l6.571,4.819C14.655,15.108,18.961,12,24,12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C16.318,4,9.656,8.337,6.306,14.691z"/><path fill="#4CAF50" d="M24,44c5.166,0,9.86-1.977,13.409-5.192l-6.19-5.238C29.211,35.091,26.715,36,24,36c-5.222,0-9.654-3.343-11.303-8l-6.571,4.819C9.656,39.663,16.318,44,24,44z"/><path fill="#1976D2" d="M43.611,20.083H42V20H24v8h11.303c-0.792,2.237-2.231,4.166-4.087,5.571c0.001-0.001,0.002-0.001,0.003-0.002l6.19,5.238C36.971,39.205,44,34,44,24C44,22.659,43.862,21.35,43.611,20.083z"/></svg>
+                            <span>Zarejestruj przez Google</span>
+                        </a>
+
+                        <a th:href="@{/oauth2/authorization/facebook}" class="btn btn-social btn-facebook mb-3">
+                            <i class="bi bi-facebook fs-5"></i>
+                            <span>Zarejestruj przez Facebook</span>
+                        </a>
+
+                        <a th:href="@{/oauth2/authorization/apple}" class="btn btn-social btn-apple">
+                            <i class="bi bi-apple fs-5"></i>
+                            <span>Zarejestruj przez Apple</span>
+                        </a>
+                    </div>
+
+                    <div class="mt-auto pt-5 d-none d-lg-block">
+                        <h5 class="text-white fw-bold mb-3 fs-6 text-uppercase" style="letter-spacing: 1px;">Dlaczego warto?</h5>
+                        <ul class="auth-benefits-list">
+                            <li><i data-lucide="radar" class="text-brand-green"></i> <span>Dostęp do prognozy brań <strong>LIVE</strong></span></li>
+                            <li><i data-lucide="book-open" class="text-brand-green"></i> <span>Osobisty dziennik połowów i mapy</span></li>
+                            <li><i data-lucide="bell-ring" class="text-brand-green"></i> <span>Alerty pogodowe dla Twoich łowisk</span></li>
+                            <li><i data-lucide="shield-check" class="text-brand-green"></i> <span>Konto jest w 100% darmowe!</span></li>
+                        </ul>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/footer :: footer}"></footer>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        lucide.createIcons();
+
+        const togglePassBtn = document.querySelector('.btn-toggle-pass');
+        const passInput = document.getElementById('password');
+
+        if(togglePassBtn && passInput) {
+            togglePassBtn.addEventListener('click', () => {
+                const type = passInput.getAttribute('type') === 'password' ? 'text' : 'password';
+                passInput.setAttribute('type', type);
+
+                const icon = togglePassBtn.querySelector('i');
+                if(type === 'text') {
+                    icon.setAttribute('data-lucide', 'eye-off');
+                } else {
+                    icon.setAttribute('data-lucide', 'eye');
+                }
+                lucide.createIcons();
+            });
+        }
+    });
+</script>
+</body>
+</html>

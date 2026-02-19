@@ -1,0 +1,181 @@
+:root {
+    --brand-green: #2ecc71;
+    --brand-bg: #020617;
+}
+
+body.barometer-page {
+    background-color: var(--brand-bg);
+    color: #f8fafc;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    min-height: 100vh;
+}
+
+.baro-bg-container {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    z-index: 0;
+    pointer-events: none;
+}
+
+.baro-bg-image {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    filter: brightness(0.3) contrast(1.2);
+}
+
+.baro-bg-overlay {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: linear-gradient(135deg, rgba(2, 6, 23, 0.85) 0%, rgba(2, 6, 23, 0.98) 100%);
+}
+
+.baro-glow {
+    position: absolute;
+    width: 500px; height: 500px;
+    background: var(--brand-green);
+    border-radius: 50%;
+    filter: blur(150px);
+    opacity: 0.1;
+    animation: baroFloat 15s infinite alternate ease-in-out;
+}
+.glow-top-left { top: -10%; left: -10%; }
+.glow-bottom-right { bottom: -10%; right: -5%; animation-delay: -5s; }
+
+@keyframes baroFloat {
+    0% { transform: translate(0, 0) scale(1); }
+    100% { transform: translate(50px, 30px) scale(1.1); }
+}
+
+.baro-glass-panel {
+    background: rgba(15, 23, 42, 0.65);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 24px;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+.baro-breadcrumb a {
+    color: #94a3b8;
+    text-decoration: none;
+    transition: color 0.2s;
+}
+.baro-breadcrumb a:hover { color: var(--brand-green); }
+.baro-breadcrumb .active { color: var(--brand-green) !important; }
+
+.baro-icon-pulse {
+    width: 52px; height: 52px;
+    background: rgba(46, 204, 113, 0.15);
+    border-radius: 14px;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 0 0 0 rgba(46, 204, 113, 0.4);
+    animation: baroPulse 2s infinite;
+}
+
+@keyframes baroPulse {
+    0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(46, 204, 113, 0.7); }
+    70% { transform: scale(1); box-shadow: 0 0 0 15px rgba(46, 204, 113, 0); }
+    100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(46, 204, 113, 0); }
+}
+
+.baro-title-glow { text-shadow: 0 2px 15px rgba(46, 204, 113, 0.3); }
+.baro-subtitle { color: #cbd5e1; }
+
+
+.baro-text-readable {
+    color: #e2e8f0;
+    font-weight: 400;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
+}
+
+@media (min-width: 768px) {
+    .w-md-auto {
+        width: auto !important;
+    }
+}
+
+.baro-search-form { max-width: 480px; margin-left: auto; }
+
+.baro-search-input-group {
+    display: flex; align-items: center;
+    background: rgba(2, 6, 23, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 50px;
+    padding: 6px;
+    transition: all 0.3s ease;
+}
+
+.baro-search-input-group:focus-within {
+    border-color: var(--brand-green);
+    box-shadow: 0 0 0 3px rgba(46, 204, 113, 0.2);
+    background: rgba(2, 6, 23, 0.9);
+}
+
+.baro-search-input-group .search-icon { color: #64748b; margin-left: 15px; width: 20px; }
+.baro-search-input-group .search-input {
+    flex-grow: 1; background: transparent; border: none; color: #fff;
+    padding: 12px 15px; outline: none; font-size: 1rem;
+}
+.baro-search-input-group .search-input::placeholder { color: #475569; }
+
+.baro-search-btn {
+    background: linear-gradient(135deg, var(--brand-green) 0%, #10b981 100%);
+    color: #020617; border: none; border-radius: 40px;
+    padding: 10px 24px; font-weight: 800;
+    display: flex; align-items: center; gap: 8px;
+    transition: all 0.3s ease;
+}
+.baro-search-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(46, 204, 113, 0.4);
+}
+
+.baro-current-card { border-color: rgba(46, 204, 113, 0.3); }
+
+.baro-current-card::before {
+    content: ''; position: absolute; top: -100px; left: -100px;
+    width: 250px; height: 250px;
+    background: radial-gradient(circle, rgba(46, 204, 113, 0.15) 0%, transparent 70%);
+    pointer-events: none; z-index: 0;
+}
+
+.baro-pressure-value {
+    font-size: 4.5rem; font-weight: 900; line-height: 1;
+    text-shadow: 0 5px 25px rgba(46, 204, 113, 0.25);
+}
+
+.baro-trend-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: rgba(46, 204, 113, 0.1); color: var(--brand-green);
+    padding: 8px 16px; border-radius: 30px; font-weight: 700; font-size: 0.9rem;
+}
+
+.baro-border-end { border-right: 1px solid rgba(255, 255, 255, 0.08); }
+.baro-condition-bg { background: rgba(0, 0, 0, 0.2); }
+
+.baro-location-badge {
+    background: rgba(2, 6, 23, 0.8);
+    border: 1px solid rgba(46, 204, 113, 0.4);
+    color: var(--brand-green);
+    padding: 6px 14px; border-radius: 20px; font-size: 0.8rem; font-weight: 700;
+}
+
+.baro-fish-item {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 12px 16px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 12px; transition: all 0.3s ease;
+}
+.baro-fish-item:hover {
+    background: rgba(46, 204, 113, 0.05);
+    border-color: rgba(46, 204, 113, 0.3);
+    transform: translateX(4px);
+}
+
+@media (max-width: 991px) {
+    .baro-search-form { max-width: 100%; margin-top: 15px; }
+    .baro-border-end { border-right: none; border-bottom: 1px solid rgba(255, 255, 255, 0.08); }
+}

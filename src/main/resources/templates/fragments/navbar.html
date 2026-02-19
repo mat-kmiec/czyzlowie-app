@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<nav th:fragment="navbar" class="navbar navbar-expand-lg fixed-top">
+    <div class="container-fluid container-xl">
+
+        <a class="navbar-brand me-4" th:href="@{/}">
+            <img th:src="@{/assets/logo.png}" alt="RybaPro Logo">
+        </a>
+
+        <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav">
+            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/></svg>
+        </button>
+
+        <div class="collapse navbar-collapse" id="mainNav">
+
+            <div class="mobile-menu-container w-100 d-lg-flex align-items-lg-center">
+
+                <ul class="navbar-nav mx-auto mb-2 mb-lg-0 align-items-lg-center gap-2">
+
+                    <li class="nav-item">
+                        <a class="nav-link active" th:href="@{/}">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                            Główna
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/prognoza}">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
+                            Prognoza Brań
+                        </a>
+                    </li>
+
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg>
+                            Niezbędnik
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-standard">
+                            <div class="menu-header">Warunki & Narzędzia</div>
+                            <a th:href="@{/barometr}" class="menu-item">
+                                <div class="icon-box bg-icon-blue">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 14 4-4"/><path d="M3.34 19a10 10 0 1 1 17.32 0"/></svg>
+                                </div>
+                                <div><h6>Barometr</h6><p>Wykresy skoków hPa</p></div>
+                            </a>
+                            <a th:href="@{/ksiezyc}" class="menu-item">
+                                <div class="icon-box bg-icon-purple">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+                                </div>
+                                <div><h6>Fazy Księżyca</h6><p>Kalendarz Solunarny</p></div>
+                            </a>
+                            <a th:href="@{/slonce}" class="menu-item">
+                                <div class="icon-box bg-icon-orange">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="M20 12h2"/><path d="m19.07 4.93-1.41 1.41"/><path d="M15.947 12.65a4 4 0 0 0-5.925-4.128"/><path d="M13 22H7a5 5 0 1 1 4.9-6H13a3 3 0 0 1 0 6Z"/></svg>
+                                </div>
+                                <div><h6>Wschody/Zachody</h6><p>Godziny aktywności</p></div>
+                            </a>
+                        </div>
+                    </li>
+
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 12c.94-3.46 4.94-6 8.5-6 3.56 0 6.06 2.54 7 6-.94 3.47-3.44 6-7 6s-7.56-2.53-8.5-6Z"/><path d="M18 12v.5"/><path d="M16 17.93a9.77 9.77 0 0 1 0-11.86"/><path d="M7 10.67C7 8 5.58 5.97 2.73 5.5c-1 1.5-1 5 .23 6.5-1.24 1.5-1.24 5-.23 6.5C5.58 18.03 7 16 7 13.33"/><path d="M10.46 7.26C10.2 5.88 9.17 4.24 8 3h5.8a2 2 0 0 1 1.98 1.67l.23 1.4"/><path d="m16.01 17.93-.23 1.4A2 2 0 0 1 13.8 21H9.5a5.96 5.96 0 0 0 1.49-3.98"/></svg>
+                            Atlas Ryb
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-mega">
+                            <div class="row g-0">
+                                <div class="col-lg-6 col-divider pe-lg-3">
+                                    <div class="menu-header" style="color: var(--nav-accent-red);">
+                                        Drapieżniki
+                                    </div>
+                                    <a th:href="@{/ryby/szczupak}" class="menu-item">
+                                        <div class="icon-box bg-icon-red">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 16s9-15 20-4C11 23 2 8 2 8"/></svg>
+                                        </div>
+                                        <div><h6>Szczupak</h6><p>Analiza spadków ciśnienia</p></div>
+                                    </a>
+                                    <a th:href="@{/ryby/sandacz}" class="menu-item">
+                                        <div class="icon-box bg-icon-red">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 22v-5"/><path d="M12 22v-4"/><path d="M15 22v-5"/><path d="M12 2a8 8 0 0 0-8 8c0 3.866 4 7 8 7s8-3.134 8-7a8 8 0 0 0-8-8Z"/></svg>
+                                        </div>
+                                        <div><h6>Sandacz</h6><p>Żerowanie w "mętnej wodzie"</p></div>
+                                    </a>
+                                </div>
+
+                                <div class="col-lg-6 ps-lg-3 mt-4 mt-lg-0">
+                                    <div class="menu-header" style="color: var(--nav-accent-green);">
+                                        Białoryb
+                                    </div>
+                                    <a th:href="@{/ryby/karp}" class="menu-item">
+                                        <div class="icon-box bg-icon-green">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/></svg>
+                                        </div>
+                                        <div><h6>Karp</h6><p>Stabilna temperatura wody</p></div>
+                                    </a>
+                                    <a th:href="@{/ryby/leszcz}" class="menu-item">
+                                        <div class="icon-box bg-icon-green">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22a7 7 0 0 0 7-7c0-2-1-3.9-3-5.5s-3.5-4-4-6.5c-.5 2.5-2 4.9-4 6.5C6 11.1 5 13 5 15a7 7 0 0 0 7 7z"/></svg>
+                                        </div>
+                                        <div><h6>Leszcz / Płoć</h6><p>Stada na spadach dna</p></div>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/mapa}">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"/><line x1="9" x2="9" y1="3" y2="18"/><line x1="15" x2="15" y1="6" y2="21"/></svg>
+                            Mapa <span class="badge bg-danger rounded-pill ms-2" style="font-size: 0.6rem; padding: 3px 6px;">LIVE</span>
+                        </a>
+                    </li>
+                </ul>
+
+                <div class="d-flex flex-column flex-lg-row align-items-lg-center gap-2 mobile-auth-section  w-lg-auto mt-3 mt-lg-0 me-lg-1">
+
+                    <a th:href="@{/login}" class="btn btn-nav-primary-custom w-100 w-lg-auto">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 6px;"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" x2="3" y1="12" y2="12"/></svg>
+                        Logowanie
+                    </a>
+
+<!--                    <div class="nav-item dropdown w-100 w-lg-auto">-->
+<!--                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">-->
+<!--                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>-->
+<!--                            Mój Profil-->
+<!--                        </a>-->
+
+<!--                        <div class="dropdown-menu dropdown-menu-standard dropdown-menu-end">-->
+<!--                            <div class="menu-header">Konto Użytkownika</div>-->
+
+<!--                            <a th:href="@{/profil}" class="menu-item">-->
+<!--                                <div class="icon-box bg-icon-blue" style="width: 36px; height: 36px;">-->
+<!--                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>-->
+<!--                                </div>-->
+<!--                                <div><h6>Ustawienia</h6><p>Konto i alerty</p></div>-->
+<!--                            </a>-->
+
+<!--                            <a th:href="@{/dziennik}" class="menu-item">-->
+<!--                                <div class="icon-box bg-icon-green" style="width: 36px; height: 36px;">-->
+<!--                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg>-->
+<!--                                </div>-->
+<!--                                <div><h6>Moje Wyniki</h6><p>Dziennik połowów</p></div>-->
+<!--                            </a>-->
+
+<!--                            <div style="border-top: 1px solid var(&#45;&#45;nav-glass-border); margin: 8px 10px;"></div>-->
+
+<!--                            <a th:href="@{/logout}" class="menu-item">-->
+<!--                                <div class="icon-box bg-icon-red" style="width: 36px; height: 36px; background: rgba(239, 68, 68, 0.05);">-->
+<!--                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/></svg>-->
+<!--                                </div>-->
+<!--                                <div class="d-flex align-items-center"><h6 style="color: var(&#45;&#45;nav-accent-red); margin: 0;">Wyloguj się</h6></div>-->
+<!--                            </a>-->
+<!--                        </div>-->
+<!--                    </div>-->
+
+                </div>
+
+            </div> </div>
+    </div>
+</nav>
+</body>
+</html>
