@@ -6,12 +6,12 @@ export const MAP_CONFIG = {
 };
 
 export const CATEGORIES = {
-    lake: { name: 'Jezioro', icon: 'droplet', color: '#3b82f6' },
+    lake: { name: 'Jezioro', icon: 'line-squiggle', color: '#3b82f6' },
     river: { name: 'Rzeka', icon: 'waves', color: '#0ea5e9' },
     synop: { name: 'Stacja Synop', icon: 'thermometer', color: '#f59e0b' },
     meteo: { name: 'Stacja Meteo', icon: 'cloud-sun-rain', color: '#8b5cf6' },
     hydro: { name: 'Stacja Hydro', icon: 'droplets', color: '#06b6d4' },
-    oxbow: { name: 'Starorzecze', icon: 'undo-2', color: '#10b981' },
+    oxbow: { name: 'Starorzecze', icon: 'line-squiggle', color: '#10b981' },
     launch: { name: 'Miejsce wodowania', icon: 'anchor', color: '#ef4444' },
     fishery: { name: 'Łowisko', icon: 'fish', color: '#6366f1' },
     commercial: { name: 'Łowisko komercyjne', icon: 'dollar-sign', color: '#ec4899' },
