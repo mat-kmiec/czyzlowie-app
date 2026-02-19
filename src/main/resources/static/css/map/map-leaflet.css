@@ -1,0 +1,163 @@
+.map-controls-container {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    z-index: 1000;
+}
+.map-custom-btn {
+    background: rgba(15, 23, 42, 0.85);
+    color: var(--text-main);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    width: 44px;
+    height: 44px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    transition: all 0.2s ease;
+    backdrop-filter: blur(8px);
+}
+.map-custom-btn:hover {
+    background: var(--bg-hover);
+    color: var(--accent-blue);
+    border-color: rgba(56, 189, 248, 0.5);
+    transform: scale(1.05);
+}
+.map-custom-btn:active {
+    transform: scale(0.95);
+}
+.map-custom-btn svg {
+    width: 22px;
+    height: 22px;
+}
+
+.map-controls-group {
+    display: flex;
+    flex-direction: column;
+    background: rgba(15, 23, 42, 0.85);
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+    overflow: hidden;
+    backdrop-filter: blur(8px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+.map-controls-group .map-custom-btn {
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+    border-bottom: 1px solid var(--border-color);
+}
+.map-controls-group .map-custom-btn:last-child {
+    border-bottom: none;
+}
+
+.custom-map-marker {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    border: 2px solid #ffffff;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: pointer;
+}
+.custom-map-marker:hover {
+    transform: scale(1.2) translateY(-2px);
+    z-index: 1000 !important;
+}
+.custom-map-marker svg {
+    width: 16px;
+    height: 16px;
+}
+
+.leaflet-tooltip.custom-tooltip {
+    background: var(--bg-panel);
+    border: 1px solid var(--border-color);
+    color: white;
+    border-radius: 10px;
+    padding: 6px 10px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+    font-family: inherit;
+}
+.leaflet-tooltip-top:before {
+    border-top-color: var(--bg-panel);
+}
+
+.custom-popup .leaflet-popup-content-wrapper {
+    background: rgba(15, 23, 42, 0.95);
+    backdrop-filter: blur(10px);
+    color: var(--text-main);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.6);
+    padding: 0; overflow: hidden;
+}
+.custom-popup .leaflet-popup-tip {
+    background: rgba(15, 23, 42, 0.95);
+    border-right: 1px solid var(--border-color);
+    border-bottom: 1px solid var(--border-color);
+}
+.custom-popup .leaflet-popup-content {
+    margin: 0;
+    min-width: 220px;
+}
+
+.popup-header {
+    padding: 15px 15px 10px 15px;
+    background: rgba(0, 0, 0, 0.2);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+.popup-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin-bottom: 8px;
+    color: #fff;
+
+}
+.popup-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.popup-badge svg {
+    width: 14px;
+    height: 14px;
+}
+
+.popup-body {
+    padding: 15px;
+    display: flex;
+    justify-content: center;}
+
+.popup-btn {
+    background: var(--accent-blue);
+    color: #020617;
+    text-decoration: none;
+    padding: 8px 18px;
+    border-radius: 10px;
+    font-weight: 700;
+    font-size: 0.85rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.3s ease;
+}
+.popup-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(56, 189, 248, 0.4);
+    background: #7dd3fc;
+}
