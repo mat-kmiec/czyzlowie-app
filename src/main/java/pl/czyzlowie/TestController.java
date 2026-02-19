@@ -40,4 +40,9 @@ public class TestController {
     public String resetPass(){
         return "reset-password";
     }
+
+    @GetMapping("/error")
+    public String err(){
+        return "error";
+    }
 }
