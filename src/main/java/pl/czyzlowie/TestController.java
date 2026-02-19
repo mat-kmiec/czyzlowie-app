@@ -45,4 +45,9 @@ public class TestController {
     public String err(){
         return "error";
     }
+
+    @GetMapping("/barometr")
+    public String barometer(){
+        return "barometr";
+    }
 }
