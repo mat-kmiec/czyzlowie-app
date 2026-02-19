@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pl">
+<head>
+    <th:block th:replace="~{fragments/head :: head-content(
+        pageTitle='Fazy Księżyca i Kalendarz Solunarny | CzyZlowie',
+        pageDescription='Sprawdź aktualną fazę księżyca, kalendarz brań na cały rok oraz dokładne godziny wschodów i zachodów dla Twojego łowiska.'
+    )}"></th:block>
+
+    <link rel="stylesheet" th:href="@{/css/main.css}">
+    <link rel="stylesheet" th:href="@{/css/moon.css}">
+
+    <script src="https://unpkg.com/lucide@latest" defer></script>
+</head>
+<body class="moon-page">
+
+<nav th:replace="~{fragments/navbar :: navbar}"></nav>
+
+<div class="moon-bg-container">
+    <div class="moon-bg-overlay"></div>
+    <div class="moon-glow glow-silver-top"></div>
+    <div class="moon-glow glow-green-bottom"></div>
+</div>
+
+<main class="moon-wrapper pb-5 position-relative z-2">
+    <div class="container-xl pt-4 mt-3">
+
+        <nav aria-label="breadcrumb" class="mb-4">
+            <ol class="breadcrumb moon-breadcrumb">
+                <li class="breadcrumb-item"><a th:href="@{/}"><i data-lucide="home" class="bc-icon text-brand-green"></i> Główna</a></li>
+                <li class="breadcrumb-item"><a th:href="@{/niezbednik}">Niezbędnik</a></li>
+                <li class="breadcrumb-item active fw-bold text-white" aria-current="page">Fazy Księżyca</li>
+            </ol>
+        </nav>
+
+        <header class="moon-glass-panel p-4 p-lg-5 mb-4 border-brand-green-subtle">
+            <div class="row align-items-center justify-content-between g-4">
+                <div class="col-lg-8">
+                    <div class="d-flex align-items-center gap-3 mb-3">
+                        <div class="moon-icon-pulse">
+                            <i data-lucide="moon" class="text-white" style="width: 28px; height: 28px;"></i>
+                        </div>
+                        <h1 class="display-5 fw-black text-white mb-0 moon-title-glow">Kalendarz Solunarny</h1>
+                    </div>
+                    <p class="moon-text-readable fs-5 mb-0">
+                        Wykorzystaj dane o <span class="text-brand-green fw-bold text-glow-green">Księżycu i Słońcu</span> do prognozowania szczytów aktywności ryb.
+                    </p>
+                </div>
+            </div>
+        </header>
+
+        <div class="row g-4 mb-4">
+
+            <div class="col-lg-8">
+
+                <div class="moon-glass-panel p-0 mb-4 overflow-hidden position-relative">
+                    <div class="row g-0 position-relative z-1">
+
+                        <div class="col-md-5 p-4 p-md-5 text-center text-md-start moon-border-end d-flex flex-column justify-content-center">
+                            <span class="text-uppercase fw-bold fs-7 mb-3 d-block moon-text-readable" style="letter-spacing: 1px;">Księżyc dzisiaj</span>
+
+                            <div class="d-flex align-items-center justify-content-center justify-content-md-start gap-4 mb-3">
+                                <div class="moon-phase-huge full-moon shadow-glow-silver"></div>
+                                <div>
+                                    <h2 class="display-5 fw-black text-white mb-0 lh-1">Pełnia</h2>
+                                    <span class="fs-6 text-brand-green fw-bold text-glow-green">Superksiężyc <i data-lucide="zap" style="width: 14px;"></i></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-7 p-4 p-md-5 moon-condition-bg d-flex flex-column justify-content-center">
+                            <div class="row g-4">
+                                <div class="col-6">
+                                    <div class="d-flex align-items-center gap-2 mb-1">
+                                        <i data-lucide="sun" class="text-brand-green" style="width: 18px;"></i>
+                                        <span class="moon-text-readable fs-7 text-uppercase fw-bold">Oświetlenie</span>
+                                    </div>
+                                    <span class="fs-3 fw-bold text-white">99.8%</span>
+                                </div>
+                                <div class="col-6">
+                                    <div class="d-flex align-items-center gap-2 mb-1">
+                                        <i data-lucide="clock" class="text-brand-green" style="width: 18px;"></i>
+                                        <span class="moon-text-readable fs-7 text-uppercase fw-bold">Wiek księżyca</span>
+                                    </div>
+                                    <span class="fs-3 fw-bold text-white">14.5 <span class="fs-6 moon-text-readable fw-normal">dni</span></span>
+                                </div>
+                                <div class="col-12 mt-2">
+                                    <div class="d-inline-flex align-items-center gap-2 bg-brand-green-subtle text-brand-green px-3 py-2 rounded-3 w-100 border-brand-green-subtle border">
+                                        <i data-lucide="fish" style="width: 20px;"></i>
+                                        <span class="fw-bold">Aktywność: Doskonała (Szczyt w nocy)</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="moon-glass-panel p-4">
+
+                    <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom border-dark-subtle">
+                        <button class="btn moon-nav-btn"><i data-lucide="chevron-left"></i></button>
+                        <h3 class="fs-4 text-white fw-bold mb-0 text-uppercase" style="letter-spacing: 1px;">
+                            Październik 2026
+                        </h3>
+                        <button class="btn moon-nav-btn"><i data-lucide="chevron-right"></i></button>
+                    </div>
+
+                    <div class="moon-calendar-grid">
+                        <div class="calendar-header">Pon</div>
+                        <div class="calendar-header">Wto</div>
+                        <div class="calendar-header">Śro</div>
+                        <div class="calendar-header">Czw</div>
+                        <div class="calendar-header">Pią</div>
+                        <div class="calendar-header">Sob</div>
+                        <div class="calendar-header">Nie</div>
+
+                        <div class="calendar-day empty"></div>
+                        <div class="calendar-day empty"></div>
+                        <div class="calendar-day empty"></div>
+
+                        <div class="calendar-day"><span class="day-number">1</span><div class="day-moon-icon new-moon"></div><div class="bite-indicator level-1"></div></div>
+                        <div class="calendar-day"><span class="day-number">2</span><div class="day-moon-icon waxing-crescent"></div><div class="bite-indicator level-2"></div></div>
+                        <div class="calendar-day active-today"><span class="day-number">3</span><div class="day-moon-icon full-moon shadow-glow-silver"></div><div class="bite-indicator level-3"></div></div>
+                        <div class="calendar-day"><span class="day-number">4</span><div class="day-moon-icon waning-gibbous"></div><div class="bite-indicator level-2"></div></div>
+                        <div class="calendar-day"><span class="day-number">5</span><div class="day-moon-icon last-quarter"></div><div class="bite-indicator level-1"></div></div>
+                    </div>
+
+                    <div class="d-flex justify-content-center justify-content-md-end mt-4 gap-3">
+                        <span class="fs-8 moon-text-readable d-flex align-items-center gap-1"><div class="bite-dot" style="background: #ef4444;"></div> Słabe</span>
+                        <span class="fs-8 moon-text-readable d-flex align-items-center gap-1"><div class="bite-dot" style="background: #f59e0b;"></div> Średnie</span>
+                        <span class="fs-8 moon-text-readable d-flex align-items-center gap-1"><div class="bite-dot" style="background: var(--brand-green); box-shadow: 0 0 10px var(--brand-green);"></div> Doskonałe</span>
+                    </div>
+                </div>
+
+            </div>
+
+            <aside class="col-lg-4">
+                <article class="moon-glass-panel p-4 h-100 d-flex flex-column">
+                    <div class="mb-4 d-flex align-items-center gap-2 text-brand-green border-bottom border-dark-subtle pb-3">
+                        <i data-lucide="book-open" style="width: 24px; height: 24px;"></i>
+                        <h2 class="fs-5 text-white fw-bold mb-0">Teoria Solunarna</h2>
+                    </div>
+
+                    <div class="moon-knowledge-item mb-4">
+                        <h3 class="fs-6 text-white fw-bold mb-2">Pełnia a brania</h3>
+                        <p class="moon-text-readable fs-7 lh-lg mb-0">
+                            W czasie pełni noce są jasne, co sprawia, że drapieżniki żerują w nocy. Za dnia ryby mogą być przejedzone i mało aktywne.
+                        </p>
+                    </div>
+
+                    <div class="moon-knowledge-item mb-4">
+                        <h3 class="fs-6 text-white fw-bold mb-2">Nów Księżyca</h3>
+                        <p class="moon-text-readable fs-7 lh-lg mb-0">
+                            Podczas nowiu noce są smoliste. Drapieżniki przenoszą swoją aktywność na wczesny ranek i godziny popołudniowe.
+                        </p>
+                    </div>
+                </article>
+            </aside>
+
+        </div>
+
+        <div class="moon-glass-panel p-4 p-lg-5 mb-5 border-brand-green-subtle position-relative overflow-hidden">
+
+            <div class="moon-glow glow-green-bottom" style="opacity: 0.05;"></div>
+
+            <div class="row align-items-center mb-4 pb-3 border-bottom border-dark-subtle position-relative z-1">
+                <div class="col-md-6 mb-3 mb-md-0">
+                    <h3 class="fs-4 text-white fw-bold mb-1">Parametry Lokalne</h3>
+                    <p class="moon-text-readable fs-7 mb-0">Słońce i Księżyc dla Twojego łowiska.</p>
+                </div>
+                <div class="col-md-6 d-flex justify-content-md-end">
+                    <form action="/fazy-ksiezyca" method="get" class="moon-local-search">
+                        <i data-lucide="map-pin" class="search-icon"></i>
+                        <input type="text" name="station" placeholder="Wpisz miasto..." value="Warszawa" required>
+                        <button type="submit" class="btn-search-local">Szukaj</button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="row g-3 position-relative z-1">
+
+                <div class="col-12 mt-2 mb-2">
+                    <h5 class="text-white fs-6 fw-bold d-flex align-items-center gap-2"><i data-lucide="sun" class="text-brand-green"></i> Słońce</h5>
+                </div>
+
+                <div class="col-6 col-md-4">
+                    <div class="local-data-box text-center">
+                        <i data-lucide="sunrise" class="text-brand-green mb-2" style="width: 24px; height: 24px;"></i>
+                        <span class="d-block moon-text-readable fs-8 text-uppercase fw-bold mb-1">Wschód Słońca</span>
+                        <span class="fs-4 fw-bold text-white">05:42</span>
+                    </div>
+                </div>
+                <div class="col-6 col-md-4">
+                    <div class="local-data-box text-center">
+                        <i data-lucide="sunset" class="text-brand-green mb-2" style="width: 24px; height: 24px;"></i>
+                        <span class="d-block moon-text-readable fs-8 text-uppercase fw-bold mb-1">Zachód Słońca</span>
+                        <span class="fs-4 fw-bold text-white">19:15</span>
+                    </div>
+                </div>
+                <div class="col-12 col-md-4">
+                    <div class="local-data-box text-center">
+                        <i data-lucide="timer" class="text-white mb-2" style="width: 24px; height: 24px;"></i>
+                        <span class="d-block moon-text-readable fs-8 text-uppercase fw-bold mb-1">Długość Dnia</span>
+                        <span class="fs-4 fw-bold text-brand-green text-glow-green">13h 33m</span>
+                    </div>
+                </div>
+
+                <div class="col-12 mt-4 mb-2 border-top border-dark-subtle pt-3">
+                    <h5 class="text-white fs-6 fw-bold d-flex align-items-center gap-2"><i data-lucide="moon" class="text-brand-green"></i> Księżyc</h5>
+                </div>
+
+                <div class="col-6 col-md-3">
+                    <div class="local-data-box text-center">
+                        <i data-lucide="arrow-up-right" class="text-brand-green mb-2" style="width: 24px; height: 24px;"></i>
+                        <span class="d-block moon-text-readable fs-8 text-uppercase fw-bold mb-1">Wschód Księżyca</span>
+                        <span class="fs-4 fw-bold text-white">18:42</span>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="local-data-box text-center">
+                        <i data-lucide="chevrons-up" class="text-white mb-2" style="width: 24px; height: 24px;"></i>
+                        <span class="d-block moon-text-readable fs-8 text-uppercase fw-bold mb-1">Górowanie (Transit)</span>
+                        <span class="fs-4 fw-bold text-brand-green text-glow-green">00:15</span>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="local-data-box text-center">
+                        <i data-lucide="arrow-down-right" class="text-brand-green mb-2" style="width: 24px; height: 24px;"></i>
+                        <span class="d-block moon-text-readable fs-8 text-uppercase fw-bold mb-1">Zachód Księżyca</span>
+                        <span class="fs-4 fw-bold text-white">06:30</span>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="local-data-box text-center">
+                        <i data-lucide="mountain-snow" class="text-brand-green mb-2" style="width: 24px; height: 24px;"></i>
+                        <span class="d-block moon-text-readable fs-8 text-uppercase fw-bold mb-1">Max. Wysokość</span>
+                        <span class="fs-4 fw-bold text-white">45.2°</span>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+</main>
+
+<footer th:replace="~{fragments/footer :: footer}"></footer>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        lucide.createIcons();
+    });
+</script>
+</body>
+</html>

@@ -65,4 +65,9 @@ public class TestController {
     public String oNas(){
         return "info/o-aplikacji";
     }
+
+    @GetMapping("/moon")
+    public String moon(){
+        return "essentials/moon";
+    }
 }
