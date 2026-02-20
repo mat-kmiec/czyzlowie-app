@@ -48,7 +48,7 @@ public class TestController {
 
     @GetMapping("/barometr")
     public String barometer(){
-        return "barometr";
+        return "essentials/barometr";
     }
 
     @GetMapping("/regulamin")
@@ -70,4 +70,26 @@ public class TestController {
     public String moon(){
         return "essentials/moon";
     }
+
+    @GetMapping("/sun")
+    public String moson(){
+        return "essentials/sunrise-sunset";
+    }
+
+    @GetMapping("/synop")
+    public String mosonff(){
+        return "essentials/synop";
+    }
+
+    @GetMapping("/meteo")
+    public String meteo(){
+        return "essentials/meteo";
+    }
+
+    @GetMapping("/hydro")
+    public String hydro(){
+        return "essentials/hydro";
+    }
+
+
 }

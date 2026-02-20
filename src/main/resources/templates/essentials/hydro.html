@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pl">
+<head>
+    <th:block th:replace="~{fragments/head :: head-content(
+        pageTitle='Stan Wody i Przepływy - Hydrologia IMGW | CzyZlowie',
+        pageDescription='Aktualne stany wód, przepływy i zjawiska lodowe na rzekach. Dane ze stacji hydrologicznych IMGW na żywo.'
+    )}"></th:block>
+
+    <link rel="stylesheet" th:href="@{/css/essentials/hydro.css}">
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
+</head>
+<body class="hydro-page">
+
+<nav th:replace="~{fragments/navbar :: navbar}"></nav>
+
+<div class="hydro-bg-container">
+    <picture>
+        <source media="(max-width: 768px)" srcset="/assets/ryby/river-bg-mobile.jpg">
+        <img src="/assets/ryby/river-bg.jpg" alt="Bystry nurt rzeki o poranku" class="hydro-bg-image">
+    </picture>
+    <div class="hydro-bg-overlay"></div>
+    <div class="hydro-glow glow-blue-top"></div>
+    <div class="hydro-glow glow-cyan-bottom"></div>
+</div>
+
+<main class="hydro-wrapper pb-5 position-relative z-2">
+    <div class="container-xl pt-4 mt-3">
+
+        <nav aria-label="breadcrumb" class="mb-4">
+            <ol class="breadcrumb hydro-breadcrumb">
+                <li class="breadcrumb-item"><a th:href="@{/}"><i data-lucide="home" class="bc-icon text-brand-green"></i> Główna</a></li>
+                <li class="breadcrumb-item"><a th:href="@{/niezbednik}">Niezbędnik</a></li>
+                <li class="breadcrumb-item active fw-bold text-white" aria-current="page">Stany Wód</li>
+            </ol>
+        </nav>
+
+        <header class="hydro-glass-panel p-4 p-lg-5 mb-4 border-hydro-blue-subtle">
+            <div class="row align-items-center justify-content-between g-4">
+                <div class="col-lg-7">
+                    <div class="d-flex align-items-center gap-3 mb-3">
+                        <div class="hydro-icon-pulse">
+                            <i data-lucide="waves" class="text-hydro-blue" style="width: 32px; height: 32px;"></i>
+                        </div>
+                        <h1 class="display-5 fw-black text-white mb-0 hydro-title-glow">Stany Wód</h1>
+                    </div>
+                    <p class="hydro-text-readable fs-5 mb-0">
+                        Monitoruj poziom rzek, przepływy i zjawiska lodowe ze stacji <span class="text-hydro-blue fw-bold text-glow-blue">IMGW</span>.
+                    </p>
+                </div>
+
+                <div class="col-lg-5 text-lg-end">
+                    <form action="/hydro" method="get" class="hydro-search-form">
+                        <div class="hydro-search-input-group">
+                            <i data-lucide="map-pin" class="search-icon"></i>
+                            <input type="text" name="lokalizacja" class="search-input" placeholder="Wpisz rzekę lub stację (np. Bielawy)..." value="Bielawy" required>
+                            <button type="submit" class="hydro-search-btn">
+                                Szukaj <i data-lucide="chevron-right" style="width: 18px;"></i>
+                            </button>
+                        </div>
+                    </form>
+                    <div class="mt-2 pe-3 text-white opacity-50 fs-8 text-end">
+                        <i data-lucide="crosshair" style="width: 12px;"></i> Auto-dopasowanie do najbliższej stacji
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <div class="row g-4 mb-4">
+
+            <div class="col-lg-8">
+
+                <div class="hydro-glass-panel p-0 mb-4 overflow-hidden position-relative">
+                    <div class="row g-0 position-relative z-1">
+                        <div class="col-md-5 p-4 p-md-5 text-center text-md-start hydro-border-end d-flex flex-column justify-content-center">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <span class="text-uppercase fw-bold fs-7 hydro-text-readable" style="letter-spacing: 1px;">Rzeka: Mroga</span>
+                                <span class="hydro-location-badge">Stacja: Bielawy</span>
+                            </div>
+
+                            <h2 class="display-2 fw-black text-white mb-0 lh-1">258<span class="fs-3 text-white opacity-50">cm</span></h2>
+                            <p class="fs-7 text-hydro-blue fw-bold mt-2 mb-4 d-flex align-items-center justify-content-center justify-content-md-start gap-2">
+                                <i data-lucide="clock" style="width: 14px;"></i> Odczyt: 20 luty, 13:30
+                            </p>
+
+                            <div class="hydro-alert text-success border-success bg-success bg-opacity-10">
+                                <i data-lucide="trending-up" class="text-success" style="width: 16px;"></i> Woda powoli rośnie (korzystne)
+                            </div>
+                        </div>
+
+                        <div class="col-md-7 p-4 p-md-5 hydro-condition-bg d-flex align-items-center justify-content-center">
+                            <div class="row w-100 g-4 text-center text-md-start">
+                                <div class="col-12 d-flex align-items-center gap-3 mb-md-2 pb-3 border-bottom border-dark-subtle border-opacity-25">
+                                    <div class="flex-shrink-0">
+                                        <i data-lucide="droplets" class="text-hydro-blue" style="width: 32px; height: 32px;"></i>
+                                    </div>
+                                    <div>
+                                        <span class="d-block hydro-text-readable fs-8 text-uppercase fw-bold mb-1">Przepływ</span>
+                                        <span class="fs-3 fw-bold text-white">1.58 <span class="fs-6 opacity-50">m³/s</span></span>
+                                    </div>
+                                </div>
+                                <div class="col-6 col-md-6 d-flex flex-column gap-1">
+                                    <span class="d-block hydro-text-readable fs-8 text-uppercase fw-bold mb-1">Zjawisko Lodowe</span>
+                                    <div class="d-flex align-items-center justify-content-center justify-content-md-start gap-2">
+                                        <i data-lucide="snowflake" class="text-white opacity-50" style="width: 20px;"></i>
+                                        <span class="fs-5 fw-bold text-white">BRAK <span class="fs-7 opacity-50">(0)</span></span>
+                                    </div>
+                                </div>
+                                <div class="col-6 col-md-6 d-flex flex-column gap-1">
+                                    <span class="d-block hydro-text-readable fs-8 text-uppercase fw-bold mb-1">Zarastanie koryta</span>
+                                    <div class="d-flex align-items-center justify-content-center justify-content-md-start gap-2">
+                                        <i data-lucide="leaf" class="text-white opacity-50" style="width: 20px;"></i>
+                                        <span class="fs-5 fw-bold text-white">BRAK <span class="fs-7 opacity-50">(0)</span></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="hydro-glass-panel p-4">
+                    <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom border-dark-subtle">
+                        <h3 class="fs-5 text-white fw-bold mb-0 d-flex align-items-center gap-2">
+                            <i data-lucide="line-chart" class="text-hydro-blue" style="width: 20px;"></i> Trend Poziomu Wody (24h)
+                        </h3>
+                        <span class="badge bg-dark border border-secondary text-light">Interwał: 20 min</span>
+                    </div>
+
+                    <div class="chart-container" style="position: relative; height: 300px; width: 100%;">
+                        <canvas id="hydroChart"></canvas>
+                    </div>
+                </div>
+
+            </div>
+
+            <aside class="col-lg-4">
+                <article class="hydro-glass-panel p-4 h-100 d-flex flex-column">
+                    <div class="mb-4 d-flex align-items-center gap-2 text-hydro-blue border-bottom border-dark-subtle pb-3">
+                        <i data-lucide="brain-circuit" style="width: 24px; height: 24px;"></i>
+                        <h2 class="fs-5 text-white fw-bold mb-0">Analiza Wędkarska</h2>
+                    </div>
+
+                    <div class="hydro-knowledge-item mb-4">
+                        <h3 class="fs-6 text-white fw-bold mb-2">Zmiana Poziomu Wody</h3>
+                        <p class="hydro-text-readable fs-7 lh-lg mb-0">
+                            Stan wody stabilnie rośnie do <strong class="text-white">258 cm</strong>. Lekki przybór wody zazwyczaj "odkleja" ryby od dna i wymywa pożywienie z brzegów, pobudzając do żerowania m.in. klenie i jazie.
+                        </p>
+                    </div>
+
+                    <div class="hydro-knowledge-item mb-4 pb-4 border-bottom border-dark-subtle">
+                        <h3 class="fs-6 text-white fw-bold mb-2">Przepływ a Metoda</h3>
+                        <p class="hydro-text-readable fs-7 lh-lg mb-0">
+                            Przepływ wynosi <strong class="text-white">1.58 m³/s</strong>. Prąd jest umiarkowany – wędkarze gruntowi powinni zastosować koszyczki o gramaturze ok. 40-60g, aby utrzymać zestaw w nurcie.
+                        </p>
+                    </div>
+
+                    <div class="mt-auto bg-dark bg-opacity-50 p-3 rounded-3 border border-dark-subtle text-center">
+                        <span class="d-block hydro-text-readable fs-8 text-uppercase fw-bold mb-1">Ocena Rzeki</span>
+                        <span class="fs-3 fw-black text-brand-green text-glow-green">DOBRA</span>
+                        <div class="progress mt-3" style="height: 6px; background: rgba(255,255,255,0.1);">
+                            <div class="progress-bar bg-brand-green" style="width: 75%;"></div>
+                        </div>
+                    </div>
+                </article>
+            </aside>
+
+        </div>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/footer :: footer}"></footer>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        lucide.createIcons();
+
+        const ctx = document.getElementById('hydroChart').getContext('2d');
+        const themeColor = '#3b82f6';
+
+        let gradient = ctx.createLinearGradient(0, 0, 0, 300);
+        gradient.addColorStop(0, 'rgba(59, 130, 246, 0.3)');
+        gradient.addColorStop(1, 'rgba(59, 130, 246, 0.0)');
+
+        const labels = ['14:00', '16:00', '18:00', '20:00', '22:00', '00:00', '02:00', '04:00', '06:00', '08:00', '10:00', '12:00', 'Teraz'];
+        const dataPoints = [240, 242, 241, 244, 245, 247, 248, 250, 251, 254, 256, 257, 258];
+
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Stan Wody (cm)',
+                    data: dataPoints,
+                    borderColor: themeColor,
+                    backgroundColor: gradient,
+                    borderWidth: 3,
+                    pointBackgroundColor: '#010409',
+                    pointBorderColor: themeColor,
+                    pointBorderWidth: 2,
+                    pointRadius: 4,
+                    pointHoverRadius: 7,
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: 'rgba(13, 17, 23, 0.95)',
+                        titleColor: '#94a3b8',
+                        bodyColor: themeColor,
+                        bodyFont: { weight: 'bold', size: 15 },
+                        padding: 14,
+                        borderColor: 'rgba(59, 130, 246, 0.2)',
+                        borderWidth: 1,
+                        displayColors: false,
+                        callbacks: {
+                            label: function(context) { return context.parsed.y + ' cm'; }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        min: 230,
+                        max: 270,
+                        grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                        ticks: { color: '#94a3b8', stepSize: 10, font: { size: 12 } },
+                        border: { display: false }
+                    },
+                    x: {
+                        grid: { display: false },
+                        ticks: { color: '#94a3b8', font: { size: 12 } },
+                        border: { display: false }
+                    }
+                },
+                layout: { padding: { left: 0, bottom: 0 } }
+            }
+        });
+    });
+</script>
+</body>
+</html>

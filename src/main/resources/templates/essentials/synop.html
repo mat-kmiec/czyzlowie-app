@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pl">
+<head>
+    <th:block th:replace="~{fragments/head :: head-content(
+        pageTitle='Dane Synoptyczne IMGW | CzyZlowie',
+        pageDescription='Aktualne dane ze stacji synoptycznych IMGW na żywo. Analizuj ciśnienie, wiatr i temperaturę.'
+    )}"></th:block>
+
+    <link rel="stylesheet" th:href="@{/css/essentials/synop.css}">
+
+    <script src="https://unpkg.com/lucide@latest" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
+</head>
+<body class="synop-page">
+
+<nav th:replace="~{fragments/navbar :: navbar}"></nav>
+
+<div class="synop-bg-container">
+    <picture>
+        <source media="(max-width: 768px)" srcset="/assets/ryby/meteo-bg-mobile.jpg">
+        <img src="/assets/ryby/meteo-bg.jpg" alt="Pochmurne niebo nad jeziorem" class="synop-bg-image">
+    </picture>
+    <div class="synop-bg-overlay"></div>
+    <div class="synop-glow glow-cyan-top"></div>
+    <div class="synop-glow glow-blue-bottom"></div>
+</div>
+
+<main class="synop-wrapper pb-5 position-relative z-2">
+    <div class="container-xl pt-4 mt-3">
+
+        <nav aria-label="breadcrumb" class="mb-4">
+            <ol class="breadcrumb synop-breadcrumb">
+                <li class="breadcrumb-item"><a th:href="@{/}"><i data-lucide="home" class="bc-icon text-brand-green"></i> Główna</a></li>
+                <li class="breadcrumb-item"><a th:href="@{/niezbednik}">Niezbędnik</a></li>
+                <li class="breadcrumb-item active fw-bold text-white" aria-current="page">Dane Synoptyczne</li>
+            </ol>
+        </nav>
+
+        <header class="synop-glass-panel p-4 p-lg-5 mb-4 border-synop-cyan-subtle">
+            <div class="row align-items-center justify-content-between g-4">
+                <div class="col-lg-7">
+                    <div class="d-flex align-items-center gap-3 mb-3">
+                        <div class="synop-icon-pulse">
+                            <i data-lucide="satellite" class="text-synop-cyan" style="width: 32px; height: 32px;"></i>
+                        </div>
+                        <h1 class="display-5 fw-black text-white mb-0 synop-title-glow">Dane Synoptyczne</h1>
+                    </div>
+                    <p class="synop-text-readable fs-5 mb-0">
+                        Monitoruj temperaturę, wiatr i ciśnienie prosto ze stacji pomiarowych <span class="text-synop-cyan fw-bold text-glow-cyan">IMGW</span>.
+                    </p>
+                </div>
+
+                <div class="col-lg-5 text-lg-end">
+                    <form action="/synop" method="get" class="synop-search-form">
+                        <div class="synop-search-input-group">
+                            <i data-lucide="map-pin" class="search-icon"></i>
+                            <input type="text" name="lokalizacja" class="search-input" placeholder="Wpisz miasto lub łowisko..." value="Bielsko Biała" required>
+                            <button type="submit" class="synop-search-btn">
+                                Szukaj <i data-lucide="chevron-right" style="width: 18px;"></i>
+                            </button>
+                        </div>
+                    </form>
+                    <div class="mt-2 pe-3 text-white opacity-50 fs-8 text-end">
+                        <i data-lucide="crosshair" style="width: 12px;"></i> Auto-dopasowanie do najbliższej z 62 stacji
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <div class="row g-4 mb-4">
+
+            <div class="col-lg-8">
+
+                <div class="synop-glass-panel p-0 mb-4 overflow-hidden position-relative">
+                    <div class="row g-0 position-relative z-1">
+                        <div class="col-md-5 p-4 p-md-5 text-center text-md-start synop-border-end d-flex flex-column justify-content-center">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <span class="text-uppercase fw-bold fs-7 synop-text-readable" style="letter-spacing: 1px;">Aktualnie</span>
+                                <span class="synop-location-badge">Bielsko Biała</span>
+                            </div>
+
+                            <h2 class="display-2 fw-black text-white mb-0 lh-1">-2.6<span class="fs-3 text-white opacity-50">°C</span></h2>
+                            <p class="fs-7 text-synop-cyan fw-bold mt-2 mb-4 d-flex align-items-center justify-content-center justify-content-md-start gap-2">
+                                <i data-lucide="clock" style="width: 14px;"></i> Odczyt: 20 luty, 13:00
+                            </p>
+
+                            <div class="synop-alert">
+                                <i data-lucide="snowflake" style="width: 16px;"></i> Ryzyko oblodzenia przelotek
+                            </div>
+                        </div>
+
+                        <div class="col-md-7 p-4 p-md-5 synop-condition-bg d-flex align-items-center justify-content-center">
+                            <div class="row w-100 g-4 text-center text-md-start">
+                                <div class="col-6 col-md-12 d-flex align-items-center gap-3 mb-md-2">
+                                    <div class="flex-shrink-0">
+                                        <i data-lucide="gauge" class="text-synop-cyan" style="width: 32px; height: 32px;"></i>
+                                    </div>
+                                    <div>
+                                        <span class="d-block synop-text-readable fs-8 text-uppercase fw-bold mb-1">Ciśnienie atmosferyczne</span>
+                                        <span class="fs-3 fw-bold text-white">1025.4 <span class="fs-6 opacity-50">hPa</span></span>
+                                    </div>
+                                </div>
+                                <div class="col-6 col-md-6 d-flex flex-column gap-1">
+                                    <span class="d-block synop-text-readable fs-8 text-uppercase fw-bold mb-1">Wiatr (Kier. NNE / 30°)</span>
+                                    <div class="d-flex align-items-center justify-content-center justify-content-md-start gap-2">
+                                        <i data-lucide="wind" class="text-white opacity-50" style="width: 20px;"></i>
+                                        <span class="fs-4 fw-bold text-white">5.0 <span class="fs-6 opacity-50">m/s</span></span>
+                                    </div>
+                                </div>
+                                <div class="col-6 col-md-6 d-flex flex-column gap-1">
+                                    <span class="d-block synop-text-readable fs-8 text-uppercase fw-bold mb-1">Wilgotność / Opad</span>
+                                    <div class="d-flex align-items-center justify-content-center justify-content-md-start gap-2">
+                                        <i data-lucide="droplets" class="text-white opacity-50" style="width: 20px;"></i>
+                                        <span class="fs-4 fw-bold text-white">59.8 <span class="fs-6 opacity-50">%</span></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="synop-glass-panel p-4">
+                    <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom border-dark-subtle">
+                        <h3 class="fs-5 text-white fw-bold mb-0 d-flex align-items-center gap-2">
+                            <i data-lucide="line-chart" class="text-synop-cyan" style="width: 20px;"></i> Trend Temperatury (24h)
+                        </h3>
+                        <span class="badge bg-dark border border-secondary text-light">Interwał: 1h</span>
+                    </div>
+
+                    <div class="chart-container" style="position: relative; height: 300px; width: 100%;">
+                        <canvas id="synopChart"></canvas>
+                    </div>
+                </div>
+
+            </div>
+
+            <aside class="col-lg-4">
+                <article class="synop-glass-panel p-4 h-100 d-flex flex-column">
+                    <div class="mb-4 d-flex align-items-center gap-2 text-synop-cyan border-bottom border-dark-subtle pb-3">
+                        <i data-lucide="brain-circuit" style="width: 24px; height: 24px;"></i>
+                        <h2 class="fs-5 text-white fw-bold mb-0">Analiza Warunków</h2>
+                    </div>
+
+                    <div class="synop-knowledge-item mb-4">
+                        <h3 class="fs-6 text-white fw-bold mb-2">Gęstość Powietrza</h3>
+                        <p class="synop-text-readable fs-7 lh-lg mb-0">
+                            Wysokie ciśnienie (<strong class="text-white">1025.4 hPa</strong>) sprawia, że ryby mogą być "przyklejone" do dna. Zastosuj techniki opadowe lub łów w najgłębszych partiach łowiska.
+                        </p>
+                    </div>
+
+                    <div class="synop-knowledge-item mb-4 pb-4 border-bottom border-dark-subtle">
+                        <h3 class="fs-6 text-white fw-bold mb-2">Wpływ Wiatru NNE</h3>
+                        <p class="synop-text-readable fs-7 lh-lg mb-0">
+                            Chłodny wiatr północno-wschodni w połączeniu z mrozem zazwyczaj obniża aktywność ryb. Szukaj zawietrznych, osłoniętych brzegów, gdzie woda może być minimalnie cieplejsza.
+                        </p>
+                    </div>
+
+                    <div class="mt-auto bg-dark bg-opacity-50 p-3 rounded-3 border border-dark-subtle text-center">
+                        <span class="d-block synop-text-readable fs-8 text-uppercase fw-bold mb-1">Potencjał Brania</span>
+                        <span class="fs-3 fw-black text-warning text-glow-warning">ŚREDNI / TRUDNY</span>
+                        <div class="progress mt-3" style="height: 6px; background: rgba(255,255,255,0.1);">
+                            <div class="progress-bar bg-warning" style="width: 45%;"></div>
+                        </div>
+                    </div>
+                </article>
+            </aside>
+
+        </div>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/footer :: footer}"></footer>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        lucide.createIcons();
+
+        // Skrypt wykresu
+        const ctx = document.getElementById('synopChart').getContext('2d');
+        const themeColor = '#00f2ff';
+
+        let gradient = ctx.createLinearGradient(0, 0, 0, 300);
+        gradient.addColorStop(0, 'rgba(0, 242, 255, 0.3)');
+        gradient.addColorStop(1, 'rgba(0, 242, 255, 0.0)');
+
+        const labels = ['14:00', '16:00', '18:00', '20:00', '22:00', '00:00', '02:00', '04:00', '06:00', '08:00', '10:00', '12:00', 'Teraz'];
+        const dataPoints = [-1.5, -2.0, -3.5, -5.0, -6.2, -7.0, -7.5, -8.1, -7.8, -6.5, -4.2, -3.0, -2.6];
+
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Temperatura (°C)',
+                    data: dataPoints,
+                    borderColor: themeColor,
+                    backgroundColor: gradient,
+                    borderWidth: 3,
+                    pointBackgroundColor: '#010409',
+                    pointBorderColor: themeColor,
+                    pointBorderWidth: 2,
+                    pointRadius: 4,
+                    pointHoverRadius: 7,
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: 'rgba(13, 17, 23, 0.95)',
+                        titleColor: '#94a3b8',
+                        bodyColor: themeColor,
+                        bodyFont: { weight: 'bold', size: 15 },
+                        padding: 14,
+                        borderColor: 'rgba(0, 242, 255, 0.2)',
+                        borderWidth: 1,
+                        displayColors: false,
+                        callbacks: {
+                            label: function(context) { return context.parsed.y + ' °C'; }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                        ticks: { color: '#94a3b8', stepSize: 2, font: { size: 12 } },
+                        border: { display: false }
+                    },
+                    x: {
+                        grid: { display: false },
+                        ticks: { color: '#94a3b8', font: { size: 12 } },
+                        border: { display: false }
+                    }
+                },
+                layout: { padding: { left: 0, bottom: 0 } }
+            }
+        });
+    });
+</script>
+</body>
+</html>

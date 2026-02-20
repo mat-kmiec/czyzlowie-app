@@ -1,0 +1,105 @@
+:root {
+    --brand-green: #2ecc71;
+    --synop-cyan: #00f2ff;
+    --synop-blue: #3b82f6;
+    --brand-bg: #010409;
+}
+
+body.synop-page {
+    background-color: var(--brand-bg);
+    color: #f8fafc;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    min-height: 100vh;
+}
+
+.synop-bg-container {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none;
+}
+.synop-bg-image {
+    width: 100%; height: 100%; object-fit: cover; filter: brightness(0.25) contrast(1.1) saturate(1.1);
+}
+.synop-bg-overlay {
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    background: linear-gradient(135deg, rgba(1, 4, 9, 0.85) 0%, rgba(1, 4, 9, 0.98) 100%);
+}
+.synop-glow {
+    position: absolute; width: 600px; height: 600px; border-radius: 50%; filter: blur(180px); opacity: 0.12;
+    animation: synopFloat 20s infinite alternate ease-in-out;
+}
+.glow-cyan-top { background: var(--synop-cyan); top: -15%; right: 10%; }
+.glow-blue-bottom { background: var(--synop-blue); bottom: -10%; left: -10%; animation-delay: -10s; }
+
+@keyframes synopFloat {
+    0% { transform: translate(0, 0) scale(1); }
+    100% { transform: translate(-50px, 40px) scale(1.1); }
+}
+
+.synop-glass-panel {
+    background: rgba(13, 17, 23, 0.7);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 24px;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+.border-synop-cyan-subtle { border-color: rgba(0, 242, 255, 0.3) !important; }
+.synop-border-end { border-right: 1px solid rgba(255, 255, 255, 0.08); }
+.synop-condition-bg { background: rgba(0, 0, 0, 0.2); }
+
+.synop-text-readable { color: #94a3b8; font-weight: 500; }
+.text-synop-cyan { color: var(--synop-cyan) !important; }
+.bg-synop-cyan { background-color: var(--synop-cyan) !important; }
+.text-glow-cyan { text-shadow: 0 0 15px rgba(0, 242, 255, 0.5); }
+.text-glow-warning { text-shadow: 0 0 15px rgba(255, 193, 7, 0.5); }
+
+.synop-breadcrumb a { color: #94a3b8; text-decoration: none; transition: 0.2s; }
+.synop-breadcrumb a:hover { color: var(--synop-cyan); }
+
+.synop-icon-pulse {
+    width: 52px; height: 52px; background: rgba(0, 242, 255, 0.1); border-radius: 14px;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 0 0 0 rgba(0, 242, 255, 0.3); animation: synopPulse 2.5s infinite;
+}
+
+@keyframes synopPulse {
+    0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(0, 242, 255, 0.5); }
+    70% { transform: scale(1); box-shadow: 0 0 0 15px rgba(0, 242, 255, 0); }
+    100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(0, 242, 255, 0); }
+}
+
+.synop-search-form { max-width: 480px; margin-left: auto; }
+.synop-search-input-group {
+    display: flex; align-items: center; background: rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 50px; padding: 6px; transition: all 0.3s;
+}
+.synop-search-input-group:focus-within {
+    border-color: var(--synop-cyan); box-shadow: 0 0 0 3px rgba(0, 242, 255, 0.15); background: rgba(0, 0, 0, 0.7);
+}
+.synop-search-input-group .search-icon { color: #64748b; margin-left: 15px; width: 20px; }
+.synop-search-input-group .search-input {
+    flex-grow: 1; background: transparent; border: none; color: #fff; padding: 12px 15px; outline: none; font-size: 1rem;
+}
+.synop-search-input-group .search-input::placeholder { color: #475569; }
+
+.synop-search-btn {
+    background: var(--synop-cyan); color: #000; border: none; border-radius: 40px;
+    padding: 10px 24px; font-weight: 800; display: flex; align-items: center; gap: 8px; transition: all 0.3s ease;
+}
+.synop-search-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0, 242, 255, 0.3); }
+
+.synop-location-badge {
+    background: rgba(0, 0, 0, 0.5); border: 1px solid rgba(0, 242, 255, 0.4);
+    color: var(--synop-cyan); padding: 6px 14px; border-radius: 20px; font-size: 0.8rem; font-weight: 700;
+}
+
+.synop-alert {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: rgba(0, 242, 255, 0.1); border-left: 3px solid var(--synop-cyan);
+    color: #cbd5e1; padding: 10px 15px; border-radius: 0 8px 8px 0; font-size: 0.85rem; font-weight: 600;
+}
+
+@media (max-width: 991px) {
+    .synop-search-form { max-width: 100%; margin-top: 15px; }
+    .synop-border-end { border-right: none; border-bottom: 1px solid rgba(255, 255, 255, 0.08); }
+}
