@@ -1,0 +1,105 @@
+:root {
+    --brand-green: #2ecc71;
+    --hydro-blue: #3b82f6;
+    --hydro-cyan: #0ea5e9;
+    --brand-bg: #010409;
+}
+
+body.hydro-page {
+    background-color: var(--brand-bg);
+    color: #f8fafc;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    min-height: 100vh;
+}
+
+.hydro-bg-container {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none;
+}
+.hydro-bg-image {
+    width: 100%; height: 100%; object-fit: cover; filter: brightness(0.25) contrast(1.1) saturate(1.1);
+}
+.hydro-bg-overlay {
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    background: linear-gradient(135deg, rgba(1, 4, 9, 0.85) 0%, rgba(1, 4, 9, 0.98) 100%);
+}
+.hydro-glow {
+    position: absolute; width: 600px; height: 600px; border-radius: 50%; filter: blur(180px); opacity: 0.12;
+    animation: hydroFloat 20s infinite alternate ease-in-out;
+}
+.glow-blue-top { background: var(--hydro-blue); top: -15%; right: 10%; }
+.glow-cyan-bottom { background: var(--hydro-cyan); bottom: -10%; left: -10%; animation-delay: -10s; }
+
+@keyframes hydroFloat {
+    0% { transform: translate(0, 0) scale(1); }
+    100% { transform: translate(-50px, 40px) scale(1.1); }
+}
+
+.hydro-glass-panel {
+    background: rgba(13, 17, 23, 0.7);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 24px;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+.border-hydro-blue-subtle { border-color: rgba(59, 130, 246, 0.3) !important; }
+.hydro-border-end { border-right: 1px solid rgba(255, 255, 255, 0.08); }
+.hydro-condition-bg { background: rgba(0, 0, 0, 0.2); }
+
+.hydro-text-readable { color: #94a3b8; font-weight: 500; }
+.text-hydro-blue { color: var(--hydro-blue) !important; }
+.bg-hydro-blue { background-color: var(--hydro-blue) !important; }
+.text-glow-blue { text-shadow: 0 0 15px rgba(59, 130, 246, 0.5); }
+.text-glow-green { text-shadow: 0 0 15px rgba(46, 204, 113, 0.4); }
+
+.hydro-breadcrumb a { color: #94a3b8; text-decoration: none; transition: 0.2s; }
+.hydro-breadcrumb a:hover { color: var(--hydro-blue); }
+
+.hydro-icon-pulse {
+    width: 52px; height: 52px; background: rgba(59, 130, 246, 0.1); border-radius: 14px;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.3); animation: hydroPulse 2.5s infinite;
+}
+
+@keyframes hydroPulse {
+    0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.5); }
+    70% { transform: scale(1); box-shadow: 0 0 0 15px rgba(59, 130, 246, 0); }
+    100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); }
+}
+
+.hydro-search-form { max-width: 480px; margin-left: auto; }
+.hydro-search-input-group {
+    display: flex; align-items: center; background: rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 50px; padding: 6px; transition: all 0.3s;
+}
+.hydro-search-input-group:focus-within {
+    border-color: var(--hydro-blue); box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15); background: rgba(0, 0, 0, 0.7);
+}
+.hydro-search-input-group .search-icon { color: #64748b; margin-left: 15px; width: 20px; }
+.hydro-search-input-group .search-input {
+    flex-grow: 1; background: transparent; border: none; color: #fff; padding: 12px 15px; outline: none; font-size: 1rem;
+}
+.hydro-search-input-group .search-input::placeholder { color: #475569; }
+
+.hydro-search-btn {
+    background: var(--hydro-blue); color: #fff; border: none; border-radius: 40px;
+    padding: 10px 24px; font-weight: 800; display: flex; align-items: center; gap: 8px; transition: all 0.3s ease;
+}
+.hydro-search-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(59, 130, 246, 0.3); }
+
+.hydro-location-badge {
+    background: rgba(0, 0, 0, 0.5); border: 1px solid rgba(59, 130, 246, 0.4);
+    color: var(--hydro-blue); padding: 6px 14px; border-radius: 20px; font-size: 0.8rem; font-weight: 700;
+}
+
+.hydro-alert {
+    display: inline-flex; align-items: center; gap: 8px;
+    border-left: 3px solid;
+    padding: 10px 15px; border-radius: 0 8px 8px 0; font-size: 0.85rem; font-weight: 600;
+}
+
+@media (max-width: 991px) {
+    .hydro-search-form { max-width: 100%; margin-top: 15px; }
+    .hydro-border-end { border-right: none; border-bottom: 1px solid rgba(255, 255, 255, 0.08); }
+}

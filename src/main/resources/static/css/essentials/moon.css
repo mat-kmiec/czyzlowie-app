@@ -1,0 +1,203 @@
+
+:root {
+    --brand-green: #2ecc71;
+    --moon-silver: #e2e8f0;
+    --moon-bg: #020617;
+}
+
+body.moon-page {
+    background-color: var(--moon-bg);
+    color: #f8fafc;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    min-height: 100vh;
+}
+
+.moon-bg-container {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none;
+}
+.moon-bg-image {
+    width: 100%; height: 100%; object-fit: cover; filter: brightness(0.2) contrast(1.1);
+}
+.moon-bg-overlay {
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    background: linear-gradient(135deg, rgba(2, 6, 23, 0.9) 0%, rgba(2, 6, 23, 0.98) 100%);
+}
+.moon-glow {
+    position: absolute; width: 500px; height: 500px; border-radius: 50%; filter: blur(150px); opacity: 0.15;
+}
+.glow-silver-top { background: var(--moon-silver); top: -10%; left: 0%; }
+.glow-green-bottom { background: var(--brand-green); bottom: -10%; right: -5%; }
+
+.moon-glass-panel {
+    background: rgba(15, 23, 42, 0.65);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 24px;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+.moon-text-readable { color: #e2e8f0; font-weight: 400; text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6); }
+.text-glow-green { text-shadow: 0 0 15px rgba(46, 204, 113, 0.4); }
+.border-brand-green-subtle { border-color: rgba(46, 204, 113, 0.3) !important; }
+.bg-brand-green-subtle { background-color: rgba(46, 204, 113, 0.1); }
+
+.moon-breadcrumb a { color: #94a3b8; text-decoration: none; transition: 0.2s; }
+.moon-breadcrumb a:hover { color: var(--brand-green); }
+
+.moon-icon-pulse {
+    width: 52px; height: 52px; background: rgba(255, 255, 255, 0.1); border-radius: 14px;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.2); animation: silverPulse 2s infinite;
+}
+
+@keyframes silverPulse {
+    0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(226, 232, 240, 0.4); }
+    70% { transform: scale(1); box-shadow: 0 0 0 15px rgba(226, 232, 240, 0); }
+    100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(226, 232, 240, 0); }
+}
+
+.moon-btn-outline {
+    background: rgba(2, 6, 23, 0.6); border: 1px solid rgba(255, 255, 255, 0.2); color: #fff;
+    padding: 12px 24px; border-radius: 14px; transition: 0.3s;
+}
+.moon-btn-outline:hover, .moon-btn-outline:focus { border-color: var(--moon-silver); color: #fff; background: rgba(2, 6, 23, 0.9); }
+
+.moon-border-end { border-right: 1px solid rgba(255, 255, 255, 0.08); }
+.moon-condition-bg { background: rgba(0, 0, 0, 0.2); }
+
+.moon-phase-huge {
+    width: 80px; height: 80px; border-radius: 50%;
+    background-color: #0f172a; border: 1px solid rgba(255,255,255,0.1); position: relative; overflow: hidden;
+}
+.moon-phase-huge.full-moon { background-color: var(--moon-silver); }
+.shadow-glow-silver { box-shadow: 0 0 30px rgba(226, 232, 240, 0.4); }
+
+.moon-calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 8px;
+}
+
+.calendar-header {
+    text-align: center; color: #64748b; font-weight: 700; font-size: 0.8rem; text-transform: uppercase;
+    padding-bottom: 10px;
+}
+
+.calendar-day {
+    background: rgba(0, 0, 0, 0.3); border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 12px; aspect-ratio: 1 / 1;
+    display: flex; flex-direction: column; align-items: center; justify-content: space-between;
+    padding: 8px; transition: all 0.2s ease; cursor: default;
+}
+
+.calendar-day.empty { background: transparent; border: none; }
+.calendar-day:not(.empty):hover { border-color: rgba(255,255,255,0.2); background: rgba(255,255,255,0.05); }
+
+.calendar-day.active-today {
+    background: rgba(46, 204, 113, 0.1); border-color: var(--brand-green);
+    box-shadow: inset 0 0 15px rgba(46, 204, 113, 0.1);
+}
+
+.day-number { font-size: 0.85rem; font-weight: 600; color: #94a3b8; align-self: flex-start; }
+.active-today .day-number { color: var(--brand-green); }
+
+.day-moon-icon {
+    width: 24px; height: 24px; border-radius: 50%;
+    background-color: #1e293b; border: 1px solid rgba(255,255,255,0.2); position: relative; overflow: hidden;
+}
+.day-moon-icon.full-moon { background-color: var(--moon-silver); }
+.day-moon-icon.new-moon { background-color: #020617; }
+.day-moon-icon.waxing-crescent::before {
+    content: ''; position: absolute; top: 0; right: 0; width: 50%; height: 100%; background: var(--moon-silver);
+}
+
+.bite-indicator { width: 100%; height: 4px; border-radius: 2px; margin-top: auto; }
+.bite-indicator.level-1 { background: #ef4444; width: 30%; }
+.bite-indicator.level-2 { background: #f59e0b; width: 60%; }
+.bite-indicator.level-3 { background: #2ecc71; width: 100%; }
+
+.bite-dot { width: 8px; height: 8px; border-radius: 50%; }
+
+.moon-local-search {
+    display: flex; align-items: center;
+    background: rgba(2, 6, 23, 0.6); border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 50px; padding: 4px 4px 4px 15px; max-width: 350px; width: 100%;
+}
+.moon-local-search:focus-within { border-color: var(--brand-green); background: rgba(2, 6, 23, 0.9); }
+.moon-local-search input {
+    flex-grow: 1; background: transparent; border: none; color: #fff; outline: none; padding: 8px 10px;
+}
+.btn-search-local {
+    background: var(--brand-green); color: #020617; border: none; border-radius: 40px;
+    padding: 8px 16px; font-weight: 800;
+}
+
+.local-data-box {
+    background: rgba(0, 0, 0, 0.2); border: 1px solid rgba(255, 255, 255, 0.05);
+    padding: 20px; border-radius: 16px; height: 100%;
+}
+
+@media (max-width: 991px) {
+    .moon-border-end { border-right: none; border-bottom: 1px solid rgba(255, 255, 255, 0.08); }
+    .moon-local-search { margin-left: auto; margin-right: auto; }
+}
+@media (max-width: 576px) {
+    .calendar-day { padding: 4px; border-radius: 8px; }
+    .day-moon-icon { width: 18px; height: 18px; }
+}
+
+.moon-text-readable {
+    color: #e2e8f0;
+    font-weight: 500;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+}
+
+.moon-nav-btn {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #f8fafc;
+    border-radius: 12px;
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+.moon-nav-btn:hover {
+    background: rgba(46, 204, 113, 0.2);
+    border-color: var(--brand-green);
+    color: var(--brand-green);
+    transform: scale(1.05);
+}
+
+.local-data-box {
+    background: rgba(2, 6, 23, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    padding: 20px 15px;
+    border-radius: 16px;
+    height: 100%;
+    transition: all 0.3s ease;
+    box-shadow: inset 0 2px 10px rgba(0,0,0,0.2);
+}
+
+.local-data-box:hover {
+    background: rgba(46, 204, 113, 0.05);
+    border-color: rgba(46, 204, 113, 0.3);
+    transform: translateY(-3px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.3), inset 0 2px 10px rgba(0,0,0,0.2);
+}
+
+.moon-calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 10px;
+}
+
+@media (max-width: 576px) {
+    .moon-calendar-grid { gap: 4px; }
+    .calendar-day { padding: 5px; border-radius: 8px; }
+    .day-number { font-size: 0.75rem; }
+}

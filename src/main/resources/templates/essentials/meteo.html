@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pl">
+<head>
+    <th:block th:replace="~{fragments/head :: head-content(
+        pageTitle='Precyzyjne Dane Meteo - Wiatr, Temperatury | CzyZlowie',
+        pageDescription='Szczegółowe dane meteo z profesjonalnych stacji IMGW. Sprawdzaj porywy wiatru, temperaturę gruntu i powietrza na żywo.'
+    )}"></th:block>
+
+    <link rel="stylesheet" th:href="@{/css/essentials/meteo.css}">
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
+</head>
+<body class="meteo-page">
+
+<nav th:replace="~{fragments/navbar :: navbar}"></nav>
+
+<div class="meteo-bg-container">
+    <picture>
+        <source media="(max-width: 768px)" srcset="/assets/ryby/coastal-bg-mobile.jpg">
+        <img src="/assets/ryby/coastal-bg.jpg" alt="Wzburzone morze i wiatr" class="meteo-bg-image">
+    </picture>
+    <div class="meteo-bg-overlay"></div>
+    <div class="meteo-glow glow-violet-top"></div>
+    <div class="meteo-glow glow-fuchsia-bottom"></div>
+</div>
+
+<main class="meteo-wrapper pb-5 position-relative z-2">
+    <div class="container-xl pt-4 mt-3">
+
+        <nav aria-label="breadcrumb" class="mb-4">
+            <ol class="breadcrumb meteo-breadcrumb">
+                <li class="breadcrumb-item"><a th:href="@{/}"><i data-lucide="home" class="bc-icon text-brand-green"></i> Główna</a></li>
+                <li class="breadcrumb-item"><a th:href="@{/niezbednik}">Niezbędnik</a></li>
+                <li class="breadcrumb-item active fw-bold text-white" aria-current="page">Stacje Meteorologiczne</li>
+            </ol>
+        </nav>
+
+        <header class="meteo-glass-panel p-4 p-lg-5 mb-4 border-meteo-violet-subtle">
+            <div class="row align-items-center justify-content-between g-4">
+                <div class="col-lg-7">
+                    <div class="d-flex align-items-center gap-3 mb-3">
+                        <div class="meteo-icon-pulse">
+                            <i data-lucide="wind" class="text-meteo-violet" style="width: 32px; height: 32px;"></i>
+                        </div>
+                        <h1 class="display-5 fw-black text-white mb-0 meteo-title-glow">Dane Meteo</h1>
+                    </div>
+                    <p class="meteo-text-readable fs-5 mb-0">
+                        Szczegółowa analiza profilu termicznego oraz dynamiki wiatru ze stacji <span class="text-meteo-violet fw-bold text-glow-violet">IMGW</span>.
+                    </p>
+                </div>
+
+                <div class="col-lg-5 text-lg-end">
+                    <form action="/meteo" method="get" class="meteo-search-form">
+                        <div class="meteo-search-input-group">
+                            <i data-lucide="map-pin" class="search-icon"></i>
+                            <input type="text" name="lokalizacja" class="search-input" placeholder="Wpisz stację (np. Hel)..." value="HEL" required>
+                            <button type="submit" class="meteo-search-btn">
+                                Szukaj <i data-lucide="chevron-right" style="width: 18px;"></i>
+                            </button>
+                        </div>
+                    </form>
+                    <div class="mt-2 pe-3 text-white opacity-50 fs-8 text-end">
+                        <i data-lucide="crosshair" style="width: 12px;"></i> Częste odświeżanie (co 10 minut)
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <div class="row g-4 mb-4">
+
+            <div class="col-lg-8">
+
+                <div class="meteo-glass-panel p-0 mb-4 overflow-hidden position-relative">
+                    <div class="row g-0 position-relative z-1">
+                        <div class="col-md-5 p-4 p-md-5 text-center text-md-start meteo-border-end d-flex flex-column justify-content-center">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <span class="text-uppercase fw-bold fs-7 meteo-text-readable" style="letter-spacing: 1px;">Stacja precyzyjna</span>
+                                <span class="meteo-location-badge">HEL</span>
+                            </div>
+
+                            <h2 class="display-3 fw-black text-white mb-1 lh-1">-0.2<span class="fs-4 text-white opacity-50">°C</span></h2>
+                            <span class="d-block text-uppercase fs-8 fw-bold text-meteo-violet mb-3">Temp. Powietrza</span>
+
+                            <div class="d-flex align-items-center justify-content-center justify-content-md-start gap-3 mb-4 border-top border-dark-subtle pt-3">
+                                <i data-lucide="layers" class="text-white opacity-50"></i>
+                                <div>
+                                    <span class="fs-4 fw-bold text-white">-1.2 <span class="fs-6 opacity-50">°C</span></span>
+                                    <span class="d-block text-uppercase fs-8 fw-bold meteo-text-readable">Temp. Gruntu</span>
+                                </div>
+                            </div>
+
+                            <div class="meteo-alert text-danger border-danger bg-danger bg-opacity-10 mt-auto">
+                                <i data-lucide="alert-triangle" class="text-danger" style="width: 16px;"></i> Silne porywy wiatru
+                            </div>
+                        </div>
+
+                        <div class="col-md-7 p-4 p-md-5 meteo-condition-bg d-flex align-items-center justify-content-center">
+                            <div class="row w-100 g-4 text-center text-md-start">
+                                <div class="col-12 d-flex align-items-center gap-3 mb-md-2 pb-3 border-bottom border-dark-subtle border-opacity-25">
+                                    <div class="flex-shrink-0 meteo-alert-icon">
+                                        <i data-lucide="wind" class="text-danger" style="width: 32px; height: 32px;"></i>
+                                    </div>
+                                    <div>
+                                        <span class="d-block text-danger fs-8 text-uppercase fw-bold mb-1">Porywy Wiatru (max)</span>
+                                        <span class="fs-2 fw-black text-white">8.0 <span class="fs-5 opacity-50">m/s</span></span>
+                                    </div>
+                                </div>
+                                <div class="col-6 col-md-6 d-flex flex-column gap-1">
+                                    <span class="d-block meteo-text-readable fs-8 text-uppercase fw-bold mb-1">Średni (Kier. SW)</span>
+                                    <div class="d-flex align-items-center justify-content-center justify-content-md-start gap-2">
+                                        <i data-lucide="navigation" class="text-white opacity-50" style="width: 20px; transform: rotate(214deg);"></i>
+                                        <span class="fs-4 fw-bold text-white">1.7 <span class="fs-6 opacity-50">m/s</span></span>
+                                    </div>
+                                </div>
+                                <div class="col-6 col-md-6 d-flex flex-column gap-1">
+                                    <span class="d-block meteo-text-readable fs-8 text-uppercase fw-bold mb-1">Wilgotność</span>
+                                    <div class="d-flex align-items-center justify-content-center justify-content-md-start gap-2">
+                                        <i data-lucide="droplets" class="text-white opacity-50" style="width: 20px;"></i>
+                                        <span class="fs-4 fw-bold text-white">65.9 <span class="fs-6 opacity-50">%</span></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="meteo-glass-panel p-4">
+                    <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom border-dark-subtle">
+                        <h3 class="fs-5 text-white fw-bold mb-0 d-flex align-items-center gap-2">
+                            <i data-lucide="line-chart" class="text-meteo-violet" style="width: 20px;"></i> Dynamika Wiatru (24h)
+                        </h3>
+                        <span class="badge bg-dark border border-secondary text-light">Interwał: 10 min</span>
+                    </div>
+
+                    <div class="chart-container" style="position: relative; height: 300px; width: 100%;">
+                        <canvas id="meteoChart"></canvas>
+                    </div>
+                </div>
+
+            </div>
+
+            <aside class="col-lg-4">
+                <article class="meteo-glass-panel p-4 h-100 d-flex flex-column">
+                    <div class="mb-4 d-flex align-items-center gap-2 text-meteo-violet border-bottom border-dark-subtle pb-3">
+                        <i data-lucide="brain-circuit" style="width: 24px; height: 24px;"></i>
+                        <h2 class="fs-5 text-white fw-bold mb-0">Analiza Morska / Precyzyjna</h2>
+                    </div>
+
+                    <div class="meteo-knowledge-item mb-4">
+                        <h3 class="fs-6 text-white fw-bold mb-2">Porywy Wiatru (8.0 m/s)</h3>
+                        <p class="meteo-text-readable fs-7 lh-lg mb-0">
+                            Silne uderzenia wiatru z kierunku SW. Duża różnica między wiatrem średnim a porywami zwiastuje niestabilność w atmosferze. Trudne warunki do rzutów z plaży (surfcasting).
+                        </p>
+                    </div>
+
+                    <div class="meteo-knowledge-item mb-4 pb-4 border-bottom border-dark-subtle">
+                        <h3 class="fs-6 text-white fw-bold mb-2">Temperatura Gruntu</h3>
+                        <p class="meteo-text-readable fs-7 lh-lg mb-0">
+                            Grunt jest o cały stopień chłodniejszy od powietrza (<strong class="text-white">-1.2°C</strong>). Oznacza to przemarzanie płytkich wód przybrzeżnych. Ryby zejdą głębiej.
+                        </p>
+                    </div>
+
+                    <div class="mt-auto bg-dark bg-opacity-50 p-3 rounded-3 border border-dark-subtle text-center">
+                        <span class="d-block meteo-text-readable fs-8 text-uppercase fw-bold mb-1">Warunki (Surfcasting)</span>
+                        <span class="fs-3 fw-black text-danger text-glow-danger">TRUDNE</span>
+                        <div class="progress mt-3" style="height: 6px; background: rgba(255,255,255,0.1);">
+                            <div class="progress-bar bg-danger" style="width: 25%;"></div>
+                        </div>
+                    </div>
+                </article>
+            </aside>
+
+        </div>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/footer :: footer}"></footer>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        lucide.createIcons();
+
+        const ctx = document.getElementById('meteoChart').getContext('2d');
+        const themeColor = '#a855f7';
+        const gustColor = '#ef4444';
+
+        let gradientAvg = ctx.createLinearGradient(0, 0, 0, 300);
+        gradientAvg.addColorStop(0, 'rgba(168, 85, 247, 0.4)');
+        gradientAvg.addColorStop(1, 'rgba(168, 85, 247, 0.0)');
+
+        let gradientGust = ctx.createLinearGradient(0, 0, 0, 300);
+        gradientGust.addColorStop(0, 'rgba(239, 68, 68, 0.2)');
+        gradientGust.addColorStop(1, 'rgba(239, 68, 68, 0.0)');
+
+        const labels = ['14:00', '16:00', '18:00', '20:00', '22:00', '00:00', '02:00', '04:00', '06:00', '08:00', '10:00', '12:00', 'Teraz'];
+        const avgWindPoints = [2.5, 3.0, 3.5, 4.0, 4.5, 4.2, 3.8, 3.0, 2.5, 2.0, 1.8, 1.5, 1.7];
+        const gustPoints =    [4.0, 5.5, 6.8, 8.5, 9.5, 8.0, 7.5, 5.0, 4.0, 3.5, 4.5, 6.0, 8.0];
+
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [
+                    {
+                        label: 'Porywy (m/s)',
+                        data: gustPoints,
+                        borderColor: gustColor,
+                        backgroundColor: gradientGust,
+                        borderWidth: 2,
+                        borderDash: [5, 5],
+                        pointBackgroundColor: '#010409',
+                        pointBorderColor: gustColor,
+                        pointBorderWidth: 2,
+                        pointRadius: 4,
+                        fill: true,
+                        tension: 0.4
+                    },
+                    {
+                        label: 'Wiatr Średni (m/s)',
+                        data: avgWindPoints,
+                        borderColor: themeColor,
+                        backgroundColor: gradientAvg,
+                        borderWidth: 3,
+                        pointBackgroundColor: '#010409',
+                        pointBorderColor: themeColor,
+                        pointBorderWidth: 2,
+                        pointRadius: 4,
+                        fill: true,
+                        tension: 0.4
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top',
+                        labels: { color: '#94a3b8', usePointStyle: true, font: { size: 12 } }
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(13, 17, 23, 0.95)',
+                        titleColor: '#fff',
+                        bodyColor: '#fff',
+                        bodyFont: { weight: 'bold', size: 14 },
+                        padding: 14,
+                        borderColor: 'rgba(255, 255, 255, 0.1)',
+                        borderWidth: 1,
+                        mode: 'index',
+                        intersect: false,
+                    }
+                },
+                scales: {
+                    y: {
+                        min: 0,
+                        suggestedMax: 12,
+                        grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                        ticks: { color: '#94a3b8', stepSize: 2, font: { size: 12 } },
+                        border: { display: false }
+                    },
+                    x: {
+                        grid: { display: false },
+                        ticks: { color: '#94a3b8', font: { size: 12 } },
+                        border: { display: false }
+                    }
+                },
+                interaction: { intersect: false, mode: 'index' },
+                layout: { padding: { left: 0, bottom: 0 } }
+            }
+        });
+    });
+</script>
+</body>
+</html>

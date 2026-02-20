@@ -8,17 +8,17 @@ public class TestController {
 
     @GetMapping("/mapa")
     public String map(){
-        return "map";
+        return "map/map";
     }
 
     @GetMapping("/ryby/*")
     public String atlas(){
-        return "atlas-details";
+        return "fish/atlas-details";
     }
 
     @GetMapping("/drapiezniki")
     public String predators(){
-        return "predators";
+        return "fish/predators";
     }
 
     @GetMapping("/login")
@@ -43,12 +43,12 @@ public class TestController {
 
     @GetMapping("/error")
     public String err(){
-        return "error";
+        return "error/error";
     }
 
     @GetMapping("/barometr")
     public String barometer(){
-        return "barometr";
+        return "essentials/barometr";
     }
 
     @GetMapping("/regulamin")
@@ -65,4 +65,31 @@ public class TestController {
     public String oNas(){
         return "info/o-aplikacji";
     }
+
+    @GetMapping("/moon")
+    public String moon(){
+        return "essentials/moon";
+    }
+
+    @GetMapping("/sun")
+    public String moson(){
+        return "essentials/sunrise-sunset";
+    }
+
+    @GetMapping("/synop")
+    public String mosonff(){
+        return "essentials/synop";
+    }
+
+    @GetMapping("/meteo")
+    public String meteo(){
+        return "essentials/meteo";
+    }
+
+    @GetMapping("/hydro")
+    public String hydro(){
+        return "essentials/hydro";
+    }
+
+
 }

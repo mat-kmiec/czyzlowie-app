@@ -31,7 +31,7 @@ public class ImgwDataSceduler {
      * Any exceptions occurring during the operation are caught and logged with the error details.
      *
      * The execution interval is defined and configured externally using the property
-     * {@code imgw.scheduler.meteo-rate}.
+     * {@code imgw.scheduler.meteo.html-rate}.
      */
     @Scheduled(fixedRateString = "${imgw.scheduler.meteo-rate}")
     public void scheduleMeteoFetch(){
