@@ -8,17 +8,17 @@ public class TestController {
 
     @GetMapping("/mapa")
     public String map(){
-        return "map";
+        return "map/map";
     }
 
     @GetMapping("/ryby/*")
     public String atlas(){
-        return "atlas-details";
+        return "fish/atlas-details";
     }
 
     @GetMapping("/drapiezniki")
     public String predators(){
-        return "predators";
+        return "fish/predators";
     }
 
     @GetMapping("/login")
@@ -43,7 +43,7 @@ public class TestController {
 
     @GetMapping("/error")
     public String err(){
-        return "error";
+        return "error/error";
     }
 
     @GetMapping("/barometr")
