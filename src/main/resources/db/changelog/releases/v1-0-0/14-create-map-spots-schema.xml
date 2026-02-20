@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.9.xsd">
+
+    <changeSet id="001-create-map-spots-schema" author="mateusz kmiec">
+
+        <createTable tableName="map_spots">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="name" type="VARCHAR(255)"/>
+            <column name="slug" type="VARCHAR(255)">
+                <constraints unique="true"/>
+            </column>
+            <column name="spot_type" type="VARCHAR(50)"/>
+            <column name="latitude" type="DOUBLE"/>
+            <column name="longitude" type="DOUBLE"/>
+            <column name="province" type="VARCHAR(255)"/>
+            <column name="nearest_city" type="VARCHAR(255)"/>
+            <column name="description" type="TEXT"/>
+            <column name="manager" type="VARCHAR(255)"/>
+        </createTable>
+
+        <createTable tableName="map_slips">
+            <column name="id" type="BIGINT">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="status" type="VARCHAR(255)"/>
+            <column name="access_type" type="VARCHAR(255)"/>
+            <column name="fee_info" type="VARCHAR(255)"/>
+            <column name="opening_hours" type="VARCHAR(255)"/>
+            <column name="surface_type" type="VARCHAR(255)"/>
+            <column name="incline" type="VARCHAR(255)"/>
+            <column name="unit_limit" type="VARCHAR(255)"/>
+            <column name="end_depth" type="DOUBLE"/>
+            <column name="trailer_parking" type="VARCHAR(255)"/>
+            <column name="has_mooring_pier" type="BOOLEAN"/>
+            <column name="lighting_and_monitoring" type="VARCHAR(255)"/>
+            <column name="maneuvering_space" type="VARCHAR(255)"/>
+            <column name="navigational_alerts" type="TEXT"/>
+        </createTable>
+        <addForeignKeyConstraint baseTableName="map_slips" baseColumnNames="id" constraintName="fk_map_slips_to_spots" referencedTableName="map_spots" referencedColumnNames="id" onDelete="CASCADE"/>
+
+        <createTable tableName="map_commercials">
+            <column name="id" type="BIGINT">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="profile_type" type="VARCHAR(255)"/>
+            <column name="records_info" type="VARCHAR(255)"/>
+            <column name="reservation_type" type="VARCHAR(255)"/>
+            <column name="pricing_info" type="VARCHAR(255)"/>
+            <column name="extra_fees" type="VARCHAR(255)"/>
+            <column name="season_and_hours" type="VARCHAR(255)"/>
+            <column name="stands_count" type="INT"/>
+            <column name="stand_size_and_distance" type="VARCHAR(255)"/>
+            <column name="has_vip_stands" type="BOOLEAN"/>
+            <column name="car_access_to_stand" type="BOOLEAN"/>
+            <column name="has_wooden_piers" type="BOOLEAN"/>
+            <column name="has_toilets" type="BOOLEAN"/>
+            <column name="has_showers" type="BOOLEAN"/>
+            <column name="has_electricity" type="BOOLEAN"/>
+            <column name="has_accommodation" type="BOOLEAN"/>
+            <column name="has_gastronomy_or_shop" type="BOOLEAN"/>
+            <column name="allows_campfire" type="BOOLEAN"/>
+            <column name="requires_cradle_mat" type="BOOLEAN"/>
+            <column name="requires_disinfectant" type="BOOLEAN"/>
+            <column name="bans_keepnets" type="BOOLEAN"/>
+            <column name="bans_braided_lines" type="BOOLEAN"/>
+            <column name="bait_restrictions" type="VARCHAR(255)"/>
+        </createTable>
+        <addForeignKeyConstraint baseTableName="map_commercials" baseColumnNames="id" constraintName="fk_map_commercials_to_spots" referencedTableName="map_spots" referencedColumnNames="id" onDelete="CASCADE"/>
+
+        <createTable tableName="map_lakes">
+            <column name="id" type="BIGINT">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="lake_type" type="VARCHAR(255)"/>
+            <column name="area_hectares" type="DOUBLE"/>
+            <column name="avg_depth" type="DOUBLE"/>
+            <column name="max_depth" type="DOUBLE"/>
+            <column name="bottom_formation" type="VARCHAR(255)"/>
+            <column name="bottom_type" type="VARCHAR(255)"/>
+            <column name="water_clarity" type="VARCHAR(255)"/>
+            <column name="vegetation" type="VARCHAR(255)"/>
+            <column name="dominant_species" type="VARCHAR(255)"/>
+            <column name="has_predators" type="BOOLEAN"/>
+            <column name="stocking_info" type="VARCHAR(255)"/>
+            <column name="requires_permit" type="BOOLEAN"/>
+            <column name="permit_cost_info" type="VARCHAR(255)"/>
+            <column name="catch_and_release" type="BOOLEAN"/>
+            <column name="silent_zone" type="BOOLEAN"/>
+            <column name="shore_fishing" type="VARCHAR(255)"/>
+            <column name="has_piers" type="BOOLEAN"/>
+            <column name="boat_fishing_allowed" type="BOOLEAN"/>
+            <column name="access_road" type="VARCHAR(255)"/>
+            <column name="has_parking" type="BOOLEAN"/>
+        </createTable>
+        <addForeignKeyConstraint baseTableName="map_lakes" baseColumnNames="id" constraintName="fk_map_lakes_to_spots" referencedTableName="map_spots" referencedColumnNames="id" onDelete="CASCADE"/>
+
+        <createTable tableName="map_oxbows">
+            <column name="id" type="BIGINT">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="area_hectares" type="DOUBLE"/>
+            <column name="avg_depth" type="DOUBLE"/>
+            <column name="max_depth" type="DOUBLE"/>
+            <column name="river_connection" type="VARCHAR(255)"/>
+            <column name="silting_level" type="VARCHAR(255)"/>
+            <column name="overgrowth_level" type="VARCHAR(255)"/>
+            <column name="oxygen_depletion_risk" type="BOOLEAN"/>
+            <column name="dries_up" type="BOOLEAN"/>
+            <column name="dominant_fish" type="VARCHAR(255)"/>
+            <column name="shore_access" type="VARCHAR(255)"/>
+            <column name="waders_required" type="BOOLEAN"/>
+            <column name="snags_level" type="VARCHAR(255)"/>
+            <column name="best_seasons" type="VARCHAR(255)"/>
+        </createTable>
+        <addForeignKeyConstraint baseTableName="map_oxbows" baseColumnNames="id" constraintName="fk_map_oxbows_to_spots" referencedTableName="map_spots" referencedColumnNames="id" onDelete="CASCADE"/>
+
+        <createTable tableName="map_reservoirs">
+            <column name="id" type="BIGINT">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="area_hectares" type="DOUBLE"/>
+            <column name="avg_depth" type="DOUBLE"/>
+            <column name="max_depth" type="DOUBLE"/>
+            <column name="river_fed_by" type="VARCHAR(255)"/>
+            <column name="water_level_fluctuations" type="VARCHAR(255)"/>
+            <column name="water_current" type="VARCHAR(255)"/>
+            <column name="flooded_structures" type="VARCHAR(255)"/>
+            <column name="old_river_bed" type="VARCHAR(255)"/>
+            <column name="bottom_type" type="VARCHAR(255)"/>
+            <column name="dominant_species" type="VARCHAR(255)"/>
+            <column name="has_predators" type="BOOLEAN"/>
+            <column name="stocking_info" type="VARCHAR(255)"/>
+            <column name="requires_permit" type="BOOLEAN"/>
+            <column name="permit_cost_info" type="VARCHAR(255)"/>
+            <column name="catch_and_release" type="BOOLEAN"/>
+            <column name="silent_zone" type="BOOLEAN"/>
+            <column name="night_fishing_rules" type="VARCHAR(255)"/>
+            <column name="shore_fishing" type="VARCHAR(255)"/>
+            <column name="boat_fishing_allowed" type="BOOLEAN"/>
+            <column name="slip_availability" type="VARCHAR(255)"/>
+            <column name="access_road" type="VARCHAR(255)"/>
+        </createTable>
+        <addForeignKeyConstraint baseTableName="map_reservoirs" baseColumnNames="id" constraintName="fk_map_reservoirs_to_spots" referencedTableName="map_spots" referencedColumnNames="id" onDelete="CASCADE"/>
+
+        <createTable tableName="map_rivers">
+            <column name="id" type="BIGINT">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="river_type" type="VARCHAR(255)"/>
+            <column name="channel_character" type="VARCHAR(255)"/>
+            <column name="avg_width" type="DOUBLE"/>
+            <column name="avg_depth" type="DOUBLE"/>
+            <column name="bottom_type" type="VARCHAR(255)"/>
+            <column name="water_structures" type="VARCHAR(255)"/>
+            <column name="dominant_species" type="VARCHAR(255)"/>
+            <column name="fish_region" type="VARCHAR(255)"/>
+            <column name="special_sections" type="VARCHAR(255)"/>
+            <column name="method_bans" type="VARCHAR(255)"/>
+            <column name="boat_fishing_allowed" type="BOOLEAN"/>
+        </createTable>
+        <addForeignKeyConstraint baseTableName="map_rivers" baseColumnNames="id" constraintName="fk_map_rivers_to_spots" referencedTableName="map_spots" referencedColumnNames="id" onDelete="CASCADE"/>
+
+        <createTable tableName="map_specific_spots">
+            <column name="id" type="BIGINT">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="dimension_info" type="VARCHAR(255)"/>
+            <column name="parent_water_type" type="VARCHAR(255)"/>
+            <column name="local_depth" type="DOUBLE"/>
+            <column name="local_bottom_type" type="VARCHAR(255)"/>
+            <column name="local_current" type="VARCHAR(255)"/>
+            <column name="stands_condition" type="VARCHAR(255)"/>
+            <column name="effective_methods" type="VARCHAR(255)"/>
+            <column name="best_time_and_baits" type="VARCHAR(255)"/>
+            <column name="fishing_pressure" type="VARCHAR(255)"/>
+        </createTable>
+        <addForeignKeyConstraint baseTableName="map_specific_spots" baseColumnNames="id" constraintName="fk_map_specific_spots_to_spots" referencedTableName="map_spots" referencedColumnNames="id" onDelete="CASCADE"/>
+
+    </changeSet>
+
+</databaseChangeLog>
