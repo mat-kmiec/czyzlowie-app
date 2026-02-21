@@ -56,7 +56,7 @@ class MapApplication {
             const data = await response.json();
 
             this.locations = data.map(marker => {
-                const typeLower = marker.type.toLowerCase();
+                const typeLower = marker.type ? marker.type.toLowerCase() : '';
                 let baseUrl = '/synop';
 
                 if (typeLower === 'hydro') baseUrl = '/hydro';
@@ -70,6 +70,11 @@ class MapApplication {
                     cat: typeLower,
                     lat: marker.lat,
                     lng: marker.lng,
+                    coords: marker.polygonCoordinates,
+                    description: marker.description,
+                    startDate: marker.startDate,
+                    endDate: marker.endDate,
+                    restrictionType: marker.restrictionType,
                     url: `${baseUrl}/${marker.slug}`
                 };
             });
@@ -121,6 +126,7 @@ class MapApplication {
             maxClusterRadius: 50
         });
         this.map.addLayer(this.mainClusterGroup);
+
         this.mainClusterGroup.on('animationend', () => {
             if (window.lucide) lucide.createIcons();
         });
@@ -169,63 +175,134 @@ class MapApplication {
 
     loadMarkers() {
         this.locations.forEach(loc => {
-            const catData = this.categories[loc.cat];
-            if (!catData) return;
+            const catData = this.categories[loc.cat] || this.categories['restriction'];
+            if (!catData && loc.cat !== 'restriction') return;
 
-            const htmlIcon = L.divIcon({
-                className: 'custom-div-icon',
-                html: `<div class="custom-map-marker" style="background-color: ${catData.color}">
-                           <i data-lucide="${catData.icon}"></i>
-                       </div>`,
-                iconSize: [32, 32],
-                iconAnchor: [16, 16]
-            });
+            if (loc.cat === 'restriction' && loc.coords) {
+                try {
+                    const coordsArr = JSON.parse(loc.coords);
+                    const isTotal = (!loc.restrictionType || loc.restrictionType === 'TOTAL_BAN');
+                    const color = isTotal ? '#ef4444' : '#f59e0b';
+                    const iconName = isTotal ? 'shield-off' : 'info';
 
-            const marker = L.marker([loc.lat, loc.lng], { icon: htmlIcon });
+                    const area = L.polygon(coordsArr, {
+                        color: color,
+                        fillColor: color,
+                        fillOpacity: 0.35,
+                        weight: 2,
+                        dashArray: isTotal ? '0' : '5, 10'
+                    });
 
-            const popupContent = `
-                <div class="popup-header">
-                    <div class="popup-title">${loc.name}</div>
-                    <div class="popup-badge" style="background: ${catData.color}25; color: ${catData.color}; border: 1px solid ${catData.color}40;">
-                        <i data-lucide="${catData.icon}"></i> ${catData.name}
+                    const center = area.getBounds().getCenter();
+                    const htmlIcon = L.divIcon({
+                        className: 'custom-div-icon',
+                        html: `<div class="custom-map-marker restriction-marker" style="background-color: ${color}; border: 2px solid white; box-shadow: 0 0 10px rgba(0,0,0,0.3);">
+                                   <i data-lucide="${iconName}"></i>
+                               </div>`,
+                        iconSize: [30, 30],
+                        iconAnchor: [15, 15]
+                    });
+
+                    const marker = L.marker(center, { icon: htmlIcon });
+
+                    const dateRange = (loc.startDate && loc.endDate)
+                        ? `<div class="popup-date" style="font-size: 0.8rem; margin-bottom: 8px; color: #94a3b8;"><i data-lucide="calendar" style="width: 14px; height: 14px; vertical-align: middle;"></i> ${loc.startDate} — ${loc.endDate}</div>`
+                        : '';
+
+                    const popupContent = `
+    <div class="popup-header">
+        <div class="popup-title">${loc.name}</div>
+        <div class="popup-badge" style="background: ${color}25; color: ${color}; border: 1px solid ${color}40;">
+            <i data-lucide="${iconName}"></i> 
+            ${isTotal ? 'ZAKAZ CAŁKOWITY' : 'OGRANICZENIA'}
+        </div>
+    </div>
+    <div class="popup-body">
+        ${dateRange}
+        <p class="popup-desc">${loc.description || 'Brak dodatkowego opisu.'}</p>
+    </div>
+`;
+
+                    marker.bindPopup(popupContent, { className: 'custom-popup' });
+                    area.bindPopup(popupContent, { className: 'custom-popup' });
+
+                    marker.on('popupopen', () => { if (window.lucide) lucide.createIcons(); });
+                    area.on('popupopen', () => { if (window.lucide) lucide.createIcons(); });
+
+                    marker.on('add', () => {
+                        if (!this.map.hasLayer(area)) {
+                            this.map.addLayer(area);
+                        }
+                    });
+
+                    marker.on('remove', () => {
+                        if (this.map.hasLayer(area)) {
+                            this.map.removeLayer(area);
+                        }
+                    });
+
+                    this.markersCache[loc.id] = marker;
+
+                } catch (e) {
+                    console.error("Błąd parsowania współrzędnych obszaru:", e);
+                }
+            } else if (loc.lat && loc.lng) {
+                const htmlIcon = L.divIcon({
+                    className: 'custom-div-icon',
+                    html: `<div class="custom-map-marker" style="background-color: ${catData.color}">
+                               <i data-lucide="${catData.icon}"></i>
+                           </div>`,
+                    iconSize: [32, 32],
+                    iconAnchor: [16, 16]
+                });
+
+                const marker = L.marker([loc.lat, loc.lng], { icon: htmlIcon });
+
+                const popupContent = `
+                    <div class="popup-header">
+                        <div class="popup-title">${loc.name}</div>
+                        <div class="popup-badge" style="background: ${catData.color}25; color: ${catData.color}; border: 1px solid ${catData.color}40;">
+                            <i data-lucide="${catData.icon}"></i> ${catData.name}
+                        </div>
                     </div>
-                </div>
-                <div class="popup-body">
-                    <a href="${loc.url}" class="popup-btn">Szczegóły <i data-lucide="arrow-right"></i></a>
-                </div>
-            `;
+                    <div class="popup-body">
+                        <a href="${loc.url}" class="popup-btn">Szczegóły <i data-lucide="arrow-right"></i></a>
+                    </div>
+                `;
 
-            marker.bindPopup(popupContent, {
-                className: 'custom-popup',
-                autoPanPadding: [50, 50]
-            });
+                marker.bindPopup(popupContent, {
+                    className: 'custom-popup',
+                    autoPanPadding: [50, 50]
+                });
 
-            marker.on('popupopen', () => {
-                if (window.lucide) lucide.createIcons();
-            });
+                marker.on('popupopen', () => {
+                    if (window.lucide) lucide.createIcons();
+                });
 
-            this.markersCache[loc.id] = marker;
+                this.markersCache[loc.id] = marker;
+            }
         });
     }
 
     updateMapMarkers() {
         const query = document.getElementById('mapSearch')?.value.toLowerCase() || '';
-        const markersToAdd = [];
+        const clusterItems = [];
+
+        this.mainClusterGroup.clearLayers();
 
         this.locations.forEach(loc => {
-            const catData = this.categories[loc.cat];
-            if (!catData) return;
+            if (!this.activeCategories.has(loc.cat)) return;
+            if (!loc.name.toLowerCase().includes(query)) return;
 
-            const matchesSearch = loc.name.toLowerCase().includes(query);
-            const isCategoryActive = this.activeCategories.has(loc.cat);
-
-            if (matchesSearch && isCategoryActive) {
-                markersToAdd.push(this.markersCache[loc.id]);
+            const item = this.markersCache[loc.id];
+            if (item) {
+                clusterItems.push(item);
             }
         });
 
-        this.mainClusterGroup.clearLayers();
-        this.mainClusterGroup.addLayers(markersToAdd);
+        this.mainClusterGroup.addLayers(clusterItems);
+
+        if (window.lucide) lucide.createIcons();
     }
 
     renderList(itemsToRender) {
@@ -236,7 +313,7 @@ class MapApplication {
         if (!container) return;
 
         container.innerHTML = itemsToRender.map(loc => {
-            const catData = this.categories[loc.cat];
+            const catData = this.categories[loc.cat] || this.categories['restriction'];
             if (!catData) return '';
 
             return `
@@ -258,15 +335,18 @@ class MapApplication {
                 const locId = item.dataset.id;
                 const loc = this.locations.find(l => l.id == locId);
                 if (loc) {
-                    this.map.flyTo([loc.lat, loc.lng], 14, { duration: 1.5 });
+                    const mapItem = this.markersCache[locId];
 
-                    setTimeout(() => {
-                        if (this.markersCache[locId]) {
-                            this.mainClusterGroup.zoomToShowLayer(this.markersCache[locId], () => {
-                                this.markersCache[locId].openPopup();
-                            });
-                        }
-                    }, 1500);
+                    if (mapItem) {
+                        this.map.flyTo(mapItem.getLatLng(), 14, { duration: 1.5 });
+                        setTimeout(() => {
+                            if (this.mainClusterGroup.hasLayer(mapItem)) {
+                                this.mainClusterGroup.zoomToShowLayer(mapItem, () => {
+                                    mapItem.openPopup();
+                                });
+                            }
+                        }, 1500);
+                    }
 
                     if (window.innerWidth <= 991) {
                         document.getElementById('filterSidebar').classList.remove('active');
@@ -361,7 +441,7 @@ class MapApplication {
         const query = document.getElementById('mapSearch').value.toLowerCase();
 
         const filtered = this.locations.filter(loc => {
-            const catData = this.categories[loc.cat];
+            const catData = this.categories[loc.cat] || this.categories['restriction'];
             if (!catData) return false;
 
             const matchesSearch = loc.name.toLowerCase().includes(query);

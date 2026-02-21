@@ -7,6 +7,7 @@ import pl.czyzlowie.modules.imgw.repository.ImgwHydroStationRepository;
 import pl.czyzlowie.modules.imgw.repository.ImgwMeteoStationRepository;
 import pl.czyzlowie.modules.imgw.repository.ImgwSynopStationRepository;
 import pl.czyzlowie.modules.map.dto.MapMarkerDto;
+import pl.czyzlowie.modules.map.entity.RestrictionSpot;
 import pl.czyzlowie.modules.map.repository.MapSpotRepository;
 
 import java.math.BigDecimal;
@@ -46,20 +47,37 @@ public class MapService {
                 .map(m -> createMarker(m.getId(), m.getName(), "METEO", m.getLatitude(), m.getLongitude()))
                 .toList());
 
-        markers.addAll(mapSpotRepository.findAll().stream()
-                .map(spot -> MapMarkerDto.builder()
+
+        mapSpotRepository.findAll().forEach(spot -> {
+            if (spot instanceof RestrictionSpot restriction) {
+                markers.add(MapMarkerDto.builder()
                         .id("SPOT_" + spot.getId())
                         .name(spot.getName())
-                        .type(spot.getSpotType().name()) // Np. "LAKE", "LAUNCH"
+                        .type(spot.getSpotType().name())
                         .slug(spot.getSlug())
-                        .lat(BigDecimal.valueOf(spot.getLatitude()))
-                        .lng(BigDecimal.valueOf(spot.getLongitude()))
-                        .build())
-                .toList());
+                        .description(spot.getDescription())
+                        .startDate(restriction.getStartDate())
+                        .endDate(restriction.getEndDate())
+                        .restrictionType(restriction.getRestrictionType() != null ?
+                                restriction.getRestrictionType().name() : "TOTAL_BAN")
+                        .polygonCoordinates(restriction.getPolygonCoordinates())
+                        .build());
+            } else {
+                markers.add(MapMarkerDto.builder()
+                        .id("SPOT_" + spot.getId())
+                        .name(spot.getName())
+                        .type(spot.getSpotType().name())
+                        .slug(spot.getSlug())
+                        .lat(spot.getLatitude() != null ? BigDecimal.valueOf(spot.getLatitude()) : null)
+                        .lng(spot.getLongitude() != null ? BigDecimal.valueOf(spot.getLongitude()) : null)
+                        .build());
+            }
+        });
 
-        log.info("Zmapowano łącznie {} punktów IMGW", markers.size());
+        log.info("Zmapowano łącznie {} punktów", markers.size());
         return markers;
     }
+
 
     private MapMarkerDto createMarker(String id, String name, String type, BigDecimal lat, BigDecimal lng) {
         return MapMarkerDto.builder()

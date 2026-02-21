@@ -15,5 +15,6 @@ export const CATEGORIES = {
     launch: { name: 'Miejsce wodowania', icon: 'anchor', color: '#ff5900' },
     fishery: { name: 'Łowisko', icon: 'fish', color: '#b568f4' },
     commercial: { name: 'Łowisko komercyjne', icon: 'dollar-sign', color: '#ec4899' },
+    restriction: { name: 'Zakazy i ograniczenia', icon: 'shield-off', color: '#ef4444' },
     me: { name: 'Moja lokalizacja', icon: 'circle-user', color: '#22c55e' }
 };
