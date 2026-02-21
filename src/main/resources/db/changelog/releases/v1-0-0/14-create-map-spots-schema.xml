@@ -182,6 +182,9 @@
         </createTable>
         <addForeignKeyConstraint baseTableName="map_specific_spots" baseColumnNames="id" constraintName="fk_map_specific_spots_to_spots" referencedTableName="map_spots" referencedColumnNames="id" onDelete="CASCADE"/>
 
+
     </changeSet>
+
+
 
 </databaseChangeLog>

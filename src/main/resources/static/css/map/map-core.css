@@ -117,11 +117,28 @@
 
     .map-sidebar {
         position: fixed;
-        top: 0; left: 0;
-        width: 100%; height: 100%;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
         transform: translateY(100%);
         z-index: 2000;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+        display: block;
     }
+
+    .sidebar-content {
+        height: auto;
+        overflow: visible;
+        padding-bottom: 40px;
+    }
+
+    .sidebar-list, .sidebar-legend-wrapper {
+        max-height: none;
+        overflow: visible;
+    }
+
     .map-sidebar.active {
         transform: translateY(0);
     }

@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 
 @Data
 @Builder
@@ -14,16 +15,14 @@ import java.math.BigDecimal;
 public class MapMarkerDto {
 
     private String id;
-
     private String name;
-
     private BigDecimal lat;
-
     private BigDecimal lng;
-
     private String type;
-
     private String slug;
-
-
+    private String description;
+    private LocalDate startDate;
+    private LocalDate endDate;
+    private String restrictionType;
+    private String polygonCoordinates;
 }

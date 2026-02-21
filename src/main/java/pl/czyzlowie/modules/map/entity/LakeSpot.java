@@ -7,6 +7,7 @@ import lombok.Setter;
 
 @Entity
 @Table(name = "map_lakes")
+@DiscriminatorValue("LAKE")
 @Getter
 @Setter
 public class LakeSpot extends MapSpot {

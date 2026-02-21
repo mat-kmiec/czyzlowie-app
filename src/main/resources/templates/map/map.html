@@ -6,6 +6,11 @@
 
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" defer></script>
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.Default.css" />
+    <script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js" defer></script>
+
     <link rel="stylesheet" th:href="@{/css/map/map.css}">
     <script type="module" th:src="@{/js/map-logic.js}" defer></script>
 </head>
@@ -28,20 +33,35 @@
             </div>
 
             <div class="sidebar-search">
-                <i data-lucide="search" class="search-icon"></i>
-                <input type="text" id="mapSearch" placeholder="Szukaj łowiska, stacji...">
+                <input type="text" id="mapSearch" placeholder="Szukaj łowiska lub miasta...">
+                <button id="searchGlobalBtn" class="sidebar-search-btn" title="Szukaj miasta na mapie">
+                    <i data-lucide="search"></i>
+                </button>
             </div>
 
-            <div class="sidebar-section-title">Rodzaj mapy</div>
-            <div class="map-layer-controls" id="layerControls">
+            <div class="sidebar-section-title">Podkład mapy</div>
+            <div class="map-layer-controls" id="baseLayerControls" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 15px;">
                 <button class="layer-btn active" data-layer="standard">
                     <i data-lucide="map"></i> Standard
                 </button>
                 <button class="layer-btn" data-layer="satellite">
-                    <i data-lucide="satellite"></i> Satelita
+                    <i data-lucide="satellite"></i> Satelita Google
+                </button>
+                <button class="layer-btn" data-layer="geoportal">
+                    <i data-lucide="scan"></i> Satelita (Polska)
                 </button>
                 <button class="layer-btn" data-layer="terrain">
-                    <i data-lucide="mountain"></i> Teren
+                    <i data-lucide="mountain"></i> Teren / Topo
+                </button>
+            </div>
+
+            <div class="sidebar-section-title">Warstwy (Nakładki)</div>
+            <div class="map-layer-controls d-flex" id="overlayControls" style="display: grid; grid-template-columns: 1fr; gap: 8px;">
+                <button class="layer-btn overlay-btn" data-overlay="nature" style="flex-direction: row; justify-content: flex-start; padding: 10px 15px;">
+                    <i data-lucide="leaf"></i> <span>Rezerwaty i Parki Narodowe</span>
+                </button>
+                <button class="layer-btn overlay-btn" data-overlay="seamap" style="flex-direction: row; justify-content: flex-start; padding: 10px 15px;">
+                    <i data-lucide="anchor"></i> <span>Szlaki i znaki nawigacyjne</span>
                 </button>
             </div>
 
@@ -60,10 +80,18 @@
     </aside>
 
     <main class="map-container">
+        <div id="map-loader" class="map-loader-overlay">
+            <div class="spinner-container">
+                <div class="main-spinner"></div>
+                <div class="pulse-ring"></div>
+                <i data-lucide="map-pin" class="loader-icon"></i>
+            </div>
+            <span class="loader-text">Lokalizowanie...</span>
+        </div>
         <div id="map" style="width: 100%; height: 100%;"></div>
     </main>
-
 </div>
+
 <footer th:replace="~{fragments/footer :: footer}"></footer>
 </body>
 </html>

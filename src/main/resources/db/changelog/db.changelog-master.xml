@@ -19,6 +19,7 @@
     <include file="db/changelog/releases/v1-0-0/12-create-moon-schema.xml"/>
     <include file="db/changelog/releases/v1-0-0/13-add-sun-columns-to-moon-station-data.xml"/>
     <include file="db/changelog/releases/v1-0-0/14-create-map-spots-schema.xml"/>
+    <include file="db/changelog/releases/v1-0-0/15-create-restriction-schema.xml"/>
 
 
 </databaseChangeLog>

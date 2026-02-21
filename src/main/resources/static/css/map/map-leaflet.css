@@ -133,6 +133,30 @@
     text-transform: uppercase;
 }
 
+.popup-desc {
+    color: #f8fafc !important;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    margin: 0;
+    text-align: left;
+    width: 100%;
+}
+
+.popup-body {
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: flex-start;
+    text-align: left;
+}
+
+.popup-date {
+    color: #cbd5e1 !important;
+    margin-bottom: 8px;
+    font-size: 0.8rem;
+}
+
 .popup-badge svg {
     width: 14px;
     height: 14px;
@@ -141,7 +165,8 @@
 .popup-body {
     padding: 15px;
     display: flex;
-    justify-content: center;}
+    justify-content: center;
+}
 
 .popup-btn {
     background: var(--accent-blue);
