@@ -433,7 +433,7 @@ class MapApplication {
             const item = e.target.closest('.location-item');
             if (item) {
                 const locId = item.dataset.id;
-                const loc = this.locations.find(l => l.id == locId);
+                const loc = this.locations.find(l => l.id === locId);
                 if (loc) {
                     const mapItem = this.markersCache[locId];
 
@@ -532,16 +532,16 @@ class MapApplication {
     }
 
     async searchGlobal(query) {
-        if (query.length < 3) return;
-        this.toggleLoader(true, `Szukam: ${query}`);
+        if (!query || query.length < 3) return;
+
+        this.toggleLoader(true, `Szukam miejscowości: ${query}`);
 
         try {
-            const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}`);
+            const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&countrycodes=pl`);
             const results = await response.json();
 
             if (results && results.length > 0) {
                 const result = results[0];
-
                 const bbox = result.boundingbox;
                 const bounds = [
                     [bbox[0], bbox[2]],
@@ -549,13 +549,15 @@ class MapApplication {
                 ];
 
                 this.map.fitBounds(bounds);
-                this.toggleLoader(false);
+                document.getElementById('mapSearch').value = '';
+                this.filterListBySearch();
+
             } else {
-                this.toggleLoader(false);
-                alert("Nie znaleziono takiej miejscowości na mapie.");
+                alert("Nie znaleziono takiej miejscowości w Polsce.");
             }
         } catch (error) {
             console.error("Błąd wyszukiwania:", error);
+        } finally {
             this.toggleLoader(false);
         }
     }
