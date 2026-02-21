@@ -80,6 +80,14 @@
     </aside>
 
     <main class="map-container">
+        <div id="map-loader" class="map-loader-overlay">
+            <div class="spinner-container">
+                <div class="main-spinner"></div>
+                <div class="pulse-ring"></div>
+                <i data-lucide="map-pin" class="loader-icon"></i>
+            </div>
+            <span class="loader-text">Lokalizowanie...</span>
+        </div>
         <div id="map" style="width: 100%; height: 100%;"></div>
     </main>
 </div>

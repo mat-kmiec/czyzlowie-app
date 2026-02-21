@@ -77,6 +77,7 @@ class MapApplication {
     }
 
     async setInitialView() {
+        this.toggleLoader(true, 'Szukam Twojej pozycji...');
         return new Promise((resolve) => {
             if ("geolocation" in navigator) {
                 navigator.geolocation.getCurrentPosition(
@@ -88,6 +89,7 @@ class MapApplication {
                         resolve();
                     },
                     (error) => {
+                        this.toggleLoader(false);
                         console.warn("Brak zgody na lokalizację. Ładuję Warszawę.");
                         this.map.setView([52.2297, 21.0122], 11);
                         resolve();
@@ -95,12 +97,28 @@ class MapApplication {
                     { timeout: 4000, maximumAge: 60000 }
                 );
             } else {
+                this.toggleLoader(false);
                 this.map.setView([52.2297, 21.0122], 11);
                 resolve();
             }
         }).then(() => {
+            this.toggleLoader(false);
             return this.fetchLocationsForCurrentBounds();
         });
+    }
+
+    toggleLoader(show, text = 'Ładowanie...') {
+        const loader = document.getElementById('map-loader');
+        if (!loader) return;
+
+        const textEl = loader.querySelector('.loader-text');
+        if (textEl) textEl.innerText = text;
+
+        if (show) {
+            loader.classList.add('active');
+        } else {
+            loader.classList.remove('active');
+        }
     }
 
     initMap() {
@@ -113,15 +131,23 @@ class MapApplication {
 
     async fetchLocationsForCurrentBounds() {
         if (!this.map || this.allDataLoaded) return;
+        this.toggleLoader(true, 'Pobieram łowiska...');
 
-        const zoom = this.map.getZoom();
         const bounds = this.map.getBounds();
         const north = bounds.getNorth();
         const south = bounds.getSouth();
         const east = bounds.getEast();
         const west = bounds.getWest();
 
-        const url = `/api/map/markers?north=${north}&south=${south}&east=${east}&west=${west}`;
+        const latSpread = Math.abs(north - south);
+        const lngSpread = Math.abs(east - west);
+        let url = `/api/map/markers?north=${north}&south=${south}&east=${east}&west=${west}`;
+        if (latSpread > 5.5 || lngSpread > 8) {
+            url = `/api/map/markers`;
+
+            this.allDataLoaded = true;
+            console.log("Oddalono mapę. Pobrano pełną bazę (100% kraju) i wyłączono zapytania API.");
+        }
 
         try {
             const response = await fetch(url);
@@ -129,11 +155,6 @@ class MapApplication {
 
             const data = await response.json();
             let addedNewLocations = false;
-
-            if (zoom <= 7) {
-                this.allDataLoaded = true;
-                console.log("Pobrano dane dla całego kraju. Wyłączam zapytania API.");
-            }
 
             data.forEach(marker => {
                 const exists = this.locations.some(loc => loc.id === marker.id);
@@ -172,6 +193,8 @@ class MapApplication {
 
         } catch (error) {
             console.error('Błąd ładowania danych mapy:', error);
+        } finally {
+            this.toggleLoader(false);
         }
     }
 
@@ -510,6 +533,7 @@ class MapApplication {
 
     async searchGlobal(query) {
         if (query.length < 3) return;
+        this.toggleLoader(true, `Szukam: ${query}`);
 
         try {
             const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}`);
@@ -525,11 +549,14 @@ class MapApplication {
                 ];
 
                 this.map.fitBounds(bounds);
+                this.toggleLoader(false);
             } else {
+                this.toggleLoader(false);
                 alert("Nie znaleziono takiej miejscowości na mapie.");
             }
         } catch (error) {
             console.error("Błąd wyszukiwania:", error);
+            this.toggleLoader(false);
         }
     }
 
