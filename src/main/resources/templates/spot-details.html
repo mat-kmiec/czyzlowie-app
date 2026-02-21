@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pl">
+<head>
+    <th:block th:replace="~{fragments/head :: head-content(
+        pageTitle=${spot.name} + ' - Szczegóły | CzyZlowie',
+        pageDescription='Sprawdź informacje i parametry dla: ' + ${spot.name}
+    )}"></th:block>
+
+    <link rel="stylesheet" th:href="@{/css/spot-details.css}">
+</head>
+<body class="spot-page">
+<nav th:replace="~{fragments/navbar :: navbar}"></nav>
+
+<div class="spot-bg-container">
+    <div class="spot-bg-overlay"></div>
+    <div class="spot-glow glow-blue-top"></div>
+    <div class="spot-glow glow-green-bottom"></div>
+</div>
+
+<main class="position-relative z-2 pb-5">
+    <div class="container-xl pt-4 mt-3">
+
+        <nav aria-label="breadcrumb" class="mb-4">
+            <ol class="breadcrumb spot-breadcrumb">
+                <li class="breadcrumb-item"><a th:href="@{/}"><i data-lucide="home" style="width: 16px; margin-top:-2px;"></i> Główna</a></li>
+                <li class="breadcrumb-item"><a th:href="@{/mapa}">Mapa</a></li>
+                <li class="breadcrumb-item active text-white" aria-current="page" th:text="${spot.name}">Nazwa</li>
+            </ol>
+        </nav>
+
+        <header class="spot-glass-panel p-4 p-lg-5 mb-4 delay-1">
+            <div class="row align-items-center justify-content-between g-4">
+                <div class="col-lg-8">
+                    <div class="d-flex flex-wrap gap-2 mb-3">
+                        <span class="spot-badge badge-type">
+                            <i data-lucide="map-pin" style="width: 16px;"></i> [[${spot.spotType}]]
+                        </span>
+                        <span th:if="${spot.manager}" class="spot-badge badge-manager">
+                            <i data-lucide="shield-check" style="width: 16px;" class="text-brand-green"></i> Zarządca: [[${spot.manager}]]
+                        </span>
+                    </div>
+                    <h1 class="display-4 fw-black text-white mb-2 text-glow-blue" th:text="${spot.name}">Nazwa Obiektu</h1>
+                    <p class="spot-text-readable fs-5 mb-0 mt-3" th:if="${spot.nearestCity}">
+                        <i data-lucide="navigation" style="width: 18px;" class="me-1 text-brand-blue"></i>
+                        Nawiguj do: <span class="text-white fw-bold">[[${spot.nearestCity}]], [[${spot.province}]]</span>
+                    </p>
+                </div>
+            </div>
+        </header>
+
+        <div class="row g-4 mb-4">
+            <div class="col-lg-8">
+
+                <div class="spot-glass-panel p-4 p-md-5 mb-4 delay-2" th:if="${spot.description != null and !spot.description.isEmpty()}">
+                    <h3 class="fs-5 text-white fw-bold d-flex align-items-center gap-2 mb-4">
+                        <i data-lucide="info" class="text-brand-blue"></i> Opis łowiska
+                    </h3>
+                    <p class="spot-text-readable lh-lg mb-0 text-gradient fs-6" th:text="${spot.description}"></p>
+                </div>
+
+                <div th:if="${type == 'SLIP'}">
+                    <div class="spot-glass-panel p-4 p-md-5 mb-4 delay-3">
+                        <h3 class="fs-5 text-white fw-bold mb-4 d-flex align-items-center gap-2"><i data-lucide="anchor" class="text-brand-blue"></i> Szczegóły Slipu</h3>
+
+                        <div class="spot-data-grid mb-5">
+                            <div class="spot-data-box" th:if="${spot.status}">
+                                <div class="spot-icon-wrapper"><i data-lucide="activity" class="text-brand-green"></i></div>
+                                <span class="spot-text-readable fs-8 text-uppercase mb-1">Status</span><span class="fs-5 fw-bold text-white">[[${spot.status}]]</span>
+                            </div>
+                            <div class="spot-data-box" th:if="${spot.accessType}">
+                                <div class="spot-icon-wrapper"><i data-lucide="key" class="text-warning"></i></div>
+                                <span class="spot-text-readable fs-8 text-uppercase mb-1">Dostęp</span><span class="fs-5 fw-bold text-white">[[${spot.accessType}]]</span>
+                            </div>
+                            <div class="spot-data-box" th:if="${spot.feeInfo}">
+                                <div class="spot-icon-wrapper"><i data-lucide="banknote" class="text-brand-green"></i></div>
+                                <span class="spot-text-readable fs-8 text-uppercase mb-1">Opłaty</span><span class="fs-5 fw-bold text-brand-green">[[${spot.feeInfo}]]</span>
+                            </div>
+                            <div class="spot-data-box" th:if="${spot.endDepth}">
+                                <div class="spot-icon-wrapper"><i data-lucide="arrow-down-to-line" class="text-brand-blue"></i></div>
+                                <span class="spot-text-readable fs-8 text-uppercase mb-1">Głębokość</span><span class="fs-5 fw-bold text-white">[[${spot.endDepth}]] m</span>
+                            </div>
+                        </div>
+
+                        <ul class="spot-rules-list spot-text-readable fs-6">
+                            <li th:if="${spot.openingHours}"><i data-lucide="clock" class="rule-icon"></i> <div><strong>Godziny otwarcia:</strong> <br>[[${spot.openingHours}]]</div></li>
+                            <li th:if="${spot.surfaceType}"><i data-lucide="layers" class="rule-icon"></i> <div><strong>Nawierzchnia:</strong> <br>[[${spot.surfaceType}]]</div></li>
+                            <li th:if="${spot.incline}"><i data-lucide="move-down-right" class="rule-icon"></i> <div><strong>Nachylenie:</strong> <br>[[${spot.incline}]]</div></li>
+                            <li th:if="${spot.trailerParking}"><i data-lucide="truck" class="rule-icon"></i> <div><strong>Parking na przyczepy:</strong> <br>[[${spot.trailerParking}]]</div></li>
+                            <li th:if="${spot.maneuveringSpace}"><i data-lucide="move" class="rule-icon"></i> <div><strong>Plac manewrowy:</strong> <br>[[${spot.maneuveringSpace}]]</div></li>
+                            <li th:if="${spot.lightingAndMonitoring}"><i data-lucide="camera" class="rule-icon text-warning"></i> <div><strong>Bezpieczeństwo:</strong> <br>[[${spot.lightingAndMonitoring}]]</div></li>
+                            <li th:if="${spot.navigationalAlerts}"><i data-lucide="alert-triangle" class="rule-icon text-danger"></i> <div><strong class="text-danger">Ostrzeżenia:</strong> <br>[[${spot.navigationalAlerts}]]</div></li>
+                        </ul>
+
+                        <div class="spot-tags-container" th:if="${spot.hasMooringPier or spot.unitLimit}">
+                            <span class="spot-tag tag-success" th:if="${spot.hasMooringPier}"><i data-lucide="ship" style="width: 14px;"></i> Pomost cumowniczy</span>
+                            <span class="spot-tag tag-info" th:if="${spot.unitLimit}"><i data-lucide="hash" style="width: 14px;"></i> Limit: [[${spot.unitLimit}]]</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div th:if="${type == 'COMMERCIAL'}">
+                    <div class="spot-glass-panel p-4 p-md-5 mb-4 delay-3">
+                        <h3 class="fs-5 text-white fw-bold mb-4 d-flex align-items-center gap-2"><i data-lucide="store" class="text-brand-blue"></i> Profil Komercyjny</h3>
+
+                        <div class="spot-data-grid mb-5">
+                            <div class="spot-data-box" th:if="${spot.profileType}">
+                                <div class="spot-icon-wrapper"><i data-lucide="fish" class="text-brand-blue"></i></div>
+                                <span class="spot-text-readable fs-8 text-uppercase mb-1">Profil</span><span class="fs-5 fw-bold text-white">[[${spot.profileType}]]</span>
+                            </div>
+                            <div class="spot-data-box" th:if="${spot.pricingInfo}">
+                                <div class="spot-icon-wrapper"><i data-lucide="banknote" class="text-brand-green"></i></div>
+                                <span class="spot-text-readable fs-8 text-uppercase mb-1">Cennik</span><span class="fs-5 fw-bold text-brand-green">[[${spot.pricingInfo}]]</span>
+                            </div>
+                            <div class="spot-data-box" th:if="${spot.standsCount}">
+                                <div class="spot-icon-wrapper"><i data-lucide="tent" class="text-warning"></i></div>
+                                <span class="spot-text-readable fs-8 text-uppercase mb-1">Stanowiska</span><span class="fs-5 fw-bold text-white">[[${spot.standsCount}]] szt.</span>
+                            </div>
+                        </div>
+
+                        <ul class="spot-rules-list spot-text-readable fs-6 mb-5">
+                            <li th:if="${spot.seasonAndHours}"><i data-lucide="calendar-clock" class="rule-icon"></i> <div><strong>Sezon / Godziny:</strong> <br>[[${spot.seasonAndHours}]]</div></li>
+                            <li th:if="${spot.recordsInfo}"><i data-lucide="trophy" class="rule-icon text-warning"></i> <div><strong>Rekordy łowiska:</strong> <br>[[${spot.recordsInfo}]]</div></li>
+                            <li th:if="${spot.reservationType}"><i data-lucide="calendar-check" class="rule-icon"></i> <div><strong>System rezerwacji:</strong> <br>[[${spot.reservationType}]]</div></li>
+                            <li th:if="${spot.standSizeAndDistance}"><i data-lucide="ruler" class="rule-icon"></i> <div><strong>Wielkość stanowisk:</strong> <br>[[${spot.standSizeAndDistance}]]</div></li>
+                            <li th:if="${spot.extraFees}"><i data-lucide="plus-circle" class="rule-icon"></i> <div><strong>Dodatkowe opłaty:</strong> <br>[[${spot.extraFees}]]</div></li>
+                            <li th:if="${spot.baitRestrictions}"><i data-lucide="ban" class="rule-icon text-danger"></i> <div><strong class="text-danger">Ograniczenia przynęt:</strong> <br>[[${spot.baitRestrictions}]]</div></li>
+                        </ul>
+
+                        <h4 class="fs-6 text-white fw-bold mb-3">Udogodnienia i Regulamin</h4>
+                        <div class="spot-tags-container">
+                            <span class="spot-tag tag-warning" th:if="${spot.hasVipStands}"><i data-lucide="star" style="width:14px;"></i> Strefa VIP</span>
+                            <span class="spot-tag tag-info" th:if="${spot.carAccessToStand}"><i data-lucide="car" style="width:14px;"></i> Auto na stanowisku</span>
+                            <span class="spot-tag" th:if="${spot.hasWoodenPiers}"><i data-lucide="layout" style="width:14px;"></i> Drewniane pomosty</span>
+                            <span class="spot-tag tag-success" th:if="${spot.hasToilets}"><i data-lucide="check" style="width:14px;"></i> WC</span>
+                            <span class="spot-tag tag-success" th:if="${spot.hasShowers}"><i data-lucide="check" style="width:14px;"></i> Prysznice</span>
+                            <span class="spot-tag tag-warning" th:if="${spot.hasElectricity}"><i data-lucide="zap" style="width:14px;"></i> Prąd 230V</span>
+                            <span class="spot-tag tag-info" th:if="${spot.hasAccommodation}"><i data-lucide="home" style="width:14px;"></i> Noclegi</span>
+                            <span class="spot-tag" th:if="${spot.hasGastronomyOrShop}"><i data-lucide="coffee" style="width:14px;"></i> Sklep / Gastro</span>
+                            <span class="spot-tag" th:if="${spot.allowsCampfire}"><i data-lucide="flame" style="width:14px;"></i> Ognisko</span>
+
+                            <span class="spot-tag tag-danger" th:if="${spot.requiresCradleMat}"><i data-lucide="alert-triangle" style="width:14px;"></i> Wymagana kołyska</span>
+                            <span class="spot-tag tag-danger" th:if="${spot.requiresDisinfectant}"><i data-lucide="droplet" style="width:14px;"></i> Wymagany odkażacz</span>
+                            <span class="spot-tag tag-danger" th:if="${spot.bansKeepnets}"><i data-lucide="ban" style="width:14px;"></i> Zakaz siatek</span>
+                            <span class="spot-tag tag-danger" th:if="${spot.bansBraidedLines}"><i data-lucide="ban" style="width:14px;"></i> Zakaz plecionek</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div th:if="${type == 'LAKE'}">
+                    <div class="spot-glass-panel p-4 p-md-5 mb-4 delay-3">
+                        <h3 class="fs-5 text-white fw-bold mb-4 d-flex align-items-center gap-2"><i data-lucide="droplets" class="text-brand-blue"></i> Parametry Jeziora</h3>
+
+                        <div class="spot-data-grid mb-5">
+                            <div class="spot-data-box" th:if="${spot.areaHectares}">
+                                <div class="spot-icon-wrapper"><i data-lucide="expand" class="text-brand-green"></i></div>
+                                <span class="spot-text-readable fs-8 text-uppercase mb-1">Powierzchnia</span><span class="fs-5 fw-bold text-white">[[${spot.areaHectares}]] ha</span>
+                            </div>
+                            <div class="spot-data-box" th:if="${spot.maxDepth}">
+                                <div class="spot-icon-wrapper"><i data-lucide="arrow-down-to-line" class="text-brand-blue"></i></div>
+                                <span class="spot-text-readable fs-8 text-uppercase mb-1">Max Głębokość</span><span class="fs-5 fw-bold text-white">[[${spot.maxDepth}]] m</span>
+                            </div>
+                            <div class="spot-data-box" th:if="${spot.avgDepth}">
+                                <div class="spot-icon-wrapper"><i data-lucide="waves" class="text-white"></i></div>
+                                <span class="spot-text-readable fs-8 text-uppercase mb-1">Śr. Głębokość</span><span class="fs-5 fw-bold text-white">[[${spot.avgDepth}]] m</span>
+                            </div>
+                        </div>
+
+                        <ul class="spot-rules-list spot-text-readable fs-6 mb-5">
+                            <li th:if="${spot.lakeType}"><i data-lucide="map" class="rule-icon"></i> <div><strong>Typ limnologiczny:</strong> <br>[[${spot.lakeType}]]</div></li>
+                            <li th:if="${spot.bottomFormation}"><i data-lucide="mountain" class="rule-icon"></i> <div><strong>Ukształtowanie dna:</strong> <br>[[${spot.bottomFormation}]]</div></li>
+                            <li th:if="${spot.bottomType}"><i data-lucide="layers" class="rule-icon"></i> <div><strong>Rodzaj dna:</strong> <br>[[${spot.bottomType}]]</div></li>
+                            <li th:if="${spot.waterClarity}"><i data-lucide="eye" class="rule-icon text-brand-blue"></i> <div><strong>Przejrzystość wody:</strong> <br>[[${spot.waterClarity}]]</div></li>
+                            <li th:if="${spot.vegetation}"><i data-lucide="leaf" class="rule-icon text-brand-green"></i> <div><strong>Roślinność:</strong> <br>[[${spot.vegetation}]]</div></li>
+                            <li th:if="${spot.dominantSpecies}"><i data-lucide="fish" class="rule-icon"></i> <div><strong>Dominujące ryby:</strong> <br>[[${spot.dominantSpecies}]]</div></li>
+                            <li th:if="${spot.stockingInfo}"><i data-lucide="truck" class="rule-icon text-warning"></i> <div><strong>Zarybienia:</strong> <br>[[${spot.stockingInfo}]]</div></li>
+                            <li th:if="${spot.shoreFishing}"><i data-lucide="footprints" class="rule-icon"></i> <div><strong>Dostęp z brzegu:</strong> <br>[[${spot.shoreFishing}]]</div></li>
+                            <li th:if="${spot.accessRoad}"><i data-lucide="car" class="rule-icon"></i> <div><strong>Droga dojazdowa:</strong> <br>[[${spot.accessRoad}]]</div></li>
+                            <li th:if="${spot.permitCostInfo}"><i data-lucide="file-text" class="rule-icon text-warning"></i> <div><strong class="text-warning">Zezwolenia:</strong> <br>[[${spot.permitCostInfo}]]</div></li>
+                        </ul>
+
+                        <h4 class="fs-6 text-white fw-bold mb-3">Zasady i infrastruktura</h4>
+                        <div class="spot-tags-container">
+                            <span class="spot-tag tag-danger" th:if="${spot.hasPredators}"><i data-lucide="fish" style="width:14px;"></i> Wody z drapieżnikiem</span>
+                            <span class="spot-tag tag-warning" th:if="${spot.requiresPermit}"><i data-lucide="file-check-2" style="width:14px;"></i> Wymagane Zezwolenie</span>
+                            <span class="spot-tag tag-success" th:if="${spot.catchAndRelease}"><i data-lucide="refresh-cw" style="width:14px;"></i> Catch & Release</span>
+                            <span class="spot-tag tag-danger" th:if="${spot.silentZone}"><i data-lucide="volume-x" style="width:14px;"></i> Strefa Ciszy</span>
+                            <span class="spot-tag" th:if="${spot.hasPiers}"><i data-lucide="layout" style="width:14px;"></i> Pomosty</span>
+                            <span class="spot-tag tag-info" th:if="${spot.boatFishingAllowed}"><i data-lucide="ship" style="width:14px;"></i> Łódź dozwolona</span>
+                            <span class="spot-tag" th:if="${spot.hasParking}"><i data-lucide="parking-circle" style="width:14px;"></i> Parking</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div th:if="${type == 'OXBOW'}">
+                    <div class="spot-glass-panel p-4 p-md-5 mb-4 delay-3">
+                        <h3 class="fs-5 text-white fw-bold mb-4 d-flex align-items-center gap-2"><i data-lucide="moon" class="text-brand-blue"></i> Parametry Starorzecza</h3>
+
+                        <div class="spot-data-grid mb-5">
+                            <div class="spot-data-box" th:if="${spot.areaHectares}">
+                                <div class="spot-icon-wrapper"><i data-lucide="expand" class="text-brand-green"></i></div>
+                                <span class="spot-text-readable fs-8 text-uppercase mb-1">Powierzchnia</span><span class="fs-5 fw-bold text-white">[[${spot.areaHectares}]] ha</span>
+                            </div>
+                            <div class="spot-data-box" th:if="${spot.maxDepth}">
+                                <div class="spot-icon-wrapper"><i data-lucide="arrow-down-to-line" class="text-brand-blue"></i></div>
+                                <span class="spot-text-readable fs-8 text-uppercase mb-1">Max Głębokość</span><span class="fs-5 fw-bold text-white">[[${spot.maxDepth}]] m</span>
+                            </div>
+                        </div>
+
+                        <ul class="spot-rules-list spot-text-readable fs-6 mb-5">
+                            <li th:if="${spot.avgDepth}"><i data-lucide="waves" class="rule-icon"></i> <div><strong>Średnia głębokość:</strong> <br>[[${spot.avgDepth}]] m</div></li>
+                            <li th:if="${spot.riverConnection}"><i data-lucide="git-merge" class="rule-icon text-brand-blue"></i> <div><strong>Połączenie z rzeką:</strong> <br>[[${spot.riverConnection}]]</div></li>
+                            <li th:if="${spot.siltingLevel}"><i data-lucide="layers" class="rule-icon"></i> <div><strong>Zamulenie:</strong> <br>[[${spot.siltingLevel}]]</div></li>
+                            <li th:if="${spot.overgrowthLevel}"><i data-lucide="leaf" class="rule-icon text-brand-green"></i> <div><strong>Zarośnięcie:</strong> <br>[[${spot.overgrowthLevel}]]</div></li>
+                            <li th:if="${spot.dominantFish}"><i data-lucide="fish" class="rule-icon"></i> <div><strong>Rybostan:</strong> <br>[[${spot.dominantFish}]]</div></li>
+                            <li th:if="${spot.shoreAccess}"><i data-lucide="footprints" class="rule-icon"></i> <div><strong>Dostęp:</strong> <br>[[${spot.shoreAccess}]]</div></li>
+                            <li th:if="${spot.snagsLevel}"><i data-lucide="anchor" class="rule-icon text-warning"></i> <div><strong>Zaczepy:</strong> <br>[[${spot.snagsLevel}]]</div></li>
+                            <li th:if="${spot.bestSeasons}"><i data-lucide="calendar" class="rule-icon"></i> <div><strong>Najlepszy sezon:</strong> <br>[[${spot.bestSeasons}]]</div></li>
+                        </ul>
+
+                        <div class="spot-tags-container">
+                            <span class="spot-tag tag-danger" th:if="${spot.oxygenDepletionRisk}"><i data-lucide="alert-triangle" style="width:14px;"></i> Ryzyko przyduchy</span>
+                            <span class="spot-tag tag-warning" th:if="${spot.driesUp}"><i data-lucide="sun" style="width:14px;"></i> Okresowo wysycha</span>
+                            <span class="spot-tag tag-info" th:if="${spot.wadersRequired}"><i data-lucide="footprints" style="width:14px;"></i> Zalecane wodery</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div th:if="${type == 'RESERVOIR'}">
+                    <div class="spot-glass-panel p-4 p-md-5 mb-4 delay-3">
+                        <h3 class="fs-5 text-white fw-bold mb-4 d-flex align-items-center gap-2"><i data-lucide="database" class="text-brand-blue"></i> Parametry Zbiornika Zaporowego</h3>
+
+                        <div class="spot-data-grid mb-5">
+                            <div class="spot-data-box" th:if="${spot.areaHectares}">
+                                <div class="spot-icon-wrapper"><i data-lucide="expand" class="text-brand-green"></i></div>
+                                <span class="spot-text-readable fs-8 text-uppercase mb-1">Powierzchnia</span><span class="fs-5 fw-bold text-white">[[${spot.areaHectares}]] ha</span>
+                            </div>
+                            <div class="spot-data-box" th:if="${spot.maxDepth}">
+                                <div class="spot-icon-wrapper"><i data-lucide="arrow-down-to-line" class="text-brand-blue"></i></div>
+                                <span class="spot-text-readable fs-8 text-uppercase mb-1">Max Głębokość</span><span class="fs-5 fw-bold text-white">[[${spot.maxDepth}]] m</span>
+                            </div>
+                            <div class="spot-data-box" th:if="${spot.riverFedBy}">
+                                <div class="spot-icon-wrapper"><i data-lucide="waves" class="text-white"></i></div>
+                                <span class="spot-text-readable fs-8 text-uppercase mb-1">Zasilany przez</span><span class="fs-6 fw-bold text-white">[[${spot.riverFedBy}]]</span>
+                            </div>
+                        </div>
+
+                        <ul class="spot-rules-list spot-text-readable fs-6 mb-5">
+                            <li th:if="${spot.waterLevelFluctuations}"><i data-lucide="bar-chart" class="rule-icon text-warning"></i> <div><strong>Wahania poziomu wody:</strong> <br>[[${spot.waterLevelFluctuations}]]</div></li>
+                            <li th:if="${spot.waterCurrent}"><i data-lucide="fast-forward" class="rule-icon"></i> <div><strong>Uciąg wody:</strong> <br>[[${spot.waterCurrent}]]</div></li>
+                            <li th:if="${spot.floodedStructures}"><i data-lucide="home" class="rule-icon text-brand-blue"></i> <div><strong>Zalane struktury:</strong> <br>[[${spot.floodedStructures}]]</div></li>
+                            <li th:if="${spot.oldRiverBed}"><i data-lucide="git-commit" class="rule-icon"></i> <div><strong>Stare koryto rzeki:</strong> <br>[[${spot.oldRiverBed}]]</div></li>
+                            <li th:if="${spot.bottomType}"><i data-lucide="layers" class="rule-icon"></i> <div><strong>Dno:</strong> <br>[[${spot.bottomType}]]</div></li>
+                            <li th:if="${spot.dominantSpecies}"><i data-lucide="fish" class="rule-icon"></i> <div><strong>Dominujące ryby:</strong> <br>[[${spot.dominantSpecies}]]</div></li>
+                            <li th:if="${spot.stockingInfo}"><i data-lucide="truck" class="rule-icon"></i> <div><strong>Zarybienia:</strong> <br>[[${spot.stockingInfo}]]</div></li>
+                            <li th:if="${spot.nightFishingRules}"><i data-lucide="moon" class="rule-icon text-brand-blue"></i> <div><strong>Łowienie nocne:</strong> <br>[[${spot.nightFishingRules}]]</div></li>
+                            <li th:if="${spot.shoreFishing}"><i data-lucide="footprints" class="rule-icon"></i> <div><strong>Z brzegu:</strong> <br>[[${spot.shoreFishing}]]</div></li>
+                            <li th:if="${spot.slipAvailability}"><i data-lucide="anchor" class="rule-icon"></i> <div><strong>Dostępność slipów:</strong> <br>[[${spot.slipAvailability}]]</div></li>
+                            <li th:if="${spot.accessRoad}"><i data-lucide="car" class="rule-icon"></i> <div><strong>Dojazd:</strong> <br>[[${spot.accessRoad}]]</div></li>
+                            <li th:if="${spot.permitCostInfo}"><i data-lucide="file-text" class="rule-icon text-warning"></i> <div><strong class="text-warning">Zezwolenia:</strong> <br>[[${spot.permitCostInfo}]]</div></li>
+                        </ul>
+
+                        <div class="spot-tags-container">
+                            <span class="spot-tag tag-danger" th:if="${spot.hasPredators}"><i data-lucide="fish" style="width:14px;"></i> Wody z drapieżnikiem</span>
+                            <span class="spot-tag tag-warning" th:if="${spot.requiresPermit}"><i data-lucide="file-check-2" style="width:14px;"></i> Wymagane Zezwolenie</span>
+                            <span class="spot-tag tag-success" th:if="${spot.catchAndRelease}"><i data-lucide="refresh-cw" style="width:14px;"></i> Catch & Release</span>
+                            <span class="spot-tag tag-danger" th:if="${spot.silentZone}"><i data-lucide="volume-x" style="width:14px;"></i> Strefa Ciszy</span>
+                            <span class="spot-tag tag-info" th:if="${spot.boatFishingAllowed}"><i data-lucide="ship" style="width:14px;"></i> Łódź dozwolona</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div th:if="${type == 'RIVER'}">
+                    <div class="spot-glass-panel p-4 p-md-5 mb-4 delay-3">
+                        <h3 class="fs-5 text-white fw-bold mb-4 d-flex align-items-center gap-2"><i data-lucide="waves" class="text-brand-blue"></i> Parametry Rzeki</h3>
+
+                        <div class="spot-data-grid mb-5">
+                            <div class="spot-data-box" th:if="${spot.riverType}">
+                                <div class="spot-icon-wrapper"><i data-lucide="map" class="text-brand-green"></i></div>
+                                <span class="spot-text-readable fs-8 text-uppercase mb-1">Typ Rzeki</span><span class="fs-5 fw-bold text-white">[[${spot.riverType}]]</span>
+                            </div>
+                            <div class="spot-data-box" th:if="${spot.fishRegion}">
+                                <div class="spot-icon-wrapper"><i data-lucide="fish" class="text-brand-blue"></i></div>
+                                <span class="spot-text-readable fs-8 text-uppercase mb-1">Kraina Rybna</span><span class="fs-5 fw-bold text-white">[[${spot.fishRegion}]]</span>
+                            </div>
+                            <div class="spot-data-box" th:if="${spot.avgWidth}">
+                                <div class="spot-icon-wrapper"><i data-lucide="move-horizontal" class="text-white"></i></div>
+                                <span class="spot-text-readable fs-8 text-uppercase mb-1">Śr. Szerokość</span><span class="fs-5 fw-bold text-white">[[${spot.avgWidth}]] m</span>
+                            </div>
+                        </div>
+
+                        <ul class="spot-rules-list spot-text-readable fs-6 mb-5">
+                            <li th:if="${spot.avgDepth}"><i data-lucide="arrow-down" class="rule-icon"></i> <div><strong>Średnia głębokość:</strong> <br>[[${spot.avgDepth}]] m</div></li>
+                            <li th:if="${spot.channelCharacter}"><i data-lucide="git-branch" class="rule-icon text-brand-blue"></i> <div><strong>Charakter koryta:</strong> <br>[[${spot.channelCharacter}]]</div></li>
+                            <li th:if="${spot.bottomType}"><i data-lucide="layers" class="rule-icon"></i> <div><strong>Rodzaj dna:</strong> <br>[[${spot.bottomType}]]</div></li>
+                            <li th:if="${spot.waterStructures}"><i data-lucide="shield" class="rule-icon text-warning"></i> <div><strong>Zabudowa (główki, opaski):</strong> <br>[[${spot.waterStructures}]]</div></li>
+                            <li th:if="${spot.dominantSpecies}"><i data-lucide="fish" class="rule-icon"></i> <div><strong>Dominujące ryby:</strong> <br>[[${spot.dominantSpecies}]]</div></li>
+                            <li th:if="${spot.specialSections}"><i data-lucide="star" class="rule-icon text-brand-green"></i> <div><strong>Odcinki specjalne (np. No Kill):</strong> <br>[[${spot.specialSections}]]</div></li>
+                            <li th:if="${spot.methodBans}"><i data-lucide="ban" class="rule-icon text-danger"></i> <div><strong class="text-danger">Zakazy metod (np. trolling):</strong> <br>[[${spot.methodBans}]]</div></li>
+                        </ul>
+
+                        <div class="spot-tags-container">
+                            <span class="spot-tag tag-info" th:if="${spot.boatFishingAllowed}"><i data-lucide="ship" style="width:14px;"></i> Wędkowanie z łodzi dozwolone</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div th:if="${type == 'SPECIFIC_SPOT'}">
+                    <div class="spot-glass-panel p-4 p-md-5 mb-4 delay-3">
+                        <h3 class="fs-5 text-white fw-bold mb-4 d-flex align-items-center gap-2"><i data-lucide="target" class="text-brand-blue"></i> Profil Miejscówki</h3>
+
+                        <div class="spot-data-grid mb-5">
+                            <div class="spot-data-box" th:if="${spot.parentWaterType}">
+                                <div class="spot-icon-wrapper"><i data-lucide="droplet" class="text-brand-blue"></i></div>
+                                <span class="spot-text-readable fs-8 text-uppercase mb-1">Typ Wody</span><span class="fs-6 fw-bold text-white">[[${spot.parentWaterType}]]</span>
+                            </div>
+                            <div class="spot-data-box" th:if="${spot.localDepth}">
+                                <div class="spot-icon-wrapper"><i data-lucide="arrow-down-to-line" class="text-white"></i></div>
+                                <span class="spot-text-readable fs-8 text-uppercase mb-1">Głębokość</span><span class="fs-5 fw-bold text-white">[[${spot.localDepth}]] m</span>
+                            </div>
+                            <div class="spot-data-box" th:if="${spot.fishingPressure}">
+                                <div class="spot-icon-wrapper"><i data-lucide="users" class="text-warning"></i></div>
+                                <span class="spot-text-readable fs-8 text-uppercase mb-1">Presja</span><span class="fs-6 fw-bold text-warning">[[${spot.fishingPressure}]]</span>
+                            </div>
+                        </div>
+
+                        <ul class="spot-rules-list spot-text-readable fs-6">
+                            <li th:if="${spot.dimensionInfo}"><i data-lucide="ruler" class="rule-icon"></i> <div><strong>Wymiary miejsca:</strong> <br>[[${spot.dimensionInfo}]]</div></li>
+                            <li th:if="${spot.localBottomType}"><i data-lucide="layers" class="rule-icon"></i> <div><strong>Lokalne dno:</strong> <br>[[${spot.localBottomType}]]</div></li>
+                            <li th:if="${spot.localCurrent}"><i data-lucide="fast-forward" class="rule-icon text-brand-blue"></i> <div><strong>Uciąg w tym miejscu:</strong> <br>[[${spot.localCurrent}]]</div></li>
+                            <li th:if="${spot.standsCondition}"><i data-lucide="tent" class="rule-icon"></i> <div><strong>Stan brzegów / stanowisk:</strong> <br>[[${spot.standsCondition}]]</div></li>
+                            <li th:if="${spot.effectiveMethods}"><i data-lucide="crosshair" class="rule-icon text-brand-green"></i> <div><strong>Skuteczne metody:</strong> <br>[[${spot.effectiveMethods}]]</div></li>
+                            <li th:if="${spot.bestTimeAndBaits}"><i data-lucide="clock" class="rule-icon text-warning"></i> <div><strong>Najlepszy czas i przynęty:</strong> <br>[[${spot.bestTimeAndBaits}]]</div></li>
+                        </ul>
+                    </div>
+                </div>
+
+            </div>
+
+            <aside class="col-lg-4 delay-4">
+                <div class="spot-glass-panel p-4 sticky-top" style="top: 24px;">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h3 class="fs-6 text-white fw-bold mb-0 d-flex align-items-center gap-2">
+                            <i data-lucide="crosshair" class="text-brand-blue"></i> Lokacja taktyczna
+                        </h3>
+                    </div>
+
+                    <div class="gps-box mb-4">
+                        <div>
+                            <span class="d-block spot-text-readable fs-8 mb-1">LATITUDE</span>
+                            <span class="d-block gps-coord" th:text="${spot.latitude}"></span>
+                            <div class="mt-2"></div>
+                            <span class="d-block spot-text-readable fs-8 mb-1">LONGITUDE</span>
+                            <span class="d-block gps-coord" th:text="${spot.longitude}"></span>
+                        </div>
+                        <button class="btn btn-sm btn-outline-secondary border-0" title="Kopiuj do schowka" onclick="copyCoords()">
+                            <i data-lucide="copy" class="text-white" style="width: 20px;"></i>
+                        </button>
+                    </div>
+
+                    <a th:href="@{/mapa(lat=${spot.latitude}, lng=${spot.longitude})}" class="btn-glow w-100 d-flex align-items-center justify-content-center gap-2 text-decoration-none">
+                        <i data-lucide="map" style="width: 18px;"></i> Otwórz Radar Mapy
+                    </a>
+                </div>
+            </aside>
+
+        </div>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/footer :: footer}"></footer>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        lucide.createIcons();
+    });
+
+    function copyCoords() {
+        const lat = "[[${spot.latitude}]]";
+        const lng = "[[${spot.longitude}]]";
+        navigator.clipboard.writeText(`${lat}, ${lng}`).then(() => {
+            alert("Współrzędne skopiowane!");
+        });
+    }
+</script>
+</body>
+</html>

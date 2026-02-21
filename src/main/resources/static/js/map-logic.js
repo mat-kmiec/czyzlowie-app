@@ -165,8 +165,10 @@ class MapApplication {
 
                     if (typeLower === 'hydro') baseUrl = '/hydro';
                     else if (typeLower === 'meteo') baseUrl = '/meteo';
-                    else if (['lake', 'river', 'commercial', 'oxbow'].includes(typeLower)) baseUrl = '/lowisko';
-                    else if (typeLower === 'launch') baseUrl = '/slip';
+                    else if (typeLower === 'slip') baseUrl = '/slip';
+                    else if (['lake', 'reservoir', 'river', 'commercial', 'oxbow', 'specific_spot'].includes(typeLower)) {
+                        baseUrl = '/lowisko';
+                    }
 
                     this.locations.push({
                         id: marker.id,
@@ -520,7 +522,6 @@ class MapApplication {
                     return;
                 }
 
-                // Włączanie danej nakładki
                 if (this.overlays[overlayName]) {
                     this.overlays[overlayName].addTo(this.map);
                     this.activeOverlays.add(overlayName);
