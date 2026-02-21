@@ -6,15 +6,17 @@ export const MAP_CONFIG = {
 };
 
 export const CATEGORIES = {
-    lake: { name: 'Jezioro', icon: 'line-squiggle', color: '#3b82f6' },
+    lake: { name: 'Jezioro', icon: 'droplet', color: '#3b82f6' },
+    reservoir: { name: 'Zbiornik zaporowy', icon: 'hexagon', color: '#0284c7' },
     river: { name: 'Rzeka', icon: 'waves', color: '#0ea5e9' },
     synop: { name: 'Stacja Synop', icon: 'thermometer', color: '#f59e0b' },
     meteo: { name: 'Stacja Meteo', icon: 'cloud-sun-rain', color: '#8b5cf6' },
     hydro: { name: 'Stacja Hydro', icon: 'droplets', color: '#06b6d4' },
-    oxbow: { name: 'Starorzecze', icon: 'line-squiggle', color: '#309129' },
-    launch: { name: 'Miejsce wodowania', icon: 'anchor', color: '#ff5900' },
+    oxbow: { name: 'Starorzecze', icon: 'worm', color: '#309129' },
+    slip: { name: 'Slip (Wodowanie)', icon: 'anchor', color: '#ff5900' },
+    specific_spot: { name: 'Miejscówka', icon: 'fishing-hook', color: '#10b981' },
     fishery: { name: 'Łowisko', icon: 'fish', color: '#b568f4' },
-    commercial: { name: 'Łowisko komercyjne', icon: 'dollar-sign', color: '#ec4899' },
+    commercial: { name: 'Łowisko komercyjne', icon: 'coins', color: '#ec4899' },
     restriction: { name: 'Zakazy i ograniczenia', icon: 'shield-off', color: '#ef4444' },
     me: { name: 'Moja lokalizacja', icon: 'circle-user', color: '#22c55e' }
 };

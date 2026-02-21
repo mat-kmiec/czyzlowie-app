@@ -21,4 +21,6 @@ public interface MapSpotRepository extends JpaRepository<MapSpot, Long> {
             @Param("west") Double west,
             @Param("east") Double east
     );
+
+    Optional<MapSpot> findBySlug(String slug);
 }
