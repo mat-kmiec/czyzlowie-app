@@ -39,16 +39,29 @@
                 </button>
             </div>
 
-            <div class="sidebar-section-title">Rodzaj mapy</div>
-            <div class="map-layer-controls" id="layerControls">
+            <div class="sidebar-section-title">Podkład mapy</div>
+            <div class="map-layer-controls" id="baseLayerControls" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 15px;">
                 <button class="layer-btn active" data-layer="standard">
                     <i data-lucide="map"></i> Standard
                 </button>
                 <button class="layer-btn" data-layer="satellite">
-                    <i data-lucide="satellite"></i> Satelita
+                    <i data-lucide="satellite"></i> Satelita Google
+                </button>
+                <button class="layer-btn" data-layer="geoportal">
+                    <i data-lucide="scan"></i> Satelita (Polska)
                 </button>
                 <button class="layer-btn" data-layer="terrain">
-                    <i data-lucide="mountain"></i> Teren
+                    <i data-lucide="mountain"></i> Teren / Topo
+                </button>
+            </div>
+
+            <div class="sidebar-section-title">Warstwy (Nakładki)</div>
+            <div class="map-layer-controls d-flex" id="overlayControls" style="display: grid; grid-template-columns: 1fr; gap: 8px;">
+                <button class="layer-btn overlay-btn" data-overlay="nature" style="flex-direction: row; justify-content: flex-start; padding: 10px 15px;">
+                    <i data-lucide="leaf"></i> <span>Rezerwaty i Parki Narodowe</span>
+                </button>
+                <button class="layer-btn overlay-btn" data-overlay="seamap" style="flex-direction: row; justify-content: flex-start; padding: 10px 15px;">
+                    <i data-lucide="anchor"></i> <span>Szlaki i znaki nawigacyjne</span>
                 </button>
             </div>
 

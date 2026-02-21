@@ -6,6 +6,8 @@ class MapApplication {
         this.categories = CATEGORIES;
         this.locations = [];
         this.markersCache = {};
+        this.fetchTimeout = null;
+        this.allDataLoaded = false;
 
         const defaultInactive = ['me', 'hydro', 'meteo'];
         this.activeCategories = new Set(Object.keys(this.categories).filter(k => !defaultInactive.includes(k)));
@@ -16,8 +18,14 @@ class MapApplication {
                 maxZoom: 19
             }),
             satellite: L.tileLayer('https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}', {
-                attribution: 'Map data &copy; Google',
+                attribution: '&copy; Google',
                 maxZoom: 20
+            }),
+            geoportal: L.tileLayer.wms('https://mapy.geoportal.gov.pl/wss/service/PZGIK/ORTO/WMS/StandardResolution', {
+                layers: 'Raster',
+                format: 'image/jpeg',
+                maxZoom: 20,
+                attribution: '&copy; Geoportal'
             }),
             terrain: L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
                 attribution: '&copy; OpenTopoMap',
@@ -25,6 +33,22 @@ class MapApplication {
             })
         };
         this.currentBaseLayer = 'standard';
+
+        this.activeOverlays = new Set();
+        this.overlays = {
+            seamap: L.tileLayer('https://t1.openseamap.org/seamark/{z}/{x}/{y}.png', {
+                attribution: '&copy; OpenSeaMap',
+                maxZoom: 19
+            }),
+            nature: L.tileLayer.wms('https://sdi.gdos.gov.pl/wms', {
+                layers: 'Rezerwaty,ParkiNarodowe',
+                format: 'image/png',
+                transparent: true,
+                opacity: 0.5,
+                attribution: '&copy; GDOŚ',
+                maxZoom: 19
+            })
+        };
 
         this.init();
     }
@@ -35,11 +59,15 @@ class MapApplication {
         this.setupClusterGroup();
         this.renderLegend();
 
-        await this.fetchLocationsFromApi();
+        await this.setInitialView();
 
-        this.loadMarkers();
-        this.updateMapMarkers();
-        this.renderList(this.locations);
+        this.map.on('moveend', () => {
+            if (this.allDataLoaded) return;
+            clearTimeout(this.fetchTimeout);
+            this.fetchTimeout = setTimeout(() => {
+                this.fetchLocationsForCurrentBounds();
+            }, 300);
+        });
 
         this.attachEventListeners();
 
@@ -48,50 +76,103 @@ class MapApplication {
         }
     }
 
-    async fetchLocationsFromApi() {
-        try {
-            const response = await fetch('/api/map/markers');
-            if (!response.ok) throw new Error("Błąd pobierania danych");
-
-            const data = await response.json();
-
-            this.locations = data.map(marker => {
-                const typeLower = marker.type ? marker.type.toLowerCase() : '';
-                let baseUrl = '/synop';
-
-                if (typeLower === 'hydro') baseUrl = '/hydro';
-                else if (typeLower === 'meteo') baseUrl = '/meteo';
-                else if (['lake', 'river', 'commercial', 'oxbow'].includes(typeLower)) baseUrl = '/lowisko';
-                else if (typeLower === 'launch') baseUrl = '/slip';
-
-                return {
-                    id: marker.id,
-                    name: marker.name,
-                    cat: typeLower,
-                    lat: marker.lat,
-                    lng: marker.lng,
-                    coords: marker.polygonCoordinates,
-                    description: marker.description,
-                    startDate: marker.startDate,
-                    endDate: marker.endDate,
-                    restrictionType: marker.restrictionType,
-                    url: `${baseUrl}/${marker.slug}`
-                };
-            });
-        } catch (error) {
-            console.error('Błąd ładowania danych mapy:', error);
-            this.locations = [];
-        }
+    async setInitialView() {
+        return new Promise((resolve) => {
+            if ("geolocation" in navigator) {
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        const lat = position.coords.latitude;
+                        const lng = position.coords.longitude;
+                        this.map.setView([lat, lng], 12);
+                        this.handleLocationFound({ latlng: { lat, lng } });
+                        resolve();
+                    },
+                    (error) => {
+                        console.warn("Brak zgody na lokalizację. Ładuję Warszawę.");
+                        this.map.setView([52.2297, 21.0122], 11);
+                        resolve();
+                    },
+                    { timeout: 4000, maximumAge: 60000 }
+                );
+            } else {
+                this.map.setView([52.2297, 21.0122], 11);
+                resolve();
+            }
+        }).then(() => {
+            return this.fetchLocationsForCurrentBounds();
+        });
     }
 
     initMap() {
         this.map = L.map('map', {
             zoomControl: false,
             preferCanvas: true
-        }).setView(MAP_CONFIG.initialCoords, MAP_CONFIG.initialZoom);
-
+        });
         this.baseLayers[this.currentBaseLayer].addTo(this.map);
-        this.map.on('locationfound', (e) => this.handleLocationFound(e));
+    }
+
+    async fetchLocationsForCurrentBounds() {
+        if (!this.map || this.allDataLoaded) return;
+
+        const zoom = this.map.getZoom();
+        const bounds = this.map.getBounds();
+        const north = bounds.getNorth();
+        const south = bounds.getSouth();
+        const east = bounds.getEast();
+        const west = bounds.getWest();
+
+        const url = `/api/map/markers?north=${north}&south=${south}&east=${east}&west=${west}`;
+
+        try {
+            const response = await fetch(url);
+            if (!response.ok) throw new Error("Błąd pobierania danych");
+
+            const data = await response.json();
+            let addedNewLocations = false;
+
+            if (zoom <= 7) {
+                this.allDataLoaded = true;
+                console.log("Pobrano dane dla całego kraju. Wyłączam zapytania API.");
+            }
+
+            data.forEach(marker => {
+                const exists = this.locations.some(loc => loc.id === marker.id);
+
+                if (!exists) {
+                    const typeLower = marker.type ? marker.type.toLowerCase() : '';
+                    let baseUrl = '/synop';
+
+                    if (typeLower === 'hydro') baseUrl = '/hydro';
+                    else if (typeLower === 'meteo') baseUrl = '/meteo';
+                    else if (['lake', 'river', 'commercial', 'oxbow'].includes(typeLower)) baseUrl = '/lowisko';
+                    else if (typeLower === 'launch') baseUrl = '/slip';
+
+                    this.locations.push({
+                        id: marker.id,
+                        name: marker.name,
+                        cat: typeLower,
+                        lat: marker.lat,
+                        lng: marker.lng,
+                        coords: marker.polygonCoordinates,
+                        description: marker.description,
+                        startDate: marker.startDate,
+                        endDate: marker.endDate,
+                        restrictionType: marker.restrictionType,
+                        url: `${baseUrl}/${marker.slug}`
+                    });
+                    addedNewLocations = true;
+                }
+            });
+
+            if (addedNewLocations) {
+                this.loadMarkers();
+                this.updateMapMarkers();
+                this.renderList(this.locations);
+            }
+
+        } catch (error) {
+            console.error('Błąd ładowania danych mapy:', error);
+        }
     }
 
     initCustomControls() {
@@ -101,8 +182,13 @@ class MapApplication {
         this.createBtn(zoomGroup, 'plus', 'Przybliż', () => this.map.zoomIn());
         this.createBtn(zoomGroup, 'minus', 'Oddal', () => this.map.zoomOut());
 
-        this.createBtn(container, 'navigation', 'Moja lokalizacja', () => this.map.locate({setView: true, maxZoom: 14}));
-        this.createBtn(container, 'expand', 'Resetuj widok', () => this.map.setView(MAP_CONFIG.initialCoords, MAP_CONFIG.initialZoom));
+        this.createBtn(container, 'navigation', 'Moja lokalizacja', () => {
+            this.map.locate({setView: true, maxZoom: 14});
+        });
+
+        this.createBtn(container, 'expand', 'Widok całej Polski', () => {
+            this.map.setView(MAP_CONFIG.initialCoords || [52.0, 19.0], 6);
+        });
 
         const customControl = L.Control.extend({
             options: { position: 'topright' },
@@ -175,6 +261,8 @@ class MapApplication {
 
     loadMarkers() {
         this.locations.forEach(loc => {
+            if (this.markersCache[loc.id]) return;
+
             const catData = this.categories[loc.cat] || this.categories['restriction'];
             if (!catData && loc.cat !== 'restriction') return;
 
@@ -210,18 +298,18 @@ class MapApplication {
                         : '';
 
                     const popupContent = `
-    <div class="popup-header">
-        <div class="popup-title">${loc.name}</div>
-        <div class="popup-badge" style="background: ${color}25; color: ${color}; border: 1px solid ${color}40;">
-            <i data-lucide="${iconName}"></i> 
-            ${isTotal ? 'ZAKAZ CAŁKOWITY' : 'OGRANICZENIA'}
-        </div>
-    </div>
-    <div class="popup-body">
-        ${dateRange}
-        <p class="popup-desc">${loc.description || 'Brak dodatkowego opisu.'}</p>
-    </div>
-`;
+                        <div class="popup-header">
+                            <div class="popup-title">${loc.name}</div>
+                            <div class="popup-badge" style="background: ${color}25; color: ${color}; border: 1px solid ${color}40;">
+                                <i data-lucide="${iconName}"></i> 
+                                ${isTotal ? 'ZAKAZ CAŁKOWITY' : 'OGRANICZENIA'}
+                            </div>
+                        </div>
+                        <div class="popup-body">
+                            ${dateRange}
+                            <p class="popup-desc">${loc.description || 'Brak dodatkowego opisu.'}</p>
+                        </div>
+                    `;
 
                     marker.bindPopup(popupContent, { className: 'custom-popup' });
                     area.bindPopup(popupContent, { className: 'custom-popup' });
@@ -229,22 +317,13 @@ class MapApplication {
                     marker.on('popupopen', () => { if (window.lucide) lucide.createIcons(); });
                     area.on('popupopen', () => { if (window.lucide) lucide.createIcons(); });
 
-                    marker.on('add', () => {
-                        if (!this.map.hasLayer(area)) {
-                            this.map.addLayer(area);
-                        }
-                    });
-
-                    marker.on('remove', () => {
-                        if (this.map.hasLayer(area)) {
-                            this.map.removeLayer(area);
-                        }
-                    });
+                    marker.on('add', () => { if (!this.map.hasLayer(area)) this.map.addLayer(area); });
+                    marker.on('remove', () => { if (this.map.hasLayer(area)) this.map.removeLayer(area); });
 
                     this.markersCache[loc.id] = marker;
 
                 } catch (e) {
-                    console.error("Błąd parsowania współrzędnych obszaru:", e);
+                    console.error("Błąd parsowania obszaru:", e);
                 }
             } else if (loc.lat && loc.lng) {
                 const htmlIcon = L.divIcon({
@@ -275,9 +354,7 @@ class MapApplication {
                     autoPanPadding: [50, 50]
                 });
 
-                marker.on('popupopen', () => {
-                    if (window.lucide) lucide.createIcons();
-                });
+                marker.on('popupopen', () => { if (window.lucide) lucide.createIcons(); });
 
                 this.markersCache[loc.id] = marker;
             }
@@ -366,7 +443,6 @@ class MapApplication {
 
         if(searchInput) {
             searchInput.addEventListener('input', () => this.filterListBySearch());
-
             searchInput.addEventListener('keypress', (e) => {
                 if (e.key === 'Enter') {
                     e.preventDefault();
@@ -389,8 +465,8 @@ class MapApplication {
         if(btnOpen && sidebar) btnOpen.addEventListener('click', () => sidebar.classList.add('active'));
         if(btnClose && sidebar) btnClose.addEventListener('click', () => sidebar.classList.remove('active'));
 
-        const layerButtons = document.querySelectorAll('.layer-btn');
-        layerButtons.forEach(btn => {
+        const baseLayerButtons = document.querySelectorAll('#baseLayerControls .layer-btn');
+        baseLayerButtons.forEach(btn => {
             btn.addEventListener('click', (e) => {
                 const targetBtn = e.currentTarget;
                 const layerName = targetBtn.dataset.layer;
@@ -401,8 +477,33 @@ class MapApplication {
                 this.baseLayers[layerName].addTo(this.map);
                 this.currentBaseLayer = layerName;
 
-                layerButtons.forEach(b => b.classList.remove('active'));
+                baseLayerButtons.forEach(b => b.classList.remove('active'));
                 targetBtn.classList.add('active');
+            });
+        });
+
+        const overlayButtons = document.querySelectorAll('#overlayControls .overlay-btn');
+        overlayButtons.forEach(btn => {
+            btn.addEventListener('click', async (e) => {
+                const targetBtn = e.currentTarget;
+                const overlayName = targetBtn.dataset.overlay;
+
+                if (this.activeOverlays.has(overlayName)) {
+                    if (this.overlays[overlayName]) {
+                        this.map.removeLayer(this.overlays[overlayName]);
+                    }
+                    this.activeOverlays.delete(overlayName);
+                    targetBtn.classList.remove('active');
+                    return;
+                }
+
+                // Włączanie danej nakładki
+                if (this.overlays[overlayName]) {
+                    this.overlays[overlayName].addTo(this.map);
+                    this.activeOverlays.add(overlayName);
+                    targetBtn.classList.add('active');
+                }
+
             });
         });
     }
@@ -424,16 +525,11 @@ class MapApplication {
                 ];
 
                 this.map.fitBounds(bounds);
-                this.updateMapMarkers();
-
-                if (window.innerWidth <= 991) {
-                    document.getElementById('filterSidebar').classList.remove('active');
-                }
             } else {
                 alert("Nie znaleziono takiej miejscowości na mapie.");
             }
         } catch (error) {
-            console.error("Błąd wyszukiwania globalnego:", error);
+            console.error("Błąd wyszukiwania:", error);
         }
     }
 
