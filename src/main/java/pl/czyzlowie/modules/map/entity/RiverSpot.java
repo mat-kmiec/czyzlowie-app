@@ -8,6 +8,7 @@ import java.util.List;
 
 @Entity
 @Table(name = "map_rivers")
+@DiscriminatorValue("RIVER")
 @Getter
 @Setter
 public class RiverSpot extends MapSpot {

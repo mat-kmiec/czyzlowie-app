@@ -6,10 +6,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 @Controller
 public class TestController {
 
-    @GetMapping("/mapa")
-    public String map(){
-        return "map/map";
-    }
 
     @GetMapping("/ryby/*")
     public String atlas(){

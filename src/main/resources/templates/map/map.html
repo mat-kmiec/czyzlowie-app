@@ -6,6 +6,11 @@
 
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" defer></script>
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.Default.css" />
+    <script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js" defer></script>
+
     <link rel="stylesheet" th:href="@{/css/map/map.css}">
     <script type="module" th:src="@{/js/map-logic.js}" defer></script>
 </head>
@@ -28,8 +33,10 @@
             </div>
 
             <div class="sidebar-search">
-                <i data-lucide="search" class="search-icon"></i>
-                <input type="text" id="mapSearch" placeholder="Szukaj łowiska, stacji...">
+                <input type="text" id="mapSearch" placeholder="Szukaj łowiska lub miasta...">
+                <button id="searchGlobalBtn" class="sidebar-search-btn" title="Szukaj miasta na mapie">
+                    <i data-lucide="search"></i>
+                </button>
             </div>
 
             <div class="sidebar-section-title">Rodzaj mapy</div>
@@ -62,8 +69,8 @@
     <main class="map-container">
         <div id="map" style="width: 100%; height: 100%;"></div>
     </main>
-
 </div>
+
 <footer th:replace="~{fragments/footer :: footer}"></footer>
 </body>
 </html>

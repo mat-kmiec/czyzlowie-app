@@ -1,5 +1,6 @@
 package pl.czyzlowie.modules.map.entity;
 
+import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import lombok.Getter;
@@ -7,6 +8,7 @@ import lombok.Setter;
 
 @Entity
 @Table(name = "map_specific_spots")
+@DiscriminatorValue("SPECIFIC_SPOT")
 @Getter
 @Setter
 public class SpecificSpot extends MapSpot {

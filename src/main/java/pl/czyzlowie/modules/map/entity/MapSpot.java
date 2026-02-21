@@ -7,6 +7,7 @@ import lombok.Setter;
 @Entity
 @Table(name = "map_spots")
 @Inheritance(strategy = InheritanceType.JOINED)
+@DiscriminatorColumn(name = "spot_type", discriminatorType = DiscriminatorType.STRING)
 @Getter @Setter
 public abstract class MapSpot {
 
@@ -20,6 +21,7 @@ public abstract class MapSpot {
     private String slug;
 
     @Enumerated(EnumType.STRING)
+    @Column(name = "spot_type", insertable = false, updatable = false)
     private SpotType spotType;
 
     private Double latitude;
