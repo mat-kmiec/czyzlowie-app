@@ -25,4 +25,13 @@ public enum SpotType {
     public String getUrlPath() {
         return urlPath;
     }
+
+    public static SpotType fromUrlPath(String urlPath) {
+        for (SpotType type : values()) {
+            if (type.getUrlPath().equalsIgnoreCase(urlPath)) {
+                return type;
+            }
+        }
+        return null;
+    }
 }
