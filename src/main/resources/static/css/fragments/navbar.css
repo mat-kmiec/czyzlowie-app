@@ -216,3 +216,12 @@
         background: rgba(56, 189, 248, 0.15);
     }
 }
+
+@media (min-width: 992px) {
+    .mega-niezbednik {
+        min-width: 950px !important;
+    }
+    .mega-atlas {
+        min-width: 700px !important; /* Dwie kolumny wystarczą na 700px */
+    }
+}

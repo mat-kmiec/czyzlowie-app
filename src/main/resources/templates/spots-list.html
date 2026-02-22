@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pl">
+<head>
+    <th:block th:with="
+        pageSuffix=${spotsPage.number > 0 ? ' - strona ' + (spotsPage.number + 1) : ''},
+        baseTitle=${typeName != null ? typeName + ' - Katalog łowisk' : 'Katalog łowisk'},
+        catName=${typeName != null ? typeName : 'Wszystkie typy'}">
+
+        <th:block th:replace="~{fragments/head :: head-content(
+            pageTitle=${baseTitle} + ${pageSuffix} + ' | czyzlowie.pl',
+            pageDescription='Przeglądaj największą bazę łowisk w Polsce. Kategoria: ' + ${catName} + '. Filtruj po województwie, typie wody i nazwie.' + ${pageSuffix},
+            currentUrl='https://czyzlowie.pl/lowiska' + ${currentType != 'all' ? '/' + currentType : ''} + ${spotsPage.number > 0 ? '?page=' + spotsPage.number : ''}
+        )}"></th:block>
+    </th:block>
+
+    <script type="application/ld+json" th:inline="javascript">
+        {
+            "@context": "https://schema.org",
+            "@type": "BreadcrumbList",
+            "itemListElement": [
+                {
+                    "@type": "ListItem",
+                    "position": 1,
+                    "name": "Mapa",
+                    "item": "https://czyzlowie.pl/mapa"
+                },
+                {
+                    "@type": "ListItem",
+                    "position": 2,
+                    "name": "Katalog Łowisk",
+                    "item": "https://czyzlowie.pl/lowiska"
+                }
+                [# th:if="${currentType != 'all'}"]
+        ,{
+            "@type": "ListItem",
+            "position": 3,
+            "name": [[${typeName}]],
+            "item": "https://czyzlowie.pl/lowiska/" + [[${currentType}]]
+        }
+        [/]
+        ]
+        }
+    </script>
+
+    <script type="application/ld+json" th:inline="javascript">
+        {
+            "@context": "https://schema.org",
+            "@type": "ItemList",
+            "itemListElement": [
+                [# th:each="spot, iterStat : ${spotsPage.content}"]
+        {
+            "@type": "ListItem",
+            "position": [[${iterStat.count}]],
+            "name": [[${spot.name}]],
+            "url": "https://czyzlowie.pl/" + [[${spot.spotType.urlPath}]] + "/" + [[${spot.slug}]]
+        }[# th:if="${!iterStat.last}"],[/]
+        [/]
+        ]
+        }
+    </script>
+
+    <link rel="stylesheet" th:href="@{/css/spot-details.css}">
+    <link rel="stylesheet" th:href="@{/css/spot-list.css}">
+</head>
+<body class="spot-page">
+<nav th:replace="~{fragments/navbar :: navbar}"></nav>
+
+<div class="spot-bg-container">
+    <div class="spot-bg-overlay"></div>
+    <div class="spot-glow glow-blue-top"></div>
+    <div class="spot-glow glow-green-bottom"></div>
+</div>
+
+<main class="position-relative z-2 pb-5">
+    <div class="container-xl pt-4 mt-3">
+
+        <nav aria-label="breadcrumb" class="mb-4">
+            <ol class="breadcrumb spot-breadcrumb">
+                <li class="breadcrumb-item"><a th:href="@{/}"><i data-lucide="home" style="width: 16px; margin-top:-2px;"></i> Główna</a></li>
+                <li class="breadcrumb-item active text-white" aria-current="page">
+                    Katalog Łowisk <span th:if="${typeName != null}" th:text="' - ' + ${typeName}"></span>
+                </li>
+            </ol>
+        </nav>
+
+        <header class="spot-glass-panel p-4 mb-5 delay-1">
+            <h1 class="h3 text-white fw-bold mb-4">
+                <i data-lucide="search" class="text-brand-blue me-2"></i> Filtruj
+            </h1>
+
+            <form method="get" th:action="@{/lowiska}" class="row g-3">
+                <div class="col-md-3">
+                    <label class="form-label spot-text-readable fs-8 text-uppercase mb-1">Nazwa łowiska</label>
+                    <input type="text" name="name" th:value="${filter.name}" class="form-control glass-input" placeholder="np. Wisła, Bug...">
+                </div>
+
+                <div class="col-md-3">
+                    <label class="form-label spot-text-readable fs-8 text-uppercase mb-1">Najbliższe miasto</label>
+                    <input type="text" name="nearestCity" th:value="${filter.nearestCity}" class="form-control glass-input" placeholder="np. Warszawa">
+                </div>
+
+                <div class="col-md-3">
+                    <label class="form-label spot-text-readable fs-8 text-uppercase mb-1">Województwo</label>
+                    <select name="province" class="form-select glass-input">
+                        <option value="">Wszystkie</option>
+                        <option value="Dolnośląskie" th:selected="${filter.province == 'Dolnośląskie'}">Dolnośląskie</option>
+                        <option value="Kujawsko-Pomorskie" th:selected="${filter.province == 'Kujawsko-Pomorskie'}">Kujawsko-Pomorskie</option>
+                        <option value="Lubelskie" th:selected="${filter.province == 'Lubelskie'}">Lubelskie</option>
+                        <option value="Lubuskie" th:selected="${filter.province == 'Lubuskie'}">Lubuskie</option>
+                        <option value="Łódzkie" th:selected="${filter.province == 'Łódzkie'}">Łódzkie</option>
+                        <option value="Małopolskie" th:selected="${filter.province == 'Małopolskie'}">Małopolskie</option>
+                        <option value="Mazowieckie" th:selected="${filter.province == 'Mazowieckie'}">Mazowieckie</option>
+                        <option value="Opolskie" th:selected="${filter.province == 'Opolskie'}">Opolskie</option>
+                        <option value="Podkarpackie" th:selected="${filter.province == 'Podkarpackie'}">Podkarpackie</option>
+                        <option value="Podlaskie" th:selected="${filter.province == 'Podlaskie'}">Podlaskie</option>
+                        <option value="Pomorskie" th:selected="${filter.province == 'Pomorskie'}">Pomorskie</option>
+                        <option value="Śląskie" th:selected="${filter.province == 'Śląskie'}">Śląskie</option>
+                        <option value="Świętokrzyskie" th:selected="${filter.province == 'Świętokrzyskie'}">Świętokrzyskie</option>
+                        <option value="Warmińsko-Mazurskie" th:selected="${filter.province == 'Warmińsko-Mazurskie'}">Warmińsko-Mazurskie</option>
+                        <option value="Wielkopolskie" th:selected="${filter.province == 'Wielkopolskie'}">Wielkopolskie</option>
+                        <option value="Zachodniopomorskie" th:selected="${filter.province == 'Zachodniopomorskie'}">Zachodniopomorskie</option>
+                    </select>
+                </div>
+
+                <div class="col-md-3">
+                    <label class="form-label spot-text-readable fs-8 text-uppercase mb-1">Typ łowiska</label>
+                    <select name="spotType" class="form-select glass-input">
+                        <option value="">Wszystkie typy</option>
+                        <option th:each="type : ${allTypes}"
+                                th:value="${type.name()}"
+                                th:text="${type.displayName}"
+                                th:selected="${filter.spotType == type}"></option>
+                    </select>
+                </div>
+
+                <div class="col-12 d-flex justify-content-end gap-3 mt-4">
+                    <a th:href="@{${currentType == 'all' ? '/lowiska' : '/lowiska/' + currentType}}" class="btn btn-outline-light rounded-3 px-4 py-2 border-0">
+                        <i data-lucide="x" style="width: 16px;"></i> Wyczyść
+                    </a>
+                    <button type="submit" class="btn-glow px-5 d-flex align-items-center gap-2">
+                        Szukaj <i data-lucide="arrow-right" style="width: 18px;"></i>
+                    </button>
+                </div>
+            </form>
+        </header>
+
+        <div th:if="${spotsPage.empty}" class="spot-glass-panel p-5 text-center delay-2">
+            <div class="spot-icon-wrapper mx-auto mb-3" style="width: 60px; height: 60px;">
+                <i data-lucide="fish-off" class="text-warning" style="width: 30px; height: 30px;"></i>
+            </div>
+            <h3 class="text-white fw-bold">Brak wyników</h3>
+            <p class="spot-text-readable">Nie znaleźliśmy łowisk spełniających podane kryteria. Spróbuj zmienić filtry wyszukiwania.</p>
+        </div>
+
+        <div th:if="${!spotsPage.empty}" class="row g-4 mb-5">
+            <div class="col-md-6 col-lg-4 delay-2" th:each="spot : ${spotsPage.content}">
+                <div class="spot-glass-panel h-100 p-4 d-flex flex-column spot-card-hover position-relative">
+
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <div class="spot-icon-wrapper mb-0 bg-opacity-50">
+                            <i data-lucide="map-pin" th:if="${spot.spotType.name() == 'SPECIFIC_SPOT'}" class="text-white"></i>
+                            <i data-lucide="droplets" th:if="${spot.spotType.name() == 'LAKE'}" class="text-brand-blue"></i>
+                            <i data-lucide="waves" th:if="${spot.spotType.name() == 'RIVER'}" class="text-brand-blue"></i>
+                            <i data-lucide="moon" th:if="${spot.spotType.name() == 'OXBOW'}" class="text-brand-blue"></i>
+                            <i data-lucide="anchor" th:if="${spot.spotType.name() == 'SLIP'}" class="text-brand-green"></i>
+                            <i data-lucide="store" th:if="${spot.spotType.name() == 'COMMERCIAL'}" class="text-brand-green"></i>
+                            <i data-lucide="database" th:if="${spot.spotType.name() == 'RESERVOIR'}" class="text-brand-blue"></i>
+                        </div>
+                        <span class="spot-badge badge-type" style="font-size: 0.7rem; padding: 4px 10px;">
+                            [[${spot.spotType.displayName}]]
+                        </span>
+                    </div>
+
+                    <h4 class="text-white fw-bold mb-2 fs-5" th:text="${spot.name}">Nazwa Łowiska</h4>
+
+                    <p class="spot-text-readable fs-7 mb-4 mt-auto">
+                        <i data-lucide="navigation" style="width: 14px;" class="me-1 text-brand-blue"></i>
+                        <span th:text="${spot.nearestCity}">Miasto</span>, <span th:text="${spot.province}">Województwo</span>
+                    </p>
+
+                    <a th:href="@{/{type}/{slug}(type=${spot.spotType.urlPath}, slug=${spot.slug})}" class="btn btn-outline-brand-blue w-100 stretched-link custom-card-btn">
+                        Zobacz szczegóły
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <nav th:if="${spotsPage.totalPages > 1}" aria-label="Nawigacja stron" class="mt-5 delay-3"
+             th:with="
+                currentPage=${spotsPage.number},
+                totalPages=${spotsPage.totalPages},
+                startPage=${T(java.lang.Math).max(0, currentPage - 2)},
+                endPage=${T(java.lang.Math).min(totalPages - 1, currentPage + 2)}
+             ">
+            <ul class="pagination custom-pagination justify-content-center">
+
+                <li class="page-item" th:classappend="${spotsPage.first} ? 'disabled'">
+                    <a class="page-link" th:href="@{''(page=${currentPage - 1}, name=${filter.name}, province=${filter.province}, spotType=${filter.spotType}, nearestCity=${filter.nearestCity})}">
+                        <i data-lucide="chevron-left" style="width: 18px;"></i>
+                    </a>
+                </li>
+
+                <li class="page-item" th:if="${startPage > 0}">
+                    <a class="page-link" th:href="@{''(page=0, name=${filter.name}, province=${filter.province}, spotType=${filter.spotType}, nearestCity=${filter.nearestCity})}">1</a>
+                </li>
+
+                <li class="page-item disabled" th:if="${startPage > 1}">
+                    <span class="page-link border-0 bg-transparent text-white opacity-50">...</span>
+                </li>
+
+                <li class="page-item" th:each="i : ${#numbers.sequence(startPage, endPage)}"
+                    th:classappend="${i == currentPage} ? 'active'">
+                    <a class="page-link" th:href="@{''(page=${i}, name=${filter.name}, province=${filter.province}, spotType=${filter.spotType}, nearestCity=${filter.nearestCity})}" th:text="${i + 1}">1</a>
+                </li>
+
+                <li class="page-item disabled" th:if="${endPage < totalPages - 2}">
+                    <span class="page-link border-0 bg-transparent text-white opacity-50">...</span>
+                </li>
+
+                <li class="page-item" th:if="${endPage < totalPages - 1}">
+                    <a class="page-link" th:href="@{''(page=${totalPages - 1}, name=${filter.name}, province=${filter.province}, spotType=${filter.spotType}, nearestCity=${filter.nearestCity})}" th:text="${totalPages}">1000</a>
+                </li>
+
+                <li class="page-item" th:classappend="${spotsPage.last} ? 'disabled'">
+                    <a class="page-link" th:href="@{''(page=${currentPage + 1}, name=${filter.name}, province=${filter.province}, spotType=${filter.spotType}, nearestCity=${filter.nearestCity})}">
+                        <i data-lucide="chevron-right" style="width: 18px;"></i>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+
+    </div>
+</main>
+
+<footer th:replace="~{fragments/footer :: footer}"></footer>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        lucide.createIcons();
+    });
+</script>
+</body>
+</html>

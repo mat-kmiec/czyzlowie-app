@@ -2,7 +2,21 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <th:block th:replace="~{fragments/head :: head-content}"></th:block>
-
+    <script type="application/ld+json">
+        {
+            "@context": "https://schema.org",
+            "@type": "WebApplication",
+            "name": "CzyZlowie.pl - Kalkulator Brań",
+            "url": "https://czyzlowie.pl",
+            "description": "Profesjonalna prognoza brań ryb oparta o parametry meteo, hydro, synop i barometr.",
+            "applicationCategory": "Narzędzie Wędkarskie",
+            "operatingSystem": "All",
+            "author": {
+                "@type": "Person",
+                "name": "Mateusz Kmiec"
+            }
+        }
+    </script>
     <link rel="stylesheet" th:href="@{/css/home-hero.css}">
 </head>
 <body class="bg-dark">

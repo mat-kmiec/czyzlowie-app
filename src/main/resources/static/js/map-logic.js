@@ -9,7 +9,7 @@ class MapApplication {
         this.fetchTimeout = null;
         this.allDataLoaded = false;
 
-        const defaultInactive = ['me', 'hydro', 'meteo'];
+        const defaultInactive = ['me'];
         this.activeCategories = new Set(Object.keys(this.categories).filter(k => !defaultInactive.includes(k)));
 
         this.baseLayers = {
@@ -127,6 +127,15 @@ class MapApplication {
             preferCanvas: true
         });
         this.baseLayers[this.currentBaseLayer].addTo(this.map);
+
+        this.map.on('locationfound', (e) => {
+            this.handleLocationFound(e);
+        });
+
+        this.map.on('locationerror', (e) => {
+            console.warn("Błąd lokalizacji:", e.message);
+            alert("Nie udało się pobrać lokalizacji. Upewnij się, że masz włączony GPS i wyraziłeś zgodę w przeglądarce.");
+        });
     }
 
     async fetchLocationsForCurrentBounds() {
@@ -166,9 +175,12 @@ class MapApplication {
                     if (typeLower === 'hydro') baseUrl = '/hydro';
                     else if (typeLower === 'meteo') baseUrl = '/meteo';
                     else if (typeLower === 'slip') baseUrl = '/slip';
-                    else if (['lake', 'reservoir', 'river', 'commercial', 'oxbow', 'specific_spot'].includes(typeLower)) {
-                        baseUrl = '/lowisko';
-                    }
+                    else if (typeLower === 'lake') baseUrl = '/jezioro';
+                    else if (typeLower === 'river') baseUrl = '/rzeka';
+                    else if (typeLower === 'reservoir') baseUrl = '/zbiornik-zaporowy';
+                    else if (typeLower === 'commercial') baseUrl = '/lowisko-komercyjne';
+                    else if (typeLower === 'oxbow') baseUrl = '/starorzecze';
+                    else if (typeLower === 'specific_spot') baseUrl = '/miejscowka';
 
                     this.locations.push({
                         id: marker.id,
@@ -537,6 +549,9 @@ class MapApplication {
 
         this.toggleLoader(true, `Szukam miejscowości: ${query}`);
 
+        const searchInput = document.getElementById('mapSearch');
+        if (searchInput) searchInput.blur();
+
         try {
             const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&countrycodes=pl`);
             const results = await response.json();
@@ -550,11 +565,17 @@ class MapApplication {
                 ];
 
                 this.map.fitBounds(bounds);
-                document.getElementById('mapSearch').value = '';
+
+                if (searchInput) searchInput.value = '';
+
+                const sidebar = document.getElementById('filterSidebar');
+                if (window.innerWidth <= 991 && sidebar) {
+                    sidebar.classList.remove('active');
+                }
+
                 this.filterListBySearch();
 
             } else {
-                alert("Nie znaleziono takiej miejscowości w Polsce.");
             }
         } catch (error) {
             console.error("Błąd wyszukiwania:", error);

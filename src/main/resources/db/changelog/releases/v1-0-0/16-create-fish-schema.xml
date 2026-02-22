@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.24.xsd">
+
+    <changeSet id="v1-0-0-09-create-fish-atlas" author="mateusz kmiec">
+
+        <createTable tableName="fish_algorithm_params">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false" />
+            </column>
+
+            <column name="temp_min_active" type="decimal(4,1)" />
+            <column name="temp_max_active" type="decimal(4,1)" />
+            <column name="temp_opt_min" type="decimal(4,1)" />
+            <column name="temp_opt_max" type="decimal(4,1)" />
+            <column name="water_level_trend" type="varchar(50)" />
+
+            <column name="discharge_max" type="decimal(8,3)" />
+
+            <column name="pressure_trend" type="varchar(50)" />
+            <column name="pressure_min" type="decimal(6,1)" />
+            <column name="pressure_max" type="decimal(6,1)" />
+            <column name="wind_speed_min" type="decimal(4,1)" />
+            <column name="wind_speed_max" type="decimal(4,1)" />
+            <column name="wind_gust_max" type="decimal(4,1)" />
+            <column name="cloud_cover_min" type="integer" />
+            <column name="cloud_cover_max" type="integer" />
+            <column name="rain_max_mm" type="decimal(5,2)" />
+            <column name="tolerates_rain" type="boolean" />
+
+            <column name="moon_phase" type="varchar(50)" />
+            <column name="illumination_min" type="decimal(5,2)" />
+            <column name="illumination_max" type="decimal(5,2)" />
+            <column name="time_of_day" type="varchar(50)" />
+
+            <column name="weight_water_temp" type="integer" />
+            <column name="weight_pressure" type="integer" />
+            <column name="weight_wind" type="integer" />
+            <column name="weight_water_level" type="integer" />
+        </createTable>
+
+        <createTable tableName="fish_species">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false" />
+            </column>
+            <column name="name" type="varchar(100)">
+                <constraints nullable="false" unique="true" />
+            </column>
+            <column name="latin_name" type="varchar(100)" />
+            <column name="english_name" type="varchar(100)" />
+            <column name="slug" type="varchar(100)">
+                <constraints nullable="false" unique="true" />
+            </column>
+            <column name="img_url" type="varchar(255)" />
+            <column name="category" type="varchar(50)">
+                <constraints nullable="false" />
+            </column>
+            <column name="description" type="text" />
+            <column name="algorithm_custom_rules_json" type="jsonb" />
+
+            <column name="algorithm_params_id" type="bigint">
+                <constraints unique="true" foreignKeyName="fk_fish_to_algo_params" referencedTableName="fish_algorithm_params" referencedColumnNames="id" />
+            </column>
+
+            <column name="habitat_general" type="text" />
+            <column name="habitat_lakes" type="text" />
+            <column name="habitat_rivers" type="text" />
+            <column name="preferred_depth_min" type="decimal(5,2)" />
+            <column name="preferred_depth_max" type="decimal(5,2)" />
+            <column name="bottom_type" type="varchar(100)" />
+            <column name="feeding_layer" type="varchar(100)" />
+
+            <column name="killer_baits" type="text" />
+            <column name="bait_selection_rules" type="text" />
+            <column name="setup_rod" type="varchar(255)" />
+            <column name="setup_reel" type="varchar(255)" />
+            <column name="setup_main_line" type="varchar(255)" />
+            <column name="setup_leader" type="varchar(255)" />
+            <column name="setup_hook" type="varchar(255)" />
+            <column name="setup_terminal_tackle" type="varchar(255)" />
+
+            <column name="record_weight" type="double precision" /> <column name="record_length" type="double precision" />
+            <column name="record_year" type="integer" />
+
+            <column name="pzw_min_dimension" type="integer" />
+            <column name="pzw_max_dimension" type="integer" />
+            <column name="pzw_dimension_exceptions" type="varchar(255)" />
+            <column name="pzw_protection_period" type="varchar(255)" />
+            <column name="pzw_spawning_season" type="varchar(255)" />
+            <column name="pzw_daily_limit_pieces" type="integer" />
+            <column name="pzw_daily_limit_weight" type="double precision" />
+            <column name="pzw_shared_limit_group" type="varchar(255)" />
+            <column name="pzw_additional_rules" type="text" />
+
+            <column name="jan_activity" type="varchar(50)" />
+            <column name="feb_activity" type="varchar(50)" />
+            <column name="mar_activity" type="varchar(50)" />
+            <column name="apr_activity" type="varchar(50)" />
+            <column name="may_activity" type="varchar(50)" />
+            <column name="jun_activity" type="varchar(50)" />
+            <column name="jul_activity" type="varchar(50)" />
+            <column name="aug_activity" type="varchar(50)" />
+            <column name="sep_activity" type="varchar(50)" />
+            <column name="oct_activity" type="varchar(50)" />
+            <column name="nov_activity" type="varchar(50)" />
+            <column name="dec_activity" type="varchar(50)" />
+        </createTable>
+
+        <createIndex tableName="fish_species" indexName="idx_fish_species_slug">
+            <column name="slug" />
+        </createIndex>
+
+        <createIndex tableName="fish_species" indexName="idx_fish_species_category">
+            <column name="category" />
+        </createIndex>
+
+    </changeSet>
+
+</databaseChangeLog>

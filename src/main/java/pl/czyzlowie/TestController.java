@@ -7,16 +7,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 public class TestController {
 
 
-    @GetMapping("/ryby/*")
-    public String atlas(){
-        return "fish/atlas-details";
-    }
-
-    @GetMapping("/drapiezniki")
-    public String predators(){
-        return "fish/predators";
-    }
-
     @GetMapping("/login")
     public String login(){
         return "auth/login";
