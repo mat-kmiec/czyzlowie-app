@@ -9,7 +9,7 @@ class MapApplication {
         this.fetchTimeout = null;
         this.allDataLoaded = false;
 
-        const defaultInactive = ['me', 'hydro', 'meteo'];
+        const defaultInactive = ['me'];
         this.activeCategories = new Set(Object.keys(this.categories).filter(k => !defaultInactive.includes(k)));
 
         this.baseLayers = {

@@ -2,9 +2,52 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="pl">
 <head>
     <th:block th:replace="~{fragments/head :: head-content(
-        pageTitle=${spot.name} + ' - Szczegóły | CzyZlowie',
-        pageDescription='Sprawdź informacje i parametry dla: ' + ${spot.name}
-    )}"></th:block>
+    pageTitle=${spot.name} + ' (' + ${spot.nearestCity} + ') - ' + ${spot.spotType.displayName},
+    pageDescription=${#strings.abbreviate(spot.description, 155)},
+    currentUrl='https://czyzlowie.pl/' + ${spot.spotType.urlPath} + '/' + ${spot.slug}
+)}"></th:block>
+
+    <script type="application/ld+json" th:inline="javascript">
+        {
+            "@context": "https://schema.org",
+            "@type": "Place",
+            "name": [[${spot.name}]],
+            "description": [[${spot.description}]],
+            "address": {
+                "@type": "PostalAddress",
+                "addressLocality": [[${spot.nearestCity}]],
+                "addressRegion": [[${spot.province}]],
+                "addressCountry": "PL"
+            },
+            "geo": {
+                "@type": "GeoCoordinates",
+                "latitude": [[${spot.latitude}]],
+                "longitude": [[${spot.longitude}]]
+            }
+        }
+    </script>
+
+    <script type="application/ld+json" th:inline="javascript">
+        {
+            "@context": "https://schema.org",
+            "@type": "BreadcrumbList",
+            "itemListElement": [{
+                "@type": "ListItem",
+                "position": 1,
+                "name": "Mapa",
+                "item": "https://czyzlowie.pl/mapa"
+            },{
+                "@type": "ListItem",
+                "position": 2,
+                "name": "[[${spot.spotType.displayName}]]",
+                "item": "https://czyzlowie.pl/[[${spot.spotType.urlPath}]]"
+            },{
+                "@type": "ListItem",
+                "position": 3,
+                "name": "[[${spot.name}]]"
+            }]
+        }
+    </script>
 
     <link rel="stylesheet" th:href="@{/css/spot-details.css}">
 </head>
@@ -33,7 +76,7 @@
                 <div class="col-lg-8">
                     <div class="d-flex flex-wrap gap-2 mb-3">
                         <span class="spot-badge badge-type">
-                            <i data-lucide="map-pin" style="width: 16px;"></i> [[${spot.spotType}]]
+                            <i data-lucide="map-pin" style="width: 16px;"></i> [[${spot.spotType.displayName}]]
                         </span>
                         <span th:if="${spot.manager}" class="spot-badge badge-manager">
                             <i data-lucide="shield-check" style="width: 16px;" class="text-brand-green"></i> Zarządca: [[${spot.manager}]]
@@ -42,7 +85,7 @@
                     <h1 class="display-4 fw-black text-white mb-2 text-glow-blue" th:text="${spot.name}">Nazwa Obiektu</h1>
                     <p class="spot-text-readable fs-5 mb-0 mt-3" th:if="${spot.nearestCity}">
                         <i data-lucide="navigation" style="width: 18px;" class="me-1 text-brand-blue"></i>
-                        Nawiguj do: <span class="text-white fw-bold">[[${spot.nearestCity}]], [[${spot.province}]]</span>
+                        W pobliżu: <span class="text-white fw-bold">[[${spot.nearestCity}]], [[${spot.province}]]</span>
                     </p>
                 </div>
             </div>

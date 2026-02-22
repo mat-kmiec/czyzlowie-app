@@ -1,8 +1,55 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <th:block th:replace="~{fragments/head :: head-content(pageTitle='Interaktywna Mapa')}"></th:block>
-    <title></title>
+    <th:block th:replace="~{fragments/head :: head-content(
+    pageTitle='Interaktywna Mapa Łowisk - Znajdź Gdzie Na Ryby | CzyZlowie.pl',
+    pageDescription='Eksploruj tysiące łowisk w Polsce: jeziora, rzeki, starorzecza i łowiska komercyjne. Sprawdź opłaty, dojazd i opisy łowisk na interaktywnej mapie wędkarskiej.',
+    currentUrl='https://czyzlowie.pl/mapa'
+)}"></th:block>
+
+    <script type="application/ld+json">
+        {
+            "@context": "https://schema.org",
+            "@type": "WebPage",
+            "name": "Interaktywna Mapa Łowisk CzyZlowie.pl",
+            "description": "Wyszukiwarka i mapa łowisk PZW oraz komercyjnych w całej Polsce.",
+            "breadcrumb": {
+                "@type": "BreadcrumbList",
+                "itemListElement": [{
+                    "@type": "ListItem",
+                    "position": 1,
+                    "name": "Główna",
+                    "item": "https://czyzlowie.pl/"
+                },{
+                    "@type": "ListItem",
+                    "position": 2,
+                    "name": "Mapa"
+                }]
+            },
+            "mainEntity": {
+                "@type": "Map",
+                "mapType": "EverydayMap",
+                "description": "Mapa punktów wędkarskich, slipów, łowisk oraz stacji IMGW"
+            }
+        }
+    </script>
+
+    <script type="application/ld+json" th:inline="javascript">
+        {
+            "@context": "https://schema.org",
+            "@type": "WebPage",
+            "name": "Mapa Łowisk PZW i Komercyjnych",
+            "description": "Interaktywna mapa wędkarska. Znajdź jeziora, rzeki i starorzecza w Twojej okolicy.",
+            "mainEntity": {
+                "@type": "Map",
+                "mapType": "EverydayMap",
+                "spatialCoverage": {
+                    "@type": "Place",
+                    "name": "Polska"
+                }
+            }
+        }
+    </script>
 
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" defer></script>
@@ -80,6 +127,16 @@
     </aside>
 
     <main class="map-container">
+        <section class="visually-hidden">
+            <h2>Wykaz typów wód na mapie</h2>
+            <ul>
+                <li><strong>Jeziora:</strong> Sprawdź głębokość i rybostan polskich jezior.</li>
+                <li><strong>Rzeki:</strong> Najlepsze miejscówki na rzekach Bug, Wisła, Narew, Odra, Sanok i innych.</li>
+                <li><strong>Starorzecza:</strong> Dzika natura i spokojne łowiska.</li>
+                <li><strong>Łowiska komercyjne:</strong> Komfortowe wędkowanie z pełną infrastrukturą.</li>
+                <li><strong>Slipy:</strong> Gdzie zwodować łódź wędkarską?</li>
+            </ul>
+        </section>
         <div id="map-loader" class="map-loader-overlay">
             <div class="spinner-container">
                 <div class="main-spinner"></div>
