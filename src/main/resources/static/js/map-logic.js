@@ -540,6 +540,9 @@ class MapApplication {
 
         this.toggleLoader(true, `Szukam miejscowości: ${query}`);
 
+        const searchInput = document.getElementById('mapSearch');
+        if (searchInput) searchInput.blur();
+
         try {
             const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&countrycodes=pl`);
             const results = await response.json();
@@ -553,11 +556,17 @@ class MapApplication {
                 ];
 
                 this.map.fitBounds(bounds);
-                document.getElementById('mapSearch').value = '';
+
+                if (searchInput) searchInput.value = '';
+
+                const sidebar = document.getElementById('filterSidebar');
+                if (window.innerWidth <= 991 && sidebar) {
+                    sidebar.classList.remove('active');
+                }
+
                 this.filterListBySearch();
 
             } else {
-                alert("Nie znaleziono takiej miejscowości w Polsce.");
             }
         } catch (error) {
             console.error("Błąd wyszukiwania:", error);
