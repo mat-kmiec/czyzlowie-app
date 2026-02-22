@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pl">
+<head>
+    <th:block th:with="
+        pageSuffix=${fishPage.number > 0 ? ' - strona ' + (fishPage.number + 1) : ''},
+        baseTitle=${categoryName != 'Wszystkie ryby' ? categoryName + ' - Atlas Ryb' : 'Atlas Ryb'}">
+
+        <th:block th:replace="~{fragments/head :: head-content(
+            pageTitle=${baseTitle} + ${pageSuffix} + ' | czyzlowie.pl',
+            pageDescription='Przeglądaj największy atlas ryb w Polsce. Kategoria: ' + ${categoryName} + '. Sprawdź okresy ochronne, rekordy i techniki łowienia.' + ${pageSuffix},
+            currentUrl='https://czyzlowie.pl/ryby' + ${currentUrlPath} + ${fishPage.number > 0 ? '?page=' + fishPage.number : ''}
+        )}"></th:block>
+    </th:block>
+
+    <link rel="stylesheet" th:href="@{/css/atlas.css}">
+    <script src="https://unpkg.com/lucide@latest" defer></script>
+</head>
+<body class="atlas-page">
+
+<nav th:replace="~{fragments/navbar :: navbar}"></nav>
+
+<main class="atlas-main-wrapper pb-5">
+
+    <header class="atlas-hero category-hero">
+        <picture class="hero-bg">
+            <img th:if="${currentCategory == 'PREDATOR'}" src="/assets/drapiezniki.jpg" alt="Dno jeziora i drapieżniki" class="img-fluid" style="filter: blur(4px) brightness(0.7); object-fit: cover; width: 100%; height: 100%;">
+            <img th:if="${currentCategory == 'PEACEFUL'}" src="/assets/bialoryb.jpg" alt="Spokojna woda i białoryb" class="img-fluid" style="filter: blur(4px) brightness(0.7); object-fit: cover; width: 100%; height: 100%;">
+            <img th:if="${currentCategory == 'ALL'}" src="/assets/ryby.jpg" alt="Podwodny świat ryb" class="img-fluid" style="filter: blur(4px) brightness(0.7); object-fit: cover; width: 100%; height: 100%;">
+        </picture>
+        <div class="hero-overlay" style="background: linear-gradient(to bottom, rgba(2,6,23,0.3) 0%, rgba(2,6,23,1) 100%);"></div>
+
+        <div class="container-xl position-relative z-2 h-100 d-flex flex-column justify-content-end pb-4 pt-5 mt-5">
+            <nav aria-label="breadcrumb" class="mb-3">
+                <ol class="breadcrumb custom-breadcrumb">
+                    <li class="breadcrumb-item"><a th:href="@{/}"><i data-lucide="home" class="bc-icon" style="width: 14px; margin-bottom: 2px;"></i> Główna</a></li>
+                    <li class="breadcrumb-item"><a th:href="@{/ryby}">Atlas Ryb</a></li>
+                    <li class="breadcrumb-item active text-white fw-bold" aria-current="page" th:text="${categoryName}">Wszystkie</li>
+                </ol>
+            </nav>
+
+            <div class="d-flex align-items-center gap-3">
+                <div>
+                    <h1 class="display-5 display-md-4 fw-black text-white mb-0 text-glow" th:text="${categoryName}">Atlas Ryb</h1>
+                    <p class="text-muted-pro fs-6 mt-1 mb-0">Poznaj biologię, techniki i sprzęt na polskie ryby.</p>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="container-xl position-relative z-2" style="margin-top: -10px;">
+
+        <div class="atlas-filter-panel p-4 mb-5 position-relative" style="background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 16px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);">
+
+            <div class="position-absolute top-0 start-0 w-100 h-100" style="background: radial-gradient(circle at 20% 0%, rgba(14, 165, 233, 0.05) 0%, transparent 50%); pointer-events: none; border-radius: 16px;"></div>
+
+            <form method="get" th:action="@{/ryby}" class="row g-3 align-items-end position-relative z-1">
+
+                <div class="col-12 col-lg-5">
+                    <label class="form-label fs-8 text-uppercase mb-2 fw-bold" style="color: #94a3b8; letter-spacing: 0.5px;">Szukaj po nazwie</label>
+                    <div class="input-group custom-glass-input">
+                        <span class="input-group-text bg-transparent border-end-0" style="border-color: rgba(255,255,255,0.1); color: #64748b;">
+                            <i data-lucide="search" style="width: 18px;"></i>
+                        </span>
+                        <input type="text" name="name" th:value="${filter.name}" class="form-control bg-transparent text-white border-start-0 ps-0 shadow-none" placeholder="np. Szczupak, Boleń..." style="border-color: rgba(255,255,255,0.1);">
+                    </div>
+                </div>
+
+                <div class="col-12 col-md-7 col-lg-4">
+                    <label class="form-label fs-8 text-uppercase mb-2 fw-bold" style="color: #94a3b8; letter-spacing: 0.5px;">Kategoria ryby</label>
+                    <select name="category" class="form-select custom-glass-input text-white shadow-none" style="background-color: rgba(0,0,0,0.2); border-color: rgba(255,255,255,0.1);">
+                        <option value="" style="background: #0f172a;">Wszystkie gatunki</option>
+                        <option th:each="cat : ${categories}"
+                                th:value="${cat.name()}"
+                                th:text="${cat.displayName}"
+                                th:selected="${filter.category == cat}"
+                                style="background: #0f172a;"></option>
+                    </select>
+                </div>
+
+                <div class="col-12 col-md-5 col-lg-3 d-flex flex-column flex-sm-row gap-2 mt-4 mt-lg-auto">
+                    <a th:href="@{/ryby}" class="btn btn-glass-clear w-100 d-flex align-items-center justify-content-center gap-2" style="background: rgba(255,255,255,0.05); color: #cbd5e1; border: 1px solid rgba(255,255,255,0.1); transition: all 0.2s;">
+                        <i data-lucide="x" style="width: 16px;"></i> Wyczyść
+                    </a>
+                    <button type="submit" class="btn btn-glow-blue w-100 d-flex align-items-center justify-content-center gap-2" style="background: linear-gradient(135deg, #0284c7, #0369a1); color: white; border: none; box-shadow: 0 4px 15px rgba(2, 132, 199, 0.4); transition: all 0.2s;">
+                        Filtruj <i data-lucide="filter" style="width: 16px;"></i>
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <div th:if="${fishPage.empty}" class="spot-glass-panel p-5 text-center mt-4">
+            <div class="mx-auto mb-3" style="width: 60px; height: 60px; background: rgba(255,255,255,0.05); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                <i data-lucide="fish-off" class="text-warning" style="width: 30px; height: 30px;"></i>
+            </div>
+            <h3 class="text-white fw-bold">Brak wyników</h3>
+            <p class="text-white-50">Nie znaleźliśmy ryb spełniających podane kryteria. Spróbuj zmienić filtry.</p>
+        </div>
+
+        <div th:if="${!fishPage.empty}" class="row g-4 mb-5">
+
+            <div class="col-12 col-md-6 col-lg-4" th:each="fish : ${fishPage.content}">
+                <a th:href="@{/ryby/{slug}(slug=${fish.slug})}" class="fish-card text-decoration-none d-block h-100 position-relative" style="background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(255,255,255,0.05); border-radius: 16px; overflow: hidden; transition: transform 0.3s ease, box-shadow 0.3s ease;">
+
+                    <div class="fish-card-img-wrapper" style="height: 200px; overflow: hidden;">
+                        <img th:src="${fish.imgUrl != null ? fish.imgUrl : '/assets/fish/default.jpg'}" th:alt="${fish.name}" class="fish-card-img w-100 h-100 object-fit-cover" style="transition: transform 0.5s ease;">
+
+                        <div class="position-absolute top-0 end-0 m-3 badge"
+                             th:classappend="${fish.category.name() == 'PREDATOR' ? 'bg-danger' : 'bg-success'}"
+                             th:text="${fish.category.displayName}"
+                             style="font-size: 0.7rem; padding: 5px 10px; border-radius: 20px;">
+                        </div>
+                    </div>
+
+                    <div class="fish-card-body p-4">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <div>
+                                <h3 class="fish-card-title text-white mb-0 fw-bold" th:text="${fish.name}">Nazwa</h3>
+                                <span class="fish-card-latin" th:text="${fish.latinName}"
+                                      th:classappend="${fish.category.name() == 'PREDATOR' ? 'text-accent-red' : 'text-accent-green'}"
+                                      style="font-size: 0.85rem; font-style: italic;">Latin name</span>
+                            </div>
+
+                            <div class="fish-icon d-flex align-items-center justify-content-center rounded-circle"
+                                 th:classappend="${fish.category.name() == 'PREDATOR' ? 'bg-danger bg-opacity-10 text-danger' : 'bg-success bg-opacity-10 text-success'}"
+                                 style="flex-shrink: 0; width: 40px; height: 40px;">
+                                <i th:if="${fish.category.name() == 'PREDATOR'}" data-lucide="crosshair" style="width: 20px;"></i>
+                                <i th:if="${fish.category.name() == 'PEACEFUL'}" data-lucide="leaf" style="width: 20px;"></i>
+                            </div>
+                        </div>
+
+                        <div th:if="${fish.category.name() == 'PREDATOR'}" class="fish-card-stats mt-4">
+                            <div class="mini-rpg-stat mb-2 d-flex align-items-center justify-content-between">
+                                <span class="mini-label text-white-50" style="font-size: 0.75rem; width: 30%;">Agresja</span>
+                                <div class="rpg-bar bg-dark rounded-pill" style="width: 65%; height: 6px; overflow: hidden;">
+                                    <div class="rpg-fill bg-danger h-100" style="width: 85%;"></div>
+                                </div>
+                            </div>
+                            <div class="mini-rpg-stat d-flex align-items-center justify-content-between">
+                                <span class="mini-label text-white-50" style="font-size: 0.75rem; width: 30%;">Trudność</span>
+                                <div class="rpg-bar bg-dark rounded-pill" style="width: 65%; height: 6px; overflow: hidden;">
+                                    <div class="rpg-fill bg-info h-100" style="width: 60%;"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div th:if="${fish.category.name() == 'PEACEFUL'}" class="fish-card-stats mt-4">
+                            <div class="mini-rpg-stat mb-2 d-flex align-items-center justify-content-between">
+                                <span class="mini-label text-white-50" style="font-size: 0.75rem; width: 30%;">Ostrożność</span>
+                                <div class="rpg-bar bg-dark rounded-pill" style="width: 65%; height: 6px; overflow: hidden;">
+                                    <div class="rpg-fill bg-warning h-100" style="width: 90%;"></div>
+                                </div>
+                            </div>
+                            <div class="mini-rpg-stat d-flex align-items-center justify-content-between">
+                                <span class="mini-label text-white-50" style="font-size: 0.75rem; width: 30%;">Siła (Hol)</span>
+                                <div class="rpg-bar bg-dark rounded-pill" style="width: 65%; height: 6px; overflow: hidden;">
+                                    <div class="rpg-fill bg-success h-100" style="width: 75%;"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+
+        </div>
+
+        <nav th:if="${fishPage.totalPages > 1}" aria-label="Nawigacja stron" class="mt-5 pb-4"
+             th:with="
+                currentPage=${fishPage.number},
+                totalPages=${fishPage.totalPages},
+                startPage=${T(java.lang.Math).max(0, currentPage - 2)},
+                endPage=${T(java.lang.Math).min(totalPages - 1, currentPage + 2)}
+             ">
+            <ul class="pagination custom-pagination justify-content-center gap-2 flex-wrap">
+
+                <li class="page-item" th:classappend="${fishPage.first} ? 'disabled'">
+                    <a class="page-link rounded-circle bg-dark border-secondary text-white d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;" th:href="@{''(page=${currentPage - 1}, name=${filter.name}, category=${filter.category})}">
+                        <i data-lucide="chevron-left" style="width: 18px;"></i>
+                    </a>
+                </li>
+
+                <li class="page-item" th:if="${startPage > 0}">
+                    <a class="page-link rounded-circle bg-dark border-secondary text-white d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;" th:href="@{''(page=0, name=${filter.name}, category=${filter.category})}">1</a>
+                </li>
+
+                <li class="page-item disabled" th:if="${startPage > 1}">
+                    <span class="page-link border-0 bg-transparent text-white opacity-50">...</span>
+                </li>
+
+                <li class="page-item" th:each="i : ${#numbers.sequence(startPage, endPage)}" th:classappend="${i == currentPage} ? 'active'">
+                    <a class="page-link rounded-circle d-flex align-items-center justify-content-center fw-bold"
+                       th:style="${i == currentPage ? 'background: var(--brand-blue); border-color: var(--brand-blue); color: white; width: 40px; height: 40px;' : 'background: #212529; border-color: #495057; color: white; width: 40px; height: 40px;'}"
+                       th:href="@{''(page=${i}, name=${filter.name}, category=${filter.category})}" th:text="${i + 1}">1</a>
+                </li>
+
+                <li class="page-item disabled" th:if="${endPage < totalPages - 2}">
+                    <span class="page-link border-0 bg-transparent text-white opacity-50">...</span>
+                </li>
+
+                <li class="page-item" th:if="${endPage < totalPages - 1}">
+                    <a class="page-link rounded-circle bg-dark border-secondary text-white d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;" th:href="@{''(page=${totalPages - 1}, name=${filter.name}, category=${filter.category})}" th:text="${totalPages}">1000</a>
+                </li>
+
+                <li class="page-item" th:classappend="${fishPage.last} ? 'disabled'">
+                    <a class="page-link rounded-circle bg-dark border-secondary text-white d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;" th:href="@{''(page=${currentPage + 1}, name=${filter.name}, category=${filter.category})}">
+                        <i data-lucide="chevron-right" style="width: 18px;"></i>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+
+    </div>
+</main>
+
+<footer th:replace="~{fragments/footer :: footer}"></footer>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        lucide.createIcons();
+
+        const cards = document.querySelectorAll('.fish-card');
+        cards.forEach(card => {
+            card.addEventListener('mouseenter', () => {
+                card.style.transform = 'translateY(-5px)';
+                card.style.boxShadow = '0 10px 25px rgba(0,0,0,0.5)';
+                const img = card.querySelector('.fish-card-img');
+                if(img) img.style.transform = 'scale(1.05)';
+            });
+            card.addEventListener('mouseleave', () => {
+                card.style.transform = 'translateY(0)';
+                card.style.boxShadow = 'none';
+                const img = card.querySelector('.fish-card-img');
+                if(img) img.style.transform = 'scale(1)';
+            });
+        });
+    });
+</script>
+</body>
+</html>

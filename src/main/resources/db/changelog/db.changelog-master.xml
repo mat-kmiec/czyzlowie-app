@@ -20,6 +20,8 @@
     <include file="db/changelog/releases/v1-0-0/13-add-sun-columns-to-moon-station-data.xml"/>
     <include file="db/changelog/releases/v1-0-0/14-create-map-spots-schema.xml"/>
     <include file="db/changelog/releases/v1-0-0/15-create-restriction-schema.xml"/>
+    <include file="db/changelog/releases/v1-0-0/17-drop-old-fish-and-solunar-tables.xml"/>
+    <include file="db/changelog/releases/v1-0-0/16-create-fish-schema.xml"/>
 
 
 </databaseChangeLog>
