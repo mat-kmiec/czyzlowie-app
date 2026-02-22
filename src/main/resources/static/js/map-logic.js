@@ -127,6 +127,15 @@ class MapApplication {
             preferCanvas: true
         });
         this.baseLayers[this.currentBaseLayer].addTo(this.map);
+
+        this.map.on('locationfound', (e) => {
+            this.handleLocationFound(e);
+        });
+
+        this.map.on('locationerror', (e) => {
+            console.warn("Błąd lokalizacji:", e.message);
+            alert("Nie udało się pobrać lokalizacji. Upewnij się, że masz włączony GPS i wyraziłeś zgodę w przeglądarce.");
+        });
     }
 
     async fetchLocationsForCurrentBounds() {
