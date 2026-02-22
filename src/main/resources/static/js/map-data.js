@@ -14,8 +14,8 @@ export const CATEGORIES = {
     hydro: { name: 'Stacja Hydro', icon: 'droplets', color: '#06b6d4' },
     oxbow: { name: 'Starorzecze', icon: 'worm', color: '#309129' },
     slip: { name: 'Slip (Wodowanie)', icon: 'anchor', color: '#ff5900' },
-    specific_spot: { name: 'Miejscówka', icon: 'fishing-hook', color: '#10b981' },
-    fishery: { name: 'Łowisko', icon: 'fish', color: '#b568f4' },
+    specific_spot: { name: 'Miejscówka', icon: 'fish', color: '#b568f4' },
+    // fishery: { name: 'Łowisko', icon: 'fish', color: '#b568f4' },
     commercial: { name: 'Łowisko komercyjne', icon: 'coins', color: '#ec4899' },
     restriction: { name: 'Zakazy i ograniczenia', icon: 'shield-off', color: '#ef4444' },
     me: { name: 'Moja lokalizacja', icon: 'circle-user', color: '#22c55e' }

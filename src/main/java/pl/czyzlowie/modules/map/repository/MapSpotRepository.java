@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import pl.czyzlowie.modules.map.entity.MapSpot;
+import pl.czyzlowie.modules.map.entity.SpotType;
 
 import java.util.List;
 import java.util.Optional;
@@ -22,5 +23,5 @@ public interface MapSpotRepository extends JpaRepository<MapSpot, Long> {
             @Param("east") Double east
     );
 
-    Optional<MapSpot> findBySlug(String slug);
+    Optional<MapSpot> findBySlugAndSpotType(String slug, SpotType spotType);
 }

@@ -166,9 +166,12 @@ class MapApplication {
                     if (typeLower === 'hydro') baseUrl = '/hydro';
                     else if (typeLower === 'meteo') baseUrl = '/meteo';
                     else if (typeLower === 'slip') baseUrl = '/slip';
-                    else if (['lake', 'reservoir', 'river', 'commercial', 'oxbow', 'specific_spot'].includes(typeLower)) {
-                        baseUrl = '/lowisko';
-                    }
+                    else if (typeLower === 'lake') baseUrl = '/jezioro';
+                    else if (typeLower === 'river') baseUrl = '/rzeka';
+                    else if (typeLower === 'reservoir') baseUrl = '/zbiornik-zaporowy';
+                    else if (typeLower === 'commercial') baseUrl = '/lowisko-komercyjne';
+                    else if (typeLower === 'oxbow') baseUrl = '/starorzecze';
+                    else if (typeLower === 'specific_spot') baseUrl = '/miejscowka';
 
                     this.locations.push({
                         id: marker.id,

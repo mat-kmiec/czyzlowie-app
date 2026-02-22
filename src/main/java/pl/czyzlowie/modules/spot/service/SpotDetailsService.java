@@ -7,6 +7,7 @@
     import org.springframework.transaction.annotation.Transactional;
     import pl.czyzlowie.modules.map.entity.MapSpot;
     import pl.czyzlowie.modules.map.entity.RestrictionSpot;
+    import pl.czyzlowie.modules.map.entity.SpotType;
     import pl.czyzlowie.modules.map.repository.MapSpotRepository;
     import pl.czyzlowie.modules.spot.dto.SpotDetailsDto;
     import pl.czyzlowie.modules.spot.mapper.SpotDetailsMapper;
@@ -19,17 +20,13 @@
         private final MapSpotRepository mapSpotRepository;
         private final SpotDetailsMapper spotDetailsMapper;
 
+
         @Transactional(readOnly = true)
-        public SpotDetailsDto getSpotDetailsBySlug(String slug) {
-            log.debug("Pobieranie szczegółów dla łowiska o slugu: {}", slug);
+        public SpotDetailsDto getSpotDetailsBySlugAndType(String slug, SpotType type) {
+            log.debug("Szukam w bazie: slug={}, type={}", slug, type);
 
-            MapSpot spotEntity = mapSpotRepository.findBySlug(slug)
-                    .orElseThrow(() -> new EntityNotFoundException("Nie znaleziono łowiska o adresie: " + slug));
-
-            if (spotEntity instanceof RestrictionSpot) {
-                log.warn("Próba dostępu do strony szczegółów dla restrykcji (slug: {})", slug);
-                throw new IllegalArgumentException("Zakazy wędkarskie nie posiadają oddzielnej strony szczegółów.");
-            }
+            MapSpot spotEntity = mapSpotRepository.findBySlugAndSpotType(slug, type)
+                    .orElseThrow(() -> new EntityNotFoundException("Nie znaleziono łowiska"));
 
             return spotDetailsMapper.mapToDto(spotEntity);
         }
