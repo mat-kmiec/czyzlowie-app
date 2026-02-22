@@ -6,6 +6,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import pl.czyzlowie.modules.fish.dto.FishDetailsDto;
 import pl.czyzlowie.modules.fish.dto.FishFilterDto;
 import pl.czyzlowie.modules.fish.dto.FishListElementDto;
 import pl.czyzlowie.modules.fish.entity.FishSpecies;
@@ -27,5 +28,12 @@ public class FishSpeciesService {
 
         return repository.findAll(spec, pageable)
                 .map(mapper::toListDto);
+    }
+
+    @Transactional(readOnly = true)
+    public FishDetailsDto getFishDetailsDto(String slug) {
+        return repository.findBySlug(slug)
+                .map(mapper::toDetailsDto)
+                .orElseThrow(() -> new IllegalArgumentException("Nie znaleziono ryby o podanym adresie: " + slug));
     }
 }

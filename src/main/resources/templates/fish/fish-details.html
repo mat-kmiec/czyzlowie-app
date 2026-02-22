@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pl">
+<head>
+    <th:block th:replace="~{fragments/head :: head-content(
+        pageTitle=${fish.name} + ' (' + (${fish.latinName} ?: 'Ryba') + ') - Kompletny poradnik | Atlas Ryb',
+        pageDescription='Jak łowić ' + ${fish.name} + '? Poznaj optymalne warunki meteo, kalendarz brań, najlepsze przynęty, regulamin PZW i złóż idealny zestaw.',
+        currentUrl='https://czyzlowie.pl/ryby/' + ${fish.slug}
+    )}"></th:block>
+
+    <link rel="stylesheet" th:href="@{/css/main.css}">
+    <link rel="stylesheet" th:href="@{/css/atlas.css}">
+</head>
+<body class="atlas-page">
+
+<nav th:replace="~{fragments/navbar :: navbar}"></nav>
+
+<main class="atlas-main-wrapper">
+
+    <header class="atlas-hero">
+        <picture class="hero-bg">
+            <source media="(max-width: 768px)" th:srcset="${fish.imgUrl != null ? fish.imgUrl : '/assets/fish/default.jpg'}">
+            <img th:src="${fish.imgUrl != null ? fish.imgUrl : '/assets/fish/default.jpg'}" th:alt="${fish.name}" class="img-fluid" style="object-fit: cover; width: 100%; height: 100%;">
+        </picture>
+        <div class="hero-overlay"></div>
+
+        <div class="container-xl position-relative z-2 h-100 d-flex flex-column justify-content-end pb-5">
+            <nav aria-label="breadcrumb" class="mb-4">
+                <ol class="breadcrumb custom-breadcrumb shadow-lg">
+                    <li class="breadcrumb-item"><a th:href="@{/}"><i data-lucide="home" class="bc-icon"></i> Główna</a></li>
+                    <li class="breadcrumb-item"><a th:href="@{/ryby}">Atlas Ryb</a></li>
+                    <li class="breadcrumb-item"><a th:href="@{/ryby/kategoria/{cat}(cat=${fish.category.name() == 'PREDATOR' ? 'drapiezne' : 'bialoryb'})}" th:text="${fish.category.displayName}">Kategoria</a></li>
+                    <li class="breadcrumb-item active text-white fw-bold" aria-current="page" th:text="${fish.name}">Ryba</li>
+                </ol>
+            </nav>
+
+            <div class="hero-titles d-flex justify-content-between align-items-end flex-wrap gap-4">
+                <div class="hero-text-content">
+                    <div class="badge-category mb-2" th:classappend="${fish.category.name() == 'PREDATOR' ? 'bg-danger text-white' : 'bg-success text-white'}">
+                        <i th:if="${fish.category.name() == 'PREDATOR'}" data-lucide="crosshair"></i>
+                        <i th:if="${fish.category.name() == 'PEACEFUL'}" data-lucide="leaf"></i>
+                        <span th:text="${fish.category.displayName}">Kategoria</span>
+                    </div>
+                    <h1 class="display-3 fw-black text-white mb-0 text-glow" th:text="${fish.name}">Ryba</h1>
+                    <h2 class="fst-italic text-accent-blue fs-4 mt-1" th:text="(${fish.latinName} ?: 'Brak nazwy łac.') + (${fish.englishName != null ? ' | ' + fish.englishName : ''})">Brak danych</h2>
+                </div>
+
+                <div class="fish-rpg-stats d-none d-md-flex gap-4" th:if="${fish.algorithmParams != null}">
+                    <div class="rpg-stat">
+                        <span class="rpg-label">Zależność: Temperatura <i data-lucide="thermometer" class="ms-1 text-warning" style="width: 12px;"></i></span>
+                        <div class="rpg-bar"><div class="rpg-fill bg-warning glow-warning" th:style="'width: ' + (${fish.algorithmParams.weightWaterTemp} ?: 0) + '%;'"></div></div>
+                    </div>
+                    <div class="rpg-stat">
+                        <span class="rpg-label">Zależność: Ciśnienie <i data-lucide="gauge" class="ms-1 text-info" style="width: 12px;"></i></span>
+                        <div class="rpg-bar"><div class="rpg-fill bg-info glow-info" th:style="'width: ' + (${fish.algorithmParams.weightPressure} ?: 0) + '%;'"></div></div>
+                    </div>
+                    <div class="rpg-stat">
+                        <span class="rpg-label">Zależność: Wiatr/Fala <i data-lucide="wind" class="ms-1 text-primary" style="width: 12px;"></i></span>
+                        <div class="rpg-bar"><div class="rpg-fill bg-primary glow-info" th:style="'width: ' + (${fish.algorithmParams.weightWind} ?: 0) + '%;'"></div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="container-xl py-5">
+        <div class="row g-5">
+
+            <article class="col-lg-8">
+
+                <nav class="toc-panel glass-panel mb-5 p-4">
+                    <h4 class="fs-6 text-uppercase fw-bold text-muted mb-3 d-flex align-items-center"><i data-lucide="list" class="me-2 text-accent-blue" style="width:20px;"></i> Szybka nawigacja</h4>
+                    <ul class="toc-list">
+                        <li><a href="#biologia">Biologia i opis gatunku</a></li>
+                        <li><a href="#warunki">Optymalne warunki meteo</a></li>
+                        <li><a href="#kalendarz">Roczny kalendarz żerowania</a></li>
+                        <li><a href="#miejscowki">Gdzie szukać?</a></li>
+                        <li><a href="#przynety">Przynęty i kolory</a></li>
+                        <li><a href="#sprzet">Konfiguracja sprzętu</a></li>
+                    </ul>
+                </nav>
+
+                <section id="biologia" class="content-section glass-panel mb-5">
+                    <div class="section-header">
+                        <div class="icon-wrapper bg-purple"><i data-lucide="dna"></i></div>
+                        <h3 th:text="'Poznaj: ' + ${fish.name}">Biologia</h3>
+                    </div>
+                    <div class="section-body text-muted-pro">
+                        <p th:text="${fish.description} ?: 'Brak oficjalnego opisu dla tego gatunku ryby.'"></p>
+
+                        <div class="callout-box bg-dark-glass border-accent-purple p-4 rounded-4 mt-3">
+                            <h5 class="text-accent-purple fw-bold mb-2">Czas i biologia tarła</h5>
+                            <p class="mb-0 fs-7" th:text="${fish.pzwRegulations != null && fish.pzwRegulations.spawningSeason != null ? fish.pzwRegulations.spawningSeason : 'Brak danych o okresie i biologii tarła.'}"></p>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="warunki" class="content-section glass-panel mb-5 highlight-panel">
+                    <div class="section-header border-0 mb-0 pb-0">
+                        <div class="icon-wrapper bg-orange"><i data-lucide="bar-chart-2"></i></div>
+                        <div>
+                            <h3 class="mb-1">Idealne warunki do brań</h3>
+                            <p class="text-muted-pro fs-7 mb-0">Parametry wyzwalające żerowanie w algorytmie</p>
+                        </div>
+                    </div>
+
+                    <div class="row g-4 mt-3">
+                        <div class="col-6 col-md-3">
+                            <div class="data-block">
+                                <i data-lucide="thermometer-sun" class="data-icon text-warning"></i>
+                                <span class="data-val" th:text="${fish.algorithmParams != null && fish.algorithmParams.tempOptimalMin != null ? fish.algorithmParams.tempOptimalMin + ' - ' + fish.algorithmParams.tempOptimalMax + '°C' : 'Brak danych'}"></span>
+                                <span class="data-lbl">Optymalna Temp.</span>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <div class="data-block">
+                                <i data-lucide="gauge" class="data-icon text-info"></i>
+                                <span class="data-val" th:text="${fish.algorithmParams != null && fish.algorithmParams.preferredPressureTrend != null ? fish.algorithmParams.preferredPressureTrend.displayName : 'Brak danych'}"></span>
+                                <span class="data-lbl">Trend Ciśnienia</span>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <div class="data-block">
+                                <i data-lucide="sun" class="data-icon text-primary"></i>
+                                <span class="data-val" th:text="${fish.algorithmParams != null && fish.algorithmParams.preferredTimeOfDay != null ? fish.algorithmParams.preferredTimeOfDay.name() : 'Brak danych'}"></span>
+                                <span class="data-lbl">Pora dnia</span>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <div class="data-block">
+                                <i data-lucide="moon" class="data-icon text-purple"></i>
+                                <span class="data-val" th:text="${fish.algorithmParams != null && fish.algorithmParams.preferredMoonPhase != null ? fish.algorithmParams.preferredMoonPhase.name() : 'Brak danych'}"></span>
+                                <span class="data-lbl">Faza księżyca</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row mt-3 px-3">
+                        <p class="text-white-50 fs-8 mb-0" th:if="${fish.algorithmParams != null}">
+                            <strong>Próg tolerancji:</strong>
+                            Przestaje żerować przy temp. poniżej <span th:text="${fish.algorithmParams.tempMinActive} ?: '?'"></span>°C oraz powyżej <span th:text="${fish.algorithmParams.tempMaxActive} ?: '?'"></span>°C.
+                            <span th:if="${fish.algorithmParams.windGustMax != null}">Porywy wiatru pow. <span th:text="${fish.algorithmParams.windGustMax}"></span> km/h zatrzymują aktywność.</span>
+                        </p>
+                        <p class="text-white-50 fs-8 mb-0" th:if="${fish.algorithmParams == null}">
+                            Zbyt mało danych telemetrycznych, aby wyznaczyć precyzyjne progi tolerancji na załamania pogody.
+                        </p>
+                    </div>
+                </section>
+
+                <section id="kalendarz" class="content-section glass-panel mb-5">
+                    <div class="section-header">
+                        <div class="icon-wrapper bg-green"><i data-lucide="calendar-days"></i></div>
+                        <h3>Roczny kalendarz aktywności</h3>
+                    </div>
+                    <div class="activity-calendar" th:if="${fish.activityCalendar != null}">
+                        <div class="month-block" th:classappend="'level-' + (${fish.activityCalendar.janActivity.algorithmWeight + 1})" th:title="${fish.activityCalendar.janActivity.displayName}"><span>Sty</span></div>
+                        <div class="month-block" th:classappend="'level-' + (${fish.activityCalendar.febActivity.algorithmWeight + 1})" th:title="${fish.activityCalendar.febActivity.displayName}"><span>Lut</span></div>
+                        <div class="month-block" th:classappend="'level-' + (${fish.activityCalendar.marActivity.algorithmWeight + 1})" th:title="${fish.activityCalendar.marActivity.displayName}"><span>Mar</span></div>
+                        <div class="month-block" th:classappend="'level-' + (${fish.activityCalendar.aprActivity.algorithmWeight + 1})" th:title="${fish.activityCalendar.aprActivity.displayName}"><span>Kwi</span></div>
+                        <div class="month-block" th:classappend="'level-' + (${fish.activityCalendar.mayActivity.algorithmWeight + 1})" th:title="${fish.activityCalendar.mayActivity.displayName}"><span>Maj</span></div>
+                        <div class="month-block" th:classappend="'level-' + (${fish.activityCalendar.junActivity.algorithmWeight + 1})" th:title="${fish.activityCalendar.junActivity.displayName}"><span>Cze</span></div>
+                        <div class="month-block" th:classappend="'level-' + (${fish.activityCalendar.julActivity.algorithmWeight + 1})" th:title="${fish.activityCalendar.julActivity.displayName}"><span>Lip</span></div>
+                        <div class="month-block" th:classappend="'level-' + (${fish.activityCalendar.augActivity.algorithmWeight + 1})" th:title="${fish.activityCalendar.augActivity.displayName}"><span>Sie</span></div>
+                        <div class="month-block" th:classappend="'level-' + (${fish.activityCalendar.sepActivity.algorithmWeight + 1})" th:title="${fish.activityCalendar.sepActivity.displayName}"><span>Wrz</span></div>
+                        <div class="month-block" th:classappend="'level-' + (${fish.activityCalendar.octActivity.algorithmWeight + 1})" th:title="${fish.activityCalendar.octActivity.displayName}"><span>Paź</span></div>
+                        <div class="month-block" th:classappend="'level-' + (${fish.activityCalendar.novActivity.algorithmWeight + 1})" th:title="${fish.activityCalendar.novActivity.displayName}"><span>Lis</span></div>
+                        <div class="month-block" th:classappend="'level-' + (${fish.activityCalendar.decActivity.algorithmWeight + 1})" th:title="${fish.activityCalendar.decActivity.displayName}"><span>Gru</span></div>
+                    </div>
+
+                    <div th:if="${fish.activityCalendar == null}" class="p-3 bg-dark-glass border border-secondary border-opacity-25 rounded-3 text-center text-white-50">
+                        Brak wygenerowanego kalendarza brań dla tego gatunku.
+                    </div>
+
+                    <div class="calendar-legend mt-3">
+                        <span class="legend-item"><span class="color-dot level-1"></span> Tarło/Ochrona (Brak)</span>
+                        <span class="legend-item"><span class="color-dot level-2"></span> Słabo</span>
+                        <span class="legend-item"><span class="color-dot level-3"></span> Średnio</span>
+                        <span class="legend-item"><span class="color-dot level-4"></span> Dobrze</span>
+                        <span class="legend-item"><span class="color-dot level-5"></span> Eldorado</span>
+                    </div>
+                </section>
+
+                <section id="miejscowki" class="content-section glass-panel mb-5">
+                    <div class="section-header">
+                        <div class="icon-wrapper bg-blue"><i data-lucide="map-pin"></i></div>
+                        <h3>Czytanie wody: Gdzie szukać?</h3>
+                    </div>
+                    <div class="section-body text-muted-pro">
+                        <p th:text="${fish.habitat != null && fish.habitat.habitatGeneral != null ? fish.habitat.habitatGeneral : 'Brak danych o ogólnym środowisku bytowania.'}"></p>
+
+                        <div class="d-flex flex-wrap gap-2 my-3" th:if="${fish.habitat != null}">
+                            <span class="badge bg-dark border border-secondary text-white p-2">Głębokość: <span class="text-info" th:text="${fish.habitat.preferredDepthMin != null ? fish.habitat.preferredDepthMin + 'm - ' + fish.habitat.preferredDepthMax + 'm' : 'Brak danych'}"></span></span>
+                            <span class="badge bg-dark border border-secondary text-white p-2">Dno: <span class="text-warning" th:text="${fish.habitat.bottomType ?: 'Brak danych'}"></span></span>
+                            <span class="badge bg-dark border border-secondary text-white p-2">Strefa: <span class="text-success" th:text="${fish.habitat.feedingLayer ?: 'Brak danych'}"></span></span>
+                        </div>
+
+                        <div class="row g-4 mt-2">
+                            <div class="col-md-6">
+                                <div class="tip-card border-accent-blue h-100">
+                                    <h5 class="text-accent-blue"><i data-lucide="waves" class="me-2"></i> Wody stojące (Jeziora)</h5>
+                                    <p th:text="${fish.habitat != null && fish.habitat.habitatLakes != null ? fish.habitat.habitatLakes : 'Brak szczegółowych danych o łowieniu w jeziorach.'}"></p>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="tip-card border-accent-green h-100">
+                                    <h5 class="text-accent-green"><i data-lucide="navigation" class="me-2"></i> Wody płynące (Rzeki)</h5>
+                                    <p th:text="${fish.habitat != null && fish.habitat.habitatRivers != null ? fish.habitat.habitatRivers : 'Brak szczegółowych danych o łowieniu w rzekach.'}"></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="przynety" class="content-section glass-panel mb-5">
+                    <div class="section-header">
+                        <div class="icon-wrapper bg-red"><i data-lucide="hook"></i></div>
+                        <h3>Zabójcze przynęty</h3>
+                    </div>
+                    <div class="section-body text-muted-pro">
+                        <p th:text="${fish.tackleSetup != null && fish.tackleSetup.killerBaits != null ? fish.tackleSetup.killerBaits : 'Brak zweryfikowanych przynęt dla tego gatunku.'}"></p>
+
+                        <div class="custom-alert mt-4" style="background: rgba(56, 189, 248, 0.05); border: 1px dashed rgba(56, 189, 248, 0.4);">
+                            <i data-lucide="palette" class="alert-icon text-accent-blue"></i>
+                            <div>
+                                <h6 class="text-white fw-bold mb-1">Zasady doboru przynęt i kolorów</h6>
+                                <p class="mb-0 fs-7" th:text="${fish.tackleSetup != null && fish.tackleSetup.baitSelectionRules != null ? fish.tackleSetup.baitSelectionRules : 'Eksperymentuj na łowisku – brak wprowadzonych reguł doboru barw.'}"></p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="sprzet" class="content-section glass-panel mb-5">
+                    <div class="section-header">
+                        <div class="icon-wrapper bg-orange"><i data-lucide="wrench"></i></div>
+                        <h3>Optymalny Setup Sprzętowy</h3>
+                    </div>
+                    <div class="setup-grid">
+                        <div class="setup-item">
+                            <i data-lucide="navigation" class="setup-icon text-accent-blue"></i>
+                            <div class="setup-content">
+                                <h6>Wędzisko (Kij)</h6>
+                                <p th:text="${fish.tackleSetup != null && fish.tackleSetup.setupRod != null ? fish.tackleSetup.setupRod : 'Brak zaleceń co do długości i c.w.'}"></p>
+                            </div>
+                        </div>
+                        <div class="setup-item">
+                            <i data-lucide="aperture" class="setup-icon text-accent-purple"></i>
+                            <div class="setup-content">
+                                <h6>Kołowrotek</h6>
+                                <p th:text="${fish.tackleSetup != null && fish.tackleSetup.setupReel != null ? fish.tackleSetup.setupReel : 'Brak zaleceń wielkościowych.'}"></p>
+                            </div>
+                        </div>
+                        <div class="setup-item">
+                            <i data-lucide="git-commit" class="setup-icon text-accent-green"></i>
+                            <div class="setup-content">
+                                <h6>Linka główna</h6>
+                                <p th:text="${fish.tackleSetup != null && fish.tackleSetup.setupMainLine != null ? fish.tackleSetup.setupMainLine : 'Brak zaleceń dot. żyłki/plecionki.'}"></p>
+                            </div>
+                        </div>
+
+                        <div class="setup-item position-relative overflow-hidden" th:classappend="${fish.category.name() == 'PREDATOR' ? 'border-danger border border-2 bg-danger bg-opacity-10' : ''}">
+                            <div class="absolute-glow bg-danger" th:if="${fish.category.name() == 'PREDATOR'}"></div>
+                            <i data-lucide="shield-alert" class="setup-icon position-relative z-1" th:classappend="${fish.category.name() == 'PREDATOR' ? 'text-danger' : 'text-accent-orange'}"></i>
+                            <div class="setup-content position-relative z-1">
+                                <h6 th:classappend="${fish.category.name() == 'PREDATOR' ? 'text-danger fw-black' : ''}">Przypon</h6>
+                                <p th:text="${fish.tackleSetup != null && fish.tackleSetup.setupLeader != null ? fish.tackleSetup.setupLeader : 'Stosuj się do lokalnych wymagań.'}"></p>
+                            </div>
+                        </div>
+
+                        <div class="setup-item">
+                            <i data-lucide="anchor" class="setup-icon text-white"></i>
+                            <div class="setup-content">
+                                <h6>Haki / Kotwice</h6>
+                                <p th:text="${fish.tackleSetup != null && fish.tackleSetup.setupHook != null ? fish.tackleSetup.setupHook : 'Brak wytycznych dla haczyków.'}"></p>
+                            </div>
+                        </div>
+                        <div class="setup-item">
+                            <i data-lucide="paperclip" class="setup-icon text-secondary"></i>
+                            <div class="setup-content">
+                                <h6>Zestaw końcowy</h6>
+                                <p th:text="${fish.tackleSetup != null && fish.tackleSetup.setupTerminalTackle != null ? fish.tackleSetup.setupTerminalTackle : 'Brak uwag co do budowy zestawu.'}"></p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="spolecznosc" class="community-feedback-panel mt-5 mb-5 p-4 rounded-4">
+                    <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-4">
+                        <div class="d-flex align-items-start gap-3">
+                            <div class="icon-pulse bg-accent-blue"><i data-lucide="message-square-plus" class="text-white"></i></div>
+                            <div>
+                                <h5 class="text-white fw-bold mb-1">Masz sprawdzony tip na tę rybę?</h5>
+                                <p class="text-muted-pro fs-7 mb-0">Atlas CzyZlowie tworzymy razem z Wami. Zauważyłeś brak danych lub znasz nową, skuteczną metodę? Podziel się wiedzą!</p>
+                            </div>
+                        </div>
+                        <a th:href="@{/kontakt}" class="btn btn-outline-info text-nowrap rounded-pill px-4 py-2 border-2 fw-bold">
+                            Zgłoś uwagę <i data-lucide="arrow-right" class="ms-1" style="width: 16px;"></i>
+                        </a>
+                    </div>
+                </section>
+
+            </article>
+
+            <aside class="col-lg-4">
+                <div class="sticky-sidebar">
+
+                    <div class="glass-panel text-center mb-4 cta-panel border-accent-blue position-relative overflow-hidden" style="border-width: 2px;">
+                        <div class="cta-glow bg-accent-blue"></div>
+                        <i data-lucide="radar" class="text-accent-blue mb-3 position-relative z-1" style="width: 46px; height: 46px; animation: pulse 2s infinite;"></i>
+                        <h4 class="text-white fw-black mb-2 position-relative z-1" th:text="'Szanse na ' + ${fish.name} + '?'">Będzie brał?</h4>
+                        <p class="text-muted-pro fs-7 mb-4 position-relative z-1">Wprowadź swoje łowisko i sprawdź prognozę aktywności w oparciu o dokładny skok ciśnienia i fazę księżyca.</p>
+                        <a th:href="@{/prognoza}" class="btn btn-nav-primary-custom w-100 py-3 fs-6 position-relative z-1">Sprawdź algorytm LIVE</a>
+                    </div>
+
+                    <div class="glass-panel stats-card mb-4">
+                        <h4 class="sidebar-title"><i data-lucide="scale" class="me-2 text-primary"></i> Regulamin PZW</h4>
+
+                        <div class="stat-row">
+                            <div class="stat-icon bg-icon-red"><i data-lucide="ruler"></i></div>
+                            <div class="stat-info">
+                                <span class="stat-label">Wymiar ochronny</span>
+                                <span class="stat-value text-danger" th:text="${fish.pzwRegulations != null && fish.pzwRegulations.minDimension != null ? 'od ' + fish.pzwRegulations.minDimension + ' cm' + (fish.pzwRegulations.maxDimension != null ? ' do ' + fish.pzwRegulations.maxDimension + ' cm' : '') : 'Brak wymiaru'}"></span>
+                            </div>
+                        </div>
+
+                        <div class="stat-row">
+                            <div class="stat-icon bg-icon-orange"><i data-lucide="calendar-x"></i></div>
+                            <div class="stat-info">
+                                <span class="stat-label">Okres ochronny</span>
+                                <span class="stat-value text-warning" th:text="${fish.pzwRegulations != null && fish.pzwRegulations.protectionPeriod != null ? fish.pzwRegulations.protectionPeriod : 'Brak okresu'}"></span>
+                            </div>
+                        </div>
+
+                        <div class="stat-row">
+                            <div class="stat-icon bg-icon-purple"><i data-lucide="fish"></i></div>
+                            <div class="stat-info">
+                                <span class="stat-label">Limit dobowy (szt.)</span>
+                                <span class="stat-value" th:text="${fish.pzwRegulations != null && fish.pzwRegulations.dailyLimitPieces != null ? fish.pzwRegulations.dailyLimitPieces + ' szt.' : 'Brak limitu szt.'}"></span>
+                            </div>
+                        </div>
+
+                        <div class="stat-row">
+                            <div class="stat-icon bg-icon-purple"><i data-lucide="weight"></i></div>
+                            <div class="stat-info">
+                                <span class="stat-label">Limit dobowy (kg)</span>
+                                <span class="stat-value" th:text="${fish.pzwRegulations != null && fish.pzwRegulations.dailyLimitWeight != null ? fish.pzwRegulations.dailyLimitWeight + ' kg' : 'Brak limitu kg'}"></span>
+                            </div>
+                        </div>
+
+                        <div class="alert mt-4 mb-0 d-flex gap-3 align-items-start" style="background: rgba(56, 189, 248, 0.1); border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 12px; padding: 15px;">
+                            <i data-lucide="info" class="text-accent-blue mt-1" style="width: 20px; flex-shrink:0;"></i>
+                            <div class="text-white fs-7 mb-0 lh-base">
+                                <strong class="d-block mb-1">Dodatkowe zasady:</strong>
+                                <span th:if="${fish.pzwRegulations != null && fish.pzwRegulations.dimensionExceptions != null}" th:text="${fish.pzwRegulations.dimensionExceptions}" class="d-block mb-1"></span>
+                                <span th:if="${fish.pzwRegulations != null && fish.pzwRegulations.additionalRules != null}" th:text="${fish.pzwRegulations.additionalRules}" class="d-block"></span>
+                                <span th:if="${fish.pzwRegulations == null || (fish.pzwRegulations.dimensionExceptions == null && fish.pzwRegulations.additionalRules == null)}" class="d-block text-white-50">Brak uwag w bazie. Sprawdź regulamin łowiska!</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="glass-panel record-card border-accent-orange">
+                        <div class="record-badge"><i data-lucide="award"></i> Oficjalny Rekord Polski</div>
+                        <div class="record-data mt-3" th:if="${fish.polishRecord != null && fish.polishRecord.recordWeight != null}">
+                            <div class="d-flex align-items-end gap-2">
+                                <span class="display-4 fw-black text-white lh-1" th:text="${fish.polishRecord.recordWeight}"></span>
+                                <span class="fs-5 text-accent-orange fw-bold pb-1">kg</span>
+                            </div>
+                            <div class="text-white-50 mt-2 fs-7 lh-lg">
+                                Okaz złowiony w <strong th:text="${fish.polishRecord.recordYear} ?: 'nieznanym roku'"></strong>,
+                                <th:block th:if="${fish.polishRecord.recordLength != null}">mierzący równe <strong th:text="${fish.polishRecord.recordLength} + ' cm'"></strong> długości.</th:block>
+                            </div>
+                        </div>
+                        <div class="record-data mt-3 text-center text-white-50 p-3 bg-dark rounded-3" th:if="${fish.polishRecord == null || fish.polishRecord.recordWeight == null}">
+                            Niestety, nie posiadamy oficjalnych danych o wadze rekordu dla tego gatunku.
+                        </div>
+                    </div>
+
+                </div>
+            </aside>
+
+        </div>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/footer :: footer}"></footer>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        lucide.createIcons();
+
+        document.querySelectorAll('.toc-list a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    const headerOffset = 90;
+                    const elementPosition = target.getBoundingClientRect().top;
+                    const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+                    window.scrollTo({
+                        top: offsetPosition,
+                        behavior: "smooth"
+                    });
+                }
+            });
+        });
+    });
+</script>
+</body>
+</html>

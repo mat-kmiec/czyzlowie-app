@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import pl.czyzlowie.modules.fish.dto.FishDetailsDto;
 import pl.czyzlowie.modules.fish.dto.FishFilterDto;
 import pl.czyzlowie.modules.fish.dto.FishListElementDto;
 import pl.czyzlowie.modules.fish.entity.enums.FishCategory;
@@ -51,5 +52,14 @@ public class FishAtlasController {
         model.addAttribute("currentUrlPath", currentUrlPath);
 
         return "fish/fish-list";
+    }
+
+    @GetMapping("/{slug}")
+    public String fishDetails(@PathVariable String slug, Model model) {
+        FishDetailsDto fishDto = fishSpeciesService.getFishDetailsDto(slug);
+
+        model.addAttribute("fish", fishDto);
+
+        return "fish/fish-details";
     }
 }

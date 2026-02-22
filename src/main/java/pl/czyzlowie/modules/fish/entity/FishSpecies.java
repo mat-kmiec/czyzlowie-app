@@ -56,6 +56,9 @@ public class FishSpecies {
     private PolishRecord polishRecord;
 
     @Embedded
+    private PzwRegulations pzwRegulations;
+
+    @Embedded
     private ActivityCalendar activityCalendar;
 
     @JdbcTypeCode(SqlTypes.JSON)
