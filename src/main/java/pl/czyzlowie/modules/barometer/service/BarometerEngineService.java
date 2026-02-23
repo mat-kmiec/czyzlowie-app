@@ -30,7 +30,7 @@ public class BarometerEngineService {
 
     private final BarometerDataProvider imgwProvider;
     private final StationBarometerStatsRepository statsRepository;
-    private final WeatherForecastRepository forecastRepository; // DODANO
+    private final WeatherForecastRepository forecastRepository;
 
     @Transactional
     public void calculateAndSaveStats(String stationId, StationType type) {

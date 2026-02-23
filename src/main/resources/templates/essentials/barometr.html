@@ -244,7 +244,7 @@
         const form = document.getElementById('geocoding-form');
         if (form) {
             form.addEventListener('submit', async function(e) {
-                e.preventDefault();
+                e.preventDefault(); // Zatrzymuje standardowe przeładowanie
 
                 const inputVal = document.getElementById('city-input').value;
                 const btnText = document.getElementById('btn-text');
@@ -263,7 +263,7 @@
                         const lon = data[0].lon;
 
                         const rawName = data[0].name || inputVal;
-                        const cleanName = rawName.split(',')[0].trim();
+                        const cleanName = rawName.split(',')[0].trim(); // Upiększamy nazwę
 
                         window.location.href = `/barometr?lat=${lat}&lon=${lon}&name=${encodeURIComponent(cleanName)}`;
                     } else {
