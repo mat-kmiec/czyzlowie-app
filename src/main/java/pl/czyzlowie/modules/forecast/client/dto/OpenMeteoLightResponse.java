@@ -51,7 +51,7 @@ public class OpenMeteoLightResponse {
         @JsonProperty("temperature_2m")
         private Double temperature;
 
-        @JsonProperty("surface_pressure")
+        @JsonProperty("pressure_msl")
         private Double pressure;
 
         @JsonProperty("wind_speed_10m")
