@@ -15,10 +15,13 @@ public class BarometerWebController {
 
     @GetMapping("/barometr")
     public String showBarometerPage(
-            @RequestParam(name = "miasto", required = false) String miasto,
+            @RequestParam(required = false) Double lat,
+            @RequestParam(required = false) Double lon,
+            @RequestParam(required = false) String name,
             Model model) {
 
-        model.addAttribute("barometer", viewService.getBarometerDataForView(miasto));
+        model.addAttribute("barometer", viewService.getBarometerDataForView(lat, lon, name));
+
         return "essentials/barometr";
     }
 }

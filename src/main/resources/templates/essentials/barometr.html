@@ -9,9 +9,6 @@
     <link rel="stylesheet" th:href="@{/css/essentials/barometr.css}">
     <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
 
-    <style>
-
-    </style>
 </head>
 <body class="barometer-page">
 
@@ -52,12 +49,13 @@
                 </div>
 
                 <div class="col-lg-5 text-lg-end">
-                    <form action="/barometr" method="get" class="baro-search-form">
+                    <form id="geocoding-form" class="baro-search-form">
                         <div class="baro-search-input-group">
                             <i data-lucide="map-pin" class="search-icon"></i>
-                            <input type="text" name="miasto" class="search-input" placeholder="Wpisz miasto lub łowisko..." th:value="${barometer.locationName}" required>
-                            <button type="submit" class="baro-search-btn" aria-label="Szukaj">
-                                Szukaj <i data-lucide="chevron-right" style="width: 18px;"></i>
+                            <input type="text" id="city-input" class="search-input" placeholder="Wpisz miasto lub łowisko..." th:value="${barometer.locationName}" required>
+                            <button type="submit" class="baro-search-btn" id="search-btn" aria-label="Szukaj">
+                                <span id="btn-text">Szukaj</span>
+                                <i data-lucide="chevron-right" id="btn-icon" style="width: 18px;"></i>
                             </button>
                         </div>
                     </form>
@@ -243,6 +241,54 @@
     document.addEventListener('DOMContentLoaded', () => {
         lucide.createIcons();
 
+        // --- SKRYPT GEOKODOWANIA (NOWOŚĆ) ---
+        const form = document.getElementById('geocoding-form');
+        if (form) {
+            form.addEventListener('submit', async function(e) {
+                e.preventDefault();
+
+                const inputVal = document.getElementById('city-input').value;
+                const btnText = document.getElementById('btn-text');
+                const btnIcon = document.getElementById('btn-icon');
+
+                // Stan ładowania
+                const originalText = btnText.textContent;
+                btnText.textContent = 'Szukam...';
+                if(btnIcon) btnIcon.style.opacity = '0.5';
+
+                try {
+                    // Pytamy OpenStreetMap
+                    const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(inputVal)}&countrycodes=pl&limit=1`);
+                    const data = await response.json();
+
+                    if (data && data.length > 0) {
+                        const lat = data[0].lat;
+                        const lon = data[0].lon;
+
+                        // Upiększanie nazwy ("Zalew Zegrzyński, gmina Serock..." -> "Zalew Zegrzyński")
+                        const rawName = data[0].name || inputVal;
+                        const cleanName = rawName.split(',')[0].trim();
+
+                        // Przekierowanie do backendu
+                        window.location.href = `/barometr?lat=${lat}&lon=${lon}&name=${encodeURIComponent(cleanName)}`;
+                    } else {
+                        alert("Nie znaleziono takiej lokalizacji. Spróbuj wpisać inną nazwę (np. najbliższe duże miasto).");
+                        resetBtn();
+                    }
+                } catch (error) {
+                    console.error("Błąd podczas wyszukiwania:", error);
+                    alert("Wystąpił problem z połączeniem. Spróbuj ponownie za chwilę.");
+                    resetBtn();
+                }
+
+                function resetBtn() {
+                    btnText.textContent = originalText;
+                    if(btnIcon) btnIcon.style.opacity = '1';
+                }
+            });
+        }
+
+        // --- SKRYPT WYKRESÓW (BEZ ZMIAN) ---
         Chart.defaults.color = '#64748b';
         Chart.defaults.font.family = "'Inter', sans-serif";
 
