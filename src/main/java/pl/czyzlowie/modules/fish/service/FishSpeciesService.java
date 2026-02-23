@@ -1,11 +1,14 @@
 package pl.czyzlowie.modules.fish.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 import pl.czyzlowie.modules.fish.dto.FishDetailsDto;
 import pl.czyzlowie.modules.fish.dto.FishFilterDto;
 import pl.czyzlowie.modules.fish.dto.FishListElementDto;
@@ -30,10 +33,11 @@ public class FishSpeciesService {
                 .map(mapper::toListDto);
     }
 
+    @Cacheable(value = "fishDetails", key = "#slug")
     @Transactional(readOnly = true)
     public FishDetailsDto getFishDetailsDto(String slug) {
         return repository.findBySlug(slug)
                 .map(mapper::toDetailsDto)
-                .orElseThrow(() -> new IllegalArgumentException("Nie znaleziono ryby o podanym adresie: " + slug));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Nie znaleziono ryby:" + slug));
     }
 }

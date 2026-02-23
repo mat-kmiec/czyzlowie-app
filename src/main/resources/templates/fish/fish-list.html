@@ -12,6 +12,50 @@
         )}"></th:block>
     </th:block>
 
+    <script type="application/ld+json" th:inline="javascript">
+        {
+            "@context": "https://schema.org",
+            "@graph": [
+                {
+                    "@type": "BreadcrumbList",
+                    "itemListElement": [
+                        {
+                            "@type": "ListItem",
+                            "position": 1,
+                            "name": "Główna",
+                            "item": "https://czyzlowie.pl/"
+                        },
+                        {
+                            "@type": "ListItem",
+                            "position": 2,
+                            "name": "Atlas Ryb",
+                            "item": "https://czyzlowie.pl/ryby"
+                        },
+                        {
+                            "@type": "ListItem",
+                            "position": 3,
+                            "name": [[${categoryName}]],
+                            "item": [[${'https://czyzlowie.pl/ryby' + currentUrlPath}]]
+                        }
+                    ]
+                },
+                {
+                    "@type": "ItemList",
+                    "itemListElement": [
+                        /*[# th:each="fish, iterStat : ${fishPage.content}"]*/
+                        {
+                            "@type": "ListItem",
+                            "position": [[${iterStat.count}]],
+                            "url": [[${'https://czyzlowie.pl/ryby/' + fish.slug}]],
+                            "name": [[${fish.name}]]
+                        }/*[# th:if="${!iterStat.last}"]*/, /*[/]*/
+                        /*[/]*/
+                    ]
+                }
+            ]
+        }
+    </script>
+
     <link rel="stylesheet" th:href="@{/css/atlas.css}">
     <script src="https://unpkg.com/lucide@latest" defer></script>
 </head>
@@ -23,9 +67,9 @@
 
     <header class="atlas-hero category-hero">
         <picture class="hero-bg">
-            <img th:if="${currentCategory == 'PREDATOR'}" src="/assets/drapiezniki.jpg" alt="Dno jeziora i drapieżniki" class="img-fluid" style="filter: blur(4px) brightness(0.7); object-fit: cover; width: 100%; height: 100%;">
-            <img th:if="${currentCategory == 'PEACEFUL'}" src="/assets/bialoryb.jpg" alt="Spokojna woda i białoryb" class="img-fluid" style="filter: blur(4px) brightness(0.7); object-fit: cover; width: 100%; height: 100%;">
-            <img th:if="${currentCategory == 'ALL'}" src="/assets/ryby.jpg" alt="Podwodny świat ryb" class="img-fluid" style="filter: blur(4px) brightness(0.7); object-fit: cover; width: 100%; height: 100%;">
+            <img th:if="${currentCategory == 'PREDATOR'}" src="/assets/drapiezniki.jpg" alt="Dno jeziora i drapieżniki" class="img-fluid" style="filter: blur(4px) brightness(0.7); object-fit: cover; width: 100%; height: 100%;" loading="eager" fetchpriority="high">
+            <img th:if="${currentCategory == 'PEACEFUL'}" src="/assets/bialoryb.jpg" alt="Spokojna woda i białoryb" class="img-fluid" style="filter: blur(4px) brightness(0.7); object-fit: cover; width: 100%; height: 100%;" loading="eager" fetchpriority="high">
+            <img th:if="${currentCategory == 'ALL'}" src="/assets/ryby.jpg" alt="Podwodny świat ryb" class="img-fluid" style="filter: blur(4px) brightness(0.7); object-fit: cover; width: 100%; height: 100%;" loading="eager" fetchpriority="high">
         </picture>
         <div class="hero-overlay" style="background: linear-gradient(to bottom, rgba(2,6,23,0.3) 0%, rgba(2,6,23,1) 100%);"></div>
 
@@ -102,7 +146,7 @@
                 <a th:href="@{/ryby/{slug}(slug=${fish.slug})}" class="fish-card text-decoration-none d-block h-100 position-relative" style="background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(255,255,255,0.05); border-radius: 16px; overflow: hidden; transition: transform 0.3s ease, box-shadow 0.3s ease;">
 
                     <div class="fish-card-img-wrapper" style="height: 200px; overflow: hidden;">
-                        <img th:src="${fish.imgUrl != null ? fish.imgUrl : '/assets/fish/default.jpg'}" th:alt="${fish.name}" class="fish-card-img w-100 h-100 object-fit-cover" style="transition: transform 0.5s ease;">
+                        <img th:src="${fish.imgUrl != null ? fish.imgUrl : '/assets/fish/default.jpg'}" th:alt="${fish.name}" class="fish-card-img w-100 h-100 object-fit-cover" style="transition: transform 0.5s ease;" loading="lazy">
 
                         <div class="position-absolute top-0 end-0 m-3 badge"
                              th:classappend="${fish.category.name() == 'PREDATOR' ? 'bg-danger' : 'bg-success'}"
@@ -114,7 +158,7 @@
                     <div class="fish-card-body p-4">
                         <div class="d-flex justify-content-between align-items-start mb-2">
                             <div>
-                                <h3 class="fish-card-title text-white mb-0 fw-bold" th:text="${fish.name}">Nazwa</h3>
+                                <h2 class="fish-card-title text-white mb-0 fw-bold fs-4" th:text="${fish.name}">Nazwa</h2>
                                 <span class="fish-card-latin" th:text="${fish.latinName}"
                                       th:classappend="${fish.category.name() == 'PREDATOR' ? 'text-accent-red' : 'text-accent-green'}"
                                       style="font-size: 0.85rem; font-style: italic;">Latin name</span>
