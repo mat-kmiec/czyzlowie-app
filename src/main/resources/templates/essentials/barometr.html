@@ -8,15 +8,14 @@
 
     <link rel="stylesheet" th:href="@{/css/essentials/barometr.css}">
     <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
-
 </head>
 <body class="barometer-page">
 
 <nav th:replace="~{fragments/navbar :: navbar}"></nav>
 
-<div class="baro-bg-container">
+<div class="baro-bg-container" aria-hidden="true">
     <picture>
-        <img src="/assets/drapiezniki.jpg" alt="Wędkarski barometr ciśnienia pod wodą" class="baro-bg-image" loading="eager" fetchpriority="high">
+        <img src="/assets/drapiezniki.jpg" alt="Wędkarski barometr ciśnienia pod wodą - tło tematyczne" class="baro-bg-image" loading="eager" fetchpriority="high">
     </picture>
     <div class="baro-bg-overlay"></div>
     <div class="baro-glow glow-top-left"></div>
@@ -28,9 +27,9 @@
 
         <nav aria-label="Nawigacja okruszkowa" class="mb-4">
             <ol class="breadcrumb baro-breadcrumb">
-                <li class="breadcrumb-item"><a th:href="@{/}"><i data-lucide="home" class="bc-icon text-brand-green"></i> Główna</a></li>
-                <li class="breadcrumb-item"><a th:href="@{/niezbednik}">Niezbędnik</a></li>
-                <li class="breadcrumb-item active fw-bold text-white" aria-current="page">Barometr</li>
+                <li class="breadcrumb-item"><a th:href="@{/}" title="Strona Główna CzyZlowie"><i data-lucide="home" class="bc-icon text-brand-green" aria-hidden="true"></i> Główna</a></li>
+                <li class="breadcrumb-item"><a th:href="@{/niezbednik}" title="Niezbędnik Wędkarza">Niezbędnik</a></li>
+                <li class="breadcrumb-item active fw-bold text-white" aria-current="page">Barometr <span th:text="${barometer.locationName}"></span></li>
             </ol>
         </nav>
 
@@ -38,10 +37,13 @@
             <div class="row align-items-center justify-content-between g-4">
                 <div class="col-lg-7">
                     <div class="d-flex align-items-center gap-3 mb-3">
-                        <div class="baro-icon-pulse">
+                        <div class="baro-icon-pulse" aria-hidden="true">
                             <i data-lucide="gauge" class="text-brand-green" style="width: 28px; height: 28px;"></i>
                         </div>
-                        <h1 class="display-5 fw-black text-white mb-0 baro-title-glow">Barometr Wędkarski</h1>
+                        <h1 class="display-5 fw-black text-white mb-0 baro-title-glow">
+                            Barometr Wędkarski
+                            <span class="d-block d-sm-inline fs-3 text-brand-green" th:text="${barometer.locationName}"></span>
+                        </h1>
                     </div>
                     <p class="baro-text-readable fs-5 fs-md-4 mb-0 lh-base">
                         Analiza trendów barycznych w czasie rzeczywistym. Monitoruj <span class="text-brand-green fw-bold text-glow-green">stabilność słupa wody</span> i namierzaj kluczowe skoki ciśnienia aktywujące żerowanie.
@@ -49,49 +51,61 @@
                 </div>
 
                 <div class="col-lg-5 text-lg-end">
-                    <form id="geocoding-form" class="baro-search-form">
+                    <form id="geocoding-form" class="baro-search-form" role="search">
                         <div class="baro-search-input-group">
-                            <i data-lucide="map-pin" class="search-icon"></i>
-                            <input type="text" id="city-input" class="search-input" placeholder="Wpisz miasto lub łowisko..." th:value="${barometer.locationName}" required>
-                            <button type="submit" class="baro-search-btn" id="search-btn" aria-label="Szukaj">
+                            <i data-lucide="map-pin" class="search-icon" aria-hidden="true"></i>
+                            <input type="text" id="city-input" class="search-input" aria-label="Lokalizacja łowiska" placeholder="Wpisz miasto lub łowisko..." th:value="${barometer.locationName}" required>
+                            <button type="submit" class="baro-search-btn" id="search-btn" aria-label="Szukaj barometru dla lokalizacji">
                                 <span id="btn-text">Szukaj</span>
-                                <i data-lucide="chevron-right" id="btn-icon" style="width: 18px;"></i>
+                                <i data-lucide="chevron-right" id="btn-icon" style="width: 18px;" aria-hidden="true"></i>
                             </button>
                         </div>
                     </form>
+
+                    <div class="mt-3 text-center text-lg-end">
+                        <span class="fs-8 me-2" style="color: #94a3b8;">Sprawdź też:</span>
+                        <div class="d-inline-flex flex-wrap justify-content-center justify-content-lg-end gap-2 mt-2 mt-lg-0">
+                            <a th:href="@{/barometr(lat=52.2297, lon=21.0122, name='Warszawa')}" class="baro-city-pill" title="Barometr wędkarski Warszawa">Warszawa</a>
+                            <a th:href="@{/barometr(lat=50.0614, lon=19.9366, name='Kraków')}" class="baro-city-pill" title="Barometr wędkarski Kraków">Kraków</a>
+                            <a th:href="@{/barometr(lat=51.1079, lon=17.0385, name='Wrocław')}" class="baro-city-pill" title="Barometr wędkarski Wrocław">Wrocław</a>
+                            <a th:href="@{/barometr(lat=54.3520, lon=18.6466, name='Gdańsk')}" class="baro-city-pill" title="Barometr wędkarski Gdańsk">Gdańsk</a>
+                            <a th:href="@{/barometr(lat=53.4285, lon=14.5528, name='Szczecin')}" class="baro-city-pill" title="Barometr wędkarski Szczecin">Szczecin</a>
+                        </div>
+                    </div>
+
                     <div class="mt-3 fs-8 text-md-end text-center" style="color: #64748b;">
-                        <i data-lucide="refresh-cw" style="width: 14px; margin-top:-2px;" class="text-brand-green"></i>
+                        <i data-lucide="refresh-cw" style="width: 14px; margin-top:-2px;" class="text-brand-green" aria-hidden="true"></i>
                         Ostatnie obliczenia algorytmu: <strong class="text-white" th:text="${barometer.lastUpdatedTime ?: 'Przed chwilą'}">Dzisiaj, 14:05</strong>
                     </div>
                 </div>
             </div>
         </header>
 
-        <div class="row g-4">
+        <div class="row g-4 pt-3">
             <div class="col-lg-8 pe-lg-4">
 
                 <section class="baro-glass-panel p-0 mb-4 overflow-hidden position-relative baro-current-card">
                     <div class="row g-0 position-relative z-1">
                         <div class="col-md-5 p-4 p-md-5 text-center text-md-start baro-border-end">
-                            <span class="text-uppercase fw-bold fs-7 mb-2 d-block" style="color: #94a3b8; letter-spacing: 1px;">Aktualne ciśnienie</span>
+                            <h2 class="text-uppercase fw-bold fs-7 mb-2 d-block" style="color: #94a3b8; letter-spacing: 1px;">Aktualne ciśnienie</h2>
                             <div class="d-flex align-items-baseline justify-content-center justify-content-md-start mb-3">
                                 <span class="baro-pressure-value" th:text="${barometer.currentPressure}">1015</span>
-                                <span class="fs-4 text-brand-green ms-2 fw-bold">hPa</span>
+                                <span class="fs-4 text-brand-green ms-2 fw-bold" aria-label="Hektopaskale">hPa</span>
                             </div>
                             <div class="baro-trend-badge d-inline-flex justify-content-center">
-                                <i th:data-lucide="${barometer.trendIcon}" style="width: 18px; height: 18px;"></i>
+                                <i th:data-lucide="${barometer.trendIcon}" style="width: 18px; height: 18px;" aria-hidden="true"></i>
                                 <span th:text="${barometer.trendText}">Lekko rosnące</span>
                             </div>
                         </div>
 
                         <div class="col-md-7 p-4 p-md-5 d-flex flex-column flex-sm-row align-items-center align-items-sm-start text-center text-sm-start gap-3 gap-sm-4 baro-condition-bg">
-                            <div class="flex-shrink-0 mt-sm-1">
+                            <div class="flex-shrink-0 mt-sm-1" aria-hidden="true">
                                 <i data-lucide="activity" th:class="${barometer.conditionColorClass}" style="width: 42px; height: 42px;"></i>
                             </div>
                             <div>
-                                <h2 class="fs-5 text-white fw-bold mb-2">Ocena algorytmu:
+                                <h3 class="fs-5 text-white fw-bold mb-2">Ocena algorytmu:
                                     <span th:class="${barometer.conditionColorClass}" th:text="${barometer.conditionTitle}">Bardzo dobre</span>
-                                </h2>
+                                </h3>
                                 <p class="baro-text-readable fs-6 mb-0 lh-lg" th:text="${barometer.conditionDescription}">
                                     Opis warunków...
                                 </p>
@@ -103,7 +117,7 @@
                 <section class="baro-glass-panel p-3 p-md-4 mb-4">
                     <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center mb-3 gap-2">
                         <h2 class="fs-5 text-white fw-bold mb-0 d-flex align-items-center">
-                            <i data-lucide="line-chart" class="text-brand-green me-2" style="width: 20px;"></i> Pomiary i Prognozy
+                            <i data-lucide="line-chart" class="text-brand-green me-2" style="width: 20px;" aria-hidden="true"></i> Pomiary i Prognozy Ciśnienia
                         </h2>
                         <span class="baro-location-badge align-self-start align-self-sm-auto" th:text="${barometer.locationName}">Warszawa</span>
                     </div>
@@ -123,17 +137,17 @@
                     <div class="tab-content" id="chartTabsContent">
                         <div class="tab-pane fade show active" id="combo-chart-pane" role="tabpanel" tabindex="0">
                             <div class="chart-container" style="position: relative; height: 300px; width: 100%;">
-                                <canvas id="chartCombo"></canvas>
+                                <canvas id="chartCombo" aria-label="Wykres ciśnienia krótkoterminowy" role="img"></canvas>
                             </div>
                         </div>
                         <div class="tab-pane fade" id="history3d-pane" role="tabpanel" tabindex="0">
                             <div class="chart-container" style="position: relative; height: 300px; width: 100%;">
-                                <canvas id="chartHistory3d"></canvas>
+                                <canvas id="chartHistory3d" aria-label="Wykres historii ciśnienia 3 dni" role="img"></canvas>
                             </div>
                         </div>
                         <div class="tab-pane fade" id="forecast3d-pane" role="tabpanel" tabindex="0">
                             <div class="chart-container" style="position: relative; height: 300px; width: 100%;">
-                                <canvas id="chartForecast3d"></canvas>
+                                <canvas id="chartForecast3d" aria-label="Wykres prognozy ciśnienia 3 dni" role="img"></canvas>
                             </div>
                         </div>
                     </div>
@@ -143,7 +157,7 @@
                     <div class="col-md-6">
                         <div class="radar-card p-4 h-100">
                             <div class="d-flex align-items-center gap-2 mb-3">
-                                <i data-lucide="target" class="text-brand-green"></i>
+                                <i data-lucide="target" class="text-brand-green" aria-hidden="true"></i>
                                 <h3 class="text-white fs-6 fw-bold mb-0">Prognoza brań</h3>
                             </div>
                             <p class="baro-text-readable fs-7 mb-0" th:text="${barometer.conditionDescription}">
@@ -155,7 +169,7 @@
                     <div class="col-md-6" th:if="${barometer.isFrontApproaching}">
                         <div class="radar-card p-4 h-100" style="border-color: rgba(239, 68, 68, 0.3); background: rgba(239, 68, 68, 0.05);">
                             <div class="d-flex align-items-center gap-2 mb-3">
-                                <i data-lucide="alert-triangle" class="text-danger"></i>
+                                <i data-lucide="alert-triangle" class="text-danger" aria-hidden="true"></i>
                                 <h3 class="text-white fs-6 fw-bold mb-0">Ostrzeżenie o spadkach</h3>
                             </div>
                             <p class="baro-text-readable fs-7 mb-0">
@@ -167,7 +181,7 @@
                     <div class="col-md-6" th:unless="${barometer.isFrontApproaching}">
                         <div class="radar-card p-4 h-100" style="border-color: rgba(56, 189, 248, 0.3);">
                             <div class="d-flex align-items-center gap-2 mb-3">
-                                <i data-lucide="shield-check" style="color: #38bdf8;"></i>
+                                <i data-lucide="shield-check" style="color: #38bdf8;" aria-hidden="true"></i>
                                 <h3 class="text-white fs-6 fw-bold mb-0">Stabilny horyzont</h3>
                             </div>
                             <p class="baro-text-readable fs-7 mb-0">
@@ -180,58 +194,128 @@
 
             </div>
 
-            <aside class="col-lg-4 mt-4 mt-lg-0">
+            <aside class="col-lg-4 mt-5 mt-lg-0">
                 <article class="baro-glass-panel p-4 h-100 d-flex flex-column">
                     <div class="mb-4 d-flex align-items-center gap-2 text-brand-green border-bottom border-dark-subtle pb-3">
-                        <i data-lucide="book-open" style="width: 24px; height: 24px;"></i>
-                        <h2 class="fs-5 text-white fw-bold mb-0">Kompendium: Wpływ Ciśnienia</h2>
+                        <i data-lucide="book-open" style="width: 24px; height: 24px;" aria-hidden="true"></i>
+                        <h2 class="fs-5 text-white fw-bold mb-0">Wpływ Ciśnienia na Ryby</h2>
                     </div>
 
-                    <div class="baro-knowledge-item mb-4">
-                        <h3 class="fs-6 text-white fw-bold mb-2">Pęcherz pławny ryb</h3>
+                    <section class="baro-knowledge-item mb-4">
+                        <h3 class="fs-6 text-white fw-bold mb-2">Pęcherz pławny</h3>
                         <p class="baro-text-readable fs-7 lh-lg mb-0">
-                            Pęcherz to naturalny narząd hydrostatyczny. Szybkie skoki ciśnienia wywołują u ryb dyskomfort i "murowanie" do dna. <strong class="text-white">Stabilne ciśnienie</strong> (min. 2 dni) to klucz do sukcesu.
+                            Szybkie skoki ciśnienia wywołują u ryb dyskomfort i "murowanie" do dna. <strong class="text-white">Stabilne ciśnienie</strong> (min. 2 dni) to klucz do sukcesu wędkarskiego.
                         </p>
-                    </div>
+                    </section>
 
-                    <div class="baro-knowledge-item mb-4 pb-4 border-bottom border-dark-subtle">
+                    <section class="baro-knowledge-item mb-4 pb-4 border-bottom border-dark-subtle">
                         <h3 class="fs-6 text-white fw-bold mb-2"><span class="text-brand-green">Szał żerowania</span> przed frontem</h3>
                         <p class="baro-text-readable fs-7 lh-lg mb-0">
-                            Gdy ciśnienie nagle spada przed uderzeniem burzy lub frontu, drapieżniki wpadają w krótki amok żerowy. Zjawisko to trwa zazwyczaj 2 do 4 godzin przed głównym spadkiem.
+                            Gdy ciśnienie nagle spada przed uderzeniem burzy lub frontu, drapieżniki wpadają w krótki amok żerowy (2-4 godziny przed załamaniem pogody).
                         </p>
-                    </div>
+                    </section>
 
                     <h3 class="fs-7 text-uppercase fw-bold mb-3 mt-2" style="color: #94a3b8; letter-spacing: 1px;">Optymalne ciśnienie (hPa)</h3>
-                    <ul class="list-unstyled d-flex flex-column gap-3 m-0 flex-grow-1">
-                        <li class="baro-fish-item">
+                    <ul class="list-unstyled d-flex flex-column gap-3 m-0 flex-grow-1" aria-label="Zalecane ciśnienie dla poszczególnych gatunków ryb">
+                        <li class="baro-fish-item d-flex justify-content-between align-items-center">
                             <span class="d-flex align-items-center gap-2 text-white fw-medium">
-                                <i data-lucide="fish" class="text-brand-green" style="width: 18px;"></i> Szczupak
+                                <i data-lucide="fish" class="text-brand-green" style="width: 18px;" aria-hidden="true"></i> Szczupak
                             </span>
                             <span class="fw-bold text-white fs-6">1005 - 1015</span>
                         </li>
-                        <li class="baro-fish-item">
+                        <li class="baro-fish-item d-flex justify-content-between align-items-center">
                             <span class="d-flex align-items-center gap-2 text-white fw-medium">
-                                <i data-lucide="fish" class="text-brand-green" style="width: 18px;"></i> Sandacz
+                                <i data-lucide="fish" class="text-brand-green" style="width: 18px;" aria-hidden="true"></i> Sandacz
+                            </span>
+                            <span class="fw-bold text-white fs-6">1015 - 1025</span>
+                        </li>
+                        <li class="baro-fish-item d-flex justify-content-between align-items-center">
+                            <span class="d-flex align-items-center gap-2 text-white fw-medium">
+                                <i data-lucide="fish" class="text-brand-green" style="width: 18px;" aria-hidden="true"></i> Okoń
+                            </span>
+                            <span class="fw-bold text-white fs-6">1015 - 1025</span>
+                        </li>
+                        <li class="baro-fish-item d-flex justify-content-between align-items-center">
+                            <span class="d-flex align-items-center gap-2 text-white fw-medium">
+                                <i data-lucide="fish" class="text-brand-green" style="width: 18px;" aria-hidden="true"></i> Boleń
                             </span>
                             <span class="fw-bold text-white fs-6">1010 - 1020</span>
                         </li>
-                        <li class="baro-fish-item">
+                        <li class="baro-fish-item d-flex justify-content-between align-items-center">
                             <span class="d-flex align-items-center gap-2 text-white fw-medium">
-                                <i data-lucide="fish" class="text-brand-green" style="width: 18px;"></i> Białoryb (Karp, Leszcz)
+                                <i data-lucide="fish" class="text-brand-green" style="width: 18px;" aria-hidden="true"></i> Białoryb (Karp, Leszcz)
                             </span>
                             <span class="fw-bold text-white fs-6">1000 - 1015</span>
                         </li>
-                        <li class="baro-fish-item">
+                        <li class="baro-fish-item d-flex justify-content-between align-items-center">
                             <span class="d-flex align-items-center gap-2 text-white fw-medium">
-                                <i data-lucide="fish" class="text-brand-green" style="width: 18px;"></i> Sum
+                                <i data-lucide="fish" class="text-brand-green" style="width: 18px;" aria-hidden="true"></i> Sum
                             </span>
-                            <span class="fw-bold text-white fs-6">< 1010</span>
+                            <span class="fw-bold text-white fs-6">&lt; 1010</span>
                         </li>
                     </ul>
                 </article>
             </aside>
-
         </div>
+
+        <section class="baro-glass-panel p-4 p-lg-5 mt-5 mb-2 position-relative overflow-hidden">
+            <div class="position-absolute top-0 end-0 translate-middle-y" style="width: 400px; height: 400px; background: radial-gradient(circle, rgba(46, 204, 113, 0.08) 0%, transparent 70%); border-radius: 50%;"></div>
+            <div class="position-absolute bottom-0 start-0 translate-middle" style="width: 300px; height: 300px; background: radial-gradient(circle, rgba(56, 189, 248, 0.05) 0%, transparent 70%); border-radius: 50%;"></div>
+
+            <div class="row g-5 align-items-center position-relative z-1">
+                <div class="col-lg-5">
+                    <div class="pe-lg-4">
+                        <h2 class="display-6 fw-bold text-white mb-4 lh-sm">
+                            Jak procesujemy <br><span class="text-brand-green">dane o ciśnieniu?</span>
+                        </h2>
+                        <p class="baro-text-readable fs-6 lh-lg mb-0">
+                            Nasz barometr to nie jest zwykły widżet pogodowy. To zaawansowany system stworzony z myślą o wędkarzach, który odrzuca szum informacyjny i wyłapuje kluczowe momenty do zarzucenia zestawu.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="col-lg-7">
+                    <div class="algo-pipeline">
+                        <article class="algo-step">
+                            <div class="algo-icon-wrapper" aria-hidden="true">
+                                <i data-lucide="database" class="text-brand-green" style="width: 14px; height: 14px;"></i>
+                            </div>
+                            <div class="algo-content">
+                                <h3 class="fs-5 text-white fw-bold mb-2">1. Pobieranie danych MSL</h3>
+                                <p class="baro-text-readable fs-7 mb-0">
+                                    Algorytm zasysa precyzyjne odczyty z oficjalnych stacji <strong>IMGW</strong> oraz sieci <strong>stacji wirtualnych</strong>. Używamy wyłącznie ciśnienia zredukowanego do poziomu morza (MSL), by zachować spójność między nizinami a terenami górskimi.
+                                </p>
+                            </div>
+                        </article>
+
+                        <article class="algo-step">
+                            <div class="algo-icon-wrapper" aria-hidden="true">
+                                <i data-lucide="radar" class="text-brand-green" style="width: 14px; height: 14px;"></i>
+                            </div>
+                            <div class="algo-content">
+                                <h3 class="fs-5 text-white fw-bold mb-2">2. Inteligentne filtry lokalizacji</h3>
+                                <p class="baro-text-readable fs-7 mb-0">
+                                    Wpisujesz łowisko, a nasz system działa jak radar. Odnajduje najbliższe stacje, weryfikuje ich sprawność i <strong>omija "martwe czujniki"</strong>, gwarantując dostęp do faktycznych danych pomiarowych.
+                                </p>
+                            </div>
+                        </article>
+
+                        <article class="algo-step">
+                            <div class="algo-icon-wrapper" aria-hidden="true">
+                                <i data-lucide="activity" class="text-brand-green" style="width: 14px; height: 14px;"></i>
+                            </div>
+                            <div class="algo-content">
+                                <h3 class="fs-5 text-white fw-bold mb-2">3. Detekcja okienek żerowych</h3>
+                                <p class="baro-text-readable fs-7 mb-0">
+                                    Silnik skanuje historię ciśnienia z ostatnich dni i analizuje prognozę na 48h w przód. Wykrywa mikroskoki i gwałtowne fronty, tłumacząc surowe liczby na konkretne ostrzeżenia dla wędkarzy.
+                                </p>
+                            </div>
+                        </article>
+                    </div>
+                </div>
+            </div>
+        </section>
+
     </div>
 </main>
 
@@ -244,7 +328,7 @@
         const form = document.getElementById('geocoding-form');
         if (form) {
             form.addEventListener('submit', async function(e) {
-                e.preventDefault(); // Zatrzymuje standardowe przeładowanie
+                e.preventDefault();
 
                 const inputVal = document.getElementById('city-input').value;
                 const btnText = document.getElementById('btn-text');
@@ -263,7 +347,7 @@
                         const lon = data[0].lon;
 
                         const rawName = data[0].name || inputVal;
-                        const cleanName = rawName.split(',')[0].trim(); // Upiększamy nazwę
+                        const cleanName = rawName.split(',')[0].trim();
 
                         window.location.href = `/barometr?lat=${lat}&lon=${lon}&name=${encodeURIComponent(cleanName)}`;
                     } else {
