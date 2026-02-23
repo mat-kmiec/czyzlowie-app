@@ -78,7 +78,7 @@ public class OpenMeteoResponse {
         @JsonProperty("apparent_temperature")
         private Double apparentTemperature;
 
-        @JsonProperty("surface_pressure")
+        @JsonProperty("pressure_msl")
         private Double surfacePressure;
 
         @JsonProperty("wind_speed_10m")
@@ -137,7 +137,7 @@ public class OpenMeteoResponse {
         @JsonProperty("apparent_temperature")
         private List<Double> apparentTemperature;
 
-        @JsonProperty("surface_pressure")
+        @JsonProperty("pressure_msl")
         private List<Double> surfacePressure;
 
         @JsonProperty("rain")

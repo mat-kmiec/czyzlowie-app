@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="v1-create-station-barometer-stats" author="mateusz kmiec">
+        <createTable tableName="station_barometer_stats">
+            <column name="station_id" type="varchar(20)">
+                <constraints nullable="false" />
+            </column>
+            <column name="station_type" type="varchar(20)">
+                <constraints nullable="false" />
+            </column>
+
+            <column name="current_pressure" type="decimal(6,1)" remarks="Aktualne ciśnienie w hPa" />
+
+            <column name="trend_24h" type="varchar(20)" remarks="Kierunek: RISING, FALLING, STABLE, FAST_DROP" />
+            <column name="delta_24h" type="decimal(5,2)" remarks="Różnica ciśnienia z ostatnich 24h" />
+            <column name="delta_3d" type="decimal(5,2)" remarks="Różnica z 3 dni" />
+            <column name="delta_5d" type="decimal(5,2)" remarks="Różnica z 5 dni" />
+
+            <column name="barometer_chart_json" type="text" remarks="Gotowy JSON zawierający historię i prognozę ciśnienia">
+                <constraints nullable="false" />
+            </column>
+
+            <column name="pressure_stability_index" type="integer" remarks="0-100% (jak bardzo płaskie było ciśnienie przez 3 dni)" />
+            <column name="front_approaching" type="boolean" defaultValueBoolean="false" remarks="Flaga: czy prognoza wskazuje na załamanie ciśnienia?" />
+
+            <column name="last_updated_at" type="timestamp" defaultValueComputed="CURRENT_TIMESTAMP" />
+        </createTable>
+
+        <addPrimaryKey tableName="station_barometer_stats" columnNames="station_id, station_type" constraintName="pk_barometer_stats" />
+    </changeSet>
+
+</databaseChangeLog>

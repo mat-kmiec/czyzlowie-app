@@ -44,7 +44,7 @@ public class WeatherForecastDataService {
 
     private static final String API_HOURLY_PARAMS = "temperature_2m,apparent_temperature,rain,weather_code," +
             "cloud_cover,wind_speed_10m,wind_direction_10m,wind_gusts_10m," +
-            "surface_pressure,uv_index";
+            "pressure_msl,uv_index";
     private static final String API_DAILY_PARAMS = "sunrise,sunset,uv_index_max";
 
     private final ImgwSynopStationRepository synopStationRepository;

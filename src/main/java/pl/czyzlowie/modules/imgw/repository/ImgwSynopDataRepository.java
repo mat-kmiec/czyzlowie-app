@@ -4,6 +4,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+import pl.czyzlowie.modules.barometer.dto.PressurePoint;
 import pl.czyzlowie.modules.imgw.entity.ImgwSynopData;
 
 import java.time.LocalDate;
@@ -29,4 +30,13 @@ public interface ImgwSynopDataRepository extends JpaRepository<ImgwSynopData, Lo
             "    GROUP BY d2.station.id" +
             ")")
     List<ImgwSynopData> findLatestDataForStations(@Param("stationIds") Collection<String> stationIds);
+
+    @Query("SELECT d.measurementDate AS measurementDate, d.measurementHour AS measurementHour, d.pressure AS pressure " +
+            "FROM ImgwSynopData d " +
+            "WHERE d.station.id = :stationId " +
+            "AND d.measurementDate >= :sinceDate " +
+            "AND d.pressure IS NOT NULL " +
+            "ORDER BY d.measurementDate DESC, d.measurementHour DESC")
+    List<PressurePoint> findPressureHistory(@Param("stationId") String stationId, @Param("sinceDate") LocalDate sinceDate);
 }
+

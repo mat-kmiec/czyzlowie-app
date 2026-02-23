@@ -2,13 +2,16 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="pl">
 <head>
     <th:block th:replace="~{fragments/head :: head-content(
-        pageTitle='Wędkarski Barometr Ciśnienia | CzyZlowie',
-        pageDescription='Sprawdź aktualne ciśnienie atmosferyczne. Monitoruj wykres i przewiduj okienka żerowania drapieżników.'
+        pageTitle='Wędkarski Barometr Ciśnienia - ' + ${barometer.locationName} + ' | CzyZlowie',
+        pageDescription='Sprawdź aktualne ciśnienie atmosferyczne w ' + ${barometer.locationName} + '. Monitoruj wykres barometryczny i przewiduj okienka żerowania drapieżników i białorybu.'
     )}"></th:block>
 
     <link rel="stylesheet" th:href="@{/css/essentials/barometr.css}">
-
     <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
+
+    <style>
+
+    </style>
 </head>
 <body class="barometer-page">
 
@@ -16,8 +19,7 @@
 
 <div class="baro-bg-container">
     <picture>
-        <source media="(max-width: 768px)" srcset="/assets/ryby/predators-bg.jpg">
-        <img src="/assets/ryby/predators-bg.jpg" alt="Mroczne dno jeziora" class="baro-bg-image">
+        <img src="/assets/drapiezniki.jpg" alt="Wędkarski barometr ciśnienia pod wodą" class="baro-bg-image" loading="eager" fetchpriority="high">
     </picture>
     <div class="baro-bg-overlay"></div>
     <div class="baro-glow glow-top-left"></div>
@@ -27,7 +29,7 @@
 <main class="baro-wrapper pb-5 position-relative z-2">
     <div class="container-xl pt-4 mt-3">
 
-        <nav aria-label="breadcrumb" class="mb-4">
+        <nav aria-label="Nawigacja okruszkowa" class="mb-4">
             <ol class="breadcrumb baro-breadcrumb">
                 <li class="breadcrumb-item"><a th:href="@{/}"><i data-lucide="home" class="bc-icon text-brand-green"></i> Główna</a></li>
                 <li class="breadcrumb-item"><a th:href="@{/niezbednik}">Niezbędnik</a></li>
@@ -35,17 +37,17 @@
             </ol>
         </nav>
 
-        <header class="baro-glass-panel p-4 p-lg-5 mb-5">
+        <header class="baro-glass-panel p-4 p-lg-5 mb-4">
             <div class="row align-items-center justify-content-between g-4">
                 <div class="col-lg-7">
                     <div class="d-flex align-items-center gap-3 mb-3">
                         <div class="baro-icon-pulse">
                             <i data-lucide="gauge" class="text-brand-green" style="width: 28px; height: 28px;"></i>
                         </div>
-                        <h1 class="display-5 fw-black text-white mb-0 baro-title-glow">Barometr</h1>
+                        <h1 class="display-5 fw-black text-white mb-0 baro-title-glow">Barometr Wędkarski</h1>
                     </div>
-                    <p class="baro-text-readable fs-5 mb-0">
-                        Monitoruj skoki ciśnienia i przewiduj <span class="text-brand-green fw-bold text-glow-green">amok żerowy</span> drapieżników.
+                    <p class="baro-text-readable fs-5 fs-md-4 mb-0 lh-base">
+                        Analiza trendów barycznych w czasie rzeczywistym. Monitoruj <span class="text-brand-green fw-bold text-glow-green">stabilność słupa wody</span> i namierzaj kluczowe skoki ciśnienia aktywujące żerowanie.
                     </p>
                 </div>
 
@@ -53,79 +55,130 @@
                     <form action="/barometr" method="get" class="baro-search-form">
                         <div class="baro-search-input-group">
                             <i data-lucide="map-pin" class="search-icon"></i>
-                            <input type="text" name="miasto" class="search-input" placeholder="Wpisz miasto lub łowisko..." value="Warszawa" required>
-                            <button type="submit" class="baro-search-btn">
+                            <input type="text" name="miasto" class="search-input" placeholder="Wpisz miasto lub łowisko..." th:value="${barometer.locationName}" required>
+                            <button type="submit" class="baro-search-btn" aria-label="Szukaj">
                                 Szukaj <i data-lucide="chevron-right" style="width: 18px;"></i>
                             </button>
                         </div>
                     </form>
+                    <div class="mt-3 fs-8 text-md-end text-center" style="color: #64748b;">
+                        <i data-lucide="refresh-cw" style="width: 14px; margin-top:-2px;" class="text-brand-green"></i>
+                        Ostatnie obliczenia algorytmu: <strong class="text-white" th:text="${barometer.lastUpdatedTime ?: 'Przed chwilą'}">Dzisiaj, 14:05</strong>
+                    </div>
                 </div>
             </div>
         </header>
 
         <div class="row g-4">
-
             <div class="col-lg-8 pe-lg-4">
 
-                <div class="baro-glass-panel p-0 mb-4 overflow-hidden position-relative baro-current-card">
+                <section class="baro-glass-panel p-0 mb-4 overflow-hidden position-relative baro-current-card">
                     <div class="row g-0 position-relative z-1">
-
                         <div class="col-md-5 p-4 p-md-5 text-center text-md-start baro-border-end">
                             <span class="text-uppercase fw-bold fs-7 mb-2 d-block" style="color: #94a3b8; letter-spacing: 1px;">Aktualne ciśnienie</span>
                             <div class="d-flex align-items-baseline justify-content-center justify-content-md-start mb-3">
-                                <span class="baro-pressure-value">1015</span>
+                                <span class="baro-pressure-value" th:text="${barometer.currentPressure}">1015</span>
                                 <span class="fs-4 text-brand-green ms-2 fw-bold">hPa</span>
                             </div>
-                            <div class="baro-trend-badge">
-                                <i data-lucide="trending-up" style="width: 18px; height: 18px;"></i> Lekko rosnące
+                            <div class="baro-trend-badge d-inline-flex justify-content-center">
+                                <i th:data-lucide="${barometer.trendIcon}" style="width: 18px; height: 18px;"></i>
+                                <span th:text="${barometer.trendText}">Lekko rosnące</span>
                             </div>
                         </div>
 
-                        <div class="col-md-7 p-4 p-md-5 d-flex align-items-start gap-4 baro-condition-bg">
-                            <div class="flex-shrink-0 mt-1">
-                                <i data-lucide="activity" class="text-brand-green" style="width: 36px; height: 36px;"></i>
+                        <div class="col-md-7 p-4 p-md-5 d-flex flex-column flex-sm-row align-items-center align-items-sm-start text-center text-sm-start gap-3 gap-sm-4 baro-condition-bg">
+                            <div class="flex-shrink-0 mt-sm-1">
+                                <i data-lucide="activity" th:class="${barometer.conditionColorClass}" style="width: 42px; height: 42px;"></i>
                             </div>
                             <div>
-                                <h3 class="fs-5 text-white fw-bold mb-2">Warunki: <span class="text-brand-green">Bardzo dobre</span></h3>
-                                <p class="baro-text-readable fs-6 mb-0 lh-lg">
-                                    Ciśnienie stabilizuje się na optymalnym poziomie. Drapieżniki, zwłaszcza <strong class="text-white">szczupak i okoń</strong>, powinny być bardzo aktywne w środkowej toni wodnej.
+                                <h2 class="fs-5 text-white fw-bold mb-2">Ocena algorytmu:
+                                    <span th:class="${barometer.conditionColorClass}" th:text="${barometer.conditionTitle}">Bardzo dobre</span>
+                                </h2>
+                                <p class="baro-text-readable fs-6 mb-0 lh-lg" th:text="${barometer.conditionDescription}">
+                                    Opis warunków...
                                 </p>
                             </div>
                         </div>
-
                     </div>
-                </div>
+                </section>
 
-                <div class="baro-glass-panel p-4 mb-4">
-                    <div class="d-flex justify-content-between align-items-center mb-4">
-                        <h3 class="fs-5 text-white fw-bold mb-0 d-flex align-items-center">
-                            <i data-lucide="line-chart" class="text-brand-green me-2" style="width: 20px;"></i> Wykres zmian (24h)
-                        </h3>
-                        <span class="baro-location-badge">Warszawa</span>
+                <section class="baro-glass-panel p-3 p-md-4 mb-4">
+                    <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center mb-3 gap-2">
+                        <h2 class="fs-5 text-white fw-bold mb-0 d-flex align-items-center">
+                            <i data-lucide="line-chart" class="text-brand-green me-2" style="width: 20px;"></i> Pomiary i Prognozy
+                        </h2>
+                        <span class="baro-location-badge align-self-start align-self-sm-auto" th:text="${barometer.locationName}">Warszawa</span>
                     </div>
-                    <div class="chart-container" style="position: relative; height: 350px; width: 100%;">
-                        <canvas id="pressureChart"></canvas>
-                    </div>
-                </div>
 
-                <div class="baro-glass-panel p-4 d-flex flex-column flex-md-row align-items-center justify-content-between gap-4" style="border-color: rgba(46, 204, 113, 0.4); background: rgba(2, 6, 23, 0.8);">
-                    <div class="d-flex align-items-start gap-3">
-                        <div class="baro-icon-pulse" style="width: 44px; height: 44px; flex-shrink: 0;">
-                            <i data-lucide="calendar-clock" class="text-brand-green" style="width: 22px; height: 22px;"></i>
+                    <ul class="nav nav-tabs baro-nav-tabs" id="chartTabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="combo-tab" data-bs-toggle="tab" data-bs-target="#combo-chart-pane" type="button" role="tab" aria-selected="true">Krótkoterminowy (48h)</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="history3d-tab" data-bs-toggle="tab" data-bs-target="#history3d-pane" type="button" role="tab" aria-selected="false">Historia (3 dni)</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="forecast3d-tab" data-bs-toggle="tab" data-bs-target="#forecast3d-pane" type="button" role="tab" aria-selected="false">Prognoza (3 dni)</button>
+                        </li>
+                    </ul>
+
+                    <div class="tab-content" id="chartTabsContent">
+                        <div class="tab-pane fade show active" id="combo-chart-pane" role="tabpanel" tabindex="0">
+                            <div class="chart-container" style="position: relative; height: 300px; width: 100%;">
+                                <canvas id="chartCombo"></canvas>
+                            </div>
                         </div>
-                        <div>
-                            <h4 class="fs-5 text-white fw-bold mb-1">Potrzebujesz szerszej perspektywy?</h4>
-                            <p class="baro-text-readable fs-7 mb-0">
-                                Zaloguj się na darmowe konto, aby odblokować historię ciśnienia do <strong>7 dni wstecz</strong> oraz sprawdzić precyzyjną prognozę na <strong>nadchodzący tydzień</strong>.
+                        <div class="tab-pane fade" id="history3d-pane" role="tabpanel" tabindex="0">
+                            <div class="chart-container" style="position: relative; height: 300px; width: 100%;">
+                                <canvas id="chartHistory3d"></canvas>
+                            </div>
+                        </div>
+                        <div class="tab-pane fade" id="forecast3d-pane" role="tabpanel" tabindex="0">
+                            <div class="chart-container" style="position: relative; height: 300px; width: 100%;">
+                                <canvas id="chartForecast3d"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="row g-3 mb-4">
+                    <div class="col-md-6">
+                        <div class="radar-card p-4 h-100">
+                            <div class="d-flex align-items-center gap-2 mb-3">
+                                <i data-lucide="target" class="text-brand-green"></i>
+                                <h3 class="text-white fs-6 fw-bold mb-0">Prognoza brań</h3>
+                            </div>
+                            <p class="baro-text-readable fs-7 mb-0" th:text="${barometer.conditionDescription}">
+                                Tu pojawi się analiza algorytmu...
                             </p>
                         </div>
                     </div>
-                    <div class="flex-shrink-0 w-100 w-md-auto text-center">
-                        <a th:href="@{/login}" class="baro-search-btn text-decoration-none d-inline-flex justify-content-center w-100">
-                            Zaloguj się <i data-lucide="arrow-right" class="ms-1" style="width: 18px;"></i>
-                        </a>
+
+                    <div class="col-md-6" th:if="${barometer.isFrontApproaching}">
+                        <div class="radar-card p-4 h-100" style="border-color: rgba(239, 68, 68, 0.3); background: rgba(239, 68, 68, 0.05);">
+                            <div class="d-flex align-items-center gap-2 mb-3">
+                                <i data-lucide="alert-triangle" class="text-danger"></i>
+                                <h3 class="text-white fs-6 fw-bold mb-0">Ostrzeżenie o spadkach</h3>
+                            </div>
+                            <p class="baro-text-readable fs-7 mb-0">
+                                Uwaga! Algorytm wykrył gwałtowne załamanie pogody. Ostatnie godziny przed spadkiem to <strong>"złote okienko"</strong> na rekordową rybę.
+                            </p>
+                        </div>
                     </div>
-                </div>
+
+                    <div class="col-md-6" th:unless="${barometer.isFrontApproaching}">
+                        <div class="radar-card p-4 h-100" style="border-color: rgba(56, 189, 248, 0.3);">
+                            <div class="d-flex align-items-center gap-2 mb-3">
+                                <i data-lucide="shield-check" style="color: #38bdf8;"></i>
+                                <h3 class="text-white fs-6 fw-bold mb-0">Stabilny horyzont</h3>
+                            </div>
+                            <p class="baro-text-readable fs-7 mb-0">
+                                W nadchodzących dniach nie przewidujemy nagłych załamań pogody.
+                                Ciśnienie nie powinno gwałtownie spadać, co sprzyja długim zasiadkom.
+                            </p>
+                        </div>
+                    </div>
+                </section>
 
             </div>
 
@@ -133,24 +186,24 @@
                 <article class="baro-glass-panel p-4 h-100 d-flex flex-column">
                     <div class="mb-4 d-flex align-items-center gap-2 text-brand-green border-bottom border-dark-subtle pb-3">
                         <i data-lucide="book-open" style="width: 24px; height: 24px;"></i>
-                        <h2 class="fs-5 text-white fw-bold mb-0">Wędkarskie SEO</h2>
+                        <h2 class="fs-5 text-white fw-bold mb-0">Kompendium: Wpływ Ciśnienia</h2>
                     </div>
 
                     <div class="baro-knowledge-item mb-4">
-                        <h3 class="fs-6 text-white fw-bold mb-2">Jak ciśnienie wpływa na brania?</h3>
+                        <h3 class="fs-6 text-white fw-bold mb-2">Pęcherz pławny ryb</h3>
                         <p class="baro-text-readable fs-7 lh-lg mb-0">
-                            Pęcherz pławny ryb to ich naturalny barometr. Szybkie skoki powodują dyskomfort i "murowanie" do dna. <strong class="text-white">Stabilne ciśnienie</strong> (przez 2-3 dni) to gwarancja udanych łowów.
+                            Pęcherz to naturalny narząd hydrostatyczny. Szybkie skoki ciśnienia wywołują u ryb dyskomfort i "murowanie" do dna. <strong class="text-white">Stabilne ciśnienie</strong> (min. 2 dni) to klucz do sukcesu.
                         </p>
                     </div>
 
                     <div class="baro-knowledge-item mb-4 pb-4 border-bottom border-dark-subtle">
-                        <h3 class="fs-6 text-white fw-bold mb-2"><span class="text-brand-green">Amok żerowy</span> przed burzą</h3>
+                        <h3 class="fs-6 text-white fw-bold mb-2"><span class="text-brand-green">Szał żerowania</span> przed frontem</h3>
                         <p class="baro-text-readable fs-7 lh-lg mb-0">
-                            Gdy ciśnienie gwałtownie spada przed frontem, drapieżniki wpadają w szał żerowania. To najlepsze, ale krótkie okienko na rekordowe sztuki.
+                            Gdy ciśnienie nagle spada przed uderzeniem burzy lub frontu, drapieżniki wpadają w krótki amok żerowy. Zjawisko to trwa zazwyczaj 2 do 4 godzin przed głównym spadkiem.
                         </p>
                     </div>
 
-                    <h3 class="fs-7 text-uppercase fw-bold mb-3 mt-2" style="color: #94a3b8; letter-spacing: 1px;">Optymalne wartości (hPa)</h3>
+                    <h3 class="fs-7 text-uppercase fw-bold mb-3 mt-2" style="color: #94a3b8; letter-spacing: 1px;">Optymalne ciśnienie (hPa)</h3>
                     <ul class="list-unstyled d-flex flex-column gap-3 m-0 flex-grow-1">
                         <li class="baro-fish-item">
                             <span class="d-flex align-items-center gap-2 text-white fw-medium">
@@ -166,16 +219,17 @@
                         </li>
                         <li class="baro-fish-item">
                             <span class="d-flex align-items-center gap-2 text-white fw-medium">
+                                <i data-lucide="fish" class="text-brand-green" style="width: 18px;"></i> Białoryb (Karp, Leszcz)
+                            </span>
+                            <span class="fw-bold text-white fs-6">1000 - 1015</span>
+                        </li>
+                        <li class="baro-fish-item">
+                            <span class="d-flex align-items-center gap-2 text-white fw-medium">
                                 <i data-lucide="fish" class="text-brand-green" style="width: 18px;"></i> Sum
                             </span>
                             <span class="fw-bold text-white fs-6">< 1010</span>
                         </li>
                     </ul>
-
-                    <div class="mt-4 pt-4 text-center fs-8 baro-text-readable border-top border-dark-subtle opacity-75">
-                        <i data-lucide="clock" class="text-brand-green mb-1" style="width: 16px;"></i><br>
-                        Dane meteorologiczne odświeżane co godzinę.
-                    </div>
                 </article>
             </aside>
 
@@ -185,73 +239,122 @@
 
 <footer th:replace="~{fragments/footer :: footer}"></footer>
 
-<script>
+<script th:inline="javascript">
     document.addEventListener('DOMContentLoaded', () => {
         lucide.createIcons();
 
-        const ctx = document.getElementById('pressureChart').getContext('2d');
-        let gradient = ctx.createLinearGradient(0, 0, 0, 350);
-        gradient.addColorStop(0, 'rgba(46, 204, 113, 0.4)');
-        gradient.addColorStop(1, 'rgba(46, 204, 113, 0.0)');
+        Chart.defaults.color = '#64748b';
+        Chart.defaults.font.family = "'Inter', sans-serif";
 
-        const labels = ['12:00', '14:00', '16:00', '18:00', '20:00', '22:00', '00:00', '02:00', '04:00', '06:00', '08:00', 'Teraz'];
-        const dataPoints = [1011, 1011, 1012, 1013, 1014, 1014, 1015, 1015, 1014, 1014, 1015, 1015];
+        const chartData = /*[[${barometer.chartData}]]*/ {};
 
-        new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: labels,
-                datasets: [{
-                    label: 'Ciśnienie',
-                    data: dataPoints,
-                    borderColor: '#2ecc71',
-                    backgroundColor: gradient,
-                    borderWidth: 3,
-                    pointBackgroundColor: '#020617',
-                    pointBorderColor: '#2ecc71',
-                    pointBorderWidth: 2,
-                    pointRadius: 4,
-                    pointHoverRadius: 7,
-                    fill: true,
-                    tension: 0.4
-                }]
+        const getLabels = (dataArr, includeDate = false) => (dataArr || []).map(d => {
+            const date = new Date(d.time);
+            if (includeDate) {
+                return date.toLocaleDateString('pl-PL', { day: '2-digit', month: '2-digit' }) + ' ' +
+                    date.toLocaleTimeString('pl-PL', { hour: '2-digit', minute:'2-digit' });
+            }
+            return date.toLocaleTimeString('pl-PL', { hour: '2-digit', minute:'2-digit' });
+        });
+        const getVals = (dataArr) => (dataArr || []).map(d => d.p);
+
+        const activeCharts = {};
+
+        const ctxCombo = document.getElementById('chartCombo').getContext('2d');
+        const hist24L = getLabels(chartData.history24h, false);
+        const hist24V = getVals(chartData.history24h);
+        const fore24L = getLabels(chartData.forecast24h, false);
+        const fore24V = getVals(chartData.forecast24h);
+
+        const comboLabels = [...hist24L, ...fore24L];
+        const comboHistData = [...hist24V, ...Array(fore24L.length).fill(null)];
+
+        let comboForeData = Array(hist24L.length - 1).fill(null);
+        if(hist24V.length > 0) comboForeData.push(hist24V[hist24V.length - 1]);
+        comboForeData = [...comboForeData, ...fore24V];
+
+        let gradGreen = ctxCombo.createLinearGradient(0, 0, 0, 300);
+        gradGreen.addColorStop(0, 'rgba(46, 204, 113, 0.4)');
+        gradGreen.addColorStop(1, 'rgba(46, 204, 113, 0.0)');
+
+        activeCharts['combo'] = createChart(ctxCombo, comboLabels, [
+            {
+                label: 'Historia (ostatnie 24h)',
+                data: comboHistData,
+                borderColor: '#2ecc71',
+                backgroundColor: gradGreen,
+                borderWidth: 3, pointRadius: 1, pointHoverRadius: 6, fill: true, tension: 0.4
             },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: { display: false },
-                    tooltip: {
-                        backgroundColor: 'rgba(15, 23, 42, 0.95)',
-                        titleColor: '#94a3b8',
-                        bodyColor: '#2ecc71',
-                        bodyFont: { weight: 'bold', size: 15 },
-                        padding: 14,
-                        borderColor: 'rgba(46, 204, 113, 0.3)',
-                        borderWidth: 1,
-                        displayColors: false,
-                        callbacks: {
-                            label: function(context) { return context.parsed.y + ' hPa'; }
+            {
+                label: 'Prognoza (następne 24h)',
+                data: comboForeData,
+                borderColor: '#ef4444',
+                borderDash: [5, 5],
+                borderWidth: 3, pointRadius: 0, fill: false, tension: 0.4
+            }
+        ]);
+
+        const ctxHist3d = document.getElementById('chartHistory3d').getContext('2d');
+        activeCharts['history3d'] = createChart(ctxHist3d, getLabels(chartData.history3d, true), [{
+            label: 'Historia (3 dni)',
+            data: getVals(chartData.history3d),
+            borderColor: '#3b82f6',
+            backgroundColor: 'rgba(59, 130, 246, 0.1)',
+            borderWidth: 2, pointRadius: 0, fill: true, tension: 0.3
+        }]);
+
+        const ctxFore3d = document.getElementById('chartForecast3d').getContext('2d');
+        activeCharts['forecast3d'] = createChart(ctxFore3d, getLabels(chartData.forecast3d, true), [{
+            label: 'Prognoza (3 dni)',
+            data: getVals(chartData.forecast3d),
+            borderColor: '#ef4444',
+            borderDash: [5, 5],
+            backgroundColor: 'transparent',
+            borderWidth: 2, pointRadius: 0, fill: false, tension: 0.3
+        }]);
+
+        const tabElements = document.querySelectorAll('button[data-bs-toggle="tab"]');
+        tabElements.forEach(tab => {
+            tab.addEventListener('shown.bs.tab', function (event) {
+                const targetId = event.target.getAttribute('data-bs-target');
+                if (targetId === '#combo-chart-pane') activeCharts['combo'].resize();
+                if (targetId === '#history3d-pane') activeCharts['history3d'].resize();
+                if (targetId === '#forecast3d-pane') activeCharts['forecast3d'].resize();
+            });
+        });
+
+        function createChart(ctx, labels, datasets) {
+            return new Chart(ctx, {
+                type: 'line',
+                data: { labels: labels, datasets: datasets },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    interaction: { mode: 'index', intersect: false },
+                    plugins: {
+                        legend: { display: true, labels: { color: '#94a3b8', usePointStyle: true, boxWidth: 8 } },
+                        tooltip: {
+                            backgroundColor: 'rgba(15, 23, 42, 0.95)', titleColor: '#fff',
+                            bodyFont: { weight: 'bold', size: 13 }, padding: 10,
+                            borderColor: 'rgba(255, 255, 255, 0.1)', borderWidth: 1,
+                            callbacks: {
+                                label: function(context) { return context.dataset.label + ': ' + context.parsed.y + ' hPa'; }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                            ticks: { stepSize: 5, font: {size: 11} }, border: { display: false }
+                        },
+                        x: {
+                            grid: { display: false },
+                            ticks: { maxTicksLimit: 8, maxRotation: 0, font: {size: 10} },
+                            border: { display: false }
                         }
                     }
-                },
-                scales: {
-                    y: {
-                        min: 1000,
-                        max: 1030,
-                        grid: { color: 'rgba(255, 255, 255, 0.05)' },
-                        ticks: { color: '#64748b', stepSize: 5, font: { size: 12 } },
-                        border: { display: false }
-                    },
-                    x: {
-                        grid: { display: false },
-                        ticks: { color: '#64748b', font: { size: 12 } },
-                        border: { display: false }
-                    }
-                },
-                layout: { padding: { left: 0, bottom: 0 } }
-            }
-        });
+                }
+            });
+        }
     });
 </script>
 </body>
