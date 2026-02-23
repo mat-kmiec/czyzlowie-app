@@ -6,11 +6,8 @@ import org.springframework.transaction.annotation.Transactional;
 import pl.czyzlowie.modules.barometer.dto.BarometerViewDto;
 import pl.czyzlowie.modules.barometer.entity.StationBarometerId;
 import pl.czyzlowie.modules.barometer.entity.StationBarometerStats;
-import pl.czyzlowie.modules.barometer.entity.StationType;
 import pl.czyzlowie.modules.barometer.mapper.BarometerViewMapper;
 import pl.czyzlowie.modules.barometer.repository.StationBarometerStatsRepository;
-import pl.czyzlowie.modules.location.enums.StationCategory;
-import pl.czyzlowie.modules.location.service.LocationFinderService;
 
 @Service
 @RequiredArgsConstructor
