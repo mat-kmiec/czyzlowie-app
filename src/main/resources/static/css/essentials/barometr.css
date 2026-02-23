@@ -179,3 +179,113 @@ body.barometer-page {
     .baro-search-form { max-width: 100%; margin-top: 15px; }
     .baro-border-end { border-right: none; border-bottom: 1px solid rgba(255, 255, 255, 0.08); }
 }
+
+.baro-nav-tabs {
+    border-bottom: 2px solid rgba(255, 255, 255, 0.05);
+    margin-bottom: 1.5rem;
+}
+.baro-nav-tabs .nav-link {
+    color: #94a3b8;
+    border: none;
+    background: transparent;
+    font-weight: 600;
+    padding: 0.75rem 1.5rem;
+    position: relative;
+    transition: all 0.3s ease;
+}
+.baro-nav-tabs .nav-link:hover { color: #fff; }
+.baro-nav-tabs .nav-link.active {
+    color: #2ecc71;
+    background: transparent;
+}
+.baro-nav-tabs .nav-link.active::after {
+    content: ''; position: absolute; bottom: -2px; left: 0; right: 0;
+    height: 2px; background-color: #2ecc71;
+    box-shadow: 0 -2px 10px rgba(46, 204, 113, 0.5);
+}
+.radar-card {
+    background: rgba(15, 23, 42, 0.6);
+    border: 1px solid rgba(255,255,255,0.05);
+    border-radius: 12px;
+    transition: transform 0.2s;
+}
+.radar-card:hover { transform: translateY(-3px); border-color: rgba(46,204,113,0.3); }
+
+.baro-nav-tabs {
+    border-bottom: 2px solid rgba(255, 255, 255, 0.05);
+    margin-bottom: 1.5rem;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    overflow-y: hidden;
+    white-space: nowrap;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 2px;
+}
+
+.baro-nav-tabs::-webkit-scrollbar { height: 3px; }
+.baro-nav-tabs::-webkit-scrollbar-track { background: transparent; }
+.baro-nav-tabs::-webkit-scrollbar-thumb { background: rgba(46, 204, 113, 0.3); border-radius: 3px; }
+
+.baro-nav-tabs .nav-link {
+    color: #94a3b8;
+    border: none;
+    background: transparent;
+    font-weight: 600;
+    padding: 0.75rem 1.2rem;
+    position: relative;
+    transition: all 0.3s ease;
+}
+.baro-nav-tabs .nav-link:hover { color: #fff; }
+.baro-nav-tabs .nav-link.active {
+    color: #2ecc71;
+    background: transparent;
+}
+.baro-nav-tabs .nav-link.active::after {
+    content: ''; position: absolute; bottom: -2px; left: 0; right: 0;
+    height: 2px; background-color: #2ecc71;
+    box-shadow: 0 -2px 10px rgba(46, 204, 113, 0.5);
+}
+.radar-card {
+    background: rgba(15, 23, 42, 0.6);
+    border: 1px solid rgba(255,255,255,0.05);
+    border-radius: 12px;
+    transition: transform 0.2s;
+}
+.radar-card:hover { transform: translateY(-3px); border-color: rgba(46,204,113,0.3); }
+
+@media (max-width: 768px) {
+    .baro-title-glow { font-size: 2.2rem !important; }
+    .baro-text-readable { font-size: 0.95rem !important; }
+    .baro-pressure-value { font-size: 3.5rem !important; }
+
+    .baro-search-input-group {
+        flex-direction: column;
+        border-radius: 12px;
+        background: rgba(15, 23, 42, 0.8);
+        padding: 0;
+        position: relative;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .baro-search-input-group .search-input {
+        border-radius: 12px 12px 0 0;
+        padding: 14px 16px 14px 45px;
+        width: 100%;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .baro-search-input-group .baro-search-btn {
+        border-radius: 0 0 12px 12px;
+        width: 100%;
+        justify-content: center;
+        padding: 14px;
+    }
+
+    .baro-search-input-group .search-icon {
+        position: absolute;
+        top: 14px;
+        left: 15px;
+        margin-left: 0;
+        pointer-events: none;
+    }
+}
