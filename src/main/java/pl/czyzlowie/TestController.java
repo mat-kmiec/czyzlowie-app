@@ -32,11 +32,6 @@ public class TestController {
         return "error/error";
     }
 
-    @GetMapping("/barometr")
-    public String barometer(){
-        return "essentials/barometr";
-    }
-
     @GetMapping("/regulamin")
     public String regulamin(){
         return "info/regulamin";
