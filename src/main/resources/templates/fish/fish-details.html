@@ -7,6 +7,67 @@
         currentUrl='https://czyzlowie.pl/ryby/' + ${fish.slug}
     )}"></th:block>
 
+    <script type="application/ld+json" th:inline="javascript">
+        {
+            "@context": "https://schema.org",
+            "@graph": [
+                {
+                    "@type": "BreadcrumbList",
+                    "itemListElement": [
+                        {
+                            "@type": "ListItem",
+                            "position": 1,
+                            "name": "Główna",
+                            "item": "https://czyzlowie.pl/"
+                        },
+                        {
+                            "@type": "ListItem",
+                            "position": 2,
+                            "name": "Atlas Ryb",
+                            "item": "https://czyzlowie.pl/ryby"
+                        },
+                        {
+                            "@type": "ListItem",
+                            "position": 3,
+                            "name": [[${fish.category.displayName}]],
+                            "item": [[${fish.category.name() == 'PREDATOR' ? 'https://czyzlowie.pl/ryby/kategoria/drapiezne' : 'https://czyzlowie.pl/ryby/kategoria/bialoryb'}]]
+                        },
+                        {
+                            "@type": "ListItem",
+                            "position": 4,
+                            "name": [[${fish.name}]],
+                            "item": [[${'https://czyzlowie.pl/ryby/' + fish.slug}]]
+                        }
+                    ]
+                },
+                {
+                    "@type": "Article",
+                    "mainEntityOfPage": {
+                        "@type": "WebPage",
+                        "@id": [[${'https://czyzlowie.pl/ryby/' + fish.slug}]]
+                    },
+                    "headline": [[${fish.name + ' (' + (fish.latinName != null ? fish.latinName : 'Ryba') + ') - Kompletny poradnik | Atlas Ryb'}]],
+                    "description": [[${'Jak łowić ' + fish.name + '? Poznaj optymalne warunki meteo, kalendarz brań, najlepsze przynęty, regulamin PZW i złóż idealny zestaw.'}]],
+                    "image": [[${fish.imgUrl != null ? 'https://czyzlowie.pl' + fish.imgUrl : 'https://czyzlowie.pl/assets/fish/default.jpg'}]],
+                    "author": {
+                        "@type": "Organization",
+                        "name": "CzyZlowie",
+                        "url": "https://czyzlowie.pl/"
+                    },
+                    "publisher": {
+                        "@type": "Organization",
+                        "name": "CzyZlowie",
+                        "logo": {
+                            "@type": "ImageObject",
+                            "url": "https://czyzlowie.pl/assets/logo.png"
+                        }
+                    }
+                }
+            ]
+        }
+    </script>
+
+
     <link rel="stylesheet" th:href="@{/css/main.css}">
     <link rel="stylesheet" th:href="@{/css/atlas.css}">
 </head>
@@ -18,14 +79,19 @@
 
     <header class="atlas-hero">
         <picture class="hero-bg">
-            <source media="(max-width: 768px)" th:srcset="${fish.imgUrl != null ? fish.imgUrl : '/assets/fish/default.jpg'}">
-            <img th:src="${fish.imgUrl != null ? fish.imgUrl : '/assets/fish/default.jpg'}" th:alt="${fish.name}" class="img-fluid" style="object-fit: cover; width: 100%; height: 100%;">
+            <img th:src="${fish.imgUrl != null ? fish.imgUrl : '/assets/fish/default.jpg'}"
+                 th:alt="'Jak złowić: ' + ${fish.name} + ' - techniki, przynęty i kalendarz brań'"
+                 class="img-fluid"
+                 style="object-fit: cover; width: 100%; height: 100%;"
+                 width="1920" height="1080"
+                 fetchpriority="high"
+                 loading="eager">
         </picture>
         <div class="hero-overlay"></div>
 
         <div class="container-xl position-relative z-2 h-100 d-flex flex-column justify-content-end pb-5">
-            <nav aria-label="breadcrumb" class="mb-4">
-                <ol class="breadcrumb custom-breadcrumb shadow-lg">
+            <nav aria-label="breadcrumb" class="mb-4 d-none d-md-block">
+                <ol class="breadcrumb custom-breadcrumb breadcrumb-mobile-scroll shadow-lg">
                     <li class="breadcrumb-item"><a th:href="@{/}"><i data-lucide="home" class="bc-icon"></i> Główna</a></li>
                     <li class="breadcrumb-item"><a th:href="@{/ryby}">Atlas Ryb</a></li>
                     <li class="breadcrumb-item"><a th:href="@{/ryby/kategoria/{cat}(cat=${fish.category.name() == 'PREDATOR' ? 'drapiezne' : 'bialoryb'})}" th:text="${fish.category.displayName}">Kategoria</a></li>
@@ -35,7 +101,7 @@
 
             <div class="hero-titles d-flex justify-content-between align-items-end flex-wrap gap-4">
                 <div class="hero-text-content">
-                    <div class="badge-category mb-2" th:classappend="${fish.category.name() == 'PREDATOR' ? 'bg-danger text-white' : 'bg-success text-white'}">
+                    <div class="badge-category mb-2" th:classappend="${fish.category.name() == 'PREDATOR' ? 'text-danger' : 'text-success'}">
                         <i th:if="${fish.category.name() == 'PREDATOR'}" data-lucide="crosshair"></i>
                         <i th:if="${fish.category.name() == 'PEACEFUL'}" data-lucide="leaf"></i>
                         <span th:text="${fish.category.displayName}">Kategoria</span>
@@ -46,16 +112,33 @@
 
                 <div class="fish-rpg-stats d-none d-md-flex gap-4" th:if="${fish.algorithmParams != null}">
                     <div class="rpg-stat">
-                        <span class="rpg-label">Zależność: Temperatura <i data-lucide="thermometer" class="ms-1 text-warning" style="width: 12px;"></i></span>
-                        <div class="rpg-bar"><div class="rpg-fill bg-warning glow-warning" th:style="'width: ' + (${fish.algorithmParams.weightWaterTemp} ?: 0) + '%;'"></div></div>
+                        <span class="rpg-label">
+                            Zależność: Temperatura
+                            <i data-lucide="thermometer" class="ms-1 text-warning icon-sm-align"></i>
+                        </span>
+                        <div class="rpg-bar">
+                            <div class="rpg-fill bg-warning glow-warning" th:style="'width: ' + (${fish.algorithmParams.weightWaterTemp} ?: 0) + '%;'"></div>
+                        </div>
                     </div>
+
                     <div class="rpg-stat">
-                        <span class="rpg-label">Zależność: Ciśnienie <i data-lucide="gauge" class="ms-1 text-info" style="width: 12px;"></i></span>
-                        <div class="rpg-bar"><div class="rpg-fill bg-info glow-info" th:style="'width: ' + (${fish.algorithmParams.weightPressure} ?: 0) + '%;'"></div></div>
+                        <span class="rpg-label">
+                            Zależność: Ciśnienie
+                            <i data-lucide="gauge" class="ms-1 text-info icon-sm-align"></i>
+                        </span>
+                        <div class="rpg-bar">
+                            <div class="rpg-fill bg-info glow-info" th:style="'width: ' + (${fish.algorithmParams.weightPressure} ?: 0) + '%;'"></div>
+                        </div>
                     </div>
+
                     <div class="rpg-stat">
-                        <span class="rpg-label">Zależność: Wiatr/Fala <i data-lucide="wind" class="ms-1 text-primary" style="width: 12px;"></i></span>
-                        <div class="rpg-bar"><div class="rpg-fill bg-primary glow-info" th:style="'width: ' + (${fish.algorithmParams.weightWind} ?: 0) + '%;'"></div></div>
+                        <span class="rpg-label">
+                            Zależność: Wiatr/Fala
+                            <i data-lucide="wind" class="ms-1 text-primary icon-sm-align"></i>
+                        </span>
+                        <div class="rpg-bar">
+                            <div class="rpg-fill bg-primary glow-info" th:style="'width: ' + (${fish.algorithmParams.weightWind} ?: 0) + '%;'"></div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -68,7 +151,7 @@
             <article class="col-lg-8">
 
                 <nav class="toc-panel glass-panel mb-5 p-4">
-                    <h4 class="fs-6 text-uppercase fw-bold text-muted mb-3 d-flex align-items-center"><i data-lucide="list" class="me-2 text-accent-blue" style="width:20px;"></i> Szybka nawigacja</h4>
+                    <h4 class="fs-6 text-uppercase fw-bold mb-3 d-flex align-items-center"><i data-lucide="list" class="me-2 text-accent-blue" style="width:20px;"></i> Szybka nawigacja</h4>
                     <ul class="toc-list">
                         <li><a href="#biologia">Biologia i opis gatunku</a></li>
                         <li><a href="#warunki">Optymalne warunki meteo</a></li>
@@ -98,7 +181,7 @@
                     <div class="section-header border-0 mb-0 pb-0">
                         <div class="icon-wrapper bg-orange"><i data-lucide="bar-chart-2"></i></div>
                         <div>
-                            <h3 class="mb-1">Idealne warunki do brań</h3>
+                            <h3 th:text="'Kiedy bierze ' + ${fish.name} + '? Optymalne warunki'">Kiedy bierze?</h3>
                             <p class="text-muted-pro fs-7 mb-0">Parametry wyzwalające żerowanie w algorytmie</p>
                         </div>
                     </div>
