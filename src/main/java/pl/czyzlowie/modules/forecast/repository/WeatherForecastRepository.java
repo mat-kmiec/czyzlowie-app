@@ -64,4 +64,11 @@ public interface WeatherForecastRepository extends JpaRepository<WeatherForecast
             "ORDER BY f.forecastTime ASC")
     List<ForecastPressurePoint> findPressureForecast(@Param("stationId") String stationId, @Param("now") LocalDateTime now);
 
+    @Query("SELECT f.forecastTime AS forecastTime, f.pressure AS pressure " +
+            "FROM WeatherForecast f " +
+            "WHERE f.virtualStation.id = :stationId " +
+            "AND f.forecastTime >= :now " +
+            "ORDER BY f.forecastTime ASC")
+    List<ForecastPressurePoint> findVirtualPressureForecast(@Param("stationId") String stationId, @Param("now") LocalDateTime now);
+
 }

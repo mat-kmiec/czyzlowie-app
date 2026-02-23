@@ -1,6 +1,9 @@
 package pl.czyzlowie.modules.forecast.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+import pl.czyzlowie.modules.barometer.dto.ForecastPressurePoint;
 import pl.czyzlowie.modules.forecast.entity.VirtualStationData;
 
 import java.time.LocalDateTime;
@@ -31,4 +34,12 @@ public interface VirtualStationDataRepository extends JpaRepository<VirtualStati
             Collection<String> stationIds,
             Collection<LocalDateTime> measurementTimes
     );
+
+    @Query("SELECT v.measurementTime AS forecastTime, v.pressure AS pressure " +
+            "FROM VirtualStationData v WHERE v.virtualStation.id = :stationId " +
+            "AND v.measurementTime >= :start AND v.measurementTime <= :end " +
+            "ORDER BY v.measurementTime ASC")
+    List<ForecastPressurePoint> findPressureHistory(@Param("stationId") String stationId,
+                                                    @Param("start") LocalDateTime start,
+                                                    @Param("end") LocalDateTime end);
 }

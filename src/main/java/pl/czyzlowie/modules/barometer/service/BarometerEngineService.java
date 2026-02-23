@@ -13,8 +13,9 @@ import pl.czyzlowie.modules.barometer.entity.StationBarometerStats;
 import pl.czyzlowie.modules.barometer.entity.StationType;
 import pl.czyzlowie.modules.barometer.provider.BarometerDataProvider;
 import pl.czyzlowie.modules.barometer.repository.StationBarometerStatsRepository;
+import pl.czyzlowie.modules.forecast.repository.VirtualStationDataRepository;
 import pl.czyzlowie.modules.forecast.repository.WeatherForecastRepository;
-
+import pl.czyzlowie.modules.imgw.repository.ImgwSynopDataRepository;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -28,40 +29,46 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class BarometerEngineService {
 
-    private final BarometerDataProvider imgwProvider;
     private final StationBarometerStatsRepository statsRepository;
     private final WeatherForecastRepository forecastRepository;
+    private final ImgwSynopDataRepository imgwDataRepository;
+    private final VirtualStationDataRepository virtualDataRepository;
 
     @Transactional
     public void calculateAndSaveStats(String stationId, StationType type) {
-        log.info("Rozpoczynam obliczanie statystyk barometrycznych dla stacji: {} ({})", stationId, type);
+//        log.info("Rozpoczynam obliczanie statystyk: {} ({})", stationId, type);
 
-        LocalDateTime since = LocalDateTime.now().minusHours(120 + 12);
-        List<PressurePoint> rawHistory = (type == StationType.IMGW_SYNOP)
-                ? imgwProvider.getPressureHistory(stationId, since)
-                : Collections.emptyList();
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime since = now.minusHours(132);
 
-        if (rawHistory == null || rawHistory.isEmpty()) {
-            log.warn("Brak danych historycznych dla stacji {}.", stationId);
+        TreeMap<LocalDateTime, BigDecimal> historyTimeline;
+        List<ForecastPressurePoint> rawForecast;
+
+        if (type == StationType.IMGW_SYNOP) {
+            List<PressurePoint> rawHistory = imgwDataRepository.findPressureHistory(stationId, since.toLocalDate());
+            historyTimeline = buildHistoryTimelineFromImgw(rawHistory);
+            rawForecast = forecastRepository.findPressureForecast(stationId, now);
+        } else {
+            List<ForecastPressurePoint> rawHistory = virtualDataRepository.findPressureHistory(stationId, since, now);
+            historyTimeline = buildHistoryTimelineFromVirtual(rawHistory);
+            rawForecast = forecastRepository.findVirtualPressureForecast(stationId, now);
+        }
+
+        if (historyTimeline.isEmpty()) {
+            log.warn("Brak danych historycznych w dedykowanych tabelach dla stacji {}. Przerywam.", stationId);
             return;
         }
 
-        TreeMap<LocalDateTime, BigDecimal> historyTimeline = buildHistoryTimeline(rawHistory);
         LocalDateTime latestMeasurementTime = historyTimeline.lastKey();
         BigDecimal currentPressure = historyTimeline.get(latestMeasurementTime);
+
+        TreeMap<LocalDateTime, BigDecimal> forecastTimeline = buildForecastTimeline(rawForecast);
 
         BigDecimal p24 = getClosestPressure(historyTimeline, latestMeasurementTime.minusHours(24));
         BigDecimal p72 = getClosestPressure(historyTimeline, latestMeasurementTime.minusHours(72));
         BigDecimal p120 = getClosestPressure(historyTimeline, latestMeasurementTime.minusHours(120));
 
-        List<ForecastPressurePoint> rawForecast = (type == StationType.IMGW_SYNOP)
-                ? forecastRepository.findPressureForecast(stationId, latestMeasurementTime)
-                : Collections.emptyList();
-
-        TreeMap<LocalDateTime, BigDecimal> forecastTimeline = buildForecastTimeline(rawForecast);
-
         BarometerChartData chartData = buildChartData(historyTimeline, forecastTimeline, latestMeasurementTime);
-
         boolean isFrontApproaching = detectApproachingFront(currentPressure, forecastTimeline, latestMeasurementTime);
 
         StationBarometerId id = new StationBarometerId(stationId, type);
@@ -75,17 +82,25 @@ public class BarometerEngineService {
         stats.setTrend24h(determineTrend(stats.getDelta24h()));
         stats.setPressureStabilityIndex(calculateStabilityIndex(historyTimeline, latestMeasurementTime));
         stats.setChartData(chartData);
-
         stats.setFrontApproaching(isFrontApproaching);
+        stats.setLastUpdatedAt(now);
 
         statsRepository.save(stats);
-        log.info("Zapisano pomyślnie statystyki i prognozę dla stacji: {}", stationId);
+//        log.info("Zaktualizowano statystyki dla stacji: {} ({})", stationId, type);
     }
 
-    private TreeMap<LocalDateTime, BigDecimal> buildHistoryTimeline(List<PressurePoint> points) {
+    private TreeMap<LocalDateTime, BigDecimal> buildHistoryTimelineFromImgw(List<PressurePoint> points) {
         TreeMap<LocalDateTime, BigDecimal> map = new TreeMap<>();
         for (PressurePoint p : points) {
             map.put(p.getMeasurementDate().atTime(p.getMeasurementHour(), 0), p.getPressure());
+        }
+        return map;
+    }
+
+    private TreeMap<LocalDateTime, BigDecimal> buildHistoryTimelineFromVirtual(List<ForecastPressurePoint> points) {
+        TreeMap<LocalDateTime, BigDecimal> map = new TreeMap<>();
+        for (ForecastPressurePoint p : points) {
+            map.put(p.getForecastTime(), p.getPressure());
         }
         return map;
     }
@@ -105,7 +120,8 @@ public class BarometerEngineService {
         SortedMap<LocalDateTime, BigDecimal> next48h = forecast.headMap(limit, true);
 
         if (next48h.isEmpty()) return false;
-        BigDecimal highestInForecast = next48h.values().iterator().next();
+
+        BigDecimal highestInForecast = currentPressure;
         BigDecimal maxDrop = BigDecimal.ZERO;
 
         for (BigDecimal futurePressure : next48h.values()) {
@@ -118,7 +134,6 @@ public class BarometerEngineService {
                 }
             }
         }
-
         return maxDrop.doubleValue() >= 7.0;
     }
 
@@ -143,6 +158,7 @@ public class BarometerEngineService {
     }
 
     private BigDecimal getClosestPressure(TreeMap<LocalDateTime, BigDecimal> timeline, LocalDateTime target) {
+        if (timeline.isEmpty()) return null;
         LocalDateTime floor = timeline.floorKey(target);
         LocalDateTime ceiling = timeline.ceilingKey(target);
         if (floor == null && ceiling == null) return null;
@@ -154,7 +170,7 @@ public class BarometerEngineService {
     }
 
     private BigDecimal calculateDelta(BigDecimal current, BigDecimal past) {
-        if (past == null) return BigDecimal.ZERO;
+        if (past == null || current == null) return BigDecimal.ZERO;
         return current.subtract(past).setScale(1, RoundingMode.HALF_UP);
     }
 
@@ -171,12 +187,18 @@ public class BarometerEngineService {
         LocalDateTime start3d = now.minusHours(72);
         List<BigDecimal> values3d = timeline.tailMap(start3d).values().stream().toList();
         if (values3d.isEmpty()) return 50;
-        BigDecimal max = values3d.stream().max(BigDecimal::compareTo).orElse(BigDecimal.ZERO);
-        BigDecimal min = values3d.stream().min(BigDecimal::compareTo).orElse(BigDecimal.ZERO);
+
+        BigDecimal max = values3d.stream().max(BigDecimal::compareTo).orElse(currentPressureFromTimeline(timeline));
+        BigDecimal min = values3d.stream().min(BigDecimal::compareTo).orElse(currentPressureFromTimeline(timeline));
+
         double difference = max.subtract(min).doubleValue();
         if (difference <= 2.0) return 100;
         if (difference >= 15.0) return 0;
         double score = 100.0 - ((difference - 2.0) / 13.0) * 100.0;
         return (int) Math.round(score);
+    }
+
+    private BigDecimal currentPressureFromTimeline(TreeMap<LocalDateTime, BigDecimal> timeline) {
+        return timeline.isEmpty() ? BigDecimal.valueOf(1013) : timeline.get(timeline.lastKey());
     }
 }

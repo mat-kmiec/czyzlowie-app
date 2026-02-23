@@ -1,12 +1,11 @@
 package pl.czyzlowie.modules.location.service;
 
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import pl.czyzlowie.modules.barometer.entity.StationType;
-import pl.czyzlowie.modules.forecast.entity.VirtualStation;
 import pl.czyzlowie.modules.forecast.repository.VirtualStationRepository;
-import pl.czyzlowie.modules.imgw.entity.ImgwSynopStation;
 import pl.czyzlowie.modules.imgw.repository.ImgwHydroStationRepository;
 import pl.czyzlowie.modules.imgw.repository.ImgwMeteoStationRepository;
 import pl.czyzlowie.modules.imgw.repository.ImgwSynopStationRepository;
