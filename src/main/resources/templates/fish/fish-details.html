@@ -121,14 +121,24 @@
                         <div class="col-6 col-md-3">
                             <div class="data-block">
                                 <i data-lucide="sun" class="data-icon text-primary"></i>
-                                <span class="data-val" th:text="${fish.algorithmParams != null && fish.algorithmParams.preferredTimeOfDay != null ? fish.algorithmParams.preferredTimeOfDay.name() : 'Brak danych'}"></span>
+
+                                <span class="data-val" th:switch="${fish.algorithmParams?.preferredTimeOfDay?.name()}">
+                                    <th:block th:case="'DAWN'">Świt</th:block>
+                                    <th:block th:case="'MORNING'">Poranek</th:block>
+                                    <th:block th:case="'NOON'">Południe</th:block>
+                                    <th:block th:case="'AFTERNOON'">Popołudnie</th:block>
+                                    <th:block th:case="'DUSK'">Zmierzch</th:block>
+                                    <th:block th:case="'NIGHT'">Noc</th:block>
+                                    <th:block th:case="*">Brak danych</th:block>
+                                </span>
+
                                 <span class="data-lbl">Pora dnia</span>
                             </div>
                         </div>
                         <div class="col-6 col-md-3">
                             <div class="data-block">
                                 <i data-lucide="moon" class="data-icon text-purple"></i>
-                                <span class="data-val" th:text="${fish.algorithmParams != null && fish.algorithmParams.preferredMoonPhase != null ? fish.algorithmParams.preferredMoonPhase.name() : 'Brak danych'}"></span>
+                                <span class="data-val" th:text="${fish.algorithmParams != null && fish.algorithmParams.preferredMoonPhase != null ? fish.algorithmParams.preferredMoonPhase.getName() : 'Brak danych'}"></span>
                                 <span class="data-lbl">Faza księżyca</span>
                             </div>
                         </div>
