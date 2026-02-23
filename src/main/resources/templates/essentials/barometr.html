@@ -241,7 +241,6 @@
     document.addEventListener('DOMContentLoaded', () => {
         lucide.createIcons();
 
-        // --- SKRYPT GEOKODOWANIA (NOWOŚĆ) ---
         const form = document.getElementById('geocoding-form');
         if (form) {
             form.addEventListener('submit', async function(e) {
@@ -251,13 +250,11 @@
                 const btnText = document.getElementById('btn-text');
                 const btnIcon = document.getElementById('btn-icon');
 
-                // Stan ładowania
                 const originalText = btnText.textContent;
                 btnText.textContent = 'Szukam...';
                 if(btnIcon) btnIcon.style.opacity = '0.5';
 
                 try {
-                    // Pytamy OpenStreetMap
                     const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(inputVal)}&countrycodes=pl&limit=1`);
                     const data = await response.json();
 
@@ -265,11 +262,9 @@
                         const lat = data[0].lat;
                         const lon = data[0].lon;
 
-                        // Upiększanie nazwy ("Zalew Zegrzyński, gmina Serock..." -> "Zalew Zegrzyński")
                         const rawName = data[0].name || inputVal;
                         const cleanName = rawName.split(',')[0].trim();
 
-                        // Przekierowanie do backendu
                         window.location.href = `/barometr?lat=${lat}&lon=${lon}&name=${encodeURIComponent(cleanName)}`;
                     } else {
                         alert("Nie znaleziono takiej lokalizacji. Spróbuj wpisać inną nazwę (np. najbliższe duże miasto).");
@@ -288,7 +283,6 @@
             });
         }
 
-        // --- SKRYPT WYKRESÓW (BEZ ZMIAN) ---
         Chart.defaults.color = '#64748b';
         Chart.defaults.font.family = "'Inter', sans-serif";
 
