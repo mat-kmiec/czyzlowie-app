@@ -10,6 +10,14 @@ import java.util.Optional;
 
 @Repository
 public interface FishSpeciesRepository extends JpaRepository<FishSpecies, Long>, JpaSpecificationExecutor<FishSpecies> {
-    @EntityGraph(attributePaths = {"algorithmParams"})
+
+    @EntityGraph(attributePaths = {
+            "algorithmParams",
+            "habitat",
+            "pzwRegulations",
+            "tackleSetup",
+            "polishRecord",
+            "activityCalendar"
+    })
     Optional<FishSpecies> findBySlug(String slug);
 }

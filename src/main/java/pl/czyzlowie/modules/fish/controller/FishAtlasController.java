@@ -4,12 +4,14 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.server.ResponseStatusException;
 import pl.czyzlowie.modules.fish.dto.FishDetailsDto;
 import pl.czyzlowie.modules.fish.dto.FishFilterDto;
 import pl.czyzlowie.modules.fish.dto.FishListElementDto;
@@ -35,6 +37,8 @@ public class FishAtlasController {
                 filter.setCategory(FishCategory.PREDATOR);
             } else if (categorySlug.equals("bialoryb")) {
                 filter.setCategory(FishCategory.PEACEFUL);
+            } else {
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Nieznana kategoria ryb");
             }
         }
 

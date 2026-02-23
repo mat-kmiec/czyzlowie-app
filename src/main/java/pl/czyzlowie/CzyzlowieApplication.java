@@ -10,6 +10,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @SpringBootApplication
 @EnableScheduling
 @EnableAsync
+@EnableCaching
 @ConfigurationPropertiesScan("pl.czyzlowie.modules.imgw.config")
 public class CzyzlowieApplication {
 
