@@ -18,6 +18,21 @@ import pl.czyzlowie.modules.fish.dto.FishListElementDto;
 import pl.czyzlowie.modules.fish.entity.enums.FishCategory;
 import pl.czyzlowie.modules.fish.service.FishSpeciesService;
 
+/**
+ * Web Controller for the Fish Atlas module, handling requests related to fish species browsing.
+ *
+ * This controller manages the presentation logic for both the paginated list of fish
+ * (with filtering support) and the detailed profiles of individual species. It acts
+ * as the bridge between the FishSpeciesService and the Thymeleaf view layer.
+ *
+ * Key responsibilities include:
+ * - URL Mapping: Handling SEO-friendly slugs for categories and specific fish.
+ * - Filtering and Pagination: Processing user search input and page navigation settings.
+ * - View Model Preparation: Populating the UI model with DTOs, category metadata,
+ * and current navigation paths for breadcrumbs or active links.
+ * - Error Handling: Throwing appropriate response status exceptions for unknown
+ * categories or missing species.
+ */
 @Controller
 @RequestMapping("/ryby")
 @RequiredArgsConstructor
@@ -25,6 +40,10 @@ public class FishAtlasController {
 
     private final FishSpeciesService fishSpeciesService;
 
+    /**
+     * Displays a paginated list of fish species.
+     * Supports optional category filtering via URL path and custom search criteria via query parameters.
+     */
     @GetMapping({"", "/kategoria/{categorySlug}"})
     public String listFish(
             @PathVariable(required = false) String categorySlug,
@@ -58,6 +77,10 @@ public class FishAtlasController {
         return "fish/fish-list";
     }
 
+
+    /**
+     * Displays the full profile of a single fish species identified by its unique slug.
+     */
     @GetMapping("/{slug}")
     public String fishDetails(@PathVariable String slug, Model model) {
         FishDetailsDto fishDto = fishSpeciesService.getFishDetailsDto(slug);

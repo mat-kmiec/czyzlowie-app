@@ -7,6 +7,27 @@ import pl.czyzlowie.modules.moon.entity.Enums.MoonPhaseType;
 
 import java.math.BigDecimal;
 
+/**
+ * A comprehensive Data Transfer Object (DTO) that provides the full set of information
+ * for a specific fish species.
+ *
+ * This DTO is the primary data source for the detailed view in the fish atlas. It
+ * aggregates basic identification data, biological descriptions, angling tips,
+ * official regulations, and technical parameters for the activity algorithm.
+ *
+ * The class contains several static nested DTOs to maintain a clean, structured
+ * hierarchy corresponding to the different sections of the user interface:
+ *
+ * - HabitatDto: Details about water preferences, depth, and substrate.
+ * - TackleDto: Recommendations for equipment and bait selection.
+ * - RecordDto: Historical maximums for the species in Poland.
+ * - PzwDto: Legal fishing rules and protection periods.
+ * - CalendarDto: Monthly biological activity baseline.
+ * - AlgorithmDto: Specific environmental thresholds used for scoring predictions.
+ *
+ * This object is typically mapped from a fully initialized FishSpecies entity
+ * (usually fetched with an EntityGraph to avoid N+1 queries).
+ */
 @Data
 @Builder
 public class FishDetailsDto {

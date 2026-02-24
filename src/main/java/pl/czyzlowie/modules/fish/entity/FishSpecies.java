@@ -9,6 +9,26 @@ import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 import pl.czyzlowie.modules.fish.entity.enums.FishCategory;
 
+
+/**
+ * Represents a specific fish species within the fish atlas module.
+ *
+ * The FishSpecies entity is the central point of the fish-related data model. It aggregates
+ * general information, biological classification, habitat requirements, angling techniques,
+ * and legal regulations for a given species.
+ * * It also holds technical parameters used by forecasting algorithms and lunar phase
+ * calculations to determine the best fishing times.
+ *
+ * Key components include:
+ * - Basic identification: Name (Polish, Latin, English) and URL-friendly slug.
+ * - Biological & Habitat data: Category (predator/peaceful) and preferred living conditions.
+ * - Angling context: Recommended tackle setup, PZW regulations, and record catches in Poland.
+ * - Temporal data: Activity calendar across months.
+ * - Algorithm data: Detailed parameters for weather-based activity prediction and custom JSON rules.
+ *
+ * This entity uses a mix of standard columns, embedded objects ({@code @Embedded}),
+ * and a one-to-one relationship with algorithm parameters.
+ */
 @Entity
 @Table(name = "fish_species")
 @Getter

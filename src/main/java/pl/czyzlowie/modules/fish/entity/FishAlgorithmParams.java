@@ -9,6 +9,27 @@ import pl.czyzlowie.modules.moon.entity.Enums.MoonPhaseType;
 
 import java.math.BigDecimal;
 
+/**
+ * Defines the technical parameters and weighting factors used by the activity forecasting
+ * algorithm for a specific fish species.
+ *
+ * This entity acts as a configuration profile that allows the system to calculate an
+ * "activity score" by comparing real-time weather, lunar, and hydrological data against
+ * the species' ideal conditions.
+ *
+ * The parameters are organized into several logical groups:
+ *
+ * - Thermal Profile: Absolute activity ranges and optimal temperature windows.
+ * - Atmospheric Conditions: Tolerance for air pressure levels/trends, cloud cover, and rain.
+ * - Hydrological Factors: Preferred water level trends and maximum allowed water discharge.
+ * - Wind Conditions: Limits for sustained wind speed and maximum gusts.
+ * - Lunar and Solar: Preferred moon phases, illumination percentages, and specific times of day.
+ * - Scoring Weights: Values that determine the relative importance of each factor in the
+ * final calculation (e.g., prioritizing water temperature over air pressure).
+ *
+ * This entity is linked to FishSpecies via a one-to-one relationship and is fundamental
+ * to the application's predictive capabilities.
+ */
 @Entity
 @Table(name = "fish_algorithm_params")
 @Getter
