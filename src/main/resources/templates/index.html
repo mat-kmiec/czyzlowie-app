@@ -1,31 +1,191 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" lang="pl">
 <head>
     <th:block th:replace="~{fragments/head :: head-content}"></th:block>
+
     <script type="application/ld+json">
         {
             "@context": "https://schema.org",
             "@type": "WebApplication",
-            "name": "CzyZlowie.pl - Kalkulator Brań",
+            "name": "CzyZlowie.pl - Profesjonalna Prognoza Brań i Barometr",
             "url": "https://czyzlowie.pl",
-            "description": "Profesjonalna prognoza brań ryb oparta o parametry meteo, hydro, synop i barometr.",
-            "applicationCategory": "Narzędzie Wędkarskie",
-            "operatingSystem": "All",
-            "author": {
-                "@type": "Person",
-                "name": "Mateusz Kmiec"
-            }
+            "description": "Najdokładniejszy kalendarz brań w Polsce. Analiza na żywo danych meteo, stanów rzek (hydro) oraz stacji IMGW (synop).",
+            "applicationCategory": "SportsApplication",
+            "operatingSystem": "Web",
+            "author": { "@type": "Organization", "name": "CzyZlowie" }
         }
     </script>
+
     <link rel="stylesheet" th:href="@{/css/home-hero.css}">
 </head>
-<body class="bg-dark">
-    <nav th:replace="~{fragments/navbar :: navbar}"></nav>
-    <main class="container mt-5 bg-dark">
-        <h1>Witaj na łowisku!</h1>
-    </main>
+<body class="bg-dark hero-page-body">
+
+<nav th:replace="~{fragments/navbar :: navbar}"></nav>
+
+<div class="tactical-ambient-bg" aria-hidden="true"></div>
+<div class="glow-orb orb-primary" aria-hidden="true"></div>
+<div class="glow-orb orb-secondary" aria-hidden="true"></div>
+
+<main class="hero-container container-xl position-relative z-2 d-flex align-items-center">
+    <div class="row g-4 g-xl-5 align-items-center m-0 w-100">
+
+        <div class="col-lg-6 hero-content-col order-1 order-lg-0 text-center text-lg-start z-3 mt-5 mt-lg-0">
+
+            <h1 class="hero-title fw-black text-white mb-3 mb-md-4 lh-sm reveal-anim" style="animation-delay: 0.2s;">
+                Profesjonalna Prognoza Brań.<br>
+                <span class="text-gradient-neon">Przestań zgadywać.</span>
+            </h1>
+
+            <p class="hero-subtitle text-light-muted mb-4 mb-md-5 lh-lg reveal-anim mx-auto mx-lg-0" style="animation-delay: 0.3s;">
+                Jedyny taki kalkulator wędkarski. Przetwarzamy tysiące rekordów <strong>meteo</strong>,
+                odczyty wodowskazów <strong>hydro</strong> i dane <strong>synoptyczne</strong> IMGW.
+                Odkryj matematycznie wyliczone okienka żerowania drapieżników i białorybu.
+            </p>
+
+            <div class="d-flex flex-column flex-sm-row gap-3 justify-content-center justify-content-lg-start reveal-anim" style="animation-delay: 0.4s;">
+                <a th:href="@{/prognoza}" class="btn btn-cyber-primary btn-lg fw-bold d-flex align-items-center justify-content-center gap-2">
+                    <i data-lucide="crosshair" aria-hidden="true"></i> Sprawdź Prognozę
+                </a>
+                <a th:href="@{/ryby}" class="btn btn-cyber-outline btn-lg fw-bold d-flex align-items-center justify-content-center gap-2">
+                    <i data-lucide="book-open" aria-hidden="true"></i> Atlas Ryb
+                </a>
+            </div>
+
+            <div class="trust-metrics mt-4 d-flex flex-wrap justify-content-center justify-content-lg-start gap-3 gap-md-4 reveal-anim" style="animation-delay: 0.5s;">
+                <div class="metric-item">
+                    <span class="metric-val text-white fw-black font-mono">IMGW</span>
+                    <span class="metric-label text-muted text-uppercase fw-bold">Dane Synop</span>
+                </div>
+                <div class="metric-divider border-start border-white-10"></div>
+                <div class="metric-item">
+                    <span class="metric-val text-white fw-black font-mono">NOAA</span>
+                    <span class="metric-label text-muted text-uppercase fw-bold">Modele Meteo</span>
+                </div>
+                <div class="metric-divider border-start border-white-10"></div>
+                <div class="metric-item">
+                    <span class="metric-val text-neon fw-black font-mono">LIVE</span>
+                    <span class="metric-label text-muted text-uppercase fw-bold">Stany Hydro</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6 d-flex justify-content-center align-items-center order-0 order-lg-1 reveal-anim" style="animation-delay: 0.3s;">
+
+            <div class="fluid-radar-wrapper">
+                <div class="f-corner top-left"></div>
+                <div class="f-corner top-right"></div>
+                <div class="f-corner bottom-left"></div>
+                <div class="f-corner bottom-right"></div>
+
+                <div class="f-telemetry t-top-left">
+                    <span class="f-tel-label">CIŚNIENIE</span>
+                    <span class="f-tel-val text-neon"><span class="dyn-msl">1014.2</span><small>hPa</small></span>
+                </div>
+                <div class="f-telemetry t-top-right text-end">
+                    <span class="f-tel-label">STAN HYDRO</span>
+                    <span class="f-tel-val text-white"><span class="dyn-hydro">124</span><small>cm</small></span>
+                </div>
+                <div class="f-telemetry t-bottom-left">
+                    <span class="f-tel-label">TEMP. WODY</span>
+                    <span class="f-tel-val text-white"><span class="dyn-temp">12.8</span><small>°C</small></span>
+                </div>
+                <div class="f-telemetry t-bottom-right text-end">
+                    <span class="f-tel-label">CEL</span>
+                    <span class="f-tel-val text-danger ls-1">SZCZUPAK</span>
+                </div>
+
+                <div class="f-radar-core" id="radar-core">
+                    <div class="f-ring f-ring-1"></div>
+                    <div class="f-ring f-ring-2"></div>
+                    <div class="f-ring f-ring-3"></div>
+                    <div class="f-axis f-axis-x"></div>
+                    <div class="f-axis f-axis-y"></div>
+                    <div class="f-sweep"></div>
+
+                    <div id="radar-targets-layer"></div>
+
+                    <div class="f-center-boat">
+                        <i data-lucide="anchor" class="boat-icon" aria-hidden="true"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</main>
 
 
-    <footer th:replace="~{fragments/footer :: footer}"></footer>
+
+
+<footer th:replace="~{fragments/footer :: footer}"></footer>
+
+<script th:inline="javascript">
+    document.addEventListener('DOMContentLoaded', () => {
+        if (typeof lucide !== 'undefined') lucide.createIcons();
+
+        const targetsLayer = document.getElementById('radar-targets-layer');
+
+        function spawnTarget() {
+            if(!targetsLayer) return;
+
+            const angle = Math.random() * Math.PI * 2;
+            const distancePercent = 15 + Math.random() * 30;
+
+            const posX = 50 + (Math.cos(angle) * distancePercent);
+            const posY = 50 + (Math.sin(angle) * distancePercent);
+
+            const target = document.createElement('div');
+            target.className = 'f-target';
+
+            const rotation = Math.floor(Math.random() * 360);
+
+            target.innerHTML = `
+                <svg style="transform: rotate(${rotation}deg); width: 100%; height: 100%;"
+                     xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+                     fill="none" stroke="currentColor" stroke-width="2.5"
+                     stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M2 16s9-15 20-4C11 23 2 8 2 8"/>
+                </svg>
+            `;
+
+            if(Math.random() > 0.8) {
+                target.classList.add('f-predator');
+            }
+
+            target.style.left = `${posX}%`;
+            target.style.top = `${posY}%`;
+
+            targetsLayer.appendChild(target);
+
+            setTimeout(() => target.remove(), 3500);
+        }
+
+        setInterval(spawnTarget, 1200);
+
+        const updateSensor = (selector, variability, decimals, interval) => {
+            setInterval(() => {
+                document.querySelectorAll(selector).forEach(el => {
+                    let current = parseFloat(el.innerText);
+                    if(!isNaN(current)) {
+                        let change = (Math.random() - 0.5) * variability;
+                        el.innerText = (current + change).toFixed(decimals);
+                    }
+                });
+            }, interval);
+        };
+
+        updateSensor('.dyn-msl', 0.4, 1, 2500);
+        updateSensor('.dyn-temp', 0.2, 1, 4000);
+
+        setInterval(() => {
+            document.querySelectorAll('.dyn-hydro').forEach(el => {
+                if(Math.random() > 0.7) {
+                    let current = parseInt(el.innerText);
+                    el.innerText = current + (Math.random() > 0.5 ? 1 : -1);
+                }
+            });
+        }, 5000);
+    });
+</script>
 </body>
 </html>
