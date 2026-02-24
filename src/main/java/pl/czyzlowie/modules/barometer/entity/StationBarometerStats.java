@@ -12,6 +12,17 @@ import pl.czyzlowie.modules.barometer.dto.BarometerChartData;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+/**
+ * Represents statistical data related to barometric pressure for a specific weather station.
+ *
+ * This entity is used to store various metrics and trends about the barometric pressure
+ * collected from weather stations, including current pressure, trends, changes over time,
+ * and graphical data for visualization.
+ *
+ * The entity is mapped to the "station_barometer_stats" database table.
+ * It contains fields such as current pressure, pressure trends over various time intervals,
+ * chart data for barometric trends, and metadata such as the last update timestamp.
+ */
 @Entity
 @Table(name = "station_barometer_stats")
 @Data
