@@ -19,7 +19,7 @@ public interface MapSpotRepository extends JpaRepository<MapSpot, Long>, JpaSpec
     @Query("SELECT s FROM MapSpot s WHERE " +
             "(s.latitude BETWEEN :south AND :north AND s.longitude BETWEEN :west AND :east) " +
             "OR TYPE(s) = RestrictionSpot")
-    List<MapSpot> findInBoundsOrRestrictions(
+    List<MapSpot> findInBounds(
             @Param("south") Double south,
             @Param("north") Double north,
             @Param("west") Double west,

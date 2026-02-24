@@ -3,7 +3,6 @@ package pl.czyzlowie.modules.map.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import pl.czyzlowie.modules.imgw.repository.ImgwHydroStationRepository;
 import pl.czyzlowie.modules.imgw.repository.ImgwMeteoStationRepository;
 import pl.czyzlowie.modules.imgw.repository.ImgwSynopStationRepository;
@@ -13,8 +12,10 @@ import pl.czyzlowie.modules.map.entity.RestrictionSpot;
 import pl.czyzlowie.modules.map.repository.MapSpotRepository;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
@@ -29,63 +30,86 @@ public class MapMarkerService {
     private final ImgwMeteoStationRepository imgwMeteoStationRepository;
     private final MapSpotRepository mapSpotRepository;
 
-    @Transactional(readOnly = true)
     public List<MapMarkerDto> getMarkersInBounds(Double north, Double south, Double east, Double west) {
-        List<MapMarkerDto> markers = Stream.of(
-                fetchAndMap(() -> imgwSynopStationRepository.findInBounds(south, north, west, east),
-                        st -> createBasicMarker(st.getId(), st.getName(), "SYNOP", st.getLatitude(), st.getLongitude())),
+        var synopFuture = CompletableFuture.supplyAsync(() -> fetchAndMap(
+                () -> imgwSynopStationRepository.findInBounds(south, north, west, east),
+                st -> createBasicMarker(st.getId(), st.getName(), "SYNOP", toDouble(st.getLatitude()), toDouble(st.getLongitude()))));
 
-                fetchAndMap(() -> imgwHydroStationRepository.findInBounds(south, north, west, east),
-                        h -> createBasicMarker(h.getId(), h.getName(), "HYDRO", h.getLatitude(), h.getLongitude())),
+        var hydroFuture = CompletableFuture.supplyAsync(() -> fetchAndMap(
+                () -> imgwHydroStationRepository.findInBounds(south, north, west, east),
+                h -> createBasicMarker(h.getId(), h.getName(), "HYDRO", toDouble(h.getLatitude()), toDouble(h.getLongitude()))));
 
-                fetchAndMap(() -> imgwMeteoStationRepository.findInBounds(south, north, west, east),
-                        m -> createBasicMarker(m.getId(), m.getName(), "METEO", m.getLatitude(), m.getLongitude())),
+        var meteoFuture = CompletableFuture.supplyAsync(() -> fetchAndMap(
+                () -> imgwMeteoStationRepository.findInBounds(south, north, west, east),
+                m -> createBasicMarker(m.getId(), m.getName(), "METEO", toDouble(m.getLatitude()), toDouble(m.getLongitude()))));
 
-                fetchAndMap(() -> mapSpotRepository.findInBoundsOrRestrictions(south, north, west, east),
-                        this::mapSpotToDto)
-        ).flatMap(Function.identity()).toList();
+        var spotFuture = CompletableFuture.supplyAsync(() -> fetchAndMap(
+                () -> mapSpotRepository.findInBounds(south, north, west, east),
+                this::mapSpotToDto));
+
+        List<MapMarkerDto> markers = Stream.of(synopFuture, hydroFuture, meteoFuture, spotFuture)
+                .map(CompletableFuture::join)
+                .flatMap(List::stream)
+                .toList();
 
         log.debug("Zmapowano {} punktów dla obszaru ekranu", markers.size());
         return markers;
     }
 
-    @Transactional(readOnly = true)
     public List<MapMarkerDto> getAllMarkers() {
-        return Stream.of(
-                fetchAndMap(imgwSynopStationRepository::findAll,
-                        st -> createBasicMarker(st.getId(), st.getName(), "SYNOP", st.getLatitude(), st.getLongitude())),
+        var synopFuture = CompletableFuture.supplyAsync(() -> fetchAndMap(
+                imgwSynopStationRepository::findAll,
+                st -> createBasicMarker(st.getId(), st.getName(), "SYNOP", toDouble(st.getLatitude()), toDouble(st.getLongitude()))));
 
-                fetchAndMap(imgwHydroStationRepository::findAll,
-                        h -> createBasicMarker(h.getId(), h.getName(), "HYDRO", h.getLatitude(), h.getLongitude())),
+        var hydroFuture = CompletableFuture.supplyAsync(() -> fetchAndMap(
+                imgwHydroStationRepository::findAll,
+                h -> createBasicMarker(h.getId(), h.getName(), "HYDRO", toDouble(h.getLatitude()), toDouble(h.getLongitude()))));
 
-                fetchAndMap(imgwMeteoStationRepository::findAll,
-                        m -> createBasicMarker(m.getId(), m.getName(), "METEO", m.getLatitude(), m.getLongitude())),
+        var meteoFuture = CompletableFuture.supplyAsync(() -> fetchAndMap(
+                imgwMeteoStationRepository::findAll,
+                m -> createBasicMarker(m.getId(), m.getName(), "METEO", toDouble(m.getLatitude()), toDouble(m.getLongitude()))));
 
-                fetchAndMap(mapSpotRepository::findAll,
-                        this::mapSpotToDto)
-        ).flatMap(Function.identity()).toList();
+        var spotFuture = CompletableFuture.supplyAsync(() -> fetchAndMap(
+                mapSpotRepository::findAll,
+                this::mapSpotToDto));
+
+        return Stream.of(synopFuture, hydroFuture, meteoFuture, spotFuture)
+                .map(CompletableFuture::join)
+                .flatMap(List::stream)
+                .toList();
     }
 
-
-    private <T> Stream<MapMarkerDto> fetchAndMap(Supplier<List<T>> dataProvider, Function<T, MapMarkerDto> mapper) {
+    private <T> List<MapMarkerDto> fetchAndMap(Supplier<List<T>> dataProvider, Function<T, MapMarkerDto> mapper) {
         return dataProvider.get().stream()
                 .map(mapper)
-                .filter(Objects::nonNull);
+                .filter(Objects::nonNull)
+                .toList();
     }
 
     private MapMarkerDto mapSpotToDto(MapSpot spot) {
         if (spot instanceof RestrictionSpot restriction) {
+            LocalDate today = LocalDate.now();
+
+            if (restriction.getStartDate() != null && today.isBefore(restriction.getStartDate())) {
+                return null;
+            }
+            if (restriction.getEndDate() != null && today.isAfter(restriction.getEndDate())) {
+                return null;
+            }
+
             return MapMarkerDto.builder()
-                    .id("SPOT_" + spot.getId())
-                    .name(spot.getName())
-                    .type(spot.getSpotType().name())
-                    .slug(spot.getSlug())
-                    .description(spot.getDescription())
+                    .id("SPOT_" + restriction.getId())
+                    .name(restriction.getName())
+                    .type(restriction.getSpotType().name())
+                    .slug(restriction.getSlug())
+                    .description(restriction.getDescription())
                     .startDate(restriction.getStartDate())
                     .endDate(restriction.getEndDate())
                     .restrictionType(restriction.getRestrictionType() != null
                             ? restriction.getRestrictionType().name() : "TOTAL_BAN")
                     .polygonCoordinates(restriction.getPolygonCoordinates())
+                    .lat(restriction.getLatitude())
+                    .lng(restriction.getLongitude())
                     .build();
         }
 
@@ -98,12 +122,12 @@ public class MapMarkerService {
                 .name(spot.getName())
                 .type(spot.getSpotType().name())
                 .slug(spot.getSlug())
-                .lat(BigDecimal.valueOf(spot.getLatitude()))
-                .lng(BigDecimal.valueOf(spot.getLongitude()))
+                .lat(spot.getLatitude())
+                .lng(spot.getLongitude())
                 .build();
     }
 
-    private MapMarkerDto createBasicMarker(String id, String name, String type, BigDecimal lat, BigDecimal lng) {
+    private MapMarkerDto createBasicMarker(String id, String name, String type, Double lat, Double lng) {
         if (lat == null || lng == null) {
             return null;
         }
@@ -116,5 +140,9 @@ public class MapMarkerService {
                 .lat(lat)
                 .lng(lng)
                 .build();
+    }
+
+    private Double toDouble(BigDecimal value) {
+        return value == null ? null : value.doubleValue();
     }
 }

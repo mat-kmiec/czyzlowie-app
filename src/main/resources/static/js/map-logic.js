@@ -5,7 +5,9 @@ class MapApplication {
         this.map = null;
         this.categories = CATEGORIES;
         this.locations = [];
+        this.locationIds = new Set();
         this.markersCache = {};
+        this.polygonCache = {};
         this.fetchTimeout = null;
         this.allDataLoaded = false;
 
@@ -62,11 +64,14 @@ class MapApplication {
         await this.setInitialView();
 
         this.map.on('moveend', () => {
-            if (this.allDataLoaded) return;
+            if (this.allDataLoaded) {
+                this.updateSidebarForCurrentBounds();
+                return;
+            }
             clearTimeout(this.fetchTimeout);
             this.fetchTimeout = setTimeout(() => {
                 this.fetchLocationsForCurrentBounds();
-            }, 300);
+            }, 350);
         });
 
         this.attachEventListeners();
@@ -110,122 +115,29 @@ class MapApplication {
     toggleLoader(show, text = 'Ładowanie...') {
         const loader = document.getElementById('map-loader');
         if (!loader) return;
-
         const textEl = loader.querySelector('.loader-text');
         if (textEl) textEl.innerText = text;
-
-        if (show) {
-            loader.classList.add('active');
-        } else {
-            loader.classList.remove('active');
-        }
+        show ? loader.classList.add('active') : loader.classList.remove('active');
     }
 
     initMap() {
-        this.map = L.map('map', {
-            zoomControl: false,
-            preferCanvas: true
-        });
+        this.map = L.map('map', { zoomControl: false, preferCanvas: true });
         this.baseLayers[this.currentBaseLayer].addTo(this.map);
+        this.polygonsGroup = L.layerGroup().addTo(this.map);
 
-        this.map.on('locationfound', (e) => {
-            this.handleLocationFound(e);
-        });
-
+        this.map.on('locationfound', (e) => this.handleLocationFound(e));
         this.map.on('locationerror', (e) => {
             console.warn("Błąd lokalizacji:", e.message);
-            alert("Nie udało się pobrać lokalizacji. Upewnij się, że masz włączony GPS i wyraziłeś zgodę w przeglądarce.");
         });
-    }
-
-    async fetchLocationsForCurrentBounds() {
-        if (!this.map || this.allDataLoaded) return;
-        this.toggleLoader(true, 'Pobieram łowiska...');
-
-        const bounds = this.map.getBounds();
-        const north = bounds.getNorth();
-        const south = bounds.getSouth();
-        const east = bounds.getEast();
-        const west = bounds.getWest();
-
-        const latSpread = Math.abs(north - south);
-        const lngSpread = Math.abs(east - west);
-        let url = `/api/map/markers?north=${north}&south=${south}&east=${east}&west=${west}`;
-        if (latSpread > 5.5 || lngSpread > 8) {
-            url = `/api/map/markers`;
-
-            this.allDataLoaded = true;
-            console.log("Oddalono mapę. Pobrano pełną bazę (100% kraju) i wyłączono zapytania API.");
-        }
-
-        try {
-            const response = await fetch(url);
-            if (!response.ok) throw new Error("Błąd pobierania danych");
-
-            const data = await response.json();
-            let addedNewLocations = false;
-
-            data.forEach(marker => {
-                const exists = this.locations.some(loc => loc.id === marker.id);
-
-                if (!exists) {
-                    const typeLower = marker.type ? marker.type.toLowerCase() : '';
-                    let baseUrl = '/synop';
-
-                    if (typeLower === 'hydro') baseUrl = '/hydro';
-                    else if (typeLower === 'meteo') baseUrl = '/meteo';
-                    else if (typeLower === 'slip') baseUrl = '/slip';
-                    else if (typeLower === 'lake') baseUrl = '/jezioro';
-                    else if (typeLower === 'river') baseUrl = '/rzeka';
-                    else if (typeLower === 'reservoir') baseUrl = '/zbiornik-zaporowy';
-                    else if (typeLower === 'commercial') baseUrl = '/lowisko-komercyjne';
-                    else if (typeLower === 'oxbow') baseUrl = '/starorzecze';
-                    else if (typeLower === 'specific_spot') baseUrl = '/miejscowka';
-
-                    this.locations.push({
-                        id: marker.id,
-                        name: marker.name,
-                        cat: typeLower,
-                        lat: marker.lat,
-                        lng: marker.lng,
-                        coords: marker.polygonCoordinates,
-                        description: marker.description,
-                        startDate: marker.startDate,
-                        endDate: marker.endDate,
-                        restrictionType: marker.restrictionType,
-                        url: `${baseUrl}/${marker.slug}`
-                    });
-                    addedNewLocations = true;
-                }
-            });
-
-            if (addedNewLocations) {
-                this.loadMarkers();
-                this.updateMapMarkers();
-                this.renderList(this.locations);
-            }
-
-        } catch (error) {
-            console.error('Błąd ładowania danych mapy:', error);
-        } finally {
-            this.toggleLoader(false);
-        }
     }
 
     initCustomControls() {
         const container = L.DomUtil.create('div', 'map-controls-container');
-
         const zoomGroup = L.DomUtil.create('div', 'map-controls-group', container);
         this.createBtn(zoomGroup, 'plus', 'Przybliż', () => this.map.zoomIn());
         this.createBtn(zoomGroup, 'minus', 'Oddal', () => this.map.zoomOut());
-
-        this.createBtn(container, 'navigation', 'Moja lokalizacja', () => {
-            this.map.locate({setView: true, maxZoom: 14});
-        });
-
-        this.createBtn(container, 'expand', 'Widok całej Polski', () => {
-            this.map.setView(MAP_CONFIG.initialCoords || [52.0, 19.0], 6);
-        });
+        this.createBtn(container, 'navigation', 'Moja lokalizacja', () => this.map.locate({setView: true, maxZoom: 14}));
+        this.createBtn(container, 'expand', 'Widok całej Polski', () => this.map.setView(MAP_CONFIG.initialCoords || [52.0, 19.0], 6));
 
         const customControl = L.Control.extend({
             options: { position: 'topright' },
@@ -246,23 +158,301 @@ class MapApplication {
     setupClusterGroup() {
         this.mainClusterGroup = L.markerClusterGroup({
             disableClusteringAtZoom: 14,
-            maxClusterRadius: 50
+            maxClusterRadius: 50,
+            chunkedLoading: true
         });
         this.map.addLayer(this.mainClusterGroup);
 
-        this.mainClusterGroup.on('animationend', () => {
-            if (window.lucide) lucide.createIcons();
-        });
-
-        this.mainClusterGroup.on('spiderfied', () => {
+        this.mainClusterGroup.on('animationend spiderfied', () => {
             if (window.lucide) lucide.createIcons();
         });
 
         this.map.on('zoomend', () => {
-            if (window.lucide) {
-                setTimeout(() => lucide.createIcons(), 50);
+            if (window.lucide) setTimeout(() => lucide.createIcons(), 50);
+        });
+    }
+
+    async fetchLocationsForCurrentBounds() {
+        if (!this.map || this.allDataLoaded) return;
+        this.toggleLoader(true, 'Pobieram łowiska...');
+
+        const bounds = this.map.getBounds();
+        const north = bounds.getNorth();
+        const south = bounds.getSouth();
+        const east = bounds.getEast();
+        const west = bounds.getWest();
+
+        const latSpread = Math.abs(north - south);
+        const lngSpread = Math.abs(east - west);
+        let url = `/api/map/markers?north=${north}&south=${south}&east=${east}&west=${west}`;
+
+        if (latSpread > 5.5 || lngSpread > 8) {
+            url = `/api/map/markers`;
+            this.allDataLoaded = true;
+            console.log("Oddalono mapę. Pobrano pełną bazę i wyłączono zapytania API.");
+        }
+
+        try {
+            const response = await fetch(url);
+            if (!response.ok) throw new Error("Błąd pobierania danych");
+
+            const data = await response.json();
+            const newLocations = [];
+
+            data.forEach(marker => {
+                if (!this.locationIds.has(marker.id)) {
+                    this.locationIds.add(marker.id);
+
+                    const typeLower = marker.type ? marker.type.toLowerCase() : '';
+                    let baseUrl = '/synop';
+
+                    if (typeLower === 'hydro') baseUrl = '/hydro';
+                    else if (typeLower === 'meteo') baseUrl = '/meteo';
+                    else if (typeLower === 'slip') baseUrl = '/slip';
+                    else if (typeLower === 'lake') baseUrl = '/jezioro';
+                    else if (typeLower === 'river') baseUrl = '/rzeka';
+                    else if (typeLower === 'reservoir') baseUrl = '/zbiornik-zaporowy';
+                    else if (typeLower === 'commercial') baseUrl = '/lowisko-komercyjne';
+                    else if (typeLower === 'oxbow') baseUrl = '/starorzecze';
+                    else if (typeLower === 'specific_spot') baseUrl = '/miejscowka';
+
+                    const locObj = {
+                        id: marker.id,
+                        name: marker.name,
+                        cat: typeLower,
+                        lat: marker.lat,
+                        lng: marker.lng,
+                        coords: marker.polygonCoordinates,
+                        description: marker.description,
+                        startDate: marker.startDate,
+                        endDate: marker.endDate,
+                        restrictionType: marker.restrictionType,
+                        url: `${baseUrl}/${marker.slug}`
+                    };
+
+                    this.locations.push(locObj);
+                    newLocations.push(locObj);
+                }
+            });
+
+            if (newLocations.length > 0) {
+                const newLeafletMarkers = this.createMarkers(newLocations);
+                this.mainClusterGroup.addLayers(newLeafletMarkers);
+                this.updateSidebarForCurrentBounds();
+            }
+
+        } catch (error) {
+            console.error('Błąd ładowania danych mapy:', error);
+        } finally {
+            this.toggleLoader(false);
+        }
+    }
+
+    createMarkers(locationsToProcess) {
+        const createdMarkers = [];
+
+        locationsToProcess.forEach(loc => {
+            const catData = this.categories[loc.cat] || this.categories['restriction'];
+            if (!catData && loc.cat !== 'restriction') return;
+
+            let marker;
+
+            if (loc.cat === 'restriction' && loc.coords) {
+                try {
+                    const coordsArr = JSON.parse(loc.coords);
+                    const isTotal = (!loc.restrictionType || loc.restrictionType === 'TOTAL_BAN');
+                    const color = isTotal ? '#ef4444' : '#f59e0b';
+                    const iconName = isTotal ? 'shield-off' : 'info';
+
+                    const area = L.polygon(coordsArr, {
+                        color: color, fillColor: color, fillOpacity: 0.35, weight: 2,
+                        dashArray: isTotal ? '0' : '5, 10'
+                    });
+                    this.polygonCache[loc.id] = area;
+
+                    const centerPoint = (loc.lat && loc.lng) ? [loc.lat, loc.lng] : area.getBounds().getCenter();
+
+                    const htmlIcon = L.divIcon({
+                        className: 'custom-div-icon',
+                        html: `<div class="custom-map-marker restriction-marker" style="background-color: ${color}; border: 2px solid white; box-shadow: 0 0 10px rgba(0,0,0,0.3);">
+                                   <i data-lucide="${iconName}"></i>
+                               </div>`,
+                        iconSize: [30, 30], iconAnchor: [15, 15]
+                    });
+
+                    marker = L.marker(centerPoint, { icon: htmlIcon });
+
+                    const dateRange = (loc.startDate && loc.endDate)
+                        ? `<div class="popup-date" style="font-size: 0.8rem; margin-bottom: 8px; color: #94a3b8;"><i data-lucide="calendar" style="width: 14px; height: 14px; vertical-align: middle;"></i> ${loc.startDate} — ${loc.endDate}</div>`
+                        : '';
+
+                    const popupContent = `
+                        <div class="popup-header">
+                            <div class="popup-title">${loc.name}</div>
+                            <div class="popup-badge" style="background: ${color}25; color: ${color}; border: 1px solid ${color}40;">
+                                <i data-lucide="${iconName}"></i> ${isTotal ? 'ZAKAZ CAŁKOWITY' : 'OGRANICZENIA'}
+                            </div>
+                        </div>
+                        <div class="popup-body">
+                            ${dateRange}
+                            <p class="popup-desc">${loc.description || 'Brak dodatkowego opisu.'}</p>
+                        </div>
+                    `;
+
+                    marker.bindPopup(popupContent, { className: 'custom-popup' });
+                    area.bindPopup(popupContent, { className: 'custom-popup' });
+
+                    marker.on('popupopen', () => { if (window.lucide) lucide.createIcons(); });
+                    area.on('popupopen', () => { if (window.lucide) lucide.createIcons(); });
+
+                } catch (e) {
+                    console.error("Błąd parsowania obszaru:", e);
+                    return;
+                }
+            } else if (loc.lat && loc.lng) {
+                const htmlIcon = L.divIcon({
+                    className: 'custom-div-icon',
+                    html: `<div class="custom-map-marker" style="background-color: ${catData.color}">
+                               <i data-lucide="${catData.icon}"></i>
+                           </div>`,
+                    iconSize: [32, 32], iconAnchor: [16, 16]
+                });
+
+                marker = L.marker([loc.lat, loc.lng], { icon: htmlIcon });
+
+                const popupContent = `
+                    <div class="popup-header">
+                        <div class="popup-title">${loc.name}</div>
+                        <div class="popup-badge" style="background: ${catData.color}25; color: ${catData.color}; border: 1px solid ${catData.color}40;">
+                            <i data-lucide="${catData.icon}"></i> ${catData.name}
+                        </div>
+                    </div>
+                    <div class="popup-body">
+                        <a href="${loc.url}" class="popup-btn">Szczegóły <i data-lucide="arrow-right"></i></a>
+                    </div>
+                `;
+
+                marker.bindPopup(popupContent, { className: 'custom-popup', autoPanPadding: [50, 50] });
+                marker.on('popupopen', () => { if (window.lucide) lucide.createIcons(); });
+            }
+
+            if (marker) {
+                this.markersCache[loc.id] = marker;
+                if (this.activeCategories.has(loc.cat)) {
+                    createdMarkers.push(marker);
+                    if (this.polygonCache[loc.id]) {
+                        this.polygonsGroup.addLayer(this.polygonCache[loc.id]);
+                    }
+                }
             }
         });
+
+        return createdMarkers;
+    }
+
+    updateMapMarkersVisibility() {
+        const query = document.getElementById('mapSearch')?.value.toLowerCase() || '';
+        const clusterItems = [];
+
+        this.mainClusterGroup.clearLayers();
+        this.polygonsGroup.clearLayers();
+
+        this.locations.forEach(loc => {
+            if (!this.activeCategories.has(loc.cat)) return;
+            if (query && !loc.name.toLowerCase().includes(query)) return;
+
+            const item = this.markersCache[loc.id];
+            if (item) {
+                clusterItems.push(item);
+            }
+            const poly = this.polygonCache[loc.id];
+            if (poly) {
+                this.polygonsGroup.addLayer(poly);
+            }
+        });
+
+        this.mainClusterGroup.addLayers(clusterItems);
+        if (window.lucide) lucide.createIcons();
+    }
+
+    updateSidebarForCurrentBounds() {
+        const bounds = this.map.getBounds();
+        const query = document.getElementById('mapSearch')?.value.toLowerCase() || '';
+
+        const visibleAndFiltered = this.locations.filter(loc => {
+            if (!this.activeCategories.has(loc.cat)) return false;
+            if (query && !loc.name.toLowerCase().includes(query)) return false;
+            if (loc.cat === 'restriction' && this.polygonCache[loc.id]) {
+                return bounds.intersects(this.polygonCache[loc.id].getBounds());
+            }
+            return loc.lat && loc.lng && bounds.contains([loc.lat, loc.lng]);
+        });
+
+        this.renderList(visibleAndFiltered);
+    }
+
+    renderList(itemsToRender) {
+        const container = document.getElementById('locationsList');
+        const countEl = document.getElementById('locCount');
+        if (!container || !countEl) return;
+
+        countEl.innerText = itemsToRender.length;
+
+        const MAX_ITEMS_TO_RENDER = 100;
+        const itemsToShow = itemsToRender.slice(0, MAX_ITEMS_TO_RENDER);
+
+        let html = itemsToShow.map(loc => {
+            const catData = this.categories[loc.cat] || this.categories['restriction'];
+            if (!catData) return '';
+
+            return `
+                <div class="location-item" data-id="${loc.id}">
+                    <div class="custom-map-marker" style="background-color: ${catData.color}; width: 30px; height: 30px; position: static; flex-shrink: 0;">
+                        <i data-lucide="${catData.icon}"></i>
+                    </div>
+                    <div class="loc-details">
+                        <span class="loc-name">${loc.name}</span>
+                        <span class="loc-cat">${catData.name}</span>
+                    </div>
+                </div>
+            `;
+        }).join('');
+
+        if (itemsToRender.length > MAX_ITEMS_TO_RENDER) {
+            html += `
+                <div style="text-align:center; padding: 15px; color: #64748b; font-size: 0.9rem;">
+                    Pokazano pierwsze ${MAX_ITEMS_TO_RENDER} z ${itemsToRender.length} obiektów w widocznym obszarze.<br>
+                    Przybliż mapę, aby zawęzić wyniki.
+                </div>
+            `;
+        }
+
+        container.innerHTML = html;
+
+        container.onclick = (e) => {
+            const item = e.target.closest('.location-item');
+            if (item) {
+                const locId = item.dataset.id;
+                const mapItem = this.markersCache[locId];
+
+                if (mapItem) {
+                    this.map.flyTo(mapItem.getLatLng(), 14, { duration: 1.5 });
+                    setTimeout(() => {
+                        if (this.mainClusterGroup.hasLayer(mapItem)) {
+                            this.mainClusterGroup.zoomToShowLayer(mapItem, () => mapItem.openPopup());
+                        }
+                    }, 1500);
+                }
+
+                if (window.innerWidth <= 991) {
+                    document.getElementById('filterSidebar').classList.remove('active');
+                }
+            }
+        };
+
+        if (window.lucide) {
+            lucide.createIcons();
+        }
     }
 
     renderLegend() {
@@ -270,7 +460,6 @@ class MapApplication {
         if (!container) return;
 
         container.innerHTML = '';
-
         Object.entries(this.categories).forEach(([key, data]) => {
             if (key === 'me') return;
 
@@ -292,186 +481,8 @@ class MapApplication {
             this.activeCategories.add(key);
             btnElement.classList.add('active');
         }
-
-        this.filterListBySearch();
-    }
-
-    loadMarkers() {
-        this.locations.forEach(loc => {
-            if (this.markersCache[loc.id]) return;
-
-            const catData = this.categories[loc.cat] || this.categories['restriction'];
-            if (!catData && loc.cat !== 'restriction') return;
-
-            if (loc.cat === 'restriction' && loc.coords) {
-                try {
-                    const coordsArr = JSON.parse(loc.coords);
-                    const isTotal = (!loc.restrictionType || loc.restrictionType === 'TOTAL_BAN');
-                    const color = isTotal ? '#ef4444' : '#f59e0b';
-                    const iconName = isTotal ? 'shield-off' : 'info';
-
-                    const area = L.polygon(coordsArr, {
-                        color: color,
-                        fillColor: color,
-                        fillOpacity: 0.35,
-                        weight: 2,
-                        dashArray: isTotal ? '0' : '5, 10'
-                    });
-
-                    const center = area.getBounds().getCenter();
-                    const htmlIcon = L.divIcon({
-                        className: 'custom-div-icon',
-                        html: `<div class="custom-map-marker restriction-marker" style="background-color: ${color}; border: 2px solid white; box-shadow: 0 0 10px rgba(0,0,0,0.3);">
-                                   <i data-lucide="${iconName}"></i>
-                               </div>`,
-                        iconSize: [30, 30],
-                        iconAnchor: [15, 15]
-                    });
-
-                    const marker = L.marker(center, { icon: htmlIcon });
-
-                    const dateRange = (loc.startDate && loc.endDate)
-                        ? `<div class="popup-date" style="font-size: 0.8rem; margin-bottom: 8px; color: #94a3b8;"><i data-lucide="calendar" style="width: 14px; height: 14px; vertical-align: middle;"></i> ${loc.startDate} — ${loc.endDate}</div>`
-                        : '';
-
-                    const popupContent = `
-                        <div class="popup-header">
-                            <div class="popup-title">${loc.name}</div>
-                            <div class="popup-badge" style="background: ${color}25; color: ${color}; border: 1px solid ${color}40;">
-                                <i data-lucide="${iconName}"></i> 
-                                ${isTotal ? 'ZAKAZ CAŁKOWITY' : 'OGRANICZENIA'}
-                            </div>
-                        </div>
-                        <div class="popup-body">
-                            ${dateRange}
-                            <p class="popup-desc">${loc.description || 'Brak dodatkowego opisu.'}</p>
-                        </div>
-                    `;
-
-                    marker.bindPopup(popupContent, { className: 'custom-popup' });
-                    area.bindPopup(popupContent, { className: 'custom-popup' });
-
-                    marker.on('popupopen', () => { if (window.lucide) lucide.createIcons(); });
-                    area.on('popupopen', () => { if (window.lucide) lucide.createIcons(); });
-
-                    marker.on('add', () => { if (!this.map.hasLayer(area)) this.map.addLayer(area); });
-                    marker.on('remove', () => { if (this.map.hasLayer(area)) this.map.removeLayer(area); });
-
-                    this.markersCache[loc.id] = marker;
-
-                } catch (e) {
-                    console.error("Błąd parsowania obszaru:", e);
-                }
-            } else if (loc.lat && loc.lng) {
-                const htmlIcon = L.divIcon({
-                    className: 'custom-div-icon',
-                    html: `<div class="custom-map-marker" style="background-color: ${catData.color}">
-                               <i data-lucide="${catData.icon}"></i>
-                           </div>`,
-                    iconSize: [32, 32],
-                    iconAnchor: [16, 16]
-                });
-
-                const marker = L.marker([loc.lat, loc.lng], { icon: htmlIcon });
-
-                const popupContent = `
-                    <div class="popup-header">
-                        <div class="popup-title">${loc.name}</div>
-                        <div class="popup-badge" style="background: ${catData.color}25; color: ${catData.color}; border: 1px solid ${catData.color}40;">
-                            <i data-lucide="${catData.icon}"></i> ${catData.name}
-                        </div>
-                    </div>
-                    <div class="popup-body">
-                        <a href="${loc.url}" class="popup-btn">Szczegóły <i data-lucide="arrow-right"></i></a>
-                    </div>
-                `;
-
-                marker.bindPopup(popupContent, {
-                    className: 'custom-popup',
-                    autoPanPadding: [50, 50]
-                });
-
-                marker.on('popupopen', () => { if (window.lucide) lucide.createIcons(); });
-
-                this.markersCache[loc.id] = marker;
-            }
-        });
-    }
-
-    updateMapMarkers() {
-        const query = document.getElementById('mapSearch')?.value.toLowerCase() || '';
-        const clusterItems = [];
-
-        this.mainClusterGroup.clearLayers();
-
-        this.locations.forEach(loc => {
-            if (!this.activeCategories.has(loc.cat)) return;
-            if (!loc.name.toLowerCase().includes(query)) return;
-
-            const item = this.markersCache[loc.id];
-            if (item) {
-                clusterItems.push(item);
-            }
-        });
-
-        this.mainClusterGroup.addLayers(clusterItems);
-
-        if (window.lucide) lucide.createIcons();
-    }
-
-    renderList(itemsToRender) {
-        const container = document.getElementById('locationsList');
-        const countEl = document.getElementById('locCount');
-
-        if (countEl) countEl.innerText = itemsToRender.length;
-        if (!container) return;
-
-        container.innerHTML = itemsToRender.map(loc => {
-            const catData = this.categories[loc.cat] || this.categories['restriction'];
-            if (!catData) return '';
-
-            return `
-                <div class="location-item" data-id="${loc.id}">
-                    <div class="custom-map-marker" style="background-color: ${catData.color}; width: 30px; height: 30px; position: static; flex-shrink: 0;">
-                        <i data-lucide="${catData.icon}"></i>
-                    </div>
-                    <div class="loc-details">
-                        <span class="loc-name">${loc.name}</span>
-                        <span class="loc-cat">${catData.name}</span>
-                    </div>
-                </div>
-            `;
-        }).join('');
-
-        container.onclick = (e) => {
-            const item = e.target.closest('.location-item');
-            if (item) {
-                const locId = item.dataset.id;
-                const loc = this.locations.find(l => l.id === locId);
-                if (loc) {
-                    const mapItem = this.markersCache[locId];
-
-                    if (mapItem) {
-                        this.map.flyTo(mapItem.getLatLng(), 14, { duration: 1.5 });
-                        setTimeout(() => {
-                            if (this.mainClusterGroup.hasLayer(mapItem)) {
-                                this.mainClusterGroup.zoomToShowLayer(mapItem, () => {
-                                    mapItem.openPopup();
-                                });
-                            }
-                        }, 1500);
-                    }
-
-                    if (window.innerWidth <= 991) {
-                        document.getElementById('filterSidebar').classList.remove('active');
-                    }
-                }
-            }
-        };
-
-        if (window.lucide) {
-            lucide.createIcons();
-        }
+        this.updateMapMarkersVisibility();
+        this.updateSidebarForCurrentBounds();
     }
 
     attachEventListeners() {
@@ -479,7 +490,10 @@ class MapApplication {
         const searchBtn = document.getElementById('searchGlobalBtn');
 
         if(searchInput) {
-            searchInput.addEventListener('input', () => this.filterListBySearch());
+            searchInput.addEventListener('input', () => {
+                this.updateMapMarkersVisibility();
+                this.updateSidebarForCurrentBounds();
+            });
             searchInput.addEventListener('keypress', (e) => {
                 if (e.key === 'Enter') {
                     e.preventDefault();
@@ -539,7 +553,6 @@ class MapApplication {
                     this.activeOverlays.add(overlayName);
                     targetBtn.classList.add('active');
                 }
-
             });
         });
     }
@@ -548,7 +561,6 @@ class MapApplication {
         if (!query || query.length < 3) return;
 
         this.toggleLoader(true, `Szukam miejscowości: ${query}`);
-
         const searchInput = document.getElementById('mapSearch');
         if (searchInput) searchInput.blur();
 
@@ -572,33 +584,12 @@ class MapApplication {
                 if (window.innerWidth <= 991 && sidebar) {
                     sidebar.classList.remove('active');
                 }
-
-                this.filterListBySearch();
-
-            } else {
             }
         } catch (error) {
             console.error("Błąd wyszukiwania:", error);
         } finally {
             this.toggleLoader(false);
         }
-    }
-
-    filterListBySearch() {
-        const query = document.getElementById('mapSearch').value.toLowerCase();
-
-        const filtered = this.locations.filter(loc => {
-            const catData = this.categories[loc.cat] || this.categories['restriction'];
-            if (!catData) return false;
-
-            const matchesSearch = loc.name.toLowerCase().includes(query);
-            const isCategoryActive = this.activeCategories.has(loc.cat);
-
-            return matchesSearch && isCategoryActive;
-        });
-
-        this.renderList(filtered);
-        this.updateMapMarkers();
     }
 
     handleLocationFound(e) {

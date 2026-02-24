@@ -16,8 +16,8 @@ public class MapMarkerDto {
 
     private String id;
     private String name;
-    private BigDecimal lat;
-    private BigDecimal lng;
+    private Double lat;
+    private Double lng;
     private String type;
     private String slug;
     private String description;
