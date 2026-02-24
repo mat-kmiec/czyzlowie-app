@@ -6,6 +6,8 @@ import org.springframework.data.repository.query.Param;
 import pl.czyzlowie.modules.moon.entity.MoonGlobalData;
 
 import java.time.LocalDate;
+import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 public interface MoonGlobalDataRepository extends JpaRepository<MoonGlobalData, LocalDate> {
@@ -18,4 +20,8 @@ public interface MoonGlobalDataRepository extends JpaRepository<MoonGlobalData, 
      */
     @Query("SELECT m.calculationDate FROM MoonGlobalData m WHERE m.calculationDate BETWEEN :startDate AND :endDate")
     Set<LocalDate> findExistingDatesBetween(@Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate);
+
+    Optional<MoonGlobalData> findByCalculationDate(LocalDate date);
+
+    List<MoonGlobalData> findByCalculationDateBetweenOrderByCalculationDateAsc(LocalDate startDate, LocalDate endDate);
 }

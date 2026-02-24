@@ -7,6 +7,7 @@ import pl.czyzlowie.modules.moon.entity.MoonStationData;
 import pl.czyzlowie.modules.moon.entity.MoonStationDataId;
 
 import java.time.LocalDate;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -20,4 +21,6 @@ public interface MoonStationDataRepository extends JpaRepository<MoonStationData
 
     @Query("SELECT m.id FROM MoonStationData m WHERE m.id.calculationDate BETWEEN :startDate AND :endDate")
     Set<MoonStationDataId> findExistingIdsBetween(@Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate);
+
+    Optional<MoonStationData> findById_StationIdAndId_CalculationDate(String stationId, LocalDate date);
 }

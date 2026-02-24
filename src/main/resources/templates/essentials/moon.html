@@ -2,11 +2,12 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="pl">
 <head>
     <th:block th:replace="~{fragments/head :: head-content(
-        pageTitle='Fazy Księżyca i Kalendarz Solunarny | CzyZlowie',
-        pageDescription='Sprawdź aktualną fazę księżyca, kalendarz brań na cały rok oraz dokładne godziny wschodów i zachodów dla Twojego łowiska.'
+        pageTitle='Kalendarz Brań i Fazy Księżyca - Wędkarski Kalendarz Solunarny | CzyZlowie',
+        pageDescription='Sprawdź aktualny wędkarski kalendarz solunarny dla dowolnego łowiska w Polsce. Dokładne fazy księżyca, wschody, zachody i przewidywane okresy żerowania ryb.'
     )}"></th:block>
 
     <link rel="stylesheet" th:href="@{/css/essentials/moon.css}">
+
 
 </head>
 <body class="moon-page">
@@ -34,13 +35,13 @@
             <div class="row align-items-center justify-content-between g-4">
                 <div class="col-lg-8">
                     <div class="d-flex align-items-center gap-3 mb-3">
-                        <div class="moon-icon-pulse">
-                            <i data-lucide="moon" class="text-white" style="width: 28px; height: 28px;"></i>
+                        <div class="moon-icon-pulse fs-3" aria-hidden="true">
+                            🌙
                         </div>
-                        <h1 class="display-5 fw-black text-white mb-0 moon-title-glow">Kalendarz Solunarny</h1>
+                        <h1 class="display-5 fw-black text-white mb-0 moon-title-glow">Wędkarski Kalendarz Solunarny</h1>
                     </div>
                     <p class="moon-text-readable fs-5 mb-0">
-                        Wykorzystaj dane o <span class="text-brand-green fw-bold text-glow-green">Księżycu i Słońcu</span> do prognozowania szczytów aktywności ryb.
+                        Wykorzystaj potężne dane o <span class="text-brand-green fw-bold text-glow-green">grawitacji Księżyca i Słońca</span> do prognozowania szczytów aktywności ryb. Sprawdź, kiedy uderzyć nad wodę z największą skutecznością.
                     </p>
                 </div>
             </div>
@@ -50,17 +51,33 @@
 
             <div class="col-lg-8">
 
-                <div class="moon-glass-panel p-0 mb-4 overflow-hidden position-relative">
+                <section class="moon-glass-panel p-0 mb-4 overflow-hidden position-relative">
                     <div class="row g-0 position-relative z-1">
 
                         <div class="col-md-5 p-4 p-md-5 text-center text-md-start moon-border-end d-flex flex-column justify-content-center">
-                            <span class="text-uppercase fw-bold fs-7 mb-3 d-block moon-text-readable" style="letter-spacing: 1px;">Księżyc dzisiaj</span>
+                            <span class="text-uppercase fw-bold fs-7 mb-3 d-block moon-text-readable" style="letter-spacing: 1px;">
+                                Faza w dniu: <time class="text-white" th:datetime="${selectedDate}" th:text="${#temporals.format(selectedDate, 'dd.MM.yyyy')}">01.01.2026</time>
+                            </span>
 
-                            <div class="d-flex align-items-center justify-content-center justify-content-md-start gap-4 mb-3">
-                                <div class="moon-phase-huge full-moon shadow-glow-silver"></div>
+                            <div class="d-flex align-items-center justify-content-center justify-content-md-start gap-3 mb-3">
+
+                                <div class="moon-emoji-huge" aria-hidden="true" th:classappend="${todayGlobal.isSuperMoon} ? 'supermoon-glow' : ''" th:switch="${todayGlobal.phaseEnum.name()}">
+                                    <span th:case="'NEW_MOON'">🌑</span>
+                                    <span th:case="'WAXING_CRESCENT'">🌒</span>
+                                    <span th:case="'FIRST_QUARTER'">🌓</span>
+                                    <span th:case="'WAXING_GIBBOUS'">🌔</span>
+                                    <span th:case="'FULL_MOON'">🌕</span>
+                                    <span th:case="'WANING_GIBBOUS'">🌖</span>
+                                    <span th:case="'LAST_QUARTER'">🌗</span>
+                                    <span th:case="'WANING_CRESCENT'">🌘</span>
+                                    <span th:case="*">🌕</span>
+                                </div>
+
                                 <div>
-                                    <h2 class="display-5 fw-black text-white mb-0 lh-1">Pełnia</h2>
-                                    <span class="fs-6 text-brand-green fw-bold text-glow-green">Superksiężyc <i data-lucide="zap" style="width: 14px;"></i></span>
+                                    <h2 class="fs-4 fs-md-3 fw-black text-white mb-1 lh-sm" th:text="${todayGlobal.phaseMoonPl}">Pełnia</h2>
+                                    <span class="fs-7 text-brand-green fw-bold text-glow-green d-block" th:if="${todayGlobal.isSuperMoon}">
+                                        Superksiężyc ⚡
+                                    </span>
                                 </div>
                             </div>
                         </div>
@@ -72,35 +89,58 @@
                                         <i data-lucide="sun" class="text-brand-green" style="width: 18px;"></i>
                                         <span class="moon-text-readable fs-7 text-uppercase fw-bold">Oświetlenie</span>
                                     </div>
-                                    <span class="fs-3 fw-bold text-white">99.8%</span>
+                                    <span class="fs-3 fw-bold text-white" th:text="${todayGlobal.illuminationPct} + '%'">99.8%</span>
                                 </div>
                                 <div class="col-6">
                                     <div class="d-flex align-items-center gap-2 mb-1">
                                         <i data-lucide="clock" class="text-brand-green" style="width: 18px;"></i>
                                         <span class="moon-text-readable fs-7 text-uppercase fw-bold">Wiek księżyca</span>
                                     </div>
-                                    <span class="fs-3 fw-bold text-white">14.5 <span class="fs-6 moon-text-readable fw-normal">dni</span></span>
+                                    <span class="fs-3 fw-bold text-white">
+                                        <span th:text="${todayGlobal.moonAgeDays}">14.5</span>
+                                        <span class="fs-6 moon-text-readable fw-normal">dni</span>
+                                    </span>
                                 </div>
                                 <div class="col-12 mt-2">
-                                    <div class="d-inline-flex align-items-center gap-2 bg-brand-green-subtle text-brand-green px-3 py-2 rounded-3 w-100 border-brand-green-subtle border">
-                                        <i data-lucide="fish" style="width: 20px;"></i>
-                                        <span class="fw-bold">Aktywność: Doskonała (Szczyt w nocy)</span>
+                                    <div class="d-inline-flex align-items-center gap-2 px-3 py-2 rounded-3 w-100 border text-center text-sm-start"
+                                         th:classappend="'bg-dark text-white border-dark-subtle'">
+                                        <i data-lucide="fish" style="width: 20px; flex-shrink: 0;" th:classappend="${todayActivity.cssClass}"></i>
+                                        <span class="fw-bold fs-6" th:classappend="${todayActivity.cssClass}" th:text="'Ocena algorytmu: ' + ${todayActivity.description}">Aktywność: Doskonała</span>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>
+                </section>
 
-                <div class="moon-glass-panel p-4">
+                <section class="moon-glass-panel p-3 p-md-4">
+                    <header class="d-flex flex-column flex-sm-row justify-content-between align-items-center mb-4 pb-3 border-bottom border-dark-subtle gap-3">
+                        <a th:href="@{/ksiezyc(year=${prevMonth.year}, month=${prevMonth.monthValue}, date=${selectedDate}, lat=${lat}, lon=${lon}, name=${locationName})}" class="btn moon-nav-btn w-100 w-sm-auto order-2 order-sm-1" aria-label="Poprzedni miesiąc">
+                            <i data-lucide="chevron-left"></i> Poprzedni
+                        </a>
 
-                    <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom border-dark-subtle">
-                        <button class="btn moon-nav-btn"><i data-lucide="chevron-left"></i></button>
-                        <h3 class="fs-4 text-white fw-bold mb-0 text-uppercase" style="letter-spacing: 1px;">
-                            Październik 2026
-                        </h3>
-                        <button class="btn moon-nav-btn"><i data-lucide="chevron-right"></i></button>
-                    </div>
+                        <th:block th:with="currM=${prevMonth.plusMonths(1).monthValue}, currY=${prevMonth.plusMonths(1).year}">
+                            <h2 class="fs-4 text-white fw-bold mb-0 text-uppercase text-center order-1 order-sm-2" style="letter-spacing: 1px;">
+                                <span th:if="${currM == 1}">Styczeń</span>
+                                <span th:if="${currM == 2}">Luty</span>
+                                <span th:if="${currM == 3}">Marzec</span>
+                                <span th:if="${currM == 4}">Kwiecień</span>
+                                <span th:if="${currM == 5}">Maj</span>
+                                <span th:if="${currM == 6}">Czerwiec</span>
+                                <span th:if="${currM == 7}">Lipiec</span>
+                                <span th:if="${currM == 8}">Sierpień</span>
+                                <span th:if="${currM == 9}">Wrzesień</span>
+                                <span th:if="${currM == 10}">Październik</span>
+                                <span th:if="${currM == 11}">Listopad</span>
+                                <span th:if="${currM == 12}">Grudzień</span>
+                                <span th:text="${currY}"></span>
+                            </h2>
+                        </th:block>
+
+                        <a th:href="@{/ksiezyc(year=${nextMonth.year}, month=${nextMonth.monthValue}, date=${selectedDate}, lat=${lat}, lon=${lon}, name=${locationName})}" class="btn moon-nav-btn w-100 w-sm-auto order-3 order-sm-3" aria-label="Następny miesiąc">
+                            Następny <i data-lucide="chevron-right"></i>
+                        </a>
+                    </header>
 
                     <div class="moon-calendar-grid">
                         <div class="calendar-header">Pon</div>
@@ -111,132 +151,362 @@
                         <div class="calendar-header">Sob</div>
                         <div class="calendar-header">Nie</div>
 
-                        <div class="calendar-day empty"></div>
-                        <div class="calendar-day empty"></div>
-                        <div class="calendar-day empty"></div>
+                        <th:block th:each="day : ${calendarDays}">
+                            <div class="calendar-day empty" th:if="${day.isEmpty}"></div>
 
-                        <div class="calendar-day"><span class="day-number">1</span><div class="day-moon-icon new-moon"></div><div class="bite-indicator level-1"></div></div>
-                        <div class="calendar-day"><span class="day-number">2</span><div class="day-moon-icon waxing-crescent"></div><div class="bite-indicator level-2"></div></div>
-                        <div class="calendar-day active-today"><span class="day-number">3</span><div class="day-moon-icon full-moon shadow-glow-silver"></div><div class="bite-indicator level-3"></div></div>
-                        <div class="calendar-day"><span class="day-number">4</span><div class="day-moon-icon waning-gibbous"></div><div class="bite-indicator level-2"></div></div>
-                        <div class="calendar-day"><span class="day-number">5</span><div class="day-moon-icon last-quarter"></div><div class="bite-indicator level-1"></div></div>
+                            <div class="calendar-day p-0" th:unless="${day.isEmpty}"
+                                 th:classappend="${day.date.isEqual(selectedDate)} ? 'active-selected' : (${day.isToday} ? 'active-today' : '')">
+
+                                <a th:href="@{/ksiezyc(date=${day.date}, year=${currentMonthName != null ? day.date.year : null}, month=${currentMonthName != null ? day.date.monthValue : null}, lat=${lat}, lon=${lon}, name=${locationName})}"
+                                   class="calendar-day-link w-100 px-2 py-1" th:aria-label="'Kalendarz na ' + ${day.date}">
+                                    <span class="day-number mt-1" th:text="${day.dayOfMonth}">1</span>
+
+                                    <div class="day-moon-emoji" aria-hidden="true" th:switch="${day.phase.name()}">
+                                        <span th:case="'NEW_MOON'">🌑</span>
+                                        <span th:case="'WAXING_CRESCENT'">🌒</span>
+                                        <span th:case="'FIRST_QUARTER'">🌓</span>
+                                        <span th:case="'WAXING_GIBBOUS'">🌔</span>
+                                        <span th:case="'FULL_MOON'">🌕</span>
+                                        <span th:case="'WANING_GIBBOUS'">🌖</span>
+                                        <span th:case="'LAST_QUARTER'">🌗</span>
+                                        <span th:case="'WANING_CRESCENT'">🌘</span>
+                                    </div>
+
+                                    <div class="solunar-bar" th:classappend="'level-' + ${day.activity.level}"></div>
+                                </a>
+                            </div>
+                        </th:block>
                     </div>
 
-                    <div class="d-flex justify-content-center justify-content-md-end mt-4 gap-3">
-                        <span class="fs-8 moon-text-readable d-flex align-items-center gap-1"><div class="bite-dot" style="background: #ef4444;"></div> Słabe</span>
-                        <span class="fs-8 moon-text-readable d-flex align-items-center gap-1"><div class="bite-dot" style="background: #f59e0b;"></div> Średnie</span>
-                        <span class="fs-8 moon-text-readable d-flex align-items-center gap-1"><div class="bite-dot" style="background: var(--brand-green); box-shadow: 0 0 10px var(--brand-green);"></div> Doskonałe</span>
+                    <div class="d-flex justify-content-center justify-content-md-end mt-4 gap-2 gap-md-3 flex-wrap">
+                        <span class="fs-8 moon-text-readable d-flex align-items-center gap-1"><div class="solunar-dot" style="background: #ef4444;"></div> B. Słabe</span>
+                        <span class="fs-8 moon-text-readable d-flex align-items-center gap-1"><div class="solunar-dot" style="background: #f59e0b;"></div> Słabe</span>
+                        <span class="fs-8 moon-text-readable d-flex align-items-center gap-1"><div class="solunar-dot" style="background: #0ea5e9;"></div> Średnie</span>
+                        <span class="fs-8 moon-text-readable d-flex align-items-center gap-1"><div class="solunar-dot" style="background: #3b82f6;"></div> Dobre</span>
+                        <span class="fs-8 moon-text-readable d-flex align-items-center gap-1"><div class="solunar-dot" style="background: var(--brand-green); box-shadow: 0 0 10px var(--brand-green);"></div> Doskonałe</span>
                     </div>
-                </div>
+                </section>
 
             </div>
 
             <aside class="col-lg-4">
-                <article class="moon-glass-panel p-4 h-100 d-flex flex-column">
-                    <div class="mb-4 d-flex align-items-center gap-2 text-brand-green border-bottom border-dark-subtle pb-3">
-                        <i data-lucide="book-open" style="width: 24px; height: 24px;"></i>
-                        <h2 class="fs-5 text-white fw-bold mb-0">Teoria Solunarna</h2>
+                <article class="moon-glass-panel p-4 h-100 d-flex flex-column"
+                         th:style="${todayActivity.name() == 'EXCELLENT'} ? 'border-color: rgba(46, 204, 113, 0.4); box-shadow: 0 0 20px rgba(46,204,113,0.1);' : ''">
+
+                    <div class="mb-4 d-flex align-items-center gap-2 border-bottom border-dark-subtle pb-3"
+                         th:classappend="${todayActivity.name() == 'EXCELLENT'} ? 'text-brand-green' : 'text-white'">
+                        <i data-lucide="brain-circuit" style="width: 24px; height: 24px;"></i>
+                        <h2 class="fs-5 fw-bold mb-0">Szansa na brania</h2>
                     </div>
 
-                    <div class="moon-knowledge-item mb-4">
-                        <h3 class="fs-6 text-white fw-bold mb-2">Pełnia a brania</h3>
+                    <div class="moon-knowledge-item mb-4" th:if="${todayActivity.name() == 'EXCELLENT'}">
+                        <h3 class="fs-5 text-brand-green fw-bold mb-2">🔥 Pakuj wędki, to ten czas!</h3>
+                        <p class="fs-7 text-brand-green fw-bold mb-3 bg-brand-green-subtle px-2 py-1 rounded d-inline-block">Dzień na bicie życiowych rekordów.</p>
                         <p class="moon-text-readable fs-7 lh-lg mb-0">
-                            W czasie pełni noce są jasne, co sprawia, że drapieżniki żerują w nocy. Za dnia ryby mogą być przejedzone i mało aktywne.
+                            Faza <strong th:text="${todayGlobal.phaseMoonPl}">Pełnia / Nów</strong> generuje skrajne wychylenia pływowe. Zwierzęta instynktownie odczuwają zmianę ciśnienia hydrostatycznego i żerują "na zapas". Okienka żerowe są długie i niezwykle intensywne.
                         </p>
+                        <ul class="verdict-target-list fs-7 mt-3">
+                            <li>
+                                <i data-lucide="swords" class="text-danger flex-shrink-0 mt-1" style="width: 20px; height: 20px;"></i>
+                                <div class="moon-text-readable">
+                                    <strong class="text-white">Drapieżniki:</strong>
+                                    <strong>Drapieżniki wychodzą płycej, bo drobnica też się rusza.</strong> W nocy absolutnym hitem są płytkie blaty (do 1-2m). Używaj dużych, odznaczających się od spodu przynęt. W czasie Nowiu przenieś łowienie na wczesny świt.
+                                </div>
+                            </li>
+                            <li>
+                                <i data-lucide="wheat" class="text-warning flex-shrink-0 mt-1" style="width: 20px; height: 20px;"></i>
+                                <div class="moon-text-readable">
+                                    <strong class="text-white">Białoryb (Karp):</strong>
+                                    Ryby karpiowate odkurzają dno. To idealny moment na obfite <strong>nęcenie dywanowe</strong>. Nie bój się wrzucić do wody grubego ziarna.
+                                </div>
+                            </li>
+                        </ul>
                     </div>
 
-                    <div class="moon-knowledge-item mb-4">
-                        <h3 class="fs-6 text-white fw-bold mb-2">Nów Księżyca</h3>
+                    <div class="moon-knowledge-item mb-4" th:if="${todayActivity.name() == 'GOOD'}">
+                        <h3 class="fs-5 text-primary fw-bold mb-2">📈 Woda nabiera życia</h3>
+                        <p class="fs-7 text-primary fw-bold mb-3 px-2 py-1 rounded d-inline-block" style="background: rgba(59, 130, 246, 0.1);">Jeden z najlepszych okresów całego miesiąca.</p>
                         <p class="moon-text-readable fs-7 lh-lg mb-0">
-                            Podczas nowiu noce są smoliste. Drapieżniki przenoszą swoją aktywność na wczesny ranek i godziny popołudniowe.
+                            Księżyc w fazie przybywającej działa na ryby jak naturalny stymulator. Z każdym dniem ryby stają się coraz bardziej pewne siebie i agresywnie przemieszczają się w poszukiwaniu pożywienia.
                         </p>
+                        <ul class="verdict-target-list fs-7 mt-3">
+                            <li>
+                                <i data-lucide="swords" class="text-danger flex-shrink-0 mt-1" style="width: 20px; height: 20px;"></i>
+                                <div class="moon-text-readable">
+                                    <strong class="text-white">Drapieżniki:</strong>
+                                    Dobry czas na <em>power fishing</em>. Używaj przynęt o mocnej fali hydroakustycznej (woblery z grzechotką, cykady). Prowadź przynętę szybciej niż zwykle, będą ją gonić.
+                                </div>
+                            </li>
+                            <li>
+                                <i data-lucide="wheat" class="text-warning flex-shrink-0 mt-1" style="width: 20px; height: 20px;"></i>
+                                <div class="moon-text-readable">
+                                    <strong class="text-white">Białoryb:</strong>
+                                    Wpadają w rytm żerowy przed pełnią. Świetnie sprawdzi się taktyka punktowego, regularnego donęcania. Celuj w słodkie/owocowe aromaty.
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div class="moon-knowledge-item mb-4" th:if="${todayActivity.name() == 'AVERAGE'}">
+                        <h3 class="fs-5 text-info fw-bold mb-2">⚖️ Stabilizacja i standard</h3>
+                        <p class="fs-7 text-info fw-bold mb-3 px-2 py-1 rounded d-inline-block" style="background: rgba(14, 165, 233, 0.1);">Dzień na wędkarskie rzemiosło, a nie rekordy ilościowe.</p>
+                        <p class="moon-text-readable fs-7 lh-lg mb-0">
+                            Fazy kwadry oznaczają równowagę. Ryby zachowują się zgodnie z dobowymi schematami. Wpływ księżyca schodzi na drugi plan. Twój sukces zależy dziś w 100% od umiejętności czytania wody i pogody.
+                        </p>
+                        <ul class="verdict-target-list fs-7 mt-3">
+                            <li>
+                                <i data-lucide="swords" class="text-danger flex-shrink-0 mt-1" style="width: 20px; height: 20px;"></i>
+                                <div class="moon-text-readable">
+                                    <strong class="text-white">Drapieżniki:</strong>
+                                    Skup się bezwzględnie na <strong>Złotych Godzinach</strong> (świt i zmierzch). W ciągu dnia szukaj ryb głębiej, z użyciem stonowanych kolorów. Klasyczny opad z podbicia to faworyt.
+                                </div>
+                            </li>
+                            <li>
+                                <i data-lucide="wheat" class="text-warning flex-shrink-0 mt-1" style="width: 20px; height: 20px;"></i>
+                                <div class="moon-text-readable">
+                                    <strong class="text-white">Białoryb:</strong>
+                                    Kluczowa jest perfekcyjna prezentacja. Zastosuj zbalansowane przynęty (Wafters/Bałwanek), by ułatwić zassanie. Woreczki PVA sprawdzą się lepiej niż luźne sypanie.
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div class="moon-knowledge-item mb-4" th:if="${todayActivity.name() == 'POOR'}">
+                        <h3 class="fs-5 text-warning fw-bold mb-2">📉 Zwalniamy tempo</h3>
+                        <p class="fs-7 text-warning fw-bold mb-3 px-2 py-1 rounded d-inline-block" style="background: rgba(245, 158, 11, 0.1);">To nie dzień na ilość, a na cierpliwość i kombinowanie.</p>
+                        <p class="moon-text-readable fs-7 lh-lg mb-0">
+                            Faza ubywająca wycisza życie pod wodą. Grawitacja słabnie. Ryby są ospałe, bardzo ostrożne i nierzadko "przejedzone" po pełni. Mogą ignorować standardowo podany pokarm.
+                        </p>
+                        <ul class="verdict-target-list fs-7 mt-3">
+                            <li>
+                                <i data-lucide="swords" class="text-danger flex-shrink-0 mt-1" style="width: 20px; height: 20px;"></i>
+                                <div class="moon-text-readable">
+                                    <strong class="text-white">Drapieżniki:</strong>
+                                    Finezja. Drastycznie <strong>zmniejsz rozmiar przynęt</strong> (np. z 12 do 7 cm) i zejdź z gramatury. Stosuj długi zwis, wleczenie po dnie (Carolina Rig) lub jaskółki pozbawione własnej pracy.
+                                </div>
+                            </li>
+                            <li>
+                                <i data-lucide="wheat" class="text-warning flex-shrink-0 mt-1" style="width: 20px; height: 20px;"></i>
+                                <div class="moon-text-readable">
+                                    <strong class="text-white">Białoryb:</strong>
+                                    Całkowicie zrezygnuj z grubej zanęty – natychmiast "zabijesz" łowisko. Przejdź na smużącą zanętę ziemistą, najcieńsze przypony i mikro-haczyki z jednym ziarnkiem lub pinką.
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div class="moon-knowledge-item mb-4" th:if="${todayActivity.name() == 'VERY_POOR'}">
+                        <h3 class="fs-5 text-danger fw-bold mb-2">🛋️ Pustynia w wodzie</h3>
+                        <p class="fs-7 text-danger fw-bold mb-3 px-2 py-1 rounded d-inline-block" style="background: rgba(239, 68, 68, 0.1);">Dzień testujący psychikę. Sukcesem będzie pojedyncza ryba.</p>
+                        <p class="moon-text-readable fs-7 lh-lg mb-0">
+                            Najtrudniejszy, "martwy" okres w cyklu. Zwierzęta wodne wpadają w głęboki letarg, chowają się w zawadach i przyklejają do dna. Wymagane są stalowe nerwy i nieszablonowe myślenie.
+                        </p>
+                        <ul class="verdict-target-list fs-7 mt-3">
+                            <li>
+                                <i data-lucide="swords" class="text-danger flex-shrink-0 mt-1" style="width: 20px; height: 20px;"></i>
+                                <div class="moon-text-readable">
+                                    <strong class="text-white">Drapieżniki:</strong>
+                                    Brania z głodu nie wystąpią – musisz wymusić <strong>atak irytacyjny/terytorialny</strong>. Tańcz przynętą w miejscu przed samym pyskiem ryby. Używaj skrajnie jaskrawych kolorów (Firetiger) i atraktorów.
+                                </div>
+                            </li>
+                            <li>
+                                <i data-lucide="wheat" class="text-warning flex-shrink-0 mt-1" style="width: 20px; height: 20px;"></i>
+                                <div class="moon-text-readable">
+                                    <strong class="text-white">Białoryb:</strong>
+                                    Nęcenie wstępne to sabotaż. Łów punktowo na tzw. "złodzieja". Stosuj maleńkie przynęty Fluo o ekstremalnie mocnej, nienaturalnej nucie zapachowej (np. Kwas Masłowy), która wyrwie rybę z apatii.
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div class="mt-auto bg-dark bg-opacity-50 p-3 rounded-3 border border-dark-subtle" th:if="${todayActivity.name() != 'EXCELLENT' and nextBestDay != null}">
+                        <span class="d-block moon-text-readable fs-8 text-uppercase fw-bold mb-2">Najbliższe okienko brań (Eldorado):</span>
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="d-flex align-items-center justify-content-center flex-shrink-0" style="width: 48px; height: 48px;" th:switch="${nextBestDay.phaseEnum.name()}">
+                                <span class="fs-1 m-0 p-0" style="line-height: 1;" th:case="'NEW_MOON'">🌑</span>
+                                <span class="fs-1 m-0 p-0" style="line-height: 1;" th:case="'WAXING_CRESCENT'">🌒</span>
+                                <span class="fs-1 m-0 p-0" style="line-height: 1;" th:case="'FIRST_QUARTER'">🌓</span>
+                                <span class="fs-1 m-0 p-0" style="line-height: 1;" th:case="'WAXING_GIBBOUS'">🌔</span>
+                                <span class="fs-1 m-0 p-0" style="line-height: 1;" th:case="'FULL_MOON'">🌕</span>
+                                <span class="fs-1 m-0 p-0" style="line-height: 1;" th:case="'WANING_GIBBOUS'">🌖</span>
+                                <span class="fs-1 m-0 p-0" style="line-height: 1;" th:case="'LAST_QUARTER'">🌗</span>
+                                <span class="fs-1 m-0 p-0" style="line-height: 1;" th:case="'WANING_CRESCENT'">🌘</span>
+                            </div>
+                            <div>
+                                <h4 class="fs-5 fw-bold text-brand-green mb-0" th:text="${#temporals.format(nextBestDay.calculationDate, 'dd.MM.yyyy')}">12.10.2026</h4>
+                                <span class="fs-7 text-white opacity-75" th:text="${nextBestDay.phaseMoonPl}">Nów</span>
+                            </div>
+                        </div>
                     </div>
                 </article>
             </aside>
 
         </div>
 
-        <div class="moon-glass-panel p-4 p-lg-5 mb-5 border-brand-green-subtle position-relative overflow-hidden">
+        <section class="moon-glass-panel p-4 p-lg-5 mb-5 border-brand-green-subtle position-relative overflow-hidden">
 
             <div class="moon-glow glow-green-bottom" style="opacity: 0.05;"></div>
 
-            <div class="row align-items-center mb-4 pb-3 border-bottom border-dark-subtle position-relative z-1">
-                <div class="col-md-6 mb-3 mb-md-0">
-                    <h3 class="fs-4 text-white fw-bold mb-1">Parametry Lokalne</h3>
-                    <p class="moon-text-readable fs-7 mb-0">Słońce i Księżyc dla Twojego łowiska.</p>
+            <header class="row align-items-center mb-4 pb-3 border-bottom border-dark-subtle position-relative z-1">
+                <div class="col-lg-5 mb-3 mb-lg-0">
+                    <h3 class="fs-4 text-white fw-bold mb-1">
+                        Słońce i Księżyc dla: <span class="text-brand-green" th:text="${locationName}">Warszawa</span>
+                    </h3>
+                    <p class="moon-text-readable fs-7 mb-0">Dane dla dnia: <span class="fw-bold" th:text="${#temporals.format(selectedDate, 'dd.MM.yyyy')}"></span></p>
                 </div>
-                <div class="col-md-6 d-flex justify-content-md-end">
-                    <form action="/fazy-ksiezyca" method="get" class="moon-local-search">
-                        <i data-lucide="map-pin" class="search-icon"></i>
-                        <input type="text" name="station" placeholder="Wpisz miasto..." value="Warszawa" required>
-                        <button type="submit" class="btn-search-local">Szukaj</button>
+                <div class="col-lg-7">
+
+                    <form id="geocoding-form" class="row g-2 align-items-center m-0 w-100" aria-label="Wyszukiwarka danych solunarnych">
+                        <div class="col-12 col-md-5 position-relative p-0 pe-md-1 mb-2 mb-md-0">
+                            <i data-lucide="map-pin" class="position-absolute text-brand-green" style="left: 14px; top: 50%; transform: translateY(-50%); width: 20px; z-index: 5;"></i>
+                            <input type="text" id="city-input" placeholder="Wpisz miasto (np. Kraków)" th:value="${locationName}" required
+                                   class="form-control bg-dark text-white border-dark-subtle w-100"
+                                   style="padding-left: 42px; height: 48px; border-radius: 8px; box-shadow: none;" aria-label="Wpisz miasto">
+                        </div>
+
+                        <div class="col-12 col-md-4 p-0 px-md-1 mb-2 mb-md-0">
+                            <input type="date" id="date-input" th:value="${selectedDate}" required
+                                   class="form-control bg-dark text-white border-dark-subtle w-100 text-center"
+                                   style="height: 48px; border-radius: 8px; box-shadow: none;" aria-label="Wybierz datę">
+                        </div>
+
+                        <div class="col-12 col-md-3 p-0 ps-md-1">
+                            <button type="submit" class="btn w-100" id="search-btn"
+                                    style="background: var(--brand-green); color: #000; font-weight: 700; height: 48px; border-radius: 8px; border: none;">
+                                Zastosuj
+                            </button>
+                        </div>
                     </form>
+
                 </div>
-            </div>
+            </header>
 
-            <div class="row g-3 position-relative z-1">
-
+            <div class="row g-3 position-relative z-1" th:if="${stationData != null}">
                 <div class="col-12 mt-2 mb-2">
-                    <h5 class="text-white fs-6 fw-bold d-flex align-items-center gap-2"><i data-lucide="sun" class="text-brand-green"></i> Słońce</h5>
+                    <h4 class="text-white fs-6 fw-bold d-flex align-items-center gap-2"><i data-lucide="sun" class="text-brand-green"></i> Parametry Słońca</h4>
                 </div>
 
                 <div class="col-6 col-md-4">
                     <div class="local-data-box text-center">
                         <i data-lucide="sunrise" class="text-brand-green mb-2" style="width: 24px; height: 24px;"></i>
                         <span class="d-block moon-text-readable fs-8 text-uppercase fw-bold mb-1">Wschód Słońca</span>
-                        <span class="fs-4 fw-bold text-white">05:42</span>
+                        <span class="fs-4 fw-bold text-white" th:text="${stationData.sunrise != null ? #temporals.format(stationData.sunrise, 'HH:mm') : '--:--'}">05:42</span>
                     </div>
                 </div>
                 <div class="col-6 col-md-4">
                     <div class="local-data-box text-center">
                         <i data-lucide="sunset" class="text-brand-green mb-2" style="width: 24px; height: 24px;"></i>
                         <span class="d-block moon-text-readable fs-8 text-uppercase fw-bold mb-1">Zachód Słońca</span>
-                        <span class="fs-4 fw-bold text-white">19:15</span>
+                        <span class="fs-4 fw-bold text-white" th:text="${stationData.sunset != null ? #temporals.format(stationData.sunset, 'HH:mm') : '--:--'}">19:15</span>
                     </div>
                 </div>
                 <div class="col-12 col-md-4">
                     <div class="local-data-box text-center">
                         <i data-lucide="timer" class="text-white mb-2" style="width: 24px; height: 24px;"></i>
                         <span class="d-block moon-text-readable fs-8 text-uppercase fw-bold mb-1">Długość Dnia</span>
-                        <span class="fs-4 fw-bold text-brand-green text-glow-green">13h 33m</span>
+                        <span class="fs-4 fw-bold text-brand-green text-glow-green"
+                              th:text="${stationData.dayLengthSec != null ? (stationData.dayLengthSec / 3600) + 'h ' + ((stationData.dayLengthSec % 3600) / 60) + 'm' : '--'}">13h 33m</span>
                     </div>
                 </div>
 
                 <div class="col-12 mt-4 mb-2 border-top border-dark-subtle pt-3">
-                    <h5 class="text-white fs-6 fw-bold d-flex align-items-center gap-2"><i data-lucide="moon" class="text-brand-green"></i> Księżyc</h5>
+                    <h4 class="text-white fs-6 fw-bold d-flex align-items-center gap-2"><i data-lucide="moon" class="text-brand-green"></i> Parametry Księżyca</h4>
                 </div>
 
                 <div class="col-6 col-md-3">
                     <div class="local-data-box text-center">
                         <i data-lucide="arrow-up-right" class="text-brand-green mb-2" style="width: 24px; height: 24px;"></i>
                         <span class="d-block moon-text-readable fs-8 text-uppercase fw-bold mb-1">Wschód Księżyca</span>
-                        <span class="fs-4 fw-bold text-white">18:42</span>
+                        <span class="fs-4 fw-bold text-white" th:text="${stationData.moonrise != null ? #temporals.format(stationData.moonrise, 'HH:mm') : '--:--'}">18:42</span>
                     </div>
                 </div>
                 <div class="col-6 col-md-3">
                     <div class="local-data-box text-center">
                         <i data-lucide="chevrons-up" class="text-white mb-2" style="width: 24px; height: 24px;"></i>
                         <span class="d-block moon-text-readable fs-8 text-uppercase fw-bold mb-1">Górowanie (Transit)</span>
-                        <span class="fs-4 fw-bold text-brand-green text-glow-green">00:15</span>
+                        <span class="fs-4 fw-bold text-brand-green text-glow-green" th:text="${stationData.transit != null ? #temporals.format(stationData.transit, 'HH:mm') : '--:--'}">00:15</span>
                     </div>
                 </div>
                 <div class="col-6 col-md-3">
                     <div class="local-data-box text-center">
                         <i data-lucide="arrow-down-right" class="text-brand-green mb-2" style="width: 24px; height: 24px;"></i>
                         <span class="d-block moon-text-readable fs-8 text-uppercase fw-bold mb-1">Zachód Księżyca</span>
-                        <span class="fs-4 fw-bold text-white">06:30</span>
+                        <span class="fs-4 fw-bold text-white" th:text="${stationData.moonset != null ? #temporals.format(stationData.moonset, 'HH:mm') : '--:--'}">06:30</span>
                     </div>
                 </div>
                 <div class="col-6 col-md-3">
                     <div class="local-data-box text-center">
                         <i data-lucide="mountain-snow" class="text-brand-green mb-2" style="width: 24px; height: 24px;"></i>
-                        <span class="d-block moon-text-readable fs-8 text-uppercase fw-bold mb-1">Max. Wysokość</span>
-                        <span class="fs-4 fw-bold text-white">45.2°</span>
+                        <span class="d-block moon-text-readable fs-8 text-uppercase fw-bold mb-1">Wysokość Księżyca</span>
+                        <span class="fs-4 fw-bold text-white" th:text="${stationData.maxAltitude != null ? stationData.maxAltitude + '°' : '--'}">45.2°</span>
                     </div>
                 </div>
+            </div>
 
+            <div class="row position-relative z-1" th:if="${stationData == null}">
+                <div class="col-12 py-4 text-center">
+                    <p class="text-white opacity-75 mb-0">Nie znaleźliśmy precyzyjnych danych słońca i księżyca dla tego miasta. Użyj innej lokalizacji.</p>
+                </div>
+            </div>
+
+        </section>
+
+        <div class="moon-glass-panel p-4 mb-5 border-brand-green-subtle position-relative overflow-hidden" style="background: rgba(46, 204, 113, 0.05);">
+            <div class="d-flex flex-column flex-md-row align-items-md-center gap-4 position-relative z-1">
+                <div class="flex-shrink-0 text-center">
+                    <i data-lucide="cloud-lightning" class="text-brand-green" style="width: 64px; height: 64px;"></i>
+                </div>
+                <div class="flex-grow-1">
+                    <h2 class="fs-4 text-white fw-bold mb-2">⚠️ Pamiętaj: Księżyc to tylko 10-20% sukcesu!</h2>
+                    <p class="moon-text-readable fs-6 mb-3">
+                        Nawet najlepsza "faza Eldorado" na nic się zda, jeśli zignorujesz warunki atmosferyczne. To <strong>zmiany pogody są TOP #1</strong> decydującym o udanym żerowaniu. Zawsze zwracaj uwagę na:
+                    </p>
+                    <div class="d-flex flex-wrap gap-2 mb-3">
+                        <span class="badge bg-dark border border-dark-subtle text-white p-2 d-flex align-items-center gap-2"><i data-lucide="thermometer" class="text-brand-green" style="width: 14px;"></i> Skoki temperatury</span>
+                        <span class="badge bg-dark border border-dark-subtle text-white p-2 d-flex align-items-center gap-2"><i data-lucide="wind" class="text-brand-green" style="width: 14px;"></i> Wiatr</span>
+                        <span class="badge bg-dark border border-dark-subtle text-white p-2 d-flex align-items-center gap-2"><i data-lucide="gauge" class="text-brand-green" style="width: 14px;"></i> Ciśnienie</span>
+                    </div>
+                    <p class="fs-5 fw-bold text-brand-green mb-0 d-inline-flex align-items-center gap-2 bg-dark bg-opacity-50 px-3 py-2 border border-brand-green-subtle rounded-3">
+                        👉 Złota zasada wędkarza: "Zły księżyc + dobra pogoda = świetne brania!"
+                    </p>
+                </div>
             </div>
         </div>
+
+        <section class="moon-glass-panel p-4 p-lg-5 mb-5 position-relative overflow-hidden" aria-labelledby="seo-section-title">
+            <div class="position-absolute top-0 end-0 translate-middle-y" style="width: 300px; height: 300px; background: radial-gradient(circle, rgba(46, 204, 113, 0.05) 0%, transparent 70%); border-radius: 50%;"></div>
+
+            <div class="row align-items-center position-relative z-1">
+                <div class="col-lg-5 mb-4 mb-lg-0">
+                    <h2 id="seo-section-title" class="fs-2 fw-bold text-white mb-3 lh-sm">
+                        Jak liczymy fazy i oceniamy <br><span class="text-brand-green">szanse na branie?</span>
+                    </h2>
+                    <p class="moon-text-readable fs-6 lh-lg mb-0">
+                        Nasz wędkarski kalendarz solunarny nie opiera się na wróżbach, a na solidnych danych astronomicznych zdefiniowanych dla Twojego rejonu i powiązanych z potwierdzoną wiedzą na temat zachowań organizmów wodnych.
+                    </p>
+                </div>
+
+                <div class="col-lg-7">
+                    <article class="bg-dark bg-opacity-50 p-4 rounded-4 border border-dark-subtle mb-3">
+                        <h3 class="fs-6 text-white fw-bold mb-2 d-flex align-items-center gap-2">
+                            <i data-lucide="database" class="text-brand-green" style="width: 18px; height: 18px;"></i> Precyzyjne dane astronomiczne
+                        </h3>
+                        <p class="moon-text-readable fs-7 mb-0">
+                            Silnik analizuje nie tylko sam wygląd tarczy księżyca. Obliczamy m.in. <strong>procent iluminacji, odległość od Ziemi oraz wysokość górowania</strong> (tzw. tranzyt), dopasowując wyniki do podanych przez Ciebie współrzędnych geograficznych i korelując je z długością i fazami słonecznymi.
+                        </p>
+                    </article>
+
+                    <article class="bg-dark bg-opacity-50 p-4 rounded-4 border border-dark-subtle">
+                        <h3 class="fs-6 text-white fw-bold mb-2 d-flex align-items-center gap-2">
+                            <i data-lucide="activity" class="text-brand-green" style="width: 18px; height: 18px;"></i> Teoria grawitacyjna brań
+                        </h3>
+                        <p class="moon-text-readable fs-7 mb-0">
+                            Ocena brań bazuje na fakcie, że woda i jej mieszkańcy ulegają mikropływom. Fazom odciętych całkowicie od słońca (nów) lub o maksymalnym oświetleniu (pełnia) towarzyszą okresy nasilonego instynktownego poszukiwania pokarmu przez ryby przed powrotem ciśnienia do normy.
+                        </p>
+                    </article>
+                </div>
+            </div>
+        </section>
 
     </div>
 </main>
@@ -246,6 +516,56 @@
 <script>
     document.addEventListener('DOMContentLoaded', () => {
         lucide.createIcons();
+
+        const form = document.getElementById('geocoding-form');
+        if (form) {
+            form.addEventListener('submit', async function(e) {
+                e.preventDefault();
+
+                const inputVal = document.getElementById('city-input').value;
+                const dateVal = document.getElementById('date-input').value;
+                const btn = document.getElementById('search-btn');
+                const originalText = btn.textContent;
+
+                btn.textContent = 'Szukam...';
+                btn.style.opacity = '0.7';
+
+                try {
+                    const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(inputVal)}&countrycodes=pl&limit=1`);
+                    const data = await response.json();
+
+                    if (data && data.length > 0) {
+                        const lat = data[0].lat;
+                        const lon = data[0].lon;
+
+                        const rawName = data[0].name || inputVal;
+                        const cleanName = rawName.split(',')[0].trim();
+
+                        const urlParams = new URLSearchParams(window.location.search);
+                        urlParams.set('lat', lat);
+                        urlParams.set('lon', lon);
+                        urlParams.set('name', cleanName);
+                        if (dateVal) {
+                            urlParams.set('date', dateVal);
+                        }
+
+                        window.location.search = urlParams.toString();
+                    } else {
+                        alert("Nie znaleziono takiej lokalizacji. Spróbuj wpisać inną nazwę (np. najbliższe duże miasto).");
+                        resetBtn();
+                    }
+                } catch (error) {
+                    console.error("Błąd podczas wyszukiwania:", error);
+                    alert("Wystąpił problem z połączeniem. Spróbuj ponownie za chwilę.");
+                    resetBtn();
+                }
+
+                function resetBtn() {
+                    btn.textContent = originalText;
+                    btn.style.opacity = '1';
+                }
+            });
+        }
     });
 </script>
 </body>
