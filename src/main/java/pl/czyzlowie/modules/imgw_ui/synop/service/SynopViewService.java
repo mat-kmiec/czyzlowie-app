@@ -66,7 +66,20 @@ public class SynopViewService {
 
     private SynopDashboardDto createDashboard(List<WeatherReadingDto> readings, String locationName, String type, LocalDate date, double distanceKm) {
         if (readings.isEmpty()) {
-            return null;
+            log.warn("Brak odczytów dla stacji w lokalizacji: {}", locationName);
+            return SynopDashboardDto.builder()
+                    .locationName(locationName)
+                    .stationType(type)
+                    .distanceKm(Math.round(distanceKm * 10.0) / 10.0)
+                    .selectedDate(date)
+                    .dailyHistory(List.of())
+                    .chartLabels(List.of())
+                    .chartTemperatures(List.of())
+                    .chartPressures(List.of())
+                    .chartWindSpeeds(List.of())
+                    .chartTimestamps(List.of())
+                    .chartPrecipitation(List.of())
+                    .build();
         }
 
         WeatherReadingDto current = readings.get(readings.size() - 1);
@@ -81,9 +94,9 @@ public class SynopViewService {
                 .chartLabels(readings.stream().map(WeatherReadingDto::getTimeLabel).toList())
                 .chartTemperatures(readings.stream().map(WeatherReadingDto::getTemperature).toList())
                 .chartPressures(readings.stream().map(WeatherReadingDto::getPressure).toList())
-                .chartWindSpeeds(readings.stream().map(WeatherReadingDto::getWindSpeed).toList()) //
-                .chartTimestamps(readings.stream().map(WeatherReadingDto::getTimestamp).toList())// NOWE
-                .chartPrecipitation(readings.stream().map(WeatherReadingDto::getPrecipitation).toList()) // NOWE
+                .chartWindSpeeds(readings.stream().map(WeatherReadingDto::getWindSpeed).toList())
+                .chartTimestamps(readings.stream().map(WeatherReadingDto::getTimestamp).toList())
+                .chartPrecipitation(readings.stream().map(WeatherReadingDto::getPrecipitation).toList())
                 .build();
     }
 }
