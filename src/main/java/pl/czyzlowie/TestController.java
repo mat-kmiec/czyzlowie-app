@@ -47,16 +47,6 @@ public class TestController {
         return "info/o-aplikacji";
     }
 
-    @GetMapping("/moon")
-    public String moon(){
-        return "essentials/moon";
-    }
-
-    @GetMapping("/sun")
-    public String moson(){
-        return "essentials/sunrise-sunset";
-    }
-
     @GetMapping("/synop")
     public String mosonff(){
         return "essentials/synop";
