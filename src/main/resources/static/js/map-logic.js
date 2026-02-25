@@ -10,6 +10,7 @@ class MapApplication {
         this.polygonCache = {};
         this.fetchTimeout = null;
         this.allDataLoaded = false;
+        this.isTracking = false;
 
         const defaultInactive = ['me'];
         this.activeCategories = new Set(Object.keys(this.categories).filter(k => !defaultInactive.includes(k)));
@@ -127,7 +128,30 @@ class MapApplication {
 
         this.map.on('locationfound', (e) => this.handleLocationFound(e));
         this.map.on('locationerror', (e) => {
-            console.warn("Błąd lokalizacji:", e.message);
+            console.warn("Błąd lokalizacji:", e.message, "Kod:", e.code);
+            this.toggleLoader(false);
+
+            if (this.isTracking) {
+                this.isTracking = false;
+                const navIcon = document.querySelector('.map-custom-btn[title*="Moja lokalizacja"] i');
+                if (navIcon) navIcon.style.color = '';
+            }
+
+            let errorMsg = "Nie udało się pobrać lokalizacji.";
+
+            switch(e.code) {
+                case 1:
+                    errorMsg = "Przeglądarka ma zablokowany dostęp do lokalizacji. Kliknij ikonę kłódki (lub ustawień) w pasku adresu przeglądarki i zezwól na dostęp do lokalizacji, a następnie odśwież stronę.";
+                    break;
+                case 2:
+                    errorMsg = "Sygnał GPS jest niedostępny. Upewnij się, że masz włączoną opcję 'Lokalizacja' w górnym menu telefonu.";
+                    break;
+                case 3:
+                    errorMsg = "Przekroczono czas oczekiwania na sygnał. Upewnij się, że GPS jest włączony i spróbuj ponownie (najlepiej na zewnątrz).";
+                    break;
+            }
+
+            alert(errorMsg);
         });
     }
 
@@ -136,7 +160,28 @@ class MapApplication {
         const zoomGroup = L.DomUtil.create('div', 'map-controls-group', container);
         this.createBtn(zoomGroup, 'plus', 'Przybliż', () => this.map.zoomIn());
         this.createBtn(zoomGroup, 'minus', 'Oddal', () => this.map.zoomOut());
-        this.createBtn(container, 'navigation', 'Moja lokalizacja', () => this.map.locate({setView: true, maxZoom: 14}));
+
+        const navBtn = this.createBtn(container, 'navigation', 'Moja lokalizacja / Śledzenie', () => {
+            const icon = navBtn.querySelector('i');
+            if (this.isTracking) {
+                // Wyłącz śledzenie
+                this.map.stopLocate();
+                this.isTracking = false;
+                if (icon) icon.style.color = '';
+            } else {
+                this.toggleLoader(true, 'Szukam sygnału GPS...');
+                this.map.locate({
+                    setView: true,
+                    maxZoom: 15,
+                    watch: true,
+                    enableHighAccuracy: true,
+                    timeout: 10000
+                });
+                this.isTracking = true;
+                if (icon) icon.style.color = '#22c55e';
+            }
+        });
+
         this.createBtn(container, 'expand', 'Widok całej Polski', () => this.map.setView(MAP_CONFIG.initialCoords || [52.0, 19.0], 6));
 
         const customControl = L.Control.extend({
@@ -204,17 +249,26 @@ class MapApplication {
                     this.locationIds.add(marker.id);
 
                     const typeLower = marker.type ? marker.type.toLowerCase() : '';
-                    let baseUrl = '/synop';
+                    let finalUrl = '';
 
-                    if (typeLower === 'hydro') baseUrl = '/hydro';
-                    else if (typeLower === 'meteo') baseUrl = '/meteo';
-                    else if (typeLower === 'slip') baseUrl = '/slip';
-                    else if (typeLower === 'lake') baseUrl = '/jezioro';
-                    else if (typeLower === 'river') baseUrl = '/rzeka';
-                    else if (typeLower === 'reservoir') baseUrl = '/zbiornik-zaporowy';
-                    else if (typeLower === 'commercial') baseUrl = '/lowisko-komercyjne';
-                    else if (typeLower === 'oxbow') baseUrl = '/starorzecze';
-                    else if (typeLower === 'specific_spot') baseUrl = '/miejscowka';
+                    if (['hydro', 'meteo', 'synop'].includes(typeLower)) {
+                        const urlParams = new URLSearchParams();
+                        urlParams.set('lat', marker.lat);
+                        urlParams.set('lon', marker.lng);
+                        urlParams.set('miasto', marker.name.split(/[,-]/)[0].trim());
+                        finalUrl = `/${typeLower}?${urlParams.toString()}`;
+                    } else {
+                        let baseUrl = '';
+                        if (typeLower === 'slip') baseUrl = '/slip';
+                        else if (typeLower === 'lake') baseUrl = '/jezioro';
+                        else if (typeLower === 'river') baseUrl = '/rzeka';
+                        else if (typeLower === 'reservoir') baseUrl = '/zbiornik-zaporowy';
+                        else if (typeLower === 'commercial') baseUrl = '/lowisko-komercyjne';
+                        else if (typeLower === 'oxbow') baseUrl = '/starorzecze';
+                        else if (typeLower === 'specific_spot') baseUrl = '/miejscowka';
+
+                        finalUrl = `${baseUrl}/${marker.slug}`;
+                    }
 
                     const locObj = {
                         id: marker.id,
@@ -227,7 +281,7 @@ class MapApplication {
                         startDate: marker.startDate,
                         endDate: marker.endDate,
                         restrictionType: marker.restrictionType,
-                        url: `${baseUrl}/${marker.slug}`
+                        url: finalUrl
                     };
 
                     this.locations.push(locObj);
@@ -593,20 +647,29 @@ class MapApplication {
     }
 
     handleLocationFound(e) {
-        if(this.gpsMarker) this.map.removeLayer(this.gpsMarker);
+        this.toggleLoader(false);
 
-        const meCat = this.categories['me'];
-        const htmlIcon = L.divIcon({
-            className: 'custom-div-icon',
-            html: `<div class="custom-map-marker" style="background-color: ${meCat.color}; animation: pulse 2s infinite;">
-                       <i data-lucide="${meCat.icon}"></i>
-                   </div>`,
-            iconSize: [36, 36],
-            iconAnchor: [18, 18]
-        });
+        if(this.gpsMarker) {
+            this.gpsMarker.setLatLng(e.latlng);
+        } else {
+            const meCat = this.categories['me'];
+            const htmlIcon = L.divIcon({
+                className: 'custom-div-icon',
+                html: `<div class="custom-map-marker" style="background-color: ${meCat.color}; animation: pulse 2s infinite; box-shadow: 0 0 12px ${meCat.color}; border: 2px solid white;">
+                           <i data-lucide="${meCat.icon}"></i>
+                       </div>`,
+                iconSize: [36, 36],
+                iconAnchor: [18, 18]
+            });
 
-        this.gpsMarker = L.marker(e.latlng, { icon: htmlIcon }).addTo(this.map);
-        this.gpsMarker.bindTooltip('<b>Tu jesteś</b>', { direction: 'top', className: 'custom-tooltip' }).openTooltip();
+            this.gpsMarker = L.marker(e.latlng, { icon: htmlIcon }).addTo(this.map);
+            this.gpsMarker.bindTooltip('<b>Tu jesteś</b>', { direction: 'top', className: 'custom-tooltip' });
+
+            if (!this.isTracking) {
+                this.gpsMarker.openTooltip();
+            }
+        }
+
         if (window.lucide) lucide.createIcons();
     }
 }
