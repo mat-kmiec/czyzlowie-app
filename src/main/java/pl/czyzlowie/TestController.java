@@ -32,10 +32,6 @@ public class TestController {
         return "error/error";
     }
 
-    @GetMapping("/synop")
-    public String mosonff(){
-        return "essentials/synop";
-    }
 
     @GetMapping("/meteo")
     public String meteo(){

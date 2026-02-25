@@ -2,8 +2,7 @@ package pl.czyzlowie.modules.forecast.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-import pl.czyzlowie.modules.forecast.entity.VirtualStation;
-import pl.czyzlowie.modules.imgw.entity.ImgwSynopStation;
+import pl.czyzlowie.modules.imgw_api.entity.ImgwSynopStation;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;

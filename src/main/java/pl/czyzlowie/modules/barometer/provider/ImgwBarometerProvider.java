@@ -3,7 +3,7 @@ package pl.czyzlowie.modules.barometer.provider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import pl.czyzlowie.modules.barometer.dto.PressurePoint;
-import pl.czyzlowie.modules.imgw.repository.ImgwSynopDataRepository;
+import pl.czyzlowie.modules.imgw_api.repository.ImgwSynopDataRepository;
 
 import java.time.LocalDateTime;
 import java.util.List;

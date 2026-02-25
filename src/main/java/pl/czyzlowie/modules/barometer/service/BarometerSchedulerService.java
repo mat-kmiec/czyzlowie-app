@@ -8,7 +8,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import pl.czyzlowie.modules.barometer.entity.StationType;
 import pl.czyzlowie.modules.forecast.repository.VirtualStationRepository;
-import pl.czyzlowie.modules.imgw.repository.ImgwSynopStationRepository;
+import pl.czyzlowie.modules.imgw_api.repository.ImgwSynopStationRepository;
 import java.util.ArrayList;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;

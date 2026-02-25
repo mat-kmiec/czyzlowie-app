@@ -6,9 +6,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import pl.czyzlowie.modules.barometer.entity.StationType;
 import pl.czyzlowie.modules.forecast.repository.VirtualStationRepository;
-import pl.czyzlowie.modules.imgw.repository.ImgwHydroStationRepository;
-import pl.czyzlowie.modules.imgw.repository.ImgwMeteoStationRepository;
-import pl.czyzlowie.modules.imgw.repository.ImgwSynopStationRepository;
+import pl.czyzlowie.modules.imgw_api.repository.ImgwHydroStationRepository;
+import pl.czyzlowie.modules.imgw_api.repository.ImgwMeteoStationRepository;
+import pl.czyzlowie.modules.imgw_api.repository.ImgwSynopStationRepository;
 import pl.czyzlowie.modules.location.enums.StationCategory;
 
 import java.util.ArrayList;

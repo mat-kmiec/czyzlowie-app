@@ -8,7 +8,7 @@ import pl.czyzlowie.modules.moon.entity.MoonStationData;
 import pl.czyzlowie.modules.moon.entity.MoonStationDataId;
 import pl.czyzlowie.modules.moon.projection.StationCoordinatesView;
 import pl.czyzlowie.modules.moon.repository.MoonStationDataRepository;
-import pl.czyzlowie.modules.imgw.repository.ImgwSynopStationRepository;
+import pl.czyzlowie.modules.imgw_api.repository.ImgwSynopStationRepository;
 import pl.czyzlowie.modules.forecast.repository.VirtualStationRepository;
 
 import java.time.LocalDate;

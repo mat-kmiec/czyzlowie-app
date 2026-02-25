@@ -9,7 +9,7 @@ import pl.czyzlowie.modules.forecast.client.dto.OpenMeteoResponse;
 import pl.czyzlowie.modules.forecast.entity.VirtualStation;
 import pl.czyzlowie.modules.forecast.entity.VirtualStationData;
 import pl.czyzlowie.modules.forecast.entity.WeatherForecast;
-import pl.czyzlowie.modules.imgw.entity.ImgwSynopStation;
+import pl.czyzlowie.modules.imgw_api.entity.ImgwSynopStation;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;

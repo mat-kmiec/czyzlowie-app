@@ -11,9 +11,8 @@ import pl.czyzlowie.modules.forecast.entity.VirtualStation;
 import pl.czyzlowie.modules.forecast.entity.WeatherForecast;
 import pl.czyzlowie.modules.forecast.mapper.WeatherForecastMapper;
 import pl.czyzlowie.modules.forecast.repository.VirtualStationRepository;
-import pl.czyzlowie.modules.forecast.repository.WeatherImportLogRepository;
-import pl.czyzlowie.modules.imgw.entity.ImgwSynopStation;
-import pl.czyzlowie.modules.imgw.repository.ImgwSynopStationRepository;
+import pl.czyzlowie.modules.imgw_api.entity.ImgwSynopStation;
+import pl.czyzlowie.modules.imgw_api.repository.ImgwSynopStationRepository;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;

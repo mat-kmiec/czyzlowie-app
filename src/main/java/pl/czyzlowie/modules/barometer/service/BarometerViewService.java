@@ -7,7 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 import pl.czyzlowie.modules.barometer.dto.BarometerViewDto;
 import pl.czyzlowie.modules.barometer.mapper.BarometerViewMapper;
 import pl.czyzlowie.modules.barometer.repository.StationBarometerStatsRepository;
-import pl.czyzlowie.modules.imgw.repository.ImgwSynopStationRepository;
+import pl.czyzlowie.modules.imgw_api.repository.ImgwSynopStationRepository;
 
 import java.util.Comparator;
 

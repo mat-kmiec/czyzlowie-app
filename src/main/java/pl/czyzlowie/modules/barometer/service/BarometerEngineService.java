@@ -14,7 +14,7 @@ import pl.czyzlowie.modules.barometer.entity.StationType;
 import pl.czyzlowie.modules.barometer.repository.StationBarometerStatsRepository;
 import pl.czyzlowie.modules.forecast.repository.VirtualStationDataRepository;
 import pl.czyzlowie.modules.forecast.repository.WeatherForecastRepository;
-import pl.czyzlowie.modules.imgw.repository.ImgwSynopDataRepository;
+import pl.czyzlowie.modules.imgw_api.repository.ImgwSynopDataRepository;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;

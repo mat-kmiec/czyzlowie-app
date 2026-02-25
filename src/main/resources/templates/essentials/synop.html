@@ -38,7 +38,7 @@
 
         <header class="synop-glass-panel p-4 p-lg-5 mb-4 border-synop-cyan-subtle">
             <div class="row align-items-center justify-content-between g-4">
-                <div class="col-lg-7">
+                <div class="col-lg-6">
                     <div class="d-flex align-items-center gap-3 mb-3">
                         <div class="synop-icon-pulse">
                             <i data-lucide="satellite" class="text-synop-cyan" style="width: 32px; height: 32px;"></i>
@@ -46,28 +46,32 @@
                         <h1 class="display-5 fw-black text-white mb-0 synop-title-glow">Dane Synoptyczne</h1>
                     </div>
                     <p class="synop-text-readable fs-5 mb-0">
-                        Monitoruj temperaturę, wiatr i ciśnienie prosto ze stacji pomiarowych <span class="text-synop-cyan fw-bold text-glow-cyan">IMGW</span>.
+                        Monitoruj pogodę ze stacji <span class="text-synop-cyan fw-bold text-glow-cyan">IMGW</span> lub stacji Wirtualnych.
                     </p>
                 </div>
 
-                <div class="col-lg-5 text-lg-end">
-                    <form action="/synop" method="get" class="synop-search-form">
-                        <div class="synop-search-input-group">
-                            <i data-lucide="map-pin" class="search-icon"></i>
-                            <input type="text" name="lokalizacja" class="search-input" placeholder="Wpisz miasto lub łowisko..." value="Bielsko Biała" required>
-                            <button type="submit" class="synop-search-btn">
+                <div class="col-lg-6 text-lg-end">
+                    <form id="synop-search-form" class="synop-search-form">
+                        <div class="synop-search-input-group d-flex align-items-center rounded-pill p-1" style="background: rgba(0, 0, 0, 0.4); border: 1px solid rgba(255, 255, 255, 0.1);">
+                            <div class="d-flex align-items-center flex-grow-1 px-3 py-1">
+                                <i data-lucide="map-pin" class="text-synop-cyan flex-shrink-0" style="width: 20px;"></i>
+                                <input type="text" id="synop-city-input" class="form-control shadow-none border-0 bg-transparent text-white w-100 px-2"
+                                       placeholder="Wpisz miasto lub łowisko..." th:value="${locationName}" required style="outline: none;">
+                            </div>
+                            <button type="submit" id="synop-search-btn" class="btn rounded-pill border-0 px-4 py-2 ms-1 d-flex align-items-center justify-content-center gap-2 flex-shrink-0 fw-bold"
+                                    style="background: var(--synop-cyan); color: #000; transition: 0.3s;">
                                 Szukaj <i data-lucide="chevron-right" style="width: 18px;"></i>
                             </button>
                         </div>
                     </form>
-                    <div class="mt-2 pe-3 text-white opacity-50 fs-8 text-end">
-                        <i data-lucide="crosshair" style="width: 12px;"></i> Auto-dopasowanie do najbliższej z 62 stacji
+                    <div class="mt-2 pe-3 text-white opacity-50 fs-8 text-end" th:if="${dashboard != null}">
+                        <i data-lucide="crosshair" style="width: 12px;"></i> Dane ze stacji oddalonej o <span th:text="${dashboard.distanceKm}"></span> km
                     </div>
                 </div>
             </div>
         </header>
 
-        <div class="row g-4 mb-4">
+        <div class="row g-4 mb-4" th:if="${dashboard != null}">
 
             <div class="col-lg-8">
 
@@ -75,18 +79,18 @@
                     <div class="row g-0 position-relative z-1">
                         <div class="col-md-5 p-4 p-md-5 text-center text-md-start synop-border-end d-flex flex-column justify-content-center">
                             <div class="d-flex justify-content-between align-items-center mb-3">
-                                <span class="text-uppercase fw-bold fs-7 synop-text-readable" style="letter-spacing: 1px;">Aktualnie</span>
-                                <span class="synop-location-badge">Bielsko Biała</span>
+                                <span class="text-uppercase fw-bold fs-7 synop-text-readable" style="letter-spacing: 1px;">
+                                    Aktualnie <span th:if="${dashboard.stationType == 'STACJA WIRTUALNA'}" class="badge bg-warning text-dark ms-2" style="font-size: 0.6rem;">Wirtualna</span>
+                                </span>
+                                <span class="synop-location-badge" th:text="${dashboard.locationName}">Miasto</span>
                             </div>
 
-                            <h2 class="display-2 fw-black text-white mb-0 lh-1">-2.6<span class="fs-3 text-white opacity-50">°C</span></h2>
+                            <h2 class="display-2 fw-black text-white mb-0 lh-1">
+                                <span th:text="${dashboard.currentReading.temperature != null ? dashboard.currentReading.temperature : '--'}">-2.6</span><span class="fs-3 text-white opacity-50">°C</span>
+                            </h2>
                             <p class="fs-7 text-synop-cyan fw-bold mt-2 mb-4 d-flex align-items-center justify-content-center justify-content-md-start gap-2">
-                                <i data-lucide="clock" style="width: 14px;"></i> Odczyt: 20 luty, 13:00
+                                <i data-lucide="clock" style="width: 14px;"></i> Odczyt: <span th:text="${dashboard.currentReading.timeLabel}"></span>
                             </p>
-
-                            <div class="synop-alert">
-                                <i data-lucide="snowflake" style="width: 16px;"></i> Ryzyko oblodzenia przelotek
-                            </div>
                         </div>
 
                         <div class="col-md-7 p-4 p-md-5 synop-condition-bg d-flex align-items-center justify-content-center">
@@ -97,21 +101,35 @@
                                     </div>
                                     <div>
                                         <span class="d-block synop-text-readable fs-8 text-uppercase fw-bold mb-1">Ciśnienie atmosferyczne</span>
-                                        <span class="fs-3 fw-bold text-white">1025.4 <span class="fs-6 opacity-50">hPa</span></span>
+                                        <span class="fs-3 fw-bold text-white">
+                                            <span th:text="${dashboard.currentReading.pressure != null ? dashboard.currentReading.pressure : '--'}">1025.4</span>
+                                            <span class="fs-6 opacity-50">hPa</span>
+                                        </span>
                                     </div>
                                 </div>
                                 <div class="col-6 col-md-6 d-flex flex-column gap-1">
-                                    <span class="d-block synop-text-readable fs-8 text-uppercase fw-bold mb-1">Wiatr (Kier. NNE / 30°)</span>
+                                    <span class="d-block synop-text-readable fs-8 text-uppercase fw-bold mb-1">Wiatr (Kier. <span th:text="${dashboard.currentReading.windDirection != null ? dashboard.currentReading.windDirection + '°' : '--'}">30°</span>)</span>
                                     <div class="d-flex align-items-center justify-content-center justify-content-md-start gap-2">
                                         <i data-lucide="wind" class="text-white opacity-50" style="width: 20px;"></i>
-                                        <span class="fs-4 fw-bold text-white">5.0 <span class="fs-6 opacity-50">m/s</span></span>
+                                        <span class="fs-4 fw-bold text-white">
+                                            <span th:text="${dashboard.currentReading.windSpeed != null ? dashboard.currentReading.windSpeed : '--'}">5.0</span>
+                                            <span class="fs-6 opacity-50">m/s</span>
+                                        </span>
                                     </div>
                                 </div>
                                 <div class="col-6 col-md-6 d-flex flex-column gap-1">
                                     <span class="d-block synop-text-readable fs-8 text-uppercase fw-bold mb-1">Wilgotność / Opad</span>
                                     <div class="d-flex align-items-center justify-content-center justify-content-md-start gap-2">
                                         <i data-lucide="droplets" class="text-white opacity-50" style="width: 20px;"></i>
-                                        <span class="fs-4 fw-bold text-white">59.8 <span class="fs-6 opacity-50">%</span></span>
+                                        <div class="d-flex flex-column text-start">
+                                            <span class="fs-4 fw-bold text-white lh-1">
+                                                <span th:text="${dashboard.currentReading.humidity != null ? dashboard.currentReading.humidity : '--'}">59.8</span>
+                                                <span class="fs-6 opacity-50">%</span>
+                                            </span>
+                                            <span class="fs-8 text-synop-cyan fw-bold mt-1">
+                                                Opad: <span th:text="${dashboard.currentReading.precipitation != null ? dashboard.currentReading.precipitation : '0.0'}">0.0</span> mm
+                                            </span>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -120,14 +138,28 @@
                 </div>
 
                 <div class="synop-glass-panel p-4">
-                    <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom border-dark-subtle">
+
+                    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 pb-3 border-bottom border-dark-subtle gap-3">
                         <h3 class="fs-5 text-white fw-bold mb-0 d-flex align-items-center gap-2">
-                            <i data-lucide="line-chart" class="text-synop-cyan" style="width: 20px;"></i> Trend Temperatury (24h)
+                            <i data-lucide="line-chart" class="text-synop-cyan" style="width: 20px;"></i> Historia
                         </h3>
-                        <span class="badge bg-dark border border-secondary text-light">Interwał: 1h</span>
+
+                        <div class="d-flex gap-2">
+                            <input type="radio" class="btn-check" name="chartType" id="btnTemp" value="temp" checked>
+                            <label class="btn btn-sm btn-outline-info rounded-pill px-3" for="btnTemp">Temperatura</label>
+
+                            <input type="radio" class="btn-check" name="chartType" id="btnWind" value="wind">
+                            <label class="btn btn-sm btn-outline-info rounded-pill px-3" for="btnWind">Wiatr</label>
+                        </div>
                     </div>
 
-                    <div class="chart-container" style="position: relative; height: 300px; width: 100%;">
+                    <div class="mb-3 d-flex justify-content-end gap-2">
+                        <button type="button" class="btn btn-sm btn-dark border border-secondary text-light chart-range-btn active" data-range="24">24h</button>
+                        <button type="button" class="btn btn-sm btn-dark border border-secondary text-light chart-range-btn" data-range="72">3 dni</button>
+                        <button type="button" class="btn btn-sm btn-dark border border-secondary text-light chart-range-btn" data-range="120">5 dni</button>
+                    </div>
+
+                    <div class="chart-container" style="position: relative; height: 320px; width: 100%;">
                         <canvas id="synopChart"></canvas>
                     </div>
                 </div>
@@ -144,101 +176,215 @@
                     <div class="synop-knowledge-item mb-4">
                         <h3 class="fs-6 text-white fw-bold mb-2">Gęstość Powietrza</h3>
                         <p class="synop-text-readable fs-7 lh-lg mb-0">
-                            Wysokie ciśnienie (<strong class="text-white">1025.4 hPa</strong>) sprawia, że ryby mogą być "przyklejone" do dna. Zastosuj techniki opadowe lub łów w najgłębszych partiach łowiska.
+                            Odczytane ciśnienie (<strong class="text-white" th:text="${dashboard.currentReading.pressure != null ? dashboard.currentReading.pressure + ' hPa' : '--'}"></strong>) wpływa na pęcherz pławny. Skoki ciśnienia wywołują u ryb dekompresję lub kompresję, zmieniając ich strefę żerowania.
                         </p>
                     </div>
 
                     <div class="synop-knowledge-item mb-4 pb-4 border-bottom border-dark-subtle">
-                        <h3 class="fs-6 text-white fw-bold mb-2">Wpływ Wiatru NNE</h3>
+                        <h3 class="fs-6 text-white fw-bold mb-2">Wpływ Wiatru</h3>
                         <p class="synop-text-readable fs-7 lh-lg mb-0">
-                            Chłodny wiatr północno-wschodni w połączeniu z mrozem zazwyczaj obniża aktywność ryb. Szukaj zawietrznych, osłoniętych brzegów, gdzie woda może być minimalnie cieplejsza.
+                            Wiatr <strong class="text-white" th:text="${dashboard.currentReading.windSpeed != null ? dashboard.currentReading.windSpeed + ' m/s' : '--'}"></strong> z kierunku <strong th:text="${dashboard.currentReading.windDirection != null ? dashboard.currentReading.windDirection + '°' : '--'}"></strong> natlenia wodę i tworzy prądy wsteczne na łowisku, przynosząc pokarm.
                         </p>
                     </div>
 
                     <div class="mt-auto bg-dark bg-opacity-50 p-3 rounded-3 border border-dark-subtle text-center">
-                        <span class="d-block synop-text-readable fs-8 text-uppercase fw-bold mb-1">Potencjał Brania</span>
-                        <span class="fs-3 fw-black text-warning text-glow-warning">ŚREDNI / TRUDNY</span>
-                        <div class="progress mt-3" style="height: 6px; background: rgba(255,255,255,0.1);">
-                            <div class="progress-bar bg-warning" style="width: 45%;"></div>
-                        </div>
+                        <span class="d-block synop-text-readable fs-8 text-uppercase fw-bold mb-1">Status Źródła</span>
+                        <span class="fs-4 fw-black text-synop-cyan text-glow-cyan" th:text="${dashboard.stationType}">SYNOP</span>
                     </div>
                 </article>
             </aside>
 
         </div>
+
+        <div class="row" th:if="${dashboard == null}">
+            <div class="col-12">
+                <div class="alert alert-warning text-center border-synop-cyan-subtle bg-dark text-white p-5">
+                    <i data-lucide="satellite-dish" class="text-synop-cyan mb-3" style="width: 48px; height: 48px;"></i><br>
+                    <h3 class="fs-4 fw-bold">Brak danych dla wybranej lokalizacji lub dnia</h3>
+                    <p class="text-muted mt-2">Stacje mogły nie wysłać raportu lub wybrana data wybiega poza archiwa.</p>
+                </div>
+            </div>
+        </div>
+
     </div>
 </main>
 
 <footer th:replace="~{fragments/footer :: footer}"></footer>
 
-<script>
+<script th:inline="javascript">
     document.addEventListener('DOMContentLoaded', () => {
         lucide.createIcons();
 
-        // Skrypt wykresu
-        const ctx = document.getElementById('synopChart').getContext('2d');
-        const themeColor = '#00f2ff';
+        /*<![CDATA[*/
+        const rawLabels = /*[[${dashboard != null ? dashboard.chartLabels : '[]'}]]*/ [];
+        const rawTimestamps = /*[[${dashboard != null ? dashboard.chartTimestamps : '[]'}]]*/ [];
+        const rawTemp = /*[[${dashboard != null ? dashboard.chartTemperatures : '[]'}]]*/ [];
+        const rawWind = /*[[${dashboard != null ? dashboard.chartWindSpeeds : '[]'}]]*/ [];
+        /*]]>*/
 
-        let gradient = ctx.createLinearGradient(0, 0, 0, 300);
-        gradient.addColorStop(0, 'rgba(0, 242, 255, 0.3)');
-        gradient.addColorStop(1, 'rgba(0, 242, 255, 0.0)');
+        const fullLabels = typeof rawLabels === 'string' ? JSON.parse(rawLabels || '[]') : rawLabels;
+        const fullTimestamps = typeof rawTimestamps === 'string' ? JSON.parse(rawTimestamps || '[]') : rawTimestamps;
+        const fullTemp = typeof rawTemp === 'string' ? JSON.parse(rawTemp || '[]') : rawTemp;
+        const fullWind = typeof rawWind === 'string' ? JSON.parse(rawWind || '[]') : rawWind;
 
-        const labels = ['14:00', '16:00', '18:00', '20:00', '22:00', '00:00', '02:00', '04:00', '06:00', '08:00', '10:00', '12:00', 'Teraz'];
-        const dataPoints = [-1.5, -2.0, -3.5, -5.0, -6.2, -7.0, -7.5, -8.1, -7.8, -6.5, -4.2, -3.0, -2.6];
+        let chartInstance = null;
+        let currentRangeHours = 24;
+        let currentDatasetType = 'temp';
 
-        new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: labels,
-                datasets: [{
-                    label: 'Temperatura (°C)',
-                    data: dataPoints,
-                    borderColor: themeColor,
-                    backgroundColor: gradient,
-                    borderWidth: 3,
-                    pointBackgroundColor: '#010409',
-                    pointBorderColor: themeColor,
-                    pointBorderWidth: 2,
-                    pointRadius: 4,
-                    pointHoverRadius: 7,
-                    fill: true,
-                    tension: 0.4
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: { display: false },
-                    tooltip: {
-                        backgroundColor: 'rgba(13, 17, 23, 0.95)',
-                        titleColor: '#94a3b8',
-                        bodyColor: themeColor,
-                        bodyFont: { weight: 'bold', size: 15 },
-                        padding: 14,
-                        borderColor: 'rgba(0, 242, 255, 0.2)',
-                        borderWidth: 1,
-                        displayColors: false,
-                        callbacks: {
-                            label: function(context) { return context.parsed.y + ' °C'; }
-                        }
-                    }
-                },
-                scales: {
-                    y: {
-                        grid: { color: 'rgba(255, 255, 255, 0.05)' },
-                        ticks: { color: '#94a3b8', stepSize: 2, font: { size: 12 } },
-                        border: { display: false }
-                    },
-                    x: {
-                        grid: { display: false },
-                        ticks: { color: '#94a3b8', font: { size: 12 } },
-                        border: { display: false }
-                    }
-                },
-                layout: { padding: { left: 0, bottom: 0 } }
+        function updateChart() {
+            const ctxNode = document.getElementById('synopChart');
+            if(!ctxNode || fullLabels.length === 0) return;
+            const ctx = ctxNode.getContext('2d');
+            const now = new Date().getTime();
+            const cutoffTime = now - (currentRangeHours * 60 * 60 * 1000);
+
+            let sliceStart = fullTimestamps.findIndex(ts => {
+                if(!ts) return false;
+                const safeTs = ts.includes('T') && !ts.endsWith('Z') ? ts + 'Z' : ts;
+                const time = new Date(safeTs).getTime();
+                return !isNaN(time) && time >= cutoffTime;
+            });
+
+            if (sliceStart === -1) {
+                sliceStart = Math.max(0, fullTimestamps.length - currentRangeHours);
             }
+            const slicedLabels = fullLabels.slice(sliceStart);
+            const dataToShow = currentDatasetType === 'temp'
+                ? fullTemp.slice(sliceStart)
+                : fullWind.slice(sliceStart);
+
+            const isTemp = currentDatasetType === 'temp';
+            const themeColor = isTemp ? '#00f2ff' : '#a855f7';
+            const yLabel = isTemp ? 'Temperatura (°C)' : 'Prędkość Wiatru (m/s)';
+
+            let gradient = ctx.createLinearGradient(0, 0, 0, 300);
+            gradient.addColorStop(0, `rgba(${isTemp ? '0, 242, 255' : '168, 85, 247'}, 0.3)`);
+            gradient.addColorStop(1, `rgba(${isTemp ? '0, 242, 255' : '168, 85, 247'}, 0.0)`);
+
+            if(chartInstance) chartInstance.destroy();
+
+            chartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: slicedLabels,
+                    datasets: [{
+                        label: yLabel,
+                        data: dataToShow,
+                        borderColor: themeColor,
+                        backgroundColor: gradient,
+                        borderWidth: 3,
+                        pointBackgroundColor: '#010409',
+                        pointBorderColor: themeColor,
+                        pointBorderWidth: 2,
+                        pointRadius: 3,
+                        pointHoverRadius: 6,
+                        fill: 'start',
+
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: 'rgba(13, 17, 23, 0.95)',
+                            titleColor: '#94a3b8',
+                            bodyColor: themeColor,
+                            bodyFont: { weight: 'bold', size: 15 },
+                            padding: 14,
+                            borderColor: themeColor,
+                            borderWidth: 1,
+                            displayColors: false,
+                            callbacks: {
+                                label: function(context) {
+                                    return context.parsed.y + (isTemp ? ' °C' : ' m/s');
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                            ticks: { color: '#94a3b8', font: { size: 12 } },
+                            border: { display: false }
+                        },
+                        x: {
+                            grid: { display: false },
+                            ticks: {
+                                color: '#94a3b8',
+                                font: { size: 11 },
+                                maxTicksLimit: currentRangeHours > 48 ? 8 : 12
+                            },
+                            border: { display: false }
+                        }
+                    },
+                    layout: { padding: { left: 0, bottom: 0 } }
+                }
+            });
+        }
+
+        document.querySelectorAll('.chart-range-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                document.querySelectorAll('.chart-range-btn').forEach(b => {
+                    b.classList.remove('active', 'border-info');
+                    b.classList.add('border-secondary');
+                });
+                e.target.classList.add('active', 'border-info');
+                e.target.classList.remove('border-secondary');
+                currentRangeHours = parseInt(e.target.dataset.range);
+                updateChart();
+            });
         });
+
+        document.querySelectorAll('input[name="chartType"]').forEach(radio => {
+            radio.addEventListener('change', (e) => {
+                currentDatasetType = e.target.value;
+                updateChart();
+            });
+        });
+
+        if (fullLabels.length > 0) updateChart();
+
+        const form = document.getElementById('synop-search-form');
+        if (form) {
+            form.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                const inputVal = document.getElementById('synop-city-input').value;
+                const btn = document.getElementById('synop-search-btn');
+                const originalContent = btn.innerHTML;
+
+                btn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status"></span>';
+                btn.style.opacity = '0.7';
+                btn.disabled = true;
+
+                try {
+                    const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(inputVal)}&countrycodes=pl&limit=1`);
+                    const data = await response.json();
+
+                    if (data && data.length > 0) {
+                        const urlParams = new URLSearchParams();
+                        urlParams.set('lat', data[0].lat);
+                        urlParams.set('lon', data[0].lon);
+                        urlParams.set('miasto', (data[0].name || inputVal).split(',')[0].trim());
+                        window.location.href = '/synop?' + urlParams.toString();
+                    } else {
+                        alert("Nie znaleziono lokalizacji.");
+                        resetBtn();
+                    }
+                } catch (error) {
+                    alert("Wystąpił problem z połączeniem.");
+                    resetBtn();
+                }
+
+                function resetBtn() {
+                    btn.innerHTML = originalContent;
+                    btn.style.opacity = '1';
+                    btn.disabled = false;
+                }
+            });
+        }
     });
 </script>
 </body>

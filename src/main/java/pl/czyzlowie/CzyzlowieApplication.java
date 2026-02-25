@@ -11,7 +11,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @EnableScheduling
 @EnableAsync
 @EnableCaching
-@ConfigurationPropertiesScan("pl.czyzlowie.modules.imgw.config")
+@ConfigurationPropertiesScan("pl.czyzlowie.modules.imgw_api.config")
 public class CzyzlowieApplication {
 
     public static void main(String[] args) {

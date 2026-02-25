@@ -42,4 +42,10 @@ public interface VirtualStationDataRepository extends JpaRepository<VirtualStati
     List<ForecastPressurePoint> findPressureHistory(@Param("stationId") String stationId,
                                                     @Param("start") LocalDateTime start,
                                                     @Param("end") LocalDateTime end);
+
+    List<VirtualStationData> findByVirtualStationIdAndMeasurementTimeBetweenOrderByMeasurementTimeAsc(
+            String virtualStationId,
+            LocalDateTime start,
+            LocalDateTime end
+    );
 }
