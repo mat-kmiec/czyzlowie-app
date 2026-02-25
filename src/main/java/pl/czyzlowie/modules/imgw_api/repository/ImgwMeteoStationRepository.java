@@ -20,6 +20,6 @@ public interface ImgwMeteoStationRepository extends JpaRepository<ImgwMeteoStati
             @Param("east") Double east
     );
 
-    @Query("SELECT s.id AS id, s.latitude AS latitude, s.longitude AS longitude FROM ImgwHydroStation s WHERE s.isActive = true")
+    @Query("SELECT s.id AS id, s.latitude AS latitude, s.longitude AS longitude FROM ImgwMeteoStation s WHERE s.isActive = true")
     List<StationCoordinatesView> findActiveStationCoordinates();
 }

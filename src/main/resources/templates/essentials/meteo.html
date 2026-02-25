@@ -8,7 +8,35 @@
 
     <link rel="stylesheet" th:href="@{/css/essentials/meteo.css}">
 
-    <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/hammerjs@2.0.8"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@2.0.1/dist/chartjs-plugin-zoom.min.js"></script>
+
+    <style>
+        .chart-filter-btn {
+            background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #94a3b8; padding: 4px 12px; font-size: 0.85rem; border-radius: 6px; transition: all 0.2s;
+        }
+        .chart-filter-btn:hover { background: rgba(168, 85, 247, 0.2); color: #fff; }
+        .chart-filter-btn.active { background: #a855f7; color: #fff; border-color: #a855f7; }
+
+        .meteo-chart-wrapper {
+            background: rgba(15, 23, 42, 0.4); border: 1px solid rgba(255,255,255,0.05);
+            border-radius: 12px; padding: 15px; margin-bottom: 20px; box-shadow: inset 0 0 20px rgba(0,0,0,0.2);
+        }
+
+        .stale-warning {
+            background: rgba(245, 158, 11, 0.1); border: 1px dashed rgba(245, 158, 11, 0.4);
+            color: #fcd34d; font-size: 0.8rem; padding: 6px 12px; border-radius: 6px; display: inline-flex; align-items: center; gap: 6px;
+        }
+
+        .sensor-time-badge {
+            font-size: 0.75rem; padding: 2px 8px; border-radius: 12px; background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1); color: #94a3b8; display: inline-flex; align-items: center; gap: 4px;
+        }
+        .sensor-time-badge i { width: 12px; height: 12px; }
+        .min-h-40 { min-height: 40px; }
+    </style>
 </head>
 <body class="meteo-page">
 
@@ -50,73 +78,102 @@
                 </div>
 
                 <div class="col-lg-5 text-lg-end">
-                    <form action="/meteo" method="get" class="meteo-search-form">
-                        <div class="meteo-search-input-group">
-                            <i data-lucide="map-pin" class="search-icon"></i>
-                            <input type="text" name="lokalizacja" class="search-input" placeholder="Wpisz stację (np. Hel)..." value="HEL" required>
-                            <button type="submit" class="meteo-search-btn">
-                                Szukaj <i data-lucide="chevron-right" style="width: 18px;"></i>
+                    <form id="meteo-geocoding-form" class="meteo-search-form d-flex flex-nowrap w-100">
+                        <div class="meteo-search-input-group d-flex flex-nowrap w-100">
+                            <i data-lucide="map-pin" class="search-icon flex-shrink-0"></i>
+                            <input type="text" id="meteo-city-input" class="search-input flex-grow-1" style="min-width: 0; text-overflow: ellipsis;"
+                                   th:value="${lokalizacja}" placeholder="Wpisz stację (np. Hel)..." required>
+                            <button type="submit" id="meteo-search-btn" class="meteo-search-btn flex-shrink-0">
+                                <span class="d-none d-sm-inline">Szukaj</span> <i data-lucide="search" style="width: 18px;"></i>
                             </button>
                         </div>
                     </form>
                     <div class="mt-2 pe-3 text-white opacity-50 fs-8 text-end">
-                        <i data-lucide="crosshair" style="width: 12px;"></i> Częste odświeżanie (co 10 minut)
+                        <i data-lucide="crosshair" style="width: 12px;"></i> Dystans do stacji: <span th:text="${dashboard.distanceKm}">0.0</span> km
                     </div>
                 </div>
             </div>
         </header>
 
-        <div class="row g-4 mb-4">
+        <div th:if="${!dashboard.hasTempData && !dashboard.hasWindData}" class="alert alert-warning border-warning bg-dark text-warning">
+            <i data-lucide="alert-triangle" class="me-2"></i>
+            Stacja <strong>[[${dashboard.stationName}]] (ID: [[${dashboard.stationId}]])</strong> w lokalizacji <strong>[[${dashboard.locationName}]]</strong> obecnie nie zwraca żadnych danych meteo. Wybierz inną lokalizację.
+        </div>
 
+        <div class="row g-4 mb-4" th:if="${dashboard.hasTempData || dashboard.hasWindData}">
             <div class="col-lg-8">
 
                 <div class="meteo-glass-panel p-0 mb-4 overflow-hidden position-relative">
                     <div class="row g-0 position-relative z-1">
+
                         <div class="col-md-5 p-4 p-md-5 text-center text-md-start meteo-border-end d-flex flex-column justify-content-center">
                             <div class="d-flex justify-content-between align-items-center mb-3">
                                 <span class="text-uppercase fw-bold fs-7 meteo-text-readable" style="letter-spacing: 1px;">Stacja precyzyjna</span>
-                                <span class="meteo-location-badge">HEL</span>
+                                <span class="meteo-location-badge text-truncate" style="max-width: 50%;" th:title="${dashboard.stationName}" th:text="${dashboard.stationName}">Stacja</span>
                             </div>
 
-                            <h2 class="display-3 fw-black text-white mb-1 lh-1">-0.2<span class="fs-4 text-white opacity-50">°C</span></h2>
-                            <span class="d-block text-uppercase fs-8 fw-bold text-meteo-violet mb-3">Temp. Powietrza</span>
+                            <div th:if="${dashboard.currentReading.airTemp != null}">
+                                <h2 class="display-3 fw-black text-white mb-1 lh-1">
+                                    <span th:text="${dashboard.currentReading.airTemp}">0.0</span><span class="fs-4 text-white opacity-50">°C</span>
+                                </h2>
+                                <span class="d-block text-uppercase fs-8 fw-bold text-meteo-violet mb-3">Temp. Powietrza</span>
+                                <div class="sensor-time-badge mb-4">
+                                    <i data-lucide="clock"></i> Zaktualizowano: <span th:text="${dashboard.lastTempTime}"></span>
+                                </div>
 
-                            <div class="d-flex align-items-center justify-content-center justify-content-md-start gap-3 mb-4 border-top border-dark-subtle pt-3">
-                                <i data-lucide="layers" class="text-white opacity-50"></i>
-                                <div>
-                                    <span class="fs-4 fw-bold text-white">-1.2 <span class="fs-6 opacity-50">°C</span></span>
-                                    <span class="d-block text-uppercase fs-8 fw-bold meteo-text-readable">Temp. Gruntu</span>
+                                <div th:with="trendName=${dashboard.tempTrend.name()}" class="meteo-alert mt-auto"
+                                     th:classappend="${trendName == 'RISING' ? 'text-warning border-warning bg-warning bg-opacity-10' :
+                                                     (trendName == 'FALLING' ? 'text-info border-info bg-info bg-opacity-10' : 'text-success border-success bg-success bg-opacity-10')}">
+                                    <i th:attr="data-lucide=${trendName == 'RISING' ? 'thermometer-sun' : (trendName == 'FALLING' ? 'thermometer-snowflake' : 'minus')}" style="width: 16px;"></i>
+                                    <span th:text="${trendName == 'RISING' ? 'Ocieplenie (+3°C)' : (trendName == 'FALLING' ? 'Ochłodzenie (-3°C)' : 'Stabilne ciśnienie/temp')}">Trend</span>
                                 </div>
                             </div>
-
-                            <div class="meteo-alert text-danger border-danger bg-danger bg-opacity-10 mt-auto">
-                                <i data-lucide="alert-triangle" class="text-danger" style="width: 16px;"></i> Silne porywy wiatru
+                            <div th:unless="${dashboard.currentReading.airTemp != null}">
+                                <h2 class="fs-3 fw-bold text-white opacity-50 mb-0">Brak Termometru</h2>
                             </div>
                         </div>
 
                         <div class="col-md-7 p-4 p-md-5 meteo-condition-bg d-flex align-items-center justify-content-center">
                             <div class="row w-100 g-4 text-center text-md-start">
+
                                 <div class="col-12 d-flex align-items-center gap-3 mb-md-2 pb-3 border-bottom border-dark-subtle border-opacity-25">
-                                    <div class="flex-shrink-0 meteo-alert-icon">
+                                    <div class="flex-shrink-0 meteo-alert-icon p-2 rounded-circle" style="background: rgba(239, 68, 68, 0.1);">
                                         <i data-lucide="wind" class="text-danger" style="width: 32px; height: 32px;"></i>
                                     </div>
-                                    <div>
-                                        <span class="d-block text-danger fs-8 text-uppercase fw-bold mb-1">Porywy Wiatru (max)</span>
-                                        <span class="fs-2 fw-black text-white">8.0 <span class="fs-5 opacity-50">m/s</span></span>
+                                    <div class="w-100">
+                                        <div class="d-flex justify-content-between align-items-center mb-1">
+                                            <span class="d-block text-danger fs-8 text-uppercase fw-bold">Porywy Wiatru (max)</span>
+                                            <span class="sensor-time-badge border-danger text-danger opacity-75" th:if="${dashboard.currentReading.windMaxSpeed != null}">
+                                                <i data-lucide="clock"></i> [[${dashboard.lastWindTime}]]
+                                            </span>
+                                        </div>
+                                        <div th:if="${dashboard.currentReading.windMaxSpeed != null}">
+                                            <span class="fs-2 fw-black text-white"><span th:text="${dashboard.currentReading.windMaxSpeed}"></span> <span class="fs-5 opacity-50">m/s</span></span>
+                                        </div>
+                                        <div th:unless="${dashboard.currentReading.windMaxSpeed != null}">
+                                            <span class="fs-7 fw-bold text-white opacity-50 badge bg-dark border border-secondary mt-1">Brak Czujnika Wiatru</span>
+                                        </div>
                                     </div>
                                 </div>
+
                                 <div class="col-6 col-md-6 d-flex flex-column gap-1">
-                                    <span class="d-block meteo-text-readable fs-8 text-uppercase fw-bold mb-1">Średni (Kier. SW)</span>
+                                    <span class="d-block meteo-text-readable fs-8 text-uppercase fw-bold mb-1">Średni (Kier. [[${dashboard.currentReading.windDirection != null ? dashboard.currentReading.windDirection + '°' : 'Brak'}]])</span>
                                     <div class="d-flex align-items-center justify-content-center justify-content-md-start gap-2">
-                                        <i data-lucide="navigation" class="text-white opacity-50" style="width: 20px; transform: rotate(214deg);"></i>
-                                        <span class="fs-4 fw-bold text-white">1.7 <span class="fs-6 opacity-50">m/s</span></span>
+                                        <i data-lucide="navigation" class="text-white opacity-50" th:style="${dashboard.currentReading.windDirection != null ? 'width: 20px; transform: rotate(' + dashboard.currentReading.windDirection + 'deg);' : 'width: 20px;'}"></i>
+                                        <div th:if="${dashboard.currentReading.windAvgSpeed != null}">
+                                            <span class="fs-4 fw-bold text-white"><span th:text="${dashboard.currentReading.windAvgSpeed}"></span> <span class="fs-6 opacity-50">m/s</span></span>
+                                        </div>
+                                        <div th:unless="${dashboard.currentReading.windAvgSpeed != null}">
+                                            <span class="fs-7 fw-bold text-white opacity-50 badge bg-dark border border-secondary">Brak</span>
+                                        </div>
                                     </div>
                                 </div>
+
                                 <div class="col-6 col-md-6 d-flex flex-column gap-1">
                                     <span class="d-block meteo-text-readable fs-8 text-uppercase fw-bold mb-1">Wilgotność</span>
                                     <div class="d-flex align-items-center justify-content-center justify-content-md-start gap-2">
                                         <i data-lucide="droplets" class="text-white opacity-50" style="width: 20px;"></i>
-                                        <span class="fs-4 fw-bold text-white">65.9 <span class="fs-6 opacity-50">%</span></span>
+                                        <span class="fs-4 fw-bold text-white" th:text="${dashboard.currentReading.relativeHumidity != null ? dashboard.currentReading.relativeHumidity + '%' : '--'}">65.9%</span>
                                     </div>
                                 </div>
                             </div>
@@ -124,47 +181,75 @@
                     </div>
                 </div>
 
-                <div class="meteo-glass-panel p-4">
-                    <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom border-dark-subtle">
+                <div class="meteo-glass-panel p-4" th:if="${dashboard.hasWindData || dashboard.hasTempData}">
+                    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4 pb-3 border-bottom border-dark-subtle">
                         <h3 class="fs-5 text-white fw-bold mb-0 d-flex align-items-center gap-2">
-                            <i data-lucide="line-chart" class="text-meteo-violet" style="width: 20px;"></i> Dynamika Wiatru (24h)
+                            <i data-lucide="activity" class="text-meteo-violet" style="width: 20px;"></i> Pomiary Zjawisk
                         </h3>
-                        <span class="badge bg-dark border border-secondary text-light">Interwał: 10 min</span>
+                        <div class="d-flex gap-2 flex-wrap justify-content-end" id="chart-controls">
+                            <button class="btn chart-filter-btn text-warning" id="reset-zoom-btn" style="display: none;" title="Resetuj przybliżenie">
+                                <i data-lucide="zoom-out" style="width: 16px;"></i>
+                            </button>
+                            <button class="btn chart-filter-btn" data-days="1">24H</button>
+                            <button class="btn chart-filter-btn active" data-days="3">3 DNI</button>
+                            <button class="btn chart-filter-btn" data-days="5">5 DNI</button>
+                        </div>
                     </div>
 
-                    <div class="chart-container" style="position: relative; height: 300px; width: 100%;">
-                        <canvas id="meteoChart"></canvas>
+                    <div th:if="${dashboard.hasWindData}" class="meteo-chart-wrapper">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <h4 class="fs-6 text-white opacity-75 mb-0"><i data-lucide="wind" style="width:16px;" class="me-1"></i> Dynamika Wiatru (m/s)</h4>
+                            <div th:if="${dashboard.windStale}" class="stale-warning"><i data-lucide="siren" style="width:14px;"></i> Anemometr zawieszony</div>
+                        </div>
+                        <div class="chart-container" style="position: relative; height: 250px; width: 100%;">
+                            <canvas id="windChart"></canvas>
+                        </div>
                     </div>
+
+                    <div th:if="${dashboard.hasTempData}" class="meteo-chart-wrapper mb-0">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <h4 class="fs-6 text-white opacity-75 mb-0"><i data-lucide="thermometer" style="width:16px;" class="me-1"></i> Temperatura Powietrza (°C)</h4>
+                            <div th:if="${dashboard.tempStale}" class="stale-warning"><i data-lucide="siren" style="width:14px;"></i> Błąd czujnika</div>
+                        </div>
+                        <div class="chart-container" style="position: relative; height: 180px; width: 100%;">
+                            <canvas id="tempChart"></canvas>
+                        </div>
+                    </div>
+
                 </div>
 
             </div>
 
             <aside class="col-lg-4">
-                <article class="meteo-glass-panel p-4 h-100 d-flex flex-column">
+                <article class="meteo-glass-panel p-4 h-100 d-flex flex-column border-top border-4 border-meteo-violet">
                     <div class="mb-4 d-flex align-items-center gap-2 text-meteo-violet border-bottom border-dark-subtle pb-3">
                         <i data-lucide="brain-circuit" style="width: 24px; height: 24px;"></i>
                         <h2 class="fs-5 text-white fw-bold mb-0">Analiza Morska / Precyzyjna</h2>
                     </div>
 
-                    <div class="meteo-knowledge-item mb-4">
-                        <h3 class="fs-6 text-white fw-bold mb-2">Porywy Wiatru (8.0 m/s)</h3>
-                        <p class="meteo-text-readable fs-7 lh-lg mb-0">
-                            Silne uderzenia wiatru z kierunku SW. Duża różnica między wiatrem średnim a porywami zwiastuje niestabilność w atmosferze. Trudne warunki do rzutów z plaży (surfcasting).
+                    <div class="meteo-knowledge-item mb-4" th:if="${dashboard.currentReading.windMaxSpeed != null}">
+                        <h3 class="fs-6 text-white fw-bold mb-2">Porywy Wiatru ([[${dashboard.currentReading.windMaxSpeed}]] m/s)</h3>
+                        <p class="meteo-text-readable fs-7 lh-lg mb-0 text-justify">
+                            <span th:if="${dashboard.currentReading.windMaxSpeed.doubleValue() > 7.0}">Silne uderzenia wiatru zwiastują niestabilność. Trudne warunki do zarzucania lekkimi zestawami (spławik). Wędkarstwo morskie (surfcasting) z plaży może być niebezpieczne lub niemożliwe. Szukaj osłoniętych portów lub falochronów.</span>
+                            <span th:if="${dashboard.currentReading.windMaxSpeed.doubleValue() <= 7.0}">Umiarkowane porywy wiatru. Bezpieczne warunki do łowienia gruntowego i spinningu. Fale maskują wędkarza na brzegu.</span>
                         </p>
                     </div>
 
-                    <div class="meteo-knowledge-item mb-4 pb-4 border-bottom border-dark-subtle">
-                        <h3 class="fs-6 text-white fw-bold mb-2">Temperatura Gruntu</h3>
-                        <p class="meteo-text-readable fs-7 lh-lg mb-0">
-                            Grunt jest o cały stopień chłodniejszy od powietrza (<strong class="text-white">-1.2°C</strong>). Oznacza to przemarzanie płytkich wód przybrzeżnych. Ryby zejdą głębiej.
+                    <div class="meteo-knowledge-item mb-4 pb-4 border-bottom border-dark-subtle" th:if="${dashboard.currentReading.airTemp != null}">
+                        <h3 class="fs-6 text-white fw-bold mb-2">Zmiana Termiczna</h3>
+                        <p class="meteo-text-readable fs-7 lh-lg mb-0 text-justify" th:switch="${dashboard.tempTrend.name()}">
+                            <span th:case="'RISING'">Znaczący wzrost temperatury w ciągu doby prowokuje ryby do wyjścia z głębokich rynien na płycizny (blaty, piaszczyste górki) w celu wygrzania. Idealne na białoryb.</span>
+                            <span th:case="'FALLING'">Mocne ochłodzenie wtłacza zimną wodę, spychając ryby w kierunku dna. Drapieżniki (sandacz) zaczynają intensywnie polować. Wędkarze powinni stosować agresywne przynęty o zmierzchu.</span>
+                            <span th:case="*">Stabilna temperatura powietrza. Woda nie ulega mieszaniu (brak zjawiska konwekcji). Ryby żerują w swoich normalnych rewirach.</span>
                         </p>
                     </div>
 
-                    <div class="mt-auto bg-dark bg-opacity-50 p-3 rounded-3 border border-dark-subtle text-center">
-                        <span class="d-block meteo-text-readable fs-8 text-uppercase fw-bold mb-1">Warunki (Surfcasting)</span>
-                        <span class="fs-3 fw-black text-danger text-glow-danger">TRUDNE</span>
-                        <div class="progress mt-3" style="height: 6px; background: rgba(255,255,255,0.1);">
-                            <div class="progress-bar bg-danger" style="width: 25%;"></div>
+                    <div class="mt-auto bg-dark bg-opacity-80 p-3 rounded-3 border border-meteo-violet position-relative overflow-hidden text-center">
+                        <span class="d-block meteo-text-readable fs-8 text-uppercase fw-bold mb-1">Warunki Pogodowe</span>
+                        <div th:with="windMax=${dashboard.currentReading.windMaxSpeed != null ? dashboard.currentReading.windMaxSpeed.doubleValue() : 0.0}" class="d-flex align-items-center justify-content-center mt-2 min-h-40">
+                            <span class="fs-4 fs-xl-3 fw-black text-danger text-glow-danger text-break lh-1" th:if="${windMax > 10.0}">EKSTREMALNE</span>
+                            <span class="fs-4 fs-xl-3 fw-black text-warning text-break lh-1" th:if="${windMax > 6.0 && windMax <= 10.0}">TRUDNE (WIETRZNE)</span>
+                            <span class="fs-4 fs-xl-3 fw-black text-success text-glow-green text-break lh-1" th:if="${windMax <= 6.0}">KORZYSTNE</span>
                         </div>
                     </div>
                 </article>
@@ -176,100 +261,222 @@
 
 <footer th:replace="~{fragments/footer :: footer}"></footer>
 
-<script>
+<script th:inline="javascript">
     document.addEventListener('DOMContentLoaded', () => {
         lucide.createIcons();
 
-        const ctx = document.getElementById('meteoChart').getContext('2d');
-        const themeColor = '#a855f7';
-        const gustColor = '#ef4444';
+        // BEZPIECZNE POBIERANIE LIST BEZPOŚREDNIO Z BACKENDU (BEZ JACKSONA)
+        const allLabels = /*[[${dashboard.chartLabels}]]*/ [];
+        const allTimestamps = /*[[${dashboard.chartTimestampsIso}]]*/ [];
+        const allTemps = /*[[${dashboard.chartAirTemps}]]*/ [];
+        const allAvgWinds = /*[[${dashboard.chartWindSpeeds}]]*/ [];
+        const allGustWinds = /*[[${dashboard.chartWindMaxSpeeds}]]*/ [];
+        const allPrecip = /*[[${dashboard.chartPrecipitation}]]*/ [];
 
-        let gradientAvg = ctx.createLinearGradient(0, 0, 0, 300);
-        gradientAvg.addColorStop(0, 'rgba(168, 85, 247, 0.4)');
-        gradientAvg.addColorStop(1, 'rgba(168, 85, 247, 0.0)');
+        const hasTemp = /*[[${dashboard.hasTempData}]]*/ false;
+        const hasWind = /*[[${dashboard.hasWindData}]]*/ false;
 
-        let gradientGust = ctx.createLinearGradient(0, 0, 0, 300);
-        gradientGust.addColorStop(0, 'rgba(239, 68, 68, 0.2)');
-        gradientGust.addColorStop(1, 'rgba(239, 68, 68, 0.0)');
+        if (!allLabels || allLabels.length === 0) return;
 
-        const labels = ['14:00', '16:00', '18:00', '20:00', '22:00', '00:00', '02:00', '04:00', '06:00', '08:00', '10:00', '12:00', 'Teraz'];
-        const avgWindPoints = [2.5, 3.0, 3.5, 4.0, 4.5, 4.2, 3.8, 3.0, 2.5, 2.0, 1.8, 1.5, 1.7];
-        const gustPoints =    [4.0, 5.5, 6.8, 8.5, 9.5, 8.0, 7.5, 5.0, 4.0, 3.5, 4.5, 6.0, 8.0];
+        let windChartInst, tempChartInst;
 
-        new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: labels,
-                datasets: [
-                    {
-                        label: 'Porywy (m/s)',
-                        data: gustPoints,
-                        borderColor: gustColor,
-                        backgroundColor: gradientGust,
-                        borderWidth: 2,
-                        borderDash: [5, 5],
-                        pointBackgroundColor: '#010409',
-                        pointBorderColor: gustColor,
-                        pointBorderWidth: 2,
-                        pointRadius: 4,
-                        fill: true,
-                        tension: 0.4
-                    },
-                    {
-                        label: 'Wiatr Średni (m/s)',
-                        data: avgWindPoints,
-                        borderColor: themeColor,
-                        backgroundColor: gradientAvg,
-                        borderWidth: 3,
-                        pointBackgroundColor: '#010409',
-                        pointBorderColor: themeColor,
-                        pointBorderWidth: 2,
-                        pointRadius: 4,
-                        fill: true,
-                        tension: 0.4
-                    }
-                ]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        display: true,
-                        position: 'top',
-                        labels: { color: '#94a3b8', usePointStyle: true, font: { size: 12 } }
-                    },
-                    tooltip: {
-                        backgroundColor: 'rgba(13, 17, 23, 0.95)',
-                        titleColor: '#fff',
-                        bodyColor: '#fff',
-                        bodyFont: { weight: 'bold', size: 14 },
-                        padding: 14,
-                        borderColor: 'rgba(255, 255, 255, 0.1)',
-                        borderWidth: 1,
-                        mode: 'index',
-                        intersect: false,
-                    }
+        function createWindChart(ctxId, labels, avgData, gustData) {
+            const canvas = document.getElementById(ctxId);
+            if (!canvas) return windChartInst;
+            const ctx = canvas.getContext('2d');
+
+            if (windChartInst) { windChartInst.destroy(); }
+
+            const themeColor = '#a855f7';
+            const gustColor = '#ef4444';
+
+            let gradientAvg = ctx.createLinearGradient(0, 0, 0, 200);
+            gradientAvg.addColorStop(0, 'rgba(168, 85, 247, 0.4)');
+            gradientAvg.addColorStop(1, 'rgba(168, 85, 247, 0.0)');
+
+            let gradientGust = ctx.createLinearGradient(0, 0, 0, 200);
+            gradientGust.addColorStop(0, 'rgba(239, 68, 68, 0.15)');
+            gradientGust.addColorStop(1, 'rgba(239, 68, 68, 0.0)');
+
+            return new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Porywy (m/s)',
+                            data: gustData,
+                            borderColor: gustColor,
+                            backgroundColor: gradientGust,
+                            borderWidth: 2,
+                            borderDash: [4, 4],
+                            pointBackgroundColor: '#0f172a',
+                            pointBorderColor: gustColor,
+                            pointRadius: 1,
+                            pointHoverRadius: 6,
+                            fill: true,
+                            tension: 0.3,
+                            spanGaps: true
+                        },
+                        {
+                            label: 'Wiatr Średni (m/s)',
+                            data: avgData,
+                            borderColor: themeColor,
+                            backgroundColor: gradientAvg,
+                            borderWidth: 2,
+                            pointBackgroundColor: '#0f172a',
+                            pointBorderColor: themeColor,
+                            pointRadius: 1,
+                            pointHoverRadius: 6,
+                            fill: true,
+                            tension: 0.3,
+                            spanGaps: true
+                        }
+                    ]
                 },
-                scales: {
-                    y: {
-                        min: 0,
-                        suggestedMax: 12,
-                        grid: { color: 'rgba(255, 255, 255, 0.05)' },
-                        ticks: { color: '#94a3b8', stepSize: 2, font: { size: 12 } },
-                        border: { display: false }
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    interaction: { mode: 'index', intersect: false },
+                    plugins: {
+                        legend: { display: true, position: 'top', labels: { color: '#94a3b8', usePointStyle: true, boxWidth: 8 } },
+                        tooltip: {
+                            backgroundColor: 'rgba(15, 23, 42, 0.95)',
+                            padding: 12, titleColor: '#94a3b8',
+                            borderColor: 'rgba(255, 255, 255, 0.1)', borderWidth: 1,
+                        },
+                        zoom: {
+                            pan: { enabled: true, mode: 'x' },
+                            zoom: {
+                                wheel: { enabled: true }, pinch: { enabled: true }, mode: 'x',
+                                onZoomStart: () => {
+                                    const b = document.getElementById('reset-zoom-btn');
+                                    if(b) b.style.display = 'inline-flex';
+                                }
+                            }
+                        }
                     },
-                    x: {
-                        grid: { display: false },
-                        ticks: { color: '#94a3b8', font: { size: 12 } },
-                        border: { display: false }
+                    scales: {
+                        y: {
+                            suggestedMin: 0,
+                            grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                            ticks: { color: '#94a3b8', font: { size: 10 } }
+                        },
+                        x: {
+                            grid: { display: false },
+                            ticks: { color: '#94a3b8', autoSkip: true, maxTicksLimit: 8, font: { size: 10 } }
+                        }
                     }
+                }
+            });
+        }
+
+        function createTempChart(ctxId, labels, data) {
+            const canvas = document.getElementById(ctxId);
+            if (!canvas) return tempChartInst;
+            const ctx = canvas.getContext('2d');
+
+            if (tempChartInst) { tempChartInst.destroy(); }
+
+            const color = '#f59e0b';
+            let gradient = ctx.createLinearGradient(0, 0, 0, 150);
+            gradient.addColorStop(0, color);
+            gradient.addColorStop(1, 'rgba(0,0,0,0)');
+
+            return new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Temp (°C)', data: data, borderColor: color, backgroundColor: gradient,
+                        borderWidth: 2, pointBackgroundColor: '#0f172a', pointBorderColor: color, pointRadius: 1, pointHoverRadius: 6,
+                        fill: true, tension: 0.2, spanGaps: true
+                    }]
                 },
-                interaction: { intersect: false, mode: 'index' },
-                layout: { padding: { left: 0, bottom: 0 } }
+                options: {
+                    responsive: true, maintainAspectRatio: false, interaction: { mode: 'index', intersect: false },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: { backgroundColor: 'rgba(15, 23, 42, 0.95)', padding: 12, borderColor: 'rgba(255, 255, 255, 0.1)', borderWidth: 1, callbacks: { label: (c) => ` Temp: ${c.parsed.y} °C` } },
+                        zoom: { pan: { enabled: true, mode: 'x' }, zoom: { wheel: { enabled: true }, pinch: { enabled: true }, mode: 'x' } }
+                    },
+                    scales: {
+                        y: { suggestedMin: Math.min(...data.filter(v => v != null)) * 0.9, grid: { color: 'rgba(255, 255, 255, 0.05)' }, ticks: { color: '#94a3b8', font: { size: 10 } } },
+                        x: { grid: { display: false }, ticks: { color: '#94a3b8', autoSkip: true, maxTicksLimit: 8, font: { size: 10 } } }
+                    }
+                }
+            });
+        }
+
+        function renderCharts(daysCutoff) {
+            const cutoffDate = new Date();
+            cutoffDate.setDate(cutoffDate.getDate() - daysCutoff);
+
+            let fLabels = [], fTemp = [], fAvgWind = [], fGustWind = [];
+
+            for (let i = 0; i < allTimestamps.length; i++) {
+                const rowDate = new Date(allTimestamps[i]);
+                if (rowDate >= cutoffDate) {
+                    fLabels.push(allLabels[i]);
+                    if(hasTemp) fTemp.push(allTemps[i]);
+                    if(hasWind) {
+                        fAvgWind.push(allAvgWinds[i]);
+                        fGustWind.push(allGustWinds[i]);
+                    }
+                }
             }
+
+            if (hasWind) windChartInst = createWindChart('windChart', fLabels, fAvgWind, fGustWind);
+            if (hasTemp) tempChartInst = createTempChart('tempChart', fLabels, fTemp);
+
+            const resetBtn = document.getElementById('reset-zoom-btn');
+            if (resetBtn) resetBtn.style.display = 'none';
+        }
+
+        renderCharts(3);
+
+        document.querySelectorAll('.chart-filter-btn:not(#reset-zoom-btn)').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                document.querySelectorAll('.chart-filter-btn:not(#reset-zoom-btn)').forEach(b => b.classList.remove('active'));
+                e.target.classList.add('active');
+                renderCharts(parseInt(e.target.getAttribute('data-days')));
+            });
         });
+
+        const resetZoomBtn = document.getElementById('reset-zoom-btn');
+        if (resetZoomBtn) {
+            resetZoomBtn.addEventListener('click', () => {
+                if (tempChartInst) tempChartInst.resetZoom();
+                if (windChartInst) windChartInst.resetZoom();
+                resetZoomBtn.style.display = 'none';
+            });
+        }
     });
+
+    const searchForm = document.getElementById('meteo-geocoding-form');
+    if (searchForm) {
+        searchForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const inputVal = document.getElementById('meteo-city-input').value;
+            const btn = document.getElementById('meteo-search-btn');
+            const originalContent = btn.innerHTML;
+
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span>';
+            btn.style.opacity = '0.7'; btn.disabled = true;
+
+            try {
+                const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(inputVal)}&countrycodes=pl&limit=1`);
+                const data = await response.json();
+                if (data && data.length > 0) {
+                    const cleanName = (data[0].name || inputVal).split(',')[0].trim();
+                    window.location.href = `/meteo?lat=${data[0].lat}&lon=${data[0].lon}&miasto=${cleanName}`;
+                } else {
+                    alert("Nie znaleziono lokalizacji."); resetBtn();
+                }
+            } catch (error) { alert("Błąd połączenia."); resetBtn(); }
+
+            function resetBtn() { btn.innerHTML = originalContent; btn.style.opacity = '1'; btn.disabled = false; }
+        });
+    }
 </script>
 </body>
 </html>

@@ -6,6 +6,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import pl.czyzlowie.modules.imgw_api.entity.ImgwHydroData;
 
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -28,4 +29,7 @@ public interface ImgwHydroDataRepository extends JpaRepository<ImgwHydroData, Lo
             "    GROUP BY d2.station.id" +
             ")")
     List<ImgwHydroData> findLatestDataForStations(@Param("stationIds") Collection<String> stationIds);
+
+    List<ImgwHydroData> findByStationIdAndWaterLevelDateBetweenOrderByWaterLevelDateAsc(
+            String stationId, LocalDateTime startDate, LocalDateTime endDate);
 }

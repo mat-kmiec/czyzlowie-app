@@ -6,6 +6,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import pl.czyzlowie.modules.imgw_api.entity.ImgwMeteoData;
 
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -21,4 +22,7 @@ public interface ImgwMeteoDataRepository extends JpaRepository<ImgwMeteoData, Lo
             "    GROUP BY d2.station.id" +
             ")")
     List<ImgwMeteoData> findLatestDataForStations(@Param("stationIds") Collection<String> stationIds);
+
+
+    List<ImgwMeteoData> findByStationIdAndCreatedAtBetweenOrderByCreatedAtAsc(String stationId, LocalDateTime start, LocalDateTime end);
 }

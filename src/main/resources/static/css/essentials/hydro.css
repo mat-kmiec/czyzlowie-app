@@ -103,3 +103,9 @@ body.hydro-page {
     .hydro-search-form { max-width: 100%; margin-top: 15px; }
     .hydro-border-end { border-right: none; border-bottom: 1px solid rgba(255, 255, 255, 0.08); }
 }
+
+.hydro-search-input-group .search-input {
+    min-width: 0;
+    text-overflow: ellipsis;
+}
+.min-h-40 { min-height: 40px; }

@@ -33,15 +33,6 @@ public class TestController {
     }
 
 
-    @GetMapping("/meteo")
-    public String meteo(){
-        return "essentials/meteo";
-    }
-
-    @GetMapping("/hydro")
-    public String hydro(){
-        return "essentials/hydro";
-    }
 
 
 }
