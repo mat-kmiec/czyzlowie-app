@@ -32,21 +32,6 @@ public class TestController {
         return "error/error";
     }
 
-    @GetMapping("/regulamin")
-    public String regulamin(){
-        return "info/regulamin";
-    }
-
-    @GetMapping("/polityka")
-    public String polityka(){
-        return "info/polityka";
-    }
-
-    @GetMapping("/o-nas")
-    public String oNas(){
-        return "info/o-aplikacji";
-    }
-
     @GetMapping("/synop")
     public String mosonff(){
         return "essentials/synop";

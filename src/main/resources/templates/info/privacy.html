@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pl">
+<head>
+    <th:block th:replace="~{fragments/head :: head-content(
+        pageTitle='Polityka Prywatności | CzyZlowie',
+        pageDescription='Transparentne zasady przetwarzania danych. Dowiedz się, jak chronimy Twoje informacje oraz współrzędne Twoich tajnych łowisk.'
+    )}"></th:block>
+
+    <link rel="stylesheet" th:href="@{/css/document.css}">
+</head>
+<body class="document-page">
+
+<nav th:replace="~{fragments/navbar :: navbar}"></nav>
+
+<div class="doc-bg-container">
+    <div class="doc-bg-overlay"></div>
+    <div class="doc-glow glow-top"></div>
+</div>
+
+<main class="container-xl position-relative z-2 pb-5" style="padding-top: 100px;">
+
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb doc-breadcrumb">
+            <li class="breadcrumb-item"><a th:href="@{/}"><i data-lucide="home" class="bc-icon text-brand-green"></i> Główna</a></li>
+            <li class="breadcrumb-item active fw-bold text-white" aria-current="page">Polityka Prywatności</li>
+        </ol>
+    </nav>
+
+    <header class="mb-5 border-bottom border-dark-subtle pb-4">
+        <h1 class="display-4 fw-black text-white mb-3 doc-title-glow">Polityka Prywatności</h1>
+        <p class="fs-5 text-white opacity-75 mb-4" style="max-width: 800px;">Transparentność to podstawa. Wyjaśniamy prostym językiem, jakie dane zbieramy, dlaczego to robimy i jak potężnie chronimy Twoje wędkarskie sekrety.</p>
+        <div class="d-flex flex-wrap align-items-center gap-3 text-muted fs-7">
+            <span class="d-flex align-items-center gap-1 bg-dark bg-opacity-50 px-3 py-1 rounded-pill border border-dark-subtle"><i data-lucide="calendar" style="width: 16px; color: var(--brand-green);"></i> Aktualizacja: 25 Luty 2026</span>
+            <span class="d-flex align-items-center gap-1 bg-dark bg-opacity-50 px-3 py-1 rounded-pill border border-dark-subtle"><i data-lucide="shield-check" style="width: 16px; color: var(--brand-green);"></i> Zgodne z RODO (GDPR)</span>
+        </div>
+    </header>
+
+    <div class="row g-5">
+
+        <aside class="col-lg-3 d-none d-lg-block position-relative">
+            <div class="doc-sidebar glass-panel p-4 sticky-top" style="top: 120px;">
+                <h5 class="text-white fw-bold mb-3 fs-6 text-uppercase" style="letter-spacing: 1px;">Spis treści</h5>
+                <nav class="doc-nav flex-column gap-1">
+                    <a href="#administrator" class="doc-nav-link active">1. Administrator danych</a>
+                    <a href="#zakres-danych" class="doc-nav-link">2. Jakie dane zbieramy?</a>
+                    <a href="#tajne-lowiska" class="doc-nav-link text-brand-green fw-bold">3. Ochrona tajnych łowisk</a>
+                    <a href="#cel-podstawa" class="doc-nav-link">4. Cele i podstawa prawna</a>
+                    <a href="#odbiorcy" class="doc-nav-link">5. Odbiorcy danych (Hosting)</a>
+                    <a href="#czas-retencji" class="doc-nav-link">6. Czas przechowywania</a>
+                    <a href="#cookies" class="doc-nav-link">7. Pliki Cookies</a>
+                    <a href="#prawa-rodo" class="doc-nav-link">8. Twoje prawa (RODO)</a>
+                </nav>
+            </div>
+        </aside>
+
+        <div class="col-lg-9">
+            <div class="doc-content glass-panel p-4 p-md-5">
+
+                <section id="administrator" class="doc-section mb-5 pb-4 border-bottom border-dark-subtle">
+                    <h2 class="text-white fw-bold d-flex align-items-center gap-2 mb-4"><i data-lucide="building" class="text-brand-green"></i> 1. Kto administruje Twoimi danymi?</h2>
+                    <p class="fs-6 lh-lg text-white opacity-75">
+                        Administratorem Twoich danych osobowych przekazywanych w ramach aplikacji <strong>CzyZlowie.pl</strong> jest twórca i pomysłodawca projektu: <strong>[Twoje Imię i Nazwisko]</strong> (Polska).
+                    </p>
+                    <div class="bg-dark bg-opacity-50 p-4 rounded-4 border border-dark-subtle mt-4">
+                        <h4 class="text-white fs-6 fw-bold mb-2 d-flex align-items-center gap-2">
+                            <i data-lucide="mail" class="text-brand-green" style="width: 20px;"></i> Bezpośredni kontakt
+                        </h4>
+                        <p class="mb-0 fs-7 text-white opacity-75 lh-lg">
+                            Szanujemy Twoją prywatność, dlatego utworzyliśmy dedykowany, bezpośredni kanał komunikacji w sprawach RODO. We wszystkich kwestiach związanych z ochroną danych osobowych (np. żądanie usunięcia konta lub wydania kopii danych) kontaktuj się z nami pod adresem e-mail: <a href="mailto:privacy@czyzlowie.pl" class="text-brand-green fw-bold">privacy@czyzlowie.pl</a>. Gwarantujemy odpowiedź w najkrótszym możliwym czasie prawnym.
+                        </p>
+                    </div>
+                </section>
+
+                <section id="zakres-danych" class="doc-section mb-5 pb-4 border-bottom border-dark-subtle">
+                    <h2 class="text-white fw-bold d-flex align-items-center gap-2 mb-4"><i data-lucide="database" class="text-brand-green"></i> 2. Jakie dane zbieramy?</h2>
+                    <p class="fs-6 lh-lg text-white opacity-75">Zgodnie z zasadą minimalizacji, zbieramy tylko to, co jest niezbędne do prawidłowego działania aplikacji:</p>
+                    <ul class="list-unstyled d-flex flex-column gap-3 mb-0">
+                        <li class="d-flex gap-3">
+                            <i data-lucide="user" class="text-brand-green flex-shrink-0 mt-1"></i>
+                            <div>
+                                <strong class="text-white d-block mb-1">Dane konta (Rejestracja)</strong>
+                                <span class="fs-7 text-white opacity-75">Adres e-mail, nazwa użytkownika (nick) oraz bezpiecznie zaszyfrowane hasło (technologia bcrypt). Jeśli logujesz się przez Google/Facebook, pobieramy tylko Twój publiczny identyfikator i e-mail.</span>
+                            </div>
+                        </li>
+                        <li class="d-flex gap-3">
+                            <i data-lucide="fish" class="text-brand-green flex-shrink-0 mt-1"></i>
+                            <div>
+                                <strong class="text-white d-block mb-1">Dane Wędkarskie (Opcjonalne)</strong>
+                                <span class="fs-7 text-white opacity-75">Wpisy w Twoim prywatnym Dzienniku Połowów: zdjęcia ryb, wagi, miary, stosowane przynęty oraz współrzędne geograficzne złowienia.</span>
+                            </div>
+                        </li>
+                        <li class="d-flex gap-3">
+                            <i data-lucide="server" class="text-brand-green flex-shrink-0 mt-1"></i>
+                            <div>
+                                <strong class="text-white d-block mb-1">Dane Techniczne i Logi</strong>
+                                <span class="fs-7 text-white opacity-75">Adres IP, rodzaj urządzenia/przeglądarki oraz podstawowe logi serwera. Zbieramy je wyłącznie w celu wykrywania błędów (debugowania) i ochrony przed atakami (np. DDoS).</span>
+                            </div>
+                        </li>
+                    </ul>
+                </section>
+
+                <section id="tajne-lowiska" class="doc-section mb-5 pb-4 border-bottom border-dark-subtle">
+                    <h2 class="text-white fw-bold d-flex align-items-center gap-2 mb-4"><i data-lucide="map-pin-off" class="text-brand-green"></i> 3. Ochrona tajnych łowisk (Złota Zasada)</h2>
+                    <p class="fs-6 lh-lg text-white opacity-75 mb-4">
+                        Wiemy, że współrzędne GPS dobrego łowiska to dla wędkarza świętość. Postawmy sprawę bardzo jasno:
+                    </p>
+
+                    <div class="bg-dark bg-opacity-50 p-4 rounded-4 border border-brand-green border-opacity-50">
+                        <div class="d-flex gap-3">
+                            <i data-lucide="shield-alert" class="text-brand-green flex-shrink-0" style="width: 32px; height: 32px;"></i>
+                            <div>
+                                <h4 class="text-white fs-6 fw-bold mb-2">Twoje miejsca są wyłącznie Twoje</h4>
+                                <p class="mb-2 fs-7 text-white opacity-75 lh-lg">Współrzędne GPS zapisane w Twoim prywatnym Dzienniku Połowów oraz Twoje prywatne pinezki na mapie są <strong>szyfrowane na poziomie bazy danych</strong>. Oznacza to, że:</p>
+                                <ul class="mb-0 fs-7 text-white opacity-75 d-flex flex-column gap-1 ps-3">
+                                    <li><strong>NIE</strong> udostępniamy ich innym użytkownikom.</li>
+                                    <li><strong>NIE</strong> sprzedajemy ich organizacjom trzecim.</li>
+                                    <li><strong>NIE</strong> wyświetlamy ich na publicznych "mapach gorących brań".</li>
+                                </ul>
+                                <p class="mt-3 mb-0 fs-8 text-white opacity-50">Algorytmy analityczne mogą wykorzystywać Twoje dane wyłącznie w sposób w pełni <strong>zanonimizowany i zdespergowany</strong> (np. wyliczając średnią aktywność w promieniu całego województwa, bez wskazywania konkretnego punktu).</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="cel-podstawa" class="doc-section mb-5 pb-4 border-bottom border-dark-subtle">
+                    <h2 class="text-white fw-bold d-flex align-items-center gap-2 mb-4"><i data-lucide="scale" class="text-brand-green"></i> 4. Cele i podstawa prawna (RODO)</h2>
+                    <p class="fs-6 lh-lg text-white opacity-75 mb-3">Przetwarzamy Twoje dane zgodnie z europejskim Rozporządzeniem (RODO) na następujących podstawach:</p>
+                    <div class="table-responsive">
+                        <table class="table table-dark table-bordered border-dark-subtle fs-7 mb-0">
+                            <thead>
+                            <tr>
+                                <th class="text-white bg-dark">Cel przetwarzania</th>
+                                <th class="text-white bg-dark">Podstawa prawna</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr>
+                                <td class="text-white opacity-75">Świadczenie usług (utrzymanie konta, logowanie, funkcje apki)</td>
+                                <td class="text-brand-green">Art. 6 ust. 1 lit. b RODO (Realizacja umowy)</td>
+                            </tr>
+                            <tr>
+                                <td class="text-white opacity-75">Zapewnienie bezpieczeństwa, wykrywanie botów, analityka błędów</td>
+                                <td class="text-brand-green">Art. 6 ust. 1 lit. f RODO (Prawnie uzasadniony interes)</td>
+                            </tr>
+                            <tr>
+                                <td class="text-white opacity-75">Wysyłka powiadomień marketingowych / Newsletter</td>
+                                <td class="text-brand-green">Art. 6 ust. 1 lit. a RODO (Wyraźna zgoda)</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <section id="odbiorcy" class="doc-section mb-5 pb-4 border-bottom border-dark-subtle">
+                    <h2 class="text-white fw-bold d-flex align-items-center gap-2 mb-4"><i data-lucide="network" class="text-brand-green"></i> 5. Odbiorcy danych</h2>
+                    <p class="fs-6 lh-lg text-white opacity-75">
+                        Nie jesteśmy i nigdy nie będziemy brokerami danych. Twoje informacje powierzamy wyłącznie zaufanym podmiotom zewnętrznym (tzw. Procesorom), które są niezbędne do funkcjonowania aplikacji:
+                    </p>
+                    <ul class="fs-7 text-white opacity-75 lh-lg">
+                        <li>Dostawcom usług hostingowych i chmurowych (np. serwery w [Nazwa firmy, np. OVH/AWS], zlokalizowane na terenie Europejskiego Obszaru Gospodarczego).</li>
+                        <li>Dostawcom usług e-mail (do wysyłki linków resetujących hasło).</li>
+                        <li>Narzędziom analitycznym (używamy zanonimizowanych danych w celach statystycznych, bez identyfikacji konkretnych osób).</li>
+                    </ul>
+                </section>
+
+                <section id="czas-retencji" class="doc-section mb-5 pb-4 border-bottom border-dark-subtle">
+                    <h2 class="text-white fw-bold d-flex align-items-center gap-2 mb-4"><i data-lucide="clock" class="text-brand-green"></i> 6. Czas przechowywania danych</h2>
+                    <p class="fs-6 lh-lg text-white opacity-75 mb-0">
+                        Twoje dane przechowujemy wyłącznie przez okres posiadania przez Ciebie aktywnego konta w serwisie CzyZlowie.pl. W przypadku decyzji o usunięciu konta (co możesz zrobić w panelu użytkownika), Twoje dane osobowe oraz wpisy z Dziennika Połowów zostaną <strong>nieodwracalnie usunięte</strong> z naszych głównych baz danych w ciągu 7 dni (czas niezbędny na nadpisanie kopii zapasowych).
+                    </p>
+                </section>
+
+                <section id="cookies" class="doc-section mb-5 pb-4 border-bottom border-dark-subtle">
+                    <h2 class="text-white fw-bold d-flex align-items-center gap-2 mb-4"><i data-lucide="cookie" class="text-brand-green"></i> 7. Pliki Cookies (Ciasteczka)</h2>
+                    <p class="fs-6 lh-lg text-white opacity-75">
+                        Szanujemy Twoją przeglądarkę. Aplikacja używa ciasteczek w podziale na dwie kategorie:
+                    </p>
+                    <ul class="fs-7 text-white opacity-75 lh-lg mb-0">
+                        <li><strong>Niezbędne (Techniczne):</strong> Wymagane do utrzymania sesji logowania, zapamiętania wybranych jednostek miar i ochrony przed atakami CSRF. Nie da się ich wyłączyć.</li>
+                        <li><strong>Analityczne (Opcjonalne):</strong> Pomagają nam zrozumieć, z jakich funkcji (np. Mapa czy Kalendarz) użytkownicy korzystają najczęściej. Zawsze możesz zarządzać tą zgodą w ustawieniach przeglądarki.</li>
+                    </ul>
+                </section>
+
+                <section id="prawa-rodo" class="doc-section">
+                    <h2 class="text-white fw-bold d-flex align-items-center gap-2 mb-4"><i data-lucide="user-cog" class="text-brand-green"></i> 8. Twoje prawa (RODO)</h2>
+                    <p class="fs-6 lh-lg text-white opacity-75 mb-3">W każdej chwili masz pełną kontrolę nad swoimi danymi. Przysługuje Ci prawo do:</p>
+
+                    <div class="row g-3 fs-7 mb-4">
+                        <div class="col-md-6">
+                            <div class="p-3 bg-dark bg-opacity-50 border border-dark-subtle rounded d-flex gap-2 h-100">
+                                <i data-lucide="check" class="text-brand-green flex-shrink-0 mt-1" style="width: 16px;"></i>
+                                <span class="text-white opacity-75">Dostępu do swoich danych i otrzymania ich kopii.</span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="p-3 bg-dark bg-opacity-50 border border-dark-subtle rounded d-flex gap-2 h-100">
+                                <i data-lucide="check" class="text-brand-green flex-shrink-0 mt-1" style="width: 16px;"></i>
+                                <span class="text-white opacity-75">Sprostowania błędnych lub nieaktualnych informacji.</span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="p-3 bg-dark bg-opacity-50 border border-dark-subtle rounded d-flex gap-2 h-100">
+                                <i data-lucide="check" class="text-brand-green flex-shrink-0 mt-1" style="width: 16px;"></i>
+                                <span class="text-white opacity-75"><strong>Usunięcia danych ("Prawo do bycia zapomnianym").</strong></span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="p-3 bg-dark bg-opacity-50 border border-dark-subtle rounded d-flex gap-2 h-100">
+                                <i data-lucide="check" class="text-brand-green flex-shrink-0 mt-1" style="width: 16px;"></i>
+                                <span class="text-white opacity-75">Ograniczenia lub wniesienia sprzeciwu wobec przetwarzania.</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <p class="fs-6 lh-lg text-white opacity-75 mb-0">
+                        W celu realizacji swoich praw, skontaktuj się z nami poprzez <a href="mailto:kontakt@czyzlowie.pl" class="text-brand-green fw-bold">kontakt@czyzlowie.pl</a>. Ponadto, jeśli uznasz, że przetwarzamy Twoje dane niezgodnie z prawem, masz pełne prawo wniesienia skargi do Prezesa Urzędu Ochrony Danych Osobowych (PUODO).
+                    </p>
+                </section>
+
+            </div>
+        </div>
+
+    </div>
+</main>
+
+<footer th:replace="~{fragments/footer :: footer}"></footer>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        lucide.createIcons();
+
+        const sections = document.querySelectorAll('.doc-section');
+        const navLinks = document.querySelectorAll('.doc-nav-link');
+
+        window.addEventListener('scroll', () => {
+            let current = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                if (scrollY >= sectionTop - 150) {
+                    current = section.getAttribute('id');
+                }
+            });
+
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href').includes(current) && current !== '') {
+                    link.classList.add('active');
+                }
+            });
+        });
+    });
+</script>
+</body>
+</html>

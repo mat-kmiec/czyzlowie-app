@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pl">
+<head>
+    <th:block th:replace="~{fragments/head :: head-content(
+        pageTitle='O aplikacji wędkarskiej | Prognoza Brań i Kalendarz | CzyZlowie',
+        pageDescription='Poznaj historię powstania CzyZlowie. Zobacz, jak połączyliśmy pasję do wędkarstwa z nowoczesną analityką danych, kalendarzem solunarnym i meteorologią.'
+    )}"></th:block>
+
+    <link rel="stylesheet" th:href="@{/css/document.css}">
+</head>
+<body class="document-page">
+
+<nav th:replace="~{fragments/navbar :: navbar}"></nav>
+
+<div class="doc-bg-container">
+    <div class="doc-bg-overlay"></div>
+    <div class="doc-glow glow-top"></div>
+</div>
+
+<main class="container-xl position-relative z-2 pb-5" style="padding-top: 100px;">
+
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb doc-breadcrumb">
+            <li class="breadcrumb-item"><a th:href="@{/}"><i data-lucide="home" class="bc-icon text-brand-green"></i> Główna</a></li>
+            <li class="breadcrumb-item active fw-bold text-white" aria-current="page">O nas i technologii</li>
+        </ol>
+    </nav>
+
+    <header class="mb-5 border-bottom border-dark-subtle pb-4">
+        <h1 class="display-4 fw-black text-white mb-3 doc-title-glow">Odkryj projekt CzyZlowie</h1>
+        <p class="fs-5 text-white opacity-75 mb-4" style="max-width: 800px;">Od wędkarskiej frustracji do potężnego narzędzia analitycznego. Zobacz, jak zamieniamy zgadywanki na twarde dane z pogranicza meteorologii i astronomii.</p>
+        <div class="d-flex flex-wrap align-items-center gap-3 text-muted fs-7">
+            <span class="d-flex align-items-center gap-1 bg-dark bg-opacity-50 px-3 py-1 rounded-pill border border-dark-subtle text-light"><i data-lucide="target" style="width: 16px; color: var(--brand-green);"></i> Stworzone przez wędkarzy</span>
+            <span class="d-flex align-items-center gap-1 bg-dark bg-opacity-50 px-3 py-1 rounded-pill border border-dark-subtle text-light"><i data-lucide="database" style="width: 16px; color: var(--brand-green);"></i> Oparte na danych</span>
+            <span class="d-flex align-items-center gap-1 bg-dark bg-opacity-50 px-3 py-1 rounded-pill border border-dark-subtle text-light"><i data-lucide="trending-up" style="width: 16px; color: var(--brand-green);"></i> Optymalizacja wyników</span>
+        </div>
+    </header>
+
+    <div class="row g-5">
+
+        <aside class="col-lg-3 d-none d-lg-block position-relative">
+            <div class="doc-sidebar glass-panel p-4 sticky-top" style="top: 120px;">
+                <h5 class="text-white fw-bold mb-3 fs-6 text-uppercase" style="letter-spacing: 1px;">Spis treści</h5>
+                <nav class="doc-nav flex-column gap-1">
+                    <a href="#misja" class="doc-nav-link active">1. Nasza misja</a>
+                    <a href="#historia" class="doc-nav-link">2. Jak to się zaczęło?</a>
+                    <a href="#algorytm" class="doc-nav-link">3. Technologia i Algorytmy</a>
+                    <a href="#narzedzia" class="doc-nav-link">4. Twój Wędkarski Niezbędnik</a>
+                    <a href="#dla-kogo" class="doc-nav-link">5. Dla kogo jest CzyZlowie?</a>
+                    <a href="#spolecznosc" class="doc-nav-link">6. Społeczność i rozwój</a>
+                    <a href="#dolacz" class="doc-nav-link">7. Zarzuć wędki z nami!</a>
+                </nav>
+            </div>
+        </aside>
+
+        <div class="col-lg-9">
+            <div class="doc-content glass-panel p-4 p-md-5">
+
+                <section id="misja" class="doc-section mb-5 pb-4 border-bottom border-dark-subtle">
+                    <h2 class="text-white fw-bold d-flex align-items-center gap-2 mb-4"><i data-lucide="flag" class="text-brand-green"></i> 1. Nasza misja</h2>
+                    <p class="fs-6 lh-lg text-white opacity-75">
+                        Naszą misją w <strong>CzyZlowie.pl</strong> jest odesłanie do lamusa wędkarskich powrotów "o kiju". Chcemy dostarczyć każdemu pasjonatowi wędkarstwa w Polsce potężne narzędzie analityczne, które w prosty i czytelny sposób odpowie na jedno najważniejsze pytanie: <em>"Czy dzisiaj warto jechać nad wodę?"</em>.
+                    </p>
+                    <p class="fs-6 lh-lg text-white opacity-75">
+                        Wierzymy, że połączenie wiedzy przekazywanej z pokolenia na pokolenie z nowoczesną analizą danych (Big Data) to klucz do regularnego łowienia życiowych okazów. Odrzucamy wróżenie z fusów na rzecz twardej meteorologii i astronomii.
+                    </p>
+                </section>
+
+                <section id="historia" class="doc-section mb-5 pb-4 border-bottom border-dark-subtle">
+                    <h2 class="text-white fw-bold d-flex align-items-center gap-2 mb-4"><i data-lucide="history" class="text-brand-green"></i> 2. Jak to się zaczęło?</h2>
+                    <p class="fs-6 lh-lg text-white opacity-75">
+                        Pomysł narodził się z własnej, wędkarskiej frustracji. Każdy z nas zna to uczucie: dzwonek budzika o 3:00 rano, pakowanie sprzętu w chłodzie, dojazd na wymarzone łowisko, przygotowanie zanęt i... <strong>kompletna cisza na wodzie przez następne 10 godzin</strong>.
+                    </p>
+                    <p class="fs-6 lh-lg text-white opacity-75">
+                        Analizując setki takich dni zauważyliśmy pewien schemat. Winne rzadko były nasze umiejętności, dobrane przynęty czy przypony. Problemem była biologia ryb sterowana przez fizykę otoczenia – drastyczne skoki ciśnienia, niekorzystne układy księżyca i zła termika wody. Zwykłe aplikacje pogodowe pokazywały tylko temperaturę i deszcz, a to dla wędkarza zdecydowanie za mało. Postanowiliśmy zbudować system, który "myśli" jak ryba.
+                    </p>
+
+                    <div class="bg-dark bg-opacity-50 p-4 rounded-4 border border-brand-green border-opacity-25 mt-4">
+                        <div class="d-flex gap-3">
+                            <i data-lucide="lightbulb" class="text-brand-green flex-shrink-0" style="width: 28px; height: 28px;"></i>
+                            <div>
+                                <h4 class="text-white fs-6 fw-bold mb-2">Z danych do sukcesu</h4>
+                                <p class="mb-0 fs-7 text-white opacity-75 lh-lg">Zebraliśmy rozproszone dane o ciśnieniu (hPa), fotoperiodzie, fazach solunarnych i skorelowaliśmy je z aktywnością żerową. Tak powstało <strong>CzyZlowie</strong> – zaawansowany asystent wędkarski, który mówi Ci, kiedy ryby mają fizjologiczny przymus jedzenia.</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="algorytm" class="doc-section mb-5 pb-4 border-bottom border-dark-subtle">
+                    <h2 class="text-white fw-bold d-flex align-items-center gap-2 mb-4"><i data-lucide="cpu" class="text-brand-green"></i> 3. Technologia i Algorytmy</h2>
+                    <p class="fs-6 lh-lg text-white opacity-75 mb-4">
+                        Aplikacja CzyZlowie to nie jest zwykły "kalendarz brań", w którym ktoś ręcznie wpisuje uśmiechnięte rybki na dany dzień. Nasz backend codziennie przetwarza tysiące punktów danych. Na czym opieramy nasze prognozy?
+                    </p>
+
+
+
+                    <div class="row g-4 mt-2">
+                        <div class="col-md-6">
+                            <div class="p-3 bg-dark bg-opacity-25 rounded-3 h-100 border border-dark-subtle">
+                                <h4 class="text-white fs-6 fw-bold mb-2 d-flex align-items-center gap-2"><i data-lucide="moon" class="text-indigo-400" style="width: 18px;"></i> Teoria Solunarna</h4>
+                                <p class="fs-7 text-white opacity-75 mb-0">Obliczamy precyzyjne mikropływy i grawitacyjny wpływ Księżyca i Słońca (tranzyty, nowie, pełnie) dla Twoich dokładnych współrzędnych GPS. Wyznaczamy okna największej aktywności instynktownej.</p>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="p-3 bg-dark bg-opacity-25 rounded-3 h-100 border border-dark-subtle">
+                                <h4 class="text-white fs-6 fw-bold mb-2 d-flex align-items-center gap-2"><i data-lucide="gauge" class="text-info" style="width: 18px;"></i> Zmiany ciśnienia (hPa)</h4>
+                                <p class="fs-7 text-white opacity-75 mb-0">Pęcherz pławny ryb jest niezwykle czuły. Nasz system wykrywa nagłe spadki ciśnienia zwiastujące "amok żerowy" przed nadejściem frontu atmosferycznego.</p>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="p-3 bg-dark bg-opacity-25 rounded-3 h-100 border border-dark-subtle">
+                                <h4 class="text-white fs-6 fw-bold mb-2 d-flex align-items-center gap-2"><i data-lucide="sun" class="text-sun-gold" style="width: 18px;"></i> Kąt padania promieni</h4>
+                                <p class="fs-7 text-white opacity-75 mb-0">Kalkulujemy czasy świtów i zmierzchów (żeglarskich i cywilnych), aby wyznaczyć idealną "Złotą Godzinę", gdy drapieżniki wykorzystują półmrok do ataku.</p>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="p-3 bg-dark bg-opacity-25 rounded-3 h-100 border border-dark-subtle">
+                                <h4 class="text-white fs-6 fw-bold mb-2 d-flex align-items-center gap-2"><i data-lucide="thermometer" class="text-danger" style="width: 18px;"></i> Cykle termiczne</h4>
+                                <p class="fs-7 text-white opacity-75 mb-0">Analizujemy długość dnia (fotoperiod) i nagrzewanie wody, co ma krytyczne znaczenie dla metabolizmu i żerowania białorybu oraz karpi.</p>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="p-3 bg-dark bg-opacity-25 rounded-3 h-100 border border-dark-subtle">
+                                <h4 class="text-white fs-6 fw-bold mb-2 d-flex align-items-center gap-2"><i data-lucide="cloud" class="text-info" style="width: 18px;"></i> Dane pogodowe</h4>
+                                <p class="fs-7 text-white opacity-75 mb-0">Przetwarzamy dane z ponad 1400 oficjalnych stacji IMGW. Nasz algorytm dopasowuje twoją lokalizację do najbliższych stacji synoptycznych, metereologicznych, hydrologicznych.  </p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="narzedzia" class="doc-section mb-5 pb-4 border-bottom border-dark-subtle">
+                    <h2 class="text-white fw-bold d-flex align-items-center gap-2 mb-4">
+                        <i data-lucide="briefcase" class="text-brand-green"></i> 4. Twój Wędkarski Niezbędnik
+                    </h2>
+                    <p class="fs-6 lh-lg text-white opacity-75 mb-4">Oddajemy w Twoje ręce najbardziej zaawansowany ekosystem narzędzi w polskim internecie. To nie są proste widżety – to silniki analityczne:</p>
+
+                    <ul class="list-unstyled d-flex flex-column gap-4 mb-0">
+                        <li class="d-flex gap-3">
+                            <i data-lucide="check-circle-2" class="text-brand-green flex-shrink-0 mt-1"></i>
+                            <div>
+                                <strong class="text-white d-block mb-1">Zaawansowany Kalendarz Solunarny</strong>
+                                <span class="fs-7 text-white opacity-75">Precyzyjne fazy księżyca i algorytmiczna ocena szans na brania (Solunar Activity) z rozbiciem na godziny żerowania dla Twojej dokładnej lokalizacji GPS.</span>
+                            </div>
+                        </li>
+
+                        <li class="d-flex gap-3">
+                            <i data-lucide="check-circle-2" class="text-brand-green flex-shrink-0 mt-1"></i>
+                            <div>
+                                <strong class="text-white d-block mb-1">Harmonogram Złotej Godziny</strong>
+                                <span class="fs-7 text-white opacity-75">Sekundowa precyzja wschodów i zachodów słońca (cywilnych i żeglarskich) ułożona w taktyczną oś czasu. Wiemy, kiedy sandacz wychodzi na płytkie, a kiedy szczupak ma przewagę wzroku.</span>
+                            </div>
+                        </li>
+
+                        <li class="d-flex gap-3">
+                            <i data-lucide="check-circle-2" class="text-brand-green flex-shrink-0 mt-1"></i>
+                            <div>
+                                <strong class="text-white d-block mb-1">Barometr Wędkarski & Trend hPa</strong>
+                                <span class="fs-7 text-white opacity-75">Śledzenie zmian ciśnienia atmosferycznego w czasie rzeczywistym. System wykrywa stabilizację lub gwałtowne skoki, które determinują "pobudzenie" pęcherza pławnego ryb.</span>
+                            </div>
+                        </li>
+
+                        <li class="d-flex gap-3">
+                            <i data-lucide="radio" class="text-brand-green flex-shrink-0 mt-1"></i>
+                            <div>
+                                <strong class="text-white d-block mb-1">Monitoring IMGW Live (Hydro & Meteo)</strong>
+                                <span class="fs-7 text-white opacity-75">Bezpośredni wgląd w dane z oficjalnych stacji pomiarowych. Monitoruj poziomy wód (stan wody na rzekach), temperaturę punktu rosy oraz dane synoptyczne bez opóźnień.</span>
+                            </div>
+                        </li>
+
+                        <li class="d-flex gap-3">
+                            <i data-lucide="map-pin" class="text-brand-green flex-shrink-0 mt-1"></i>
+                            <div>
+                                <strong class="text-white d-block mb-1">Taktyczna Mapa Akwenów</strong>
+                                <span class="fs-7 text-white opacity-75">Interaktywny skaner wód. Oznaczamy nie tylko granice jezior, ale też szlaki żeglowne, lokalizację slipów do wodowania łodzi, strefy zakazu połowu oraz popularne miejscówki (hot-spoty) z podziałem na typ łowiska.</span>
+                            </div>
+                        </li>
+
+                        <li class="d-flex gap-3">
+                            <i data-lucide="book-open" class="text-brand-green flex-shrink-0 mt-1"></i>
+                            <div>
+                                <strong class="text-white d-block mb-1">Interaktywny Atlas Gatunków</strong>
+                                <span class="fs-7 text-white opacity-75">Kompendium wiedzy o rybach polskich wód. Szczegółowe opisy zwyczajów żerowych, okresy i wymiary ochronne oraz preferowane warunki atmosferyczne dla każdego gatunku.</span>
+                            </div>
+                        </li>
+
+                        <li class="d-flex gap-3">
+                            <i data-lucide="sparkles" class="text-brand-green flex-shrink-0 mt-1"></i>
+                            <div>
+                                <strong class="text-white d-block mb-1">Prognoza Zintegrowana 360°</strong>
+                                <span class="fs-7 text-white opacity-75">Nasz flagowy moduł. Łączymy fazę księżyca, trend barometryczny, nasłonecznienie i historię pogody w jeden spójny werdykt. Dowiesz się, jak przeszłe warunki wpłynęły na dzisiejsze żerowanie i co wydarzy się jutro.</span>
+                            </div>
+                        </li>
+
+                        <li class="d-flex gap-3">
+                            <i data-lucide="history" class="text-brand-green flex-shrink-0 mt-1" style="opacity: 0.6;"></i>
+                            <div>
+                                <strong class="text-white d-block mb-1 opacity-75">Prywatny Dziennik Połowów (Wkrótce)</strong>
+                                <span class="fs-7 text-white opacity-60">Zautomatyzowany logbook. Dodaj zdjęcie ryby, a apka sama dopisze do niej ciśnienie, fazę księżyca i kierunek wiatru z momentu brania. Analizuj własne sukcesy jak profesjonalista.</span>
+                            </div>
+                        </li>
+                    </ul>
+                </section>
+
+                <section id="dla-kogo" class="doc-section mb-5 pb-4 border-bottom border-dark-subtle">
+                    <h2 class="text-white fw-bold d-flex align-items-center gap-2 mb-4"><i data-lucide="users" class="text-brand-green"></i> 5. Dla kogo jest CzyZlowie?</h2>
+                    <p class="fs-6 lh-lg text-white opacity-75">Nasza platforma została stworzona z myślą o szerokim przekroju środowiska wędkarskiego w Polsce:</p>
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <div class="p-3 border border-dark-subtle rounded text-center h-100 bg-dark bg-opacity-25">
+                                <i data-lucide="swords" class="text-danger mb-2" style="width: 32px; height: 32px;"></i>
+                                <h5 class="text-white fs-6 fw-bold">Spinningiści</h5>
+                                <p class="fs-8 text-white opacity-75 mb-0">Zlokalizujcie świt żeglarski dla sandacza i złotą godzinę dla szczupaków.</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="p-3 border border-dark-subtle rounded text-center h-100 bg-dark bg-opacity-25">
+                                <i data-lucide="tent" class="text-warning mb-2" style="width: 32px; height: 32px;"></i>
+                                <h5 class="text-white fs-6 fw-bold">Karpiarze</h5>
+                                <p class="fs-8 text-white opacity-75 mb-0">Zaplanujcie wielodniowe zasiadki w oparciu o pełnię i nowie księżyca.</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="p-3 border border-dark-subtle rounded text-center h-100 bg-dark bg-opacity-25">
+                                <i data-lucide="leaf" class="text-success mb-2" style="width: 32px; height: 32px;"></i>
+                                <h5 class="text-white fs-6 fw-bold">Spławik / Grunt</h5>
+                                <p class="fs-8 text-white opacity-75 mb-0">Sprawdźcie termikę wody i najlepsze godziny żerowania lina i leszcza.</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="spolecznosc" class="doc-section mb-5 pb-4 border-bottom border-dark-subtle">
+                    <h2 class="text-white fw-bold d-flex align-items-center gap-2 mb-4">
+                        <i data-lucide="users-2" class="text-brand-green"></i> 6. Społeczność i ciągły rozwój (Roadmap)
+                    </h2>
+
+                    <div class="row g-4">
+                        <div class="col-md-12">
+                            <p class="fs-6 lh-lg text-white opacity-75">
+                                <strong>CzyZlowie</strong> to projekt, który nie uznaje stagnacji. W świecie IT nazywamy to <em>Continuous Delivery</em> – dla Ciebie oznacza to, że aplikacja, której używasz dzisiaj, jutro będzie jeszcze lepsza. Nie jesteśmy zamkniętym systemem; jesteśmy ekosystemem, który rośnie dzięki Twoim uwagom znad wody.
+                            </p>
+                        </div>
+
+                        <div class="col-md-6">
+                            <h3 class="fs-5 text-white fw-bold mb-3 d-flex align-items-center gap-2">
+                                <i data-lucide="repeat" class="text-brand-green" style="width: 20px;"></i> Żywy proces tworzenia
+                            </h3>
+                            <p class="fs-7 text-white opacity-75 lh-lg">
+                                Nasze kanały social media (zapraszamy na **TikToka!**) to nie tylko marketing. To nasz publiczny <strong>DevLog</strong>. Pokazujemy tam proces kodowania nowych funkcji, a Ty w komentarzach decydujesz o ich ostatecznym kształcie. Masz bezpośredni wpływ na to, czy następny moduł będzie dotyczył echosond, czy może nowych warstw mapy.
+                            </p>
+                        </div>
+
+                        <div class="col-md-6">
+                            <h3 class="fs-5 text-white fw-bold mb-3 d-flex align-items-center gap-2">
+                                <i data-lucide="brain-circuit" class="text-brand-green" style="width: 20px;"></i> AI: Wędkarska Inteligencja
+                            </h3>
+                            <p class="fs-7 text-white opacity-75 lh-lg">
+                                Pracujemy nad implementacją modeli <strong>Machine Learning</strong>, które będą analizować tysiące historycznych brań pod kątem mikrozmian pogodowych. Cel? System, który na podstawie zdjęcia Twojego łowiska i aktualnych danych zasugeruje nie tylko typ przynęty, ale nawet jej optymalny kolor i sposób prowadzenia.
+                            </p>
+                        </div>
+
+                    </div>
+                </section>
+
+                <section id="dolacz" class="doc-section">
+                    <h2 class="text-white fw-bold d-flex align-items-center gap-2 mb-4"><i data-lucide="anchor" class="text-brand-green"></i> 7. Zarzuć wędki z nami!</h2>
+                    <p class="fs-6 lh-lg text-white opacity-75 mb-4">
+                        Przestań marnować czas nad wodą w "martwych" godzinach. Przejdź na jasną (i mocno analityczną) stronę wędkarstwa. Zarejestruj się za darmo, przetestuj nasze algorytmy w praktyce na swoim ulubionym jeziorze lub rzece, a potem pochwal się wynikiem!
+                    </p>
+
+                    <div class="d-flex flex-column flex-sm-row gap-3 mt-4">
+                        <a th:href="@{/rejestracja}" class="btn fw-bold d-inline-flex align-items-center justify-content-center gap-2 px-4 py-3" style="background: var(--brand-green); color: #000; border-radius: 12px; transition: 0.3s;">
+                            <i data-lucide="user-plus" style="width: 20px;"></i> Załóż darmowe konto
+                        </a>
+                        <a th:href="@{/kontakt}" class="btn btn-outline-light d-inline-flex align-items-center justify-content-center gap-2 px-4 py-3" style="border-radius: 12px; border-color: rgba(255,255,255,0.2);">
+                            <i data-lucide="mail" style="width: 20px;"></i> Skontaktuj się z nami
+                        </a>
+                    </div>
+                </section>
+
+            </div>
+        </div>
+
+    </div>
+</main>
+
+<footer th:replace="~{fragments/footer :: footer}"></footer>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        lucide.createIcons();
+
+        const sections = document.querySelectorAll('.doc-section');
+        const navLinks = document.querySelectorAll('.doc-nav-link');
+
+        window.addEventListener('scroll', () => {
+            let current = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                if (scrollY >= sectionTop - 150) {
+                    current = section.getAttribute('id');
+                }
+            });
+
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href').includes(current) && current !== '') {
+                    link.classList.add('active');
+                }
+            });
+        });
+    });
+</script>
+</body>
+</html>

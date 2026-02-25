@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pl">
+<head>
+    <th:block th:replace="~{fragments/head :: head-content(
+        pageTitle='Regulamin Serwisu | CzyZlowie',
+        pageDescription='Zapoznaj się z zasadami świadczenia usług, wyłączeniami odpowiedzialności oraz warunkami korzystania z aplikacji CzyZlowie.'
+    )}"></th:block>
+
+    <link rel="stylesheet" th:href="@{/css/document.css}">
+</head>
+<body class="document-page">
+
+<nav th:replace="~{fragments/navbar :: navbar}"></nav>
+
+<div class="doc-bg-container">
+    <div class="doc-bg-overlay"></div>
+    <div class="doc-glow glow-top"></div>
+</div>
+
+<main class="container-xl position-relative z-2 pb-5" style="padding-top: 100px;">
+
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb doc-breadcrumb">
+            <li class="breadcrumb-item"><a th:href="@{/}"><i data-lucide="home" class="bc-icon text-brand-green"></i> Główna</a></li>
+            <li class="breadcrumb-item active fw-bold text-white" aria-current="page">Regulamin</li>
+        </ol>
+    </nav>
+
+    <header class="mb-5 border-bottom border-dark-subtle pb-4">
+        <h1 class="display-4 fw-black text-white mb-3 doc-title-glow">Regulamin Serwisu</h1>
+        <p class="fs-5 text-white opacity-75 mb-4" style="max-width: 800px;">Zasady korzystania z aplikacji, prawa i obowiązki użytkowników oraz wyłączenia odpowiedzialności. Prosimy o uważne zapoznanie się z poniższymi postanowieniami.</p>
+        <div class="d-flex flex-wrap align-items-center gap-3 text-muted fs-7">
+            <span class="d-flex align-items-center gap-1 bg-dark bg-opacity-50 px-3 py-1 rounded-pill border border-dark-subtle"><i data-lucide="calendar" style="width: 16px; color: var(--brand-green);"></i> Data wejścia w życie: 25 Luty 2026</span>
+            <span class="d-flex align-items-center gap-1 bg-dark bg-opacity-50 px-3 py-1 rounded-pill border border-dark-subtle"><i data-lucide="file-text" style="width: 16px; color: var(--brand-green);"></i> Wersja: 1.0</span>
+        </div>
+    </header>
+
+    <div class="row g-5">
+
+        <aside class="col-lg-3 d-none d-lg-block position-relative">
+            <div class="doc-sidebar glass-panel p-4 sticky-top" style="top: 120px;">
+                <h5 class="text-white fw-bold mb-3 fs-6 text-uppercase" style="letter-spacing: 1px;">Spis treści</h5>
+                <nav class="doc-nav flex-column gap-1">
+                    <a href="#postanowienia-ogolne" class="doc-nav-link active">1. Postanowienia ogólne</a>
+                    <a href="#rodzaje-uslug" class="doc-nav-link">2. Rodzaje i zakres usług</a>
+                    <a href="#zrodla-danych" class="doc-nav-link text-brand-green fw-bold">3. Źródła danych i IMGW</a>
+                    <a href="#wylaczenie-odpowiedzialnosci" class="doc-nav-link text-danger fw-bold">4. Wyłączenie odpowiedzialności</a>
+                    <a href="#obowiazki-uzytkownika" class="doc-nav-link">5. Obowiązki Użytkownika</a>
+                    <a href="#prawa-autorskie" class="doc-nav-link">6. Prawa autorskie i treści</a>
+                    <a href="#konta-i-oplaty" class="doc-nav-link">7. Konta, Płatności i Subskrypcje</a>
+                    <a href="#reklamacje" class="doc-nav-link">8. Reklamacje i kontakt</a>
+                </nav>
+            </div>
+        </aside>
+
+        <div class="col-lg-9">
+            <div class="doc-content glass-panel p-4 p-md-5">
+
+                <section id="postanowienia-ogolne" class="doc-section mb-5 pb-4 border-bottom border-dark-subtle">
+                    <h2 class="text-white fw-bold d-flex align-items-center gap-2 mb-4"><i data-lucide="scale" class="text-brand-green"></i> 1. Postanowienia ogólne</h2>
+                    <p class="fs-6 lh-lg text-white opacity-75">
+                        Niniejszy regulamin (dalej: <strong>Regulamin</strong>) określa zasady, zakres i warunki świadczenia usług drogą elektroniczną przez aplikację internetową <strong>CzyZlowie.pl</strong> (dalej: <strong>Serwis</strong>).
+                    </p>
+                    <p class="fs-6 lh-lg text-white opacity-75">
+                        Właścicieem i Administratorem Serwisu jest [Twoje Imię i Nazwisko / Nazwa Firmy] (dalej: <strong>Usługodawca</strong>). Korzystanie z Serwisu, w tym rejestracja Konta Użytkownika, oznacza bezwarunkową akceptację niniejszego Regulaminu.
+                    </p>
+                </section>
+
+                <section id="rodzaje-uslug" class="doc-section mb-5 pb-4 border-bottom border-dark-subtle">
+                    <h2 class="text-white fw-bold d-flex align-items-center gap-2 mb-4"><i data-lucide="layers" class="text-brand-green"></i> 2. Rodzaje i zakres usług</h2>
+                    <p class="fs-6 lh-lg text-white opacity-75">Usługodawca udostępnia Użytkownikom narzędzia analityczne wspomagające planowanie aktywności wędkarskiej, w tym m.in.:</p>
+                    <ul class="fs-7 text-white opacity-75 lh-lg">
+                        <li>Kalkulator astronomiczny (fazy księżyca, wschody i zachody słońca).</li>
+                        <li>Analizator danych meteorologicznych (prognoza ciśnienia, temperatury, wiatru).</li>
+                        <li>Interaktywną mapę pozwalającą na oznaczanie prywatnych punktów nawigacyjnych (Dziennik Połowów).</li>
+                        <li>Algorytmiczną prognozę aktywności ryb (tzw. Kalendarz Brań).</li>
+                    </ul>
+                </section>
+
+                <section id="zrodla-danych" class="doc-section mb-5 pb-4 border-bottom border-dark-subtle">
+                    <h2 class="text-white fw-bold d-flex align-items-center gap-2 mb-4"><i data-lucide="database" class="text-brand-green"></i> 3. Źródła danych i zasoby IMGW-PIB</h2>
+                    <p class="fs-6 lh-lg text-white opacity-75">
+                        W trosce o najwyższą jakość, Serwis korzysta z zewnętrznych dostawców danych, w szczególności z publicznych zasobów <strong>Instytutu Meteorologii i Gospodarki Wodnej - Państwowego Instytutu Badawczego (IMGW-PIB)</strong>.
+                    </p>
+                    <div class="bg-dark bg-opacity-50 p-4 rounded-4 border border-brand-green border-opacity-50 mt-3">
+                        <ul class="mb-0 fs-7 text-white opacity-75 d-flex flex-column gap-2">
+                            <li>Dane meteorologiczne i hydrologiczne (tzw. dane publiczne) przetwarzane w Serwisie pochodzą z zasobów IMGW-PIB (np. portal dane.imgw.pl).</li>
+                            <li><strong>IMGW-PIB nie ponosi odpowiedzialności</strong> za sposób przetwarzania, prezentacji oraz interpretacji tych danych przez Usługodawcę.</li>
+                            <li>Wszelkie analizy wędkarskie wygenerowane na podstawie danych IMGW-PIB są autorskim opracowaniem algorytmów CzyZlowie.pl.</li>
+                        </ul>
+                    </div>
+                </section>
+
+                <section id="wylaczenie-odpowiedzialnosci" class="doc-section mb-5 pb-4 border-bottom border-dark-subtle">
+                    <h2 class="text-white fw-bold d-flex align-items-center gap-2 mb-4"><i data-lucide="shield-alert" class="text-danger"></i> 4. Wyłączenie odpowiedzialności (Disclaimer)</h2>
+                    <p class="fs-6 lh-lg text-white opacity-75">To jeden z najważniejszych punktów Regulaminu. Prosimy o uważną lekturę:</p>
+
+                    <ul class="fs-7 text-white opacity-75 lh-lg d-flex flex-column gap-3 mb-0">
+                        <li><strong>Brak gwarancji brań:</strong> Prognozy (Kalendarz Brań, Aktywność Solunarna) generowane przez Serwis mają charakter <strong>wyłącznie probabilistyczny i poglądowy</strong>. Usługodawca nie gwarantuje, że Użytkownik złowi jakąkolwiek rybę. Decyzja o wyjeździe na ryby podejmowana jest wyłącznie na ryzyko Użytkownika.</li>
+
+                        <li><strong>Dane przestrzenne i strefy prawne na Mapie:</strong> Wszelkie informacje o granicach łowisk, strefach zakazu połowu (np. tarliska, obręby ochronne), statusach wód (PZW, Wody Polskie, prywatne) oraz ograniczeniach regulaminowych prezentowane na interaktywnej mapie mają charakter <strong>wyłącznie pomocniczy i informacyjny</strong>. Prawo lokalne i uchwały zarządców wód zmieniają się dynamicznie. Usługodawca nie gwarantuje ich 100% aktualności i <strong>nie ponosi żadnej odpowiedzialności za ewentualne mandaty, kary grzywny lub konfiskatę sprzętu</strong> nałożone na Użytkownika przez Państwową Straż Rybacką lub inne służby.</li>
+
+                        <li><strong>Bezpieczeństwo nad wodą:</strong> Dane pogodowe (w tym ostrzeżenia przed burzami czy silnym wiatrem) opierają się na systemach zewnętrznych i mogą być obarczone opóźnieniem lub błędem. Serwis nie służy jako certyfikowane narzędzie do zapewniania bezpieczeństwa życia lub mienia. Zawsze weryfikuj warunki na żywo.</li>
+                        <li><strong>Awarie API:</strong> Usługodawca nie ponosi odpowiedzialności za przerwy w działaniu Serwisu wynikające z awarii zewnętrznych dostawców danych (np. serwerów IMGW, dostawców map lub usług geokodowania).</li>
+                    </ul>
+                </section>
+
+
+                <section id="obowiazki-uzytkownika" class="doc-section mb-5 pb-4 border-bottom border-dark-subtle">
+                    <h2 class="text-white fw-bold d-flex align-items-center gap-2 mb-4"><i data-lucide="user-check" class="text-brand-green"></i> 5. Obowiązki i odpowiedzialność Użytkownika</h2>
+                    <p class="fs-6 lh-lg text-white opacity-75">Korzystając z Serwisu i funkcji mapy, Użytkownik zobowiązuje się do:</p>
+                    <ul class="fs-7 text-white opacity-75 lh-lg mb-4">
+                        <li>Przestrzegania przepisów prawa powszechnie obowiązującego, w szczególności <strong>Ustawy o rybactwie śródlądowym</strong> oraz lokalnych regulaminów amatorskiego połowu ryb (np. RAPR).</li>
+                        <li>Niewykorzystywania narzędzi Serwisu do działań nielegalnych, w tym kłusownictwa.</li>
+                    </ul>
+
+                    <div class="bg-dark bg-opacity-50 p-4 rounded-4 border border-warning border-opacity-50">
+                        <div class="d-flex gap-3">
+                            <i data-lucide="alert-triangle" class="text-warning flex-shrink-0" style="width: 32px; height: 32px;"></i>
+                            <div>
+                                <h4 class="text-white fs-6 fw-bold mb-2">Bezwzględny obowiązek weryfikacji przepisów</h4>
+                                <p class="mb-0 fs-7 text-white opacity-75 lh-lg">
+                                    Fakt, że dany akwen nie jest oznaczony na naszej mapie na czerwono (jako strefa zakazu), <strong>nie zwalnia Cię z obowiązku posiadania odpowiedniego zezwolenia</strong> oraz sprawdzenia aktualnych zasad panujących na danej wodzie. Zawsze, przed zarzuceniem wędki, weryfikuj zasady (wymiary ochronne, limity, zakazy spinningowania/trollingu) bezpośrednio na stronach gospodarza wody (np. odpowiedniego Okręgu PZW lub w aplikacji mObywatel).
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="prawa-autorskie" class="doc-section mb-5 pb-4 border-bottom border-dark-subtle">
+                    <h2 class="text-white fw-bold d-flex align-items-center gap-2 mb-4"><i data-lucide="copyright" class="text-brand-green"></i> 6. Prawa autorskie i treści Użytkownika</h2>
+                    <p class="fs-6 lh-lg text-white opacity-75">
+                        Wgrywając zdjęcia ryb do Dziennika Połowów, Użytkownik oświadcza, że posiada do nich pełne prawa autorskie. Zastrzegamy sobie prawo do usunięcia konta Użytkownika, który publikuje treści niezgodne z prawem, drastyczne, naruszające regulaminy wędkarskie lub łamiące zasady etyki wędkarskiej.
+                    </p>
+                </section>
+
+
+                <section id="reklamacje" class="doc-section">
+                    <h2 class="text-white fw-bold d-flex align-items-center gap-2 mb-4"><i data-lucide="help-circle" class="text-brand-green"></i> 8. Reklamacje i kontakt</h2>
+                    <p class="fs-6 lh-lg text-white opacity-75">
+                        Wszelkie reklamacje dotyczące funkcjonowania Serwisu lub usług płatnych należy zgłaszać na adres e-mail: <a href="mailto:kontakt@czyzlowie.pl" class="text-brand-green fw-bold">kontakt@czyzlowie.pl</a>. Usługodawca zobowiązuje się do rozpatrzenia reklamacji w terminie 14 dni roboczych.
+                    </p>
+                </section>
+
+            </div>
+        </div>
+
+    </div>
+</main>
+
+<footer th:replace="~{fragments/footer :: footer}"></footer>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        lucide.createIcons();
+        const sections = document.querySelectorAll('.doc-section');
+        const navLinks = document.querySelectorAll('.doc-nav-link');
+
+        window.addEventListener('scroll', () => {
+            let current = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                if (scrollY >= sectionTop - 150) {
+                    current = section.getAttribute('id');
+                }
+            });
+
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href').includes(current) && current !== '') {
+                    link.classList.add('active');
+                }
+            });
+        });
+    });
+</script>
+</body>
+</html>
