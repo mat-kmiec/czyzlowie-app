@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import pl.czyzlowie.modules.imgw_api.entity.ImgwHydroStation;
+import pl.czyzlowie.modules.moon.projection.StationCoordinatesView;
 
 import java.util.List;
 
@@ -18,4 +19,7 @@ public interface ImgwHydroStationRepository extends JpaRepository<ImgwHydroStati
             @Param("west") Double west,
             @Param("east") Double east
     );
+
+    @Query("SELECT s.id AS id, s.latitude AS latitude, s.longitude AS longitude FROM ImgwHydroStation s WHERE s.isActive = true")
+    List<StationCoordinatesView> findActiveStationCoordinates();
 }

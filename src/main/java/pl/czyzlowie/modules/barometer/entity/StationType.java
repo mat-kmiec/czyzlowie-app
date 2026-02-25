@@ -7,5 +7,7 @@ package pl.czyzlowie.modules.barometer.entity;
  */
 public enum StationType {
     IMGW_SYNOP,
+    IMGW_HYDRO,
+    IMGW_METEO,
     VIRTUAL
 }
