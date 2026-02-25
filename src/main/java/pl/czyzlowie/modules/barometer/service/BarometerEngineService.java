@@ -178,32 +178,35 @@ public class BarometerEngineService {
         return map;
     }
 
-    /**
-     * Detects if there is an approaching weather front based on the current pressure and the pressure forecast.
-     *
-     * @param currentPressure the current atmospheric pressure
-     * @param forecast a TreeMap containing forecasted pressure values keyed by their corresponding LocalDateTime
-     * @param now the current timestamp to determine the relevant forecast window
-     * @return true if there is an approaching front indicated by a pressure drop that meets or exceeds the threshold; false otherwise
-     */
     private boolean detectApproachingFront(BigDecimal currentPressure, TreeMap<LocalDateTime, BigDecimal> forecast, LocalDateTime now) {
-        var next48h = forecast.headMap(now.plusHours(FRONT_WINDOW_HOURS), true);
-        if (next48h.isEmpty()) return false;
+        if (forecast.isEmpty()) return false;
 
-        var highestInForecast = currentPressure;
-        var maxDrop = BigDecimal.ZERO;
+        final int WINDOW_HOURS = 6;
+        final BigDecimal DROP_THRESHOLD = BigDecimal.valueOf(4.0);
 
-        for (var futurePressure : next48h.values()) {
-            if (futurePressure.compareTo(highestInForecast) > 0) {
-                highestInForecast = futurePressure;
-            } else {
-                var currentDrop = highestInForecast.subtract(futurePressure);
-                if (currentDrop.compareTo(maxDrop) > 0) {
-                    maxDrop = currentDrop;
+        var immediateFuture = forecast.headMap(now.plusHours(WINDOW_HOURS), true);
+        for (BigDecimal futureP : immediateFuture.values()) {
+            if (currentPressure.subtract(futureP).compareTo(DROP_THRESHOLD) >= 0) {
+                log.info("[FRONT] Wykryto gwałtowny spadek względem ciśnienia bieżącego!");
+                return true;
+            }
+        }
+
+        for (var entry : forecast.entrySet()) {
+            LocalDateTime startTime = entry.getKey();
+            BigDecimal startPressure = entry.getValue();
+
+            LocalDateTime windowEnd = startTime.plusHours(WINDOW_HOURS);
+            var windowData = forecast.subMap(startTime, false, windowEnd, true);
+
+            for (BigDecimal futurePressure : windowData.values()) {
+                if (startPressure.subtract(futurePressure).compareTo(DROP_THRESHOLD) >= 0) {
+                    log.info("[FRONT] Wykryto tąpnięcie w prognozie o {} ({})", startTime, startPressure);
+                    return true;
                 }
             }
         }
-        return maxDrop.compareTo(FRONT_DROP_THRESHOLD) >= 0;
+        return false;
     }
 
     /**
@@ -320,19 +323,22 @@ public class BarometerEngineService {
      * @return an Integer representing the calculated stability index. Returns 50 if no data is available
      *         in the 72-hour range.
      */
+
+
     private Integer calculateStabilityIndex(TreeMap<LocalDateTime, BigDecimal> timeline, LocalDateTime now) {
-        var values3d = timeline.tailMap(now.minusHours(72)).values();
-        if (values3d.isEmpty()) return 50;
+        var values24h = timeline.tailMap(now.minusHours(24)).values();
+        if (values24h.size() < 2) return 50;
 
-        var summary = values3d.stream().mapToDouble(BigDecimal::doubleValue).summaryStatistics();
-        double max = summary.getCount() > 0 ? summary.getMax() : currentPressureFromTimeline(timeline).doubleValue();
-        double min = summary.getCount() > 0 ? summary.getMin() : currentPressureFromTimeline(timeline).doubleValue();
+        double totalVolatility = 0;
+        List<BigDecimal> list = new ArrayList<>(values24h);
+        for (int i = 1; i < list.size(); i++) {
+            totalVolatility += Math.abs(list.get(i).doubleValue() - list.get(i-1).doubleValue());
+        }
 
-        double difference = max - min;
-        if (difference <= 2.0) return 100;
-        if (difference >= 15.0) return 0;
+        if (totalVolatility <= 4.0) return 100;
+        if (totalVolatility >= 15.0) return 0;
 
-        return (int) Math.round(100.0 - ((difference - 2.0) / 13.0) * 100.0);
+        return (int) Math.round(100.0 - ((totalVolatility - 4.0) / 11.0) * 100.0);
     }
 
     /**
