@@ -75,13 +75,23 @@ body.moon-page {
 
 .moon-calendar-grid {
     display: grid;
-    grid-template-columns: repeat(7, 1fr);
-    gap: 8px;
+    /* Użycie minmax(0, 1fr) to klucz! Zapobiega rozpychaniu siatki przez zawartość */
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    gap: 10px;
+    width: 100%;
 }
 
 .calendar-header {
-    text-align: center; color: #64748b; font-weight: 700; font-size: 0.8rem; text-transform: uppercase;
+    text-align: center;
+    color: #64748b;
+    font-weight: 700;
+    font-size: 0.8rem;
+    text-transform: uppercase;
     padding-bottom: 10px;
+    /* Zapobiega przełamywaniu długich nazw dni na małych ekranach */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: clip;
 }
 
 .calendar-day {
@@ -278,15 +288,33 @@ body.moon-page {
 
 @media (max-width: 576px) {
     .moon-calendar-grid {
-        column-gap: 4px !important;
-        row-gap: 16px !important;
+        column-gap: 2px !important;
+        row-gap: 8px !important;
     }
+
+    .calendar-header {
+        font-size: 0.65rem;
+        padding-bottom: 6px;
+    }
+
     .calendar-day {
         aspect-ratio: auto !important;
-        padding: 6px !important;
+        padding: 2px !important;
     }
+
+    .calendar-day-link {
+        padding-left: 2px !important;
+        padding-right: 2px !important;
+        padding-top: 4px !important;
+        padding-bottom: 4px !important;
+    }
+
+    .day-number {
+        font-size: 0.75rem;
+    }
+
     .day-moon-emoji {
-        font-size: 1.25rem;
-        margin: 8px 0;
+        font-size: 1.15rem;
+        margin: 4px 0;
     }
 }

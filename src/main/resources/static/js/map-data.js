@@ -18,5 +18,6 @@ export const CATEGORIES = {
     // fishery: { name: 'Łowisko', icon: 'fish', color: '#b568f4' },
     commercial: { name: 'Łowisko komercyjne', icon: 'coins', color: '#ec4899' },
     restriction: { name: 'Zakazy i ograniczenia', icon: 'shield-off', color: '#ef4444' },
+    partial_limit: { name: 'Ograniczenie', icon: 'shield-off', color: 'rgba(255,89,0,0.94)' },
     me: { name: 'Moja lokalizacja', icon: 'circle-user', color: '#22c55e' }
 };
