@@ -4,6 +4,7 @@
     margin-top: auto;
     z-index: 1000;
     border-top: 1px solid rgba(255, 255, 255, 0.05);
+    overflow: hidden;
 }
 
 .footer-top-gradient {
@@ -19,6 +20,7 @@
 .footer-logo {
     height: 45px;
     width: auto;
+    max-width: 100%;
     object-fit: contain;
     filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));
     transition: transform 0.3s ease;
@@ -45,7 +47,9 @@
 .footer-links {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 12px;
+    padding: 0;
+    margin: 0;
 }
 
 .footer-links a {
@@ -56,11 +60,13 @@
     transition: all 0.2s ease-in-out;
     display: inline-flex;
     align-items: center;
+    padding: 6px 0; /* Zwiększony obszar klikalny dla palca */
 }
 
+/* Domyślny hover dla desktopu (przesunięcie w prawo) */
 .footer-links a:hover {
     color: #2ecc71;
-    transform: translateX(4px);
+    transform: translateX(5px);
 }
 
 .social-icon {
@@ -74,6 +80,7 @@
     border-radius: 10px;
     transition: all 0.3s ease;
     border: 1px solid rgba(255, 255, 255, 0.05);
+    text-decoration: none;
 }
 
 .social-icon i {
@@ -92,7 +99,19 @@
     border-top: 1px solid rgba(255, 255, 255, 0.08);
 }
 
+/* --- RESPONSYWNOŚĆ (Wymuszenie stosu i wyśrodkowania) --- */
 @media (max-width: 991px) {
-    .main-footer { padding-top: 20px; }
-    .footer-heading { margin-top: 20px; margin-bottom: 15px; }
+    .main-footer {
+        padding-top: 30px;
+    }
+
+    .footer-heading {
+        margin-top: 20px;
+        margin-bottom: 15px;
+    }
+
+    /* Przy wyśrodkowanym tekście przesuwanie w prawo wygląda źle, zmieniamy na uniesienie */
+    .footer-links a:hover {
+        transform: translateY(-2px);
+    }
 }
