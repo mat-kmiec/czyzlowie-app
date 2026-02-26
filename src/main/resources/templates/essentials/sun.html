@@ -346,19 +346,27 @@
 
             if (!sunriseStr || !sunsetStr) return;
 
-            const sunrise = new Date(sunriseStr).getTime();
-            const sunset = new Date(sunsetStr).getTime();
+            const sunriseDate = new Date(sunriseStr);
+            const sunsetDate = new Date(sunsetStr);
+
+            const sunrise = sunriseDate.getTime();
+            const sunset = sunsetDate.getTime();
             const totalDaylight = sunset - sunrise;
-            let now = new Date().getTime();
-            if(!isToday) {
-                now = sunrise + (totalDaylight / 2);
-            }
+
+            const realNow = new Date();
+
+            const nowForCalc = new Date(sunriseDate);
+            nowForCalc.setHours(realNow.getHours(), realNow.getMinutes(), realNow.getSeconds());
+
+            const now = nowForCalc.getTime();
 
             let progress = 0;
             if (now >= sunset) {
                 progress = 1;
             } else if (now > sunrise) {
                 progress = (now - sunrise) / totalDaylight;
+            } else {
+                progress = 0;
             }
 
             const path = document.getElementById('sunArcPath');
@@ -367,8 +375,12 @@
 
             if (path && progressPath && dot) {
                 const pathLength = path.getTotalLength();
-                progressPath.style.strokeDasharray = pathLength;
-                progressPath.style.strokeDashoffset = pathLength - (pathLength * progress);
+
+                if (progressPath.style) {
+                    progressPath.style.strokeDasharray = pathLength;
+                    progressPath.style.strokeDashoffset = pathLength - (pathLength * progress);
+                }
+
                 const point = path.getPointAtLength(pathLength * progress);
                 const percentX = (point.x / 200) * 100;
                 const percentY = (point.y / 110) * 100;

@@ -151,15 +151,32 @@
             <article class="col-lg-8">
 
                 <nav class="toc-panel glass-panel mb-5 p-4">
-                    <h4 class="fs-6 text-uppercase fw-bold mb-3 d-flex align-items-center"><i data-lucide="list" class="me-2 text-accent-blue" style="width:20px;"></i> Szybka nawigacja</h4>
-                    <ul class="toc-list">
-                        <li><a href="#biologia">Biologia i opis gatunku</a></li>
-                        <li><a href="#warunki">Optymalne warunki meteo</a></li>
-                        <li><a href="#kalendarz">Roczny kalendarz żerowania</a></li>
-                        <li><a href="#miejscowki">Gdzie szukać?</a></li>
-                        <li><a href="#przynety">Przynęty i kolory</a></li>
-                        <li><a href="#sprzet">Konfiguracja sprzętu</a></li>
-                    </ul>
+                    <details class="d-lg-none custom-details">
+                        <summary class="fs-6 text-uppercase fw-bold d-flex align-items-center cursor-pointer">
+                            <i data-lucide="list" class="me-2 text-accent-blue" style="width:20px;" aria-hidden="true"></i> Spis treści <i data-lucide="chevron-down" class="ms-auto details-arrow" aria-hidden="true"></i>
+                        </summary>
+                        <ul class="toc-list mt-3">
+                            <li><a href="#biologia">Biologia i opis gatunku</a></li>
+                            <li><a href="#warunki">Optymalne warunki meteo</a></li>
+                            <li><a href="#kalendarz">Roczny kalendarz żerowania</a></li>
+                            <li><a href="#miejscowki">Gdzie szukać?</a></li>
+                            <li><a href="#przynety">Przynęty i kolory</a></li>
+                            <li><a href="#sprzet">Konfiguracja sprzętu</a></li>
+                        </ul>
+                    </details>
+
+                    <div class="d-none d-lg-block">
+                        <span class="fs-6 text-uppercase fw-bold mb-3 d-flex align-items-center"><i data-lucide="list" class="me-2 text-accent-blue" style="width:20px;" aria-hidden="true"></i> Szybka nawigacja</span>
+                        <ul class="toc-list">
+                            <li><a href="#biologia">Biologia i opis gatunku</a></li>
+                            <li><a href="#warunki">Optymalne warunki meteo</a></li>
+                            <li><a href="#kalendarz">Roczny kalendarz żerowania</a></li>
+                            <li><a href="#miejscowki">Gdzie szukać?</a></li>
+                            <li><a href="#przynety">Przynęty i kolory</a></li>
+                            <li><a href="#sprzet">Konfiguracja sprzętu</a></li>
+                            <li><a href="#faq">Częste pytania (FAQ)</a></li>
+                        </ul>
+                    </div>
                 </nav>
 
                 <section id="biologia" class="content-section glass-panel mb-5">
@@ -168,7 +185,7 @@
                         <h3 th:text="'Poznaj: ' + ${fish.name}">Biologia</h3>
                     </div>
                     <div class="section-body text-muted-pro">
-                        <p th:text="${fish.description} ?: 'Brak oficjalnego opisu dla tego gatunku ryby.'"></p>
+                        <p th:utext="${fish.description} ?: 'Brak oficjalnego opisu dla tego gatunku ryby.'"></p>
 
                         <div class="callout-box bg-dark-glass border-accent-purple p-4 rounded-4 mt-3">
                             <h5 class="text-accent-purple fw-bold mb-2">Czas i biologia tarła</h5>
@@ -280,10 +297,18 @@
                     <div class="section-body text-muted-pro">
                         <p th:text="${fish.habitat != null && fish.habitat.habitatGeneral != null ? fish.habitat.habitatGeneral : 'Brak danych o ogólnym środowisku bytowania.'}"></p>
 
-                        <div class="d-flex flex-wrap gap-2 my-3" th:if="${fish.habitat != null}">
-                            <span class="badge bg-dark border border-secondary text-white p-2">Głębokość: <span class="text-info" th:text="${fish.habitat.preferredDepthMin != null ? fish.habitat.preferredDepthMin + 'm - ' + fish.habitat.preferredDepthMax + 'm' : 'Brak danych'}"></span></span>
-                            <span class="badge bg-dark border border-secondary text-white p-2">Dno: <span class="text-warning" th:text="${fish.habitat.bottomType ?: 'Brak danych'}"></span></span>
-                            <span class="badge bg-dark border border-secondary text-white p-2">Strefa: <span class="text-success" th:text="${fish.habitat.feedingLayer ?: 'Brak danych'}"></span></span>
+                        <div class="d-flex flex-column flex-sm-row flex-wrap gap-2 my-3" th:if="${fish.habitat != null}">
+    <span class="badge bg-dark border border-secondary text-white p-2 text-wrap text-start w-100 w-sm-auto">
+        Głębokość: <span class="text-info" th:text="${fish.habitat.preferredDepthMin != null ? fish.habitat.preferredDepthMin + 'm - ' + fish.habitat.preferredDepthMax + 'm' : 'Brak danych'}"></span>
+    </span>
+
+                            <span class="badge bg-dark border border-secondary text-white p-2 text-wrap text-start w-100 w-sm-auto">
+        Dno: <span class="text-warning" th:text="${fish.habitat.bottomType ?: 'Brak danych'}"></span>
+    </span>
+
+                            <span class="badge bg-dark border border-secondary text-white p-2 text-wrap text-start w-100 w-sm-auto">
+        Strefa: <span class="text-success" th:text="${fish.habitat.feedingLayer ?: 'Brak danych'}"></span>
+    </span>
                         </div>
 
                         <div class="row g-4 mt-2">
@@ -305,18 +330,15 @@
 
                 <section id="przynety" class="content-section glass-panel mb-5">
                     <div class="section-header">
-                        <div class="icon-wrapper bg-red"><i data-lucide="hook"></i></div>
+                        <div class="icon-wrapper bg-red"><i data-lucide="fish"></i></div>
                         <h3>Zabójcze przynęty</h3>
                     </div>
                     <div class="section-body text-muted-pro">
                         <p th:text="${fish.tackleSetup != null && fish.tackleSetup.killerBaits != null ? fish.tackleSetup.killerBaits : 'Brak zweryfikowanych przynęt dla tego gatunku.'}"></p>
 
-                        <div class="custom-alert mt-4" style="background: rgba(56, 189, 248, 0.05); border: 1px dashed rgba(56, 189, 248, 0.4);">
-                            <i data-lucide="palette" class="alert-icon text-accent-blue"></i>
-                            <div>
+                        <div class="custom-alert mt-4">
                                 <h6 class="text-white fw-bold mb-1">Zasady doboru przynęt i kolorów</h6>
                                 <p class="mb-0 fs-7" th:text="${fish.tackleSetup != null && fish.tackleSetup.baitSelectionRules != null ? fish.tackleSetup.baitSelectionRules : 'Eksperymentuj na łowisku – brak wprowadzonych reguł doboru barw.'}"></p>
-                            </div>
                         </div>
                     </div>
                 </section>
