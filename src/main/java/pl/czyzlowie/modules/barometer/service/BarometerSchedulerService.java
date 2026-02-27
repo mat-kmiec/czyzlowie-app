@@ -77,14 +77,12 @@ public class BarometerSchedulerService {
      * - Monitors success and error counts during execution and logs the results.
      * <br>
      * Details:
-     * - The method is triggered automatically upon application startup via {@link ApplicationReadyEvent}.
-     * - It is also scheduled to run every 30 minutes using the defined cron expression.
+     * scheduled to run every 30 minutes using the defined cron expression.
      * <br>
      * Logging:
      * - Logs the start and end of the computation process along with the count of successfully processed stations and errors.
      * - Logs detailed error messages for individual station computation failures.
      */
-    @EventListener(ApplicationReadyEvent.class)
     @Scheduled(cron = "0 0/30 * * * *")
     public void calculateAllBarometerStatsAutomated() {
         log.info("[BAROMETR-JOB] START: Asynchroniczne przeliczanie statystyk...");

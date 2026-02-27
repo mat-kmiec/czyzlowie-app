@@ -32,7 +32,7 @@ public class ImgwDataSceduler {
      * The execution interval is defined and configured externally using the property
      * {@code imgw.scheduler.meteo.html-rate}.
      */
-    @Scheduled(fixedRateString = "${imgw.scheduler.meteo-rate}")
+    @Scheduled(cron = "${imgw.scheduler.meteo.cron:0 0,30 * * * *}")
     public void scheduleMeteoFetch(){
         log.info("Auto-Fetching: METEO start");
         try{
@@ -53,7 +53,7 @@ public class ImgwDataSceduler {
      * The execution interval is defined and configured externally using the property
      * {@code imgw.scheduler.hydro-rate}.
      */
-    @Scheduled(fixedRateString = "${imgw.scheduler.hydro-rate}")
+    @Scheduled(cron = "${imgw.scheduler.hydro.cron:0 0,30 * * * *}")
     public void scheduleHydroFetch(){
         log.info("Auto-Fetching: HYDRO start");
         try{
@@ -74,7 +74,7 @@ public class ImgwDataSceduler {
      * The execution interval is defined and configured externally using the property
      * {@code imgw.scheduler.synop-rate}.
      */
-    @Scheduled(fixedRateString = "${imgw.scheduler.synop-rate}")
+    @Scheduled(cron = "${imgw.scheduler.synop.cron:0 5,20,35,50 * * * *}")
     public void scheduleSynopFetch(){
         log.info("Auto-Fetching: SYNOP start");
         try{
