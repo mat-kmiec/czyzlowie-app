@@ -17,7 +17,7 @@ public interface ImgwSynopStationRepository extends JpaRepository<ImgwSynopStati
     @Query("SELECT s.id AS id, s.latitude AS latitude, s.longitude AS longitude FROM ImgwSynopStation s WHERE s.isActive = true")
     List<StationCoordinatesView> findActiveStationCoordinates();
 
-    @Query("SELECT s FROM ImgwSynopStation s WHERE s.latitude BETWEEN :south AND :north AND s.longitude BETWEEN :west AND :east")
+    @Query("SELECT s FROM ImgwSynopStation s WHERE s.latitude BETWEEN :south AND :north AND s.longitude BETWEEN :west AND :east AND s.isActive = true")
     List<ImgwSynopStation> findInBounds(
             @Param("south") Double south,
             @Param("north") Double north,

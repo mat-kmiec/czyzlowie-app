@@ -12,7 +12,7 @@ import java.util.List;
 @Repository
 public interface ImgwMeteoStationRepository extends JpaRepository<ImgwMeteoStation, String> {
 
-    @Query("SELECT s FROM ImgwMeteoStation s WHERE s.latitude BETWEEN :south AND :north AND s.longitude BETWEEN :west AND :east")
+    @Query("SELECT s FROM ImgwMeteoStation s WHERE s.latitude BETWEEN :south AND :north AND s.longitude BETWEEN :west AND :east AND s.isActive = true")
     List<ImgwMeteoStation> findInBounds(
             @Param("south") Double south,
             @Param("north") Double north,
