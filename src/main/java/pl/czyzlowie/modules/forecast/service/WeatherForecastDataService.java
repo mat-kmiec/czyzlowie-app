@@ -41,7 +41,7 @@ public class WeatherForecastDataService {
     private static final long RATE_LIMIT_PAUSE_MS = 1050L;
     private static final int API_TIMEOUT_SECONDS = 12;
 
-    private static final String API_HOURLY_PARAMS = "temperature_2m,apparent_temperature,rain,weather_code," +
+    private static final String API_HOURLY_PARAMS = "temperature_2m,apparent_temperature,rain,relative_humidity_2m," +
             "cloud_cover,wind_speed_10m,wind_direction_10m,wind_gusts_10m," +
             "pressure_msl,uv_index";
     private static final String API_DAILY_PARAMS = "sunrise,sunset,uv_index_max";

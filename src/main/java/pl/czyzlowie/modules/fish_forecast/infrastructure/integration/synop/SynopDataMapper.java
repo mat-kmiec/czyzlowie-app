@@ -53,7 +53,7 @@ public class SynopDataMapper {
                 .pressure(entity.getPressure())
                 .windSpeed(entity.getWindSpeed())
                 .windDirection(entity.getWindDirection())
-                .humidity(null)
+                .humidity(BigDecimal.valueOf(entity.getRelativeHumidity2m()))
                 .precipitation(entity.getRain())
                 .windGusts(entity.getWindGusts())
                 .apparentTemperature(entity.getApparentTemperature())

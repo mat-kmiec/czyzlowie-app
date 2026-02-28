@@ -23,6 +23,7 @@
     <include file="db/changelog/releases/v1-0-0/17-drop-old-fish-and-solunar-tables.xml"/>
     <include file="db/changelog/releases/v1-0-0/16-create-fish-schema.xml"/>
     <include file="db/changelog/releases/v1-0-0/18-create-barometer-stats-schema.xml"/>
+    <include file="db/changelog/releases/v1-0-0/19-replace-weather-code-with-humidity.xml"/>
 
 
 </databaseChangeLog>
