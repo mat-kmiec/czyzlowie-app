@@ -96,8 +96,8 @@ public class OpenMeteoResponse {
         @JsonProperty("rain")
         private Double rain;
 
-        @JsonProperty("weather_code")
-        private Integer weatherCode;
+        @JsonProperty("relative_humidity_2m")
+        private Integer relativeHumidity2m;
     }
 
     /**
@@ -146,8 +146,8 @@ public class OpenMeteoResponse {
         @JsonProperty("cloud_cover")
         private List<Integer> cloudCover;
 
-        @JsonProperty("weather_code")
-        private List<Integer> weatherCode;
+        @JsonProperty("relative_humidity_2m")
+        private List<Integer> relativeHumidity2m;
 
         @JsonProperty("wind_speed_10m")
         private List<Double> windSpeed10m;

@@ -32,6 +32,11 @@ public class TestController {
         return "error/error";
     }
 
+    @GetMapping("/prognoza")
+    public String prognoza(){
+        return "fish-algorithm/alg";
+    }
+
 
 
 

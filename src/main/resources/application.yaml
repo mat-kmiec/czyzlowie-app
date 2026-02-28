@@ -56,13 +56,15 @@ imgw:
     meteo-url: https://danepubliczne.imgw.pl/api/data/meteo
     synop-url: https://danepubliczne.imgw.pl/api/data/synop
     hydro-url: https://danepubliczne.imgw.pl/api/data/hydro
+  # Co 30 minut, równo z zegarem
   scheduler:
-    # Meteo: 10 min
-    meteo-rate: 600000
-    # Hydro: 15 min
-    hydro-rate: 900000
-    # Synop: 30min
-    synop-rate: 1800000
+    meteo:
+      cron: 0 0,30 * * * *
+    hydro:
+      cron: 0 0,30 * * * *
+    synop:
+      cron: 0 5,20,35,50 * * * *
+
 forecast:
   api:
     url: "https://api.open-meteo.com/v1/forecast"

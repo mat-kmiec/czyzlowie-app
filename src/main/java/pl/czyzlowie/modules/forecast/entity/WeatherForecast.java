@@ -1,5 +1,6 @@
 package pl.czyzlowie.modules.forecast.entity;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.*;
 import pl.czyzlowie.modules.imgw_api.entity.ImgwSynopStation;
@@ -79,8 +80,8 @@ public class WeatherForecast {
     @Column(name = "cloud_cover_pct")
     private Integer cloudCover;
 
-    @Column(name = "weather_code")
-    private Integer weatherCode;
+    @Column(name = "humidity_pct")
+    private Integer relativeHumidity2m;
 
     @Column(name = "uv_index")
     private BigDecimal uvIndex;

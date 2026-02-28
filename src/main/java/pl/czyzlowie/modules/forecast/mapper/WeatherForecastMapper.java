@@ -121,7 +121,7 @@ public interface WeatherForecastMapper {
             entity.setApparentTemperature(toBigDecimal(getSafe(hourly.getApparentTemperature(), i)));
             entity.setWindDirection(getSafe(hourly.getWindDirection10m(), i));
             entity.setCloudCover(getSafe(hourly.getCloudCover(), i));
-            entity.setWeatherCode(getSafe(hourly.getWeatherCode(), i));
+            entity.setRelativeHumidity2m(getSafe(hourly.getRelativeHumidity2m(), i));
 
             list.add(entity);
         }
