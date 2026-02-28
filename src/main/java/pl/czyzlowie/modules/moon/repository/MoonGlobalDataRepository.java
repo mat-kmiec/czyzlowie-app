@@ -22,6 +22,5 @@ public interface MoonGlobalDataRepository extends JpaRepository<MoonGlobalData, 
     Set<LocalDate> findExistingDatesBetween(@Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate);
 
     Optional<MoonGlobalData> findByCalculationDate(LocalDate date);
-
     List<MoonGlobalData> findByCalculationDateBetweenOrderByCalculationDateAsc(LocalDate startDate, LocalDate endDate);
 }

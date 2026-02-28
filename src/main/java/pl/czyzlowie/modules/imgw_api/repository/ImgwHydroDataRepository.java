@@ -32,4 +32,16 @@ public interface ImgwHydroDataRepository extends JpaRepository<ImgwHydroData, Lo
 
     List<ImgwHydroData> findByStationIdAndWaterLevelDateBetweenOrderByWaterLevelDateAsc(
             String stationId, LocalDateTime startDate, LocalDateTime endDate);
+
+
+    @Query("SELECT h FROM ImgwHydroData h " +
+                "WHERE h.station.id = :stationId " +
+                "AND h.waterLevelDate >= :startTime " +
+                "AND h.waterLevelDate <= :endTime " +
+                "ORDER BY h.waterLevelDate ASC")
+    List<ImgwHydroData> findByStationIdAndDateRange(
+                @Param("stationId") Long stationId,
+                @Param("startTime") LocalDateTime startTime,
+                @Param("endTime") LocalDateTime endTime
+        );
 }

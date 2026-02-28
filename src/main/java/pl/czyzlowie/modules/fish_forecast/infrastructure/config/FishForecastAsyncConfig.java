@@ -20,4 +20,14 @@ public class FishForecastAsyncConfig {
         executor.initialize();
         return executor;
     }
+
+    @Bean(name = "dataFetchExecutor")
+    public Executor dataFetchExecutor(){
+        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+        executor.setCorePoolSize(10);
+        executor.setMaxPoolSize(20);
+        executor.setThreadNamePrefix("DataFetch-");
+        executor.initialize();
+        return executor;
+    }
 }

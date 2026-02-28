@@ -23,6 +23,17 @@ public interface ImgwMeteoDataRepository extends JpaRepository<ImgwMeteoData, Lo
             ")")
     List<ImgwMeteoData> findLatestDataForStations(@Param("stationIds") Collection<String> stationIds);
 
+    @Query("SELECT m FROM ImgwMeteoData m " +
+            "WHERE m.station.id = :stationId " +
+            "AND m.createdAt >= :startTime " +
+            "AND m.createdAt <= :endTime " +
+            "ORDER BY m.createdAt ASC")
+    List<ImgwMeteoData> findHistoryForForecast(
+            @Param("stationId") Long stationId,
+            @Param("startTime") LocalDateTime startTime,
+            @Param("endTime") LocalDateTime endTime
+    );
+
 
     List<ImgwMeteoData> findByStationIdAndCreatedAtBetweenOrderByCreatedAtAsc(String stationId, LocalDateTime start, LocalDateTime end);
 }

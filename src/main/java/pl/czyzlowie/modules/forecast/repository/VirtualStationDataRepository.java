@@ -48,4 +48,7 @@ public interface VirtualStationDataRepository extends JpaRepository<VirtualStati
             LocalDateTime start,
             LocalDateTime end
     );
+
+    @Query("SELECT v FROM VirtualStationData v WHERE v.virtualStation.id = :stationId AND v.measurementTime >= :startTime AND v.measurementTime <= :endTime ORDER BY v.measurementTime ASC")
+    List<VirtualStationData> findHistory(@Param("stationId") Long stationId, @Param("startTime") LocalDateTime startTime, @Param("endTime") LocalDateTime endTime);
 }

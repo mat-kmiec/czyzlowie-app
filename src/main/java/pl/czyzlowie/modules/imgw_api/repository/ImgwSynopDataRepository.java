@@ -8,6 +8,7 @@ import pl.czyzlowie.modules.barometer.dto.PressurePoint;
 import pl.czyzlowie.modules.imgw_api.entity.ImgwSynopData;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -42,5 +43,9 @@ public interface ImgwSynopDataRepository extends JpaRepository<ImgwSynopData, Lo
     List<ImgwSynopData> findByStationIdAndMeasurementDateOrderByMeasurementHourAsc(String stationId, LocalDate date);
 
     List<ImgwSynopData> findByStationIdAndMeasurementDateBetweenOrderByMeasurementDateAscMeasurementHourAsc(String stationId, LocalDate startDate, LocalDate endDate);
+
+    @Query("SELECT s FROM ImgwSynopData s WHERE s.station.id = :stationId AND s.createdAt >= :startTime AND s.createdAt <= :endTime ORDER BY s.createdAt ASC")
+    List<ImgwSynopData> findHistory(@Param("stationId") Long stationId, @Param("startTime") LocalDateTime startTime, @Param("endTime") LocalDateTime endTime);
 }
+
 
