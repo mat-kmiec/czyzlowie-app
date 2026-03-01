@@ -1,6 +1,7 @@
 package pl.czyzlowie.modules.fish_forecast.infrastructure.integration.moon;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import pl.czyzlowie.modules.fish_forecast.domain.model.MoonSnapshot;
@@ -18,6 +19,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class MoonIntegrationService {
 
     private final MoonGlobalDataRepository globalRepository;
@@ -31,13 +33,23 @@ public class MoonIntegrationService {
         LocalDate targetDate = targetTime.toLocalDate();
         LocalDate startDate = targetDate.minusDays(HISTORY_DAYS);
         LocalDate endDate = targetDate.plusDays(FORECAST_DAYS);
+
         List<MoonGlobalData> globalData = globalRepository.findByCalculationDateBetweenOrderByCalculationDateAsc(startDate, endDate);
 
         List<MoonStationData> stationData = List.of();
+
         if (stationId != null && stationType != null) {
-            stationData = stationRepository.findByIdStationIdAndIdStationTypeAndIdCalculationDateBetweenOrderByIdCalculationDateAsc(
-                    stationId, stationType, startDate, endDate
-            );
+
+            String dbStationType = switch (stationType.toUpperCase()) {
+                case "SYNOPTIC", "SYNOP" -> "SYNOP";
+                case "VIRTUAL" -> "VIRTUAL";
+                default -> stationType;
+            };
+
+            log.info("Szukam danych stacji w bazie - ID: {}, Zmapowany Typ: {}, Od: {}, Do: {}",
+                    stationId, dbStationType, startDate, endDate);
+
+            stationData = stationRepository.findStationTimeline(stationId, dbStationType, startDate, endDate);
         }
 
         Map<LocalDate, MoonStationData> stationDataByDate = stationData.stream()

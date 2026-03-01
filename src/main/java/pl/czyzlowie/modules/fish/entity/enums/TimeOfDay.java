@@ -1,23 +1,31 @@
 package pl.czyzlowie.modules.fish.entity.enums;
 
 /**
- * Represents the specific period within a 24-hour cycle and its relevance to fish feeding patterns.
+ * Represents different periods of the day and their influence on fish activity and behavior.
  *
- * This enum is utilized by the algorithm to identify the peak activity windows for
- * various species. Many fish exhibit circadian rhythms, such as being crepuscular
- * (active at dawn and dusk), nocturnal, or diurnal.
+ * This enum is intended to provide a standardized categorization of time-based environmental
+ * factors for use across various application modules such as activity forecasting, tackle
+ * recommendations, and fish behavior modeling. Different species exhibit varying activity
+ * levels depending on the time of day due to changes in light, temperature, and predation risks.
  *
  * Values:
- * - DAWN: The period of first light and sunrise, often a high-activity window for predators.
- * - DAY: The period of full daylight between sunrise and sunset.
- * - DUSK: The period of fading light and sunset, a critical transition time for many species.
- * - NIGHT: The period of darkness, preferred by nocturnal hunters like catfish or burbot.
- * - ANY: Indicates that the species can be caught with similar effectiveness at any time.
+ * - DAWN: The transition from night to day, characterized by low light conditions and often
+ *   heightened activity in both predators and prey.
+ * - DAY: The main daylight period, usually associated with normal feeding and movement patterns.
+ * - DUSK: The transition from day to night, featuring low light conditions similar to dawn,
+ *   triggering activity in certain nocturnal and crepuscular species.
+ * - MORNING: The early portion of the day before midday, often a prime time for fishing due to
+ *   cooler water temperatures and increased fish movement.
+ * - NIGHT: The nocturnal period; while most fish species reduce activity, some, such as catfish,
+ *   exhibit peak feeding behaviors during this time.
+ * - ANY: Indicates that a species or scenario is not significantly influenced by a specific time
+ *   of day and exhibits consistent behavior throughout the daily cycle.
  */
 public enum TimeOfDay {
     DAWN,
     DAY,
     DUSK,
+    MORNING,
     NIGHT,
     ANY
 }
