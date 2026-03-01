@@ -22,8 +22,14 @@ public interface MoonStationDataRepository extends JpaRepository<MoonStationData
 
     @Query("SELECT m.id FROM MoonStationData m WHERE m.id.calculationDate BETWEEN :startDate AND :endDate")
     Set<MoonStationDataId> findExistingIdsBetween(@Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate);
-    List<MoonStationData> findByIdStationIdAndIdStationTypeAndIdCalculationDateBetweenOrderByIdCalculationDateAsc(
-            String stationId, String stationType, LocalDate startDate, LocalDate endDate
+
+    @Query("SELECT m FROM MoonStationData m WHERE m.id.stationId = :stationId AND m.id.stationType = :stationType AND m.id.calculationDate BETWEEN :startDate AND :endDate ORDER BY m.id.calculationDate ASC")
+    List<MoonStationData> findStationTimeline(
+            @Param("stationId") String stationId,
+            @Param("stationType") String stationType,
+            @Param("startDate") LocalDate startDate,
+            @Param("endDate") LocalDate endDate
     );
-    Optional<MoonStationData> findById_StationIdAndId_CalculationDate(String stationId, LocalDate date);
+
+    Optional<MoonStationData> findByIdStationIdAndIdCalculationDate(String stationId, LocalDate date);
 }

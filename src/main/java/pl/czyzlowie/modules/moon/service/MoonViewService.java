@@ -48,7 +48,7 @@ public class MoonViewService {
             log.info("Dla punktu [{}, {}] w dniu {} dopasowano stację księżycową: {}",
                     targetLat, targetLon, date, nearest.stationId());
 
-            return stationDataRepo.findById_StationIdAndId_CalculationDate(nearest.stationId(), date)
+            return stationDataRepo.findByIdStationIdAndIdCalculationDate(nearest.stationId(), date)
                     .orElse(null);
 
         } catch (Exception e) {

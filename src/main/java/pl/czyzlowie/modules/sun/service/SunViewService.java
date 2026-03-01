@@ -46,8 +46,8 @@ public class SunViewService {
             log.info("Dla punktu [{}, {}] w dniu {} dopasowano stację słoneczną: {}",
                     targetLat, targetLon, date, nearest.stationId());
 
-            Optional<MoonStationData> todayDataOpt = stationDataRepo.findById_StationIdAndId_CalculationDate(nearest.stationId(), date);
-            Optional<MoonStationData> yesterdayDataOpt = stationDataRepo.findById_StationIdAndId_CalculationDate(nearest.stationId(), date.minusDays(1));
+            Optional<MoonStationData> todayDataOpt = stationDataRepo.findByIdStationIdAndIdCalculationDate(nearest.stationId(), date);
+            Optional<MoonStationData> yesterdayDataOpt = stationDataRepo.findByIdStationIdAndIdCalculationDate(nearest.stationId(), date.minusDays(1));
 
             if (todayDataOpt.isEmpty() || todayDataOpt.get().getSunrise() == null || todayDataOpt.get().getSunset() == null) {
                 log.warn("Brak pełnych danych słonecznych dla stacji {} w dniu {}", nearest.stationId(), date);
