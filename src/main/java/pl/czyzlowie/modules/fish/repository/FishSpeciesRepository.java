@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
 import pl.czyzlowie.modules.fish.entity.FishSpecies;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -34,4 +35,7 @@ public interface FishSpeciesRepository extends JpaRepository<FishSpecies, Long>,
             "activityCalendar"
     })
     Optional<FishSpecies> findBySlug(String slug);
+
+    @EntityGraph(attributePaths = {"algorithmParams"})
+    List<FishSpecies> findByIdIn(List<Long> ids);
 }

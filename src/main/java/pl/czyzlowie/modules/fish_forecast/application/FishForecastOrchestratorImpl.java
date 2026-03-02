@@ -6,6 +6,7 @@ import pl.czyzlowie.modules.barometer.entity.StationType;
 import pl.czyzlowie.modules.fish_forecast.api.dto.FishForecastRequestDto;
 import pl.czyzlowie.modules.fish_forecast.api.dto.FishForecastResponseDto;
 import pl.czyzlowie.modules.fish_forecast.domain.model.*;
+import pl.czyzlowie.modules.fish_forecast.infrastructure.integration.fish.FishProfileIntegrationService;
 import pl.czyzlowie.modules.fish_forecast.infrastructure.integration.hydro.HydroIntegrationService;
 import pl.czyzlowie.modules.fish_forecast.infrastructure.integration.location.LocationIntegrationService;
 import pl.czyzlowie.modules.fish_forecast.infrastructure.integration.location.NearestStations;
@@ -25,9 +26,13 @@ public class FishForecastOrchestratorImpl implements FishForecastOrchestrator {
     private final MeteoIntegrationService meteoIntegrationService;
     private final MoonIntegrationService moonIntegrationService;
     private final SynopIntegrationService synopIntegrationService;
+    private final FishProfileIntegrationService fishProfileIntegrationService;
 
     @Override
     public CompletableFuture<FishForecastResponseDto> calculateFishForecast(FishForecastRequestDto req) {
+
+        CompletableFuture<List<FishProfile>> profilesFuture = fishProfileIntegrationService
+                .fetchTargetProfiles(req.targetFishSpeciesIds());
 
         CompletableFuture<NearestStations> stationsFuture = locationIntegrationService
                 .findNearestStations(req.lat(), req.lon(), req.ignoreHydro());
@@ -71,12 +76,15 @@ public class FishForecastOrchestratorImpl implements FishForecastOrchestrator {
                     );
         });
 
-        return weatherContextFuture.thenApply(context -> {
+        return weatherContextFuture.thenCombine(profilesFuture, (context, profiles) -> {
             System.out.println("\n=======================================================");
             System.out.println("             ZBUDOWANO PEŁNY KONTEKST POGODOWY           ");
             System.out.println("=======================================================\n");
 
-            System.out.println("--- PRZYGOTOWANE DANE HYDRO (Chronologicznie -, +) ---");
+            System.out.println("--- PRZYGOTOWANE PROFILE RYB ---");
+            profiles.forEach(p -> System.out.println("Id: " + p.id() + " | Nazwa: " + p.name() + " | Tryb ogólnej biomasy: " + p.isGeneralBiomass()));
+
+            System.out.println("\n--- PRZYGOTOWANE DANE HYDRO (Chronologicznie -, +) ---");
             if (context.hydroTimeline().isEmpty()) {
                 System.out.println("Brak danych hydro (lub zignorowano).");
             } else {
