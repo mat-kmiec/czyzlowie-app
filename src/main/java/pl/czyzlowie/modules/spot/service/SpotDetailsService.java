@@ -21,6 +21,14 @@
         private final SpotDetailsMapper spotDetailsMapper;
 
 
+        /**
+         * Retrieves the details of a spot based on its slug and type.
+         *
+         * @param slug the unique identifier (slug) of the spot
+         * @param type the type of the spot (e.g., lake, river, commercial, etc.)
+         * @return a {@link SpotDetailsDto} containing the details of the requested spot
+         * @throws EntityNotFoundException if the spot with the specified slug and type is not found
+         */
         @Transactional(readOnly = true)
         public SpotDetailsDto getSpotDetailsBySlugAndType(String slug, SpotType type) {
             log.debug("Szukam w bazie: slug={}, type={}", slug, type);

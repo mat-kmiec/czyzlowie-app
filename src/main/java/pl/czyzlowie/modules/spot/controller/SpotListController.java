@@ -17,6 +17,20 @@ import pl.czyzlowie.modules.spot.service.SpotListService;
 
 import java.util.List;
 
+/**
+ * SpotListController is a Spring MVC controller responsible for handling requests
+ * related to displaying a filtered, paginated list of spots.
+ * It processes incoming requests, applies the necessary filters, and prepares
+ * the data to be rendered on the "spots-list" view.
+ *
+ * The class uses dependency injection to utilize the SpotListService for
+ * retrieving filtered spot data.
+ *
+ * Request mappings:
+ * - "/lowiska": Displays the full list of spots.
+ * - "/lowiska/{urlPath}": Displays a filtered list of spots based on the type
+ *   derived from the provided URL path.
+ */
 @Controller
 @RequestMapping("/lowiska")
 @RequiredArgsConstructor
@@ -24,6 +38,17 @@ public class SpotListController {
 
     private final SpotListService spotListService;
 
+    /**
+     * Handles requests to retrieve and display a list of spots based on the provided filters, pagination options,
+     * and optional URL path to determine the spot type.
+     *
+     * @param urlPath an optional path variable used to identify the type of spots to filter; if null or blank,
+     *                no specific type filtering is applied
+     * @param filter an object containing filtering criteria for the spots (e.g., type, properties)
+     * @param pageable pageable information to handle pagination and sorting (e.g., page size, sort criteria)
+     * @param model a holder for attributes that need to be passed to the view for rendering
+     * @return the name of the view template (spots-list) to render the list of spots
+     */
     @GetMapping({"", "/{urlPath}"})
     public String listSpots(
             @PathVariable(required = false) String urlPath,
