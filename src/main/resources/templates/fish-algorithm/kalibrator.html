@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pl">
+<head>
+    <th:block th:replace="~{fragments/head :: head-content(
+        pageTitle='Dokładna Prognoza Brań Ryb - Kalibrator Algorytmu | CzyZlowie',
+        pageDescription='Sprawdź, czy ryby biorą! Skonfiguruj zaawansowany algorytm wędkarski. Wybierz łowisko, gatunek ryby i sprawdź aktywność na podstawie danych IMGW i faz księżyca.'
+    )}"></th:block>
+
+    <link rel="stylesheet" th:href="@{/css/algo-calibration.css}">
+    <script th:src="@{/js/fish-forecast/fish-forecast-in.js}" defer></script>
+
+    <script type="application/ld+json">
+        {
+            "@context": "https://schema.org",
+            "@type": "WebApplication",
+            "name": "Kalibrator Algorytmu Brań - CzyZlowie",
+            "url": "https://twojadomena.pl/prognoza/kalibrator",
+            "applicationCategory": "SportsApplication",
+            "operatingSystem": "All",
+            "description": "Zaawansowany kalkulator i kalendarz brań wędkarskich. Analizuje ciśnienie, fazy księżyca, poziom wody oraz dane telemetryczne IMGW dla konkretnych łowisk i gatunków ryb w Polsce.",
+            "offers": {
+                "@type": "Offer",
+                "price": "0",
+                "priceCurrency": "PLN"
+            },
+            "featureList": [
+                "Prognoza brań na jeziora i rzeki",
+                "Analiza ciśnienia atmosferycznego i warunków IMGW",
+                "Kalendarz brań dla drapieżników i białorybu",
+                "Fazy księżyca i złota godzina"
+            ]
+        }
+    </script>
+</head>
+<body class="algo-page">
+
+<nav th:replace="~{fragments/navbar :: navbar}"></nav>
+
+<div class="algo-bg-container" aria-hidden="true">
+    <picture>
+        <img src="/assets/drapiezniki.jpg" alt="Wędkarska prognoza brań - inteligentny algorytm łowiska" class="algo-bg-image" loading="eager">
+    </picture>
+    <div class="algo-bg-overlay"></div>
+    <div class="algo-glow glow-top-left"></div>
+    <div class="algo-glow glow-bottom-right"></div>
+</div>
+
+<div id="fishing-loader">
+    <div class="echo-screen">
+        <div class="water-surface"></div>
+        <div class="loader-boat"><i data-lucide="ship" style="width: 40px; height: 40px;"></i></div>
+        <div class="sonar-wave"></div><div class="sonar-wave"></div><div class="sonar-wave"></div>
+        <i data-lucide="fish" class="loader-fish f1" id="lf1" style="width: 24px;"></i>
+        <i data-lucide="fish" class="loader-fish f2" id="lf2" style="width: 32px;"></i>
+        <i data-lucide="fish" class="loader-fish f3" id="lf3" style="width: 20px;"></i>
+    </div>
+    <div id="loading-title" class="h2 fw-black text-white mb-2 text-center text-uppercase loader-title">Echosonda Skanuje</div>
+    <div id="loading-desc" class="text-secondary fs-7 font-monospace mb-4 text-center px-3">Analiza warunków batymetrycznych...</div>
+    <div class="progress-container">
+        <i data-lucide="anchor" class="progress-hook" id="loading-hook" style="width: 16px;"></i>
+        <div class="progress-track"><div class="progress-bar" id="loading-bar"></div></div>
+    </div>
+</div>
+
+<main class="container-xl position-relative z-2 pb-5" style="margin-top: 90px;">
+
+    <header class="algo-glass-panel p-3 p-md-4 p-lg-5 mb-4 h-auto">
+        <div class="row align-items-center g-4">
+            <div class="col-lg-8">
+                <div class="d-flex align-items-center gap-3 mb-2">
+                    <div class="icon-wrapper">
+                        <i data-lucide="activity" class="text-brand-green" style="width: 28px; height: 28px;"></i>
+                    </div>
+                    <h1 class="display-6 fw-black text-white mb-0 header-title">Prognoza Brań: </h1>
+                </div>
+                <p class="fs-6 mb-0 ps-1 text-secondary-custom">
+                    Skonfiguruj parametry swojego łowiska. Nasz wędkarski silnik przeanalizuje odczyty IMGW, modele pogodowe Open-Meteo i dopasuje kalendarz brań bezpośrednio do preferencji wybranego gatunku ryby.
+                </p>
+            </div>
+        </div>
+    </header>
+
+    <form th:action="@{/prognoza/wynik}" method="POST" id="algoForm">
+        <div class="row g-4">
+
+            <div class="col-xl-4 d-flex flex-column gap-4">
+
+                <div class="algo-glass-panel p-3 p-md-4 h-auto">
+                    <h2 class="section-header m-0 mb-4"><i data-lucide="map-pin" class="text-brand-green"></i> 1. Lokalizacja Łowiska</h2>
+
+                    <div class="location-input-group mb-3">
+                        <i data-lucide="search" class="input-icon"></i>
+                        <input type="text" name="location" id="locationInput" class="algo-input" placeholder="Wpisz wodę lub miasto..." aria-label="Wyszukaj łowisko wędkarskie lub miejscowość" required>
+                        <button type="button" id="btn-gps-live" class="btn-gps-quick" aria-label="Użyj mojej lokalizacji GPS" title="Użyj mojej lokalizacji GPS">
+                            <i data-lucide="crosshair"></i>
+                        </button>
+                    </div>
+
+                    <button type="button" id="btn-geocode" class="btn-scan-coords mb-2">
+                        <i data-lucide="radar" id="btn-geocode-icon" style="width: 18px;"></i>
+                        <span id="btn-geocode-text">Zatwierdź współrzędne</span>
+                    </button>
+
+                    <input type="hidden" name="lat" id="latInput">
+                    <input type="hidden" name="lon" id="lonInput">
+                    <input type="hidden" name="targetTime" id="targetTimeInput">
+
+                    <div id="geo-status" class="geo-status text-center" aria-live="polite">
+                        <i data-lucide="check-circle" style="width: 14px; margin-right: 4px;"></i> <span>Koordynaty zapisane!</span>
+                    </div>
+                </div>
+
+                <div class="algo-glass-panel p-3 p-md-4 flex-grow-1">
+                    <h2 class="section-header m-0 mb-4"><i data-lucide="sliders" class="text-brand-green"></i> 2. Konfiguracja Algorytmu</h2>
+
+                    <div class="fs-8 text-uppercase mb-3 ps-1 mt-2 text-ignore-orange ls-1 fw-bold">Filtry Wykluczające</div>
+                    <div class="algo-switch-wrapper mb-0">
+                        <input class="algo-switch switch-ignore" type="checkbox" id="ignoreHydro" name="ignoreHydro" aria-label="Ignoruj pomiary wód płynących IMGW">
+                        <div>
+                            <label for="ignoreHydro" class="switch-title mb-1 cursor-pointer"><i data-lucide="waves"></i> Ignoruj IMGW Hydro</label>
+                            <div class="switch-desc">Odcina pomiary z rzek. Zaznacz, jeśli łowisz na zamkniętym jeziorze lub stawie.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xl-8 d-flex flex-column gap-4">
+
+                <div class="algo-glass-panel p-3 p-md-4 flex-grow-1">
+                    <h2 class="section-header justify-content-between m-0 mb-4">
+                        <div class="d-flex align-items-center gap-2"><i data-lucide="target" class="text-brand-green"></i> 3. Cel Połowu (Gatunek Ryby)</div>
+                    </h2>
+
+                    <div class="alert mb-4 py-3 px-3 d-flex gap-3 align-items-start alert-custom">
+                        <i data-lucide="info" class="text-brand-green flex-shrink-0 mt-1"></i>
+                        <div>
+                            <strong class="text-white d-block mb-1">Informacja o wskaźniku brań:</strong>
+                            <p class="mb-0 fs-7 text-secondary-custom">
+                                Wybierz <strong>maksymalnie jeden gatunek</strong>, aby uruchomić precyzyjne wagi biologiczne.
+                                <span class="text-white fw-bold">Niewybranie żadnego gatunku</span> wygeneruje ogólną prognozę żerowania dla całego łowiska.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="row g-4">
+                        <div class="col-md-6">
+                            <h3 class="h6 fw-bold mb-3 d-flex align-items-center gap-2 category-title-predator">
+                                <i data-lucide="swords" style="width:16px;"></i> Ryby Drapieżne
+                            </h3>
+                            <div class="fish-grid">
+                                <th:block th:each="fish : ${allFish}" th:if="${fish.category.name() == 'PREDATOR'}">
+                                    <label class="fish-card card-predator">
+                                        <input type="checkbox" class="fish-selector" name="targetFishSpeciesIds" th:value="${fish.id}">
+                                        <div>
+                                            <i data-lucide="fish"></i> <span th:text="${fish.name}">Nazwa Ryby</span>
+                                        </div>
+                                    </label>
+                                </th:block>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6 border-start-md fish-border-divider">
+                            <h3 class="h6 fw-bold mb-3 d-flex align-items-center gap-2 ps-md-2 category-title-peaceful">
+                                <i data-lucide="leaf" style="width:16px;"></i> Ryby Spokojnego Żeru
+                            </h3>
+                            <div class="fish-grid ps-md-2">
+                                <th:block th:each="fish : ${allFish}" th:if="${fish.category.name() == 'PEACEFUL'}">
+                                    <label class="fish-card card-whitefish">
+                                        <input type="checkbox" class="fish-selector" name="targetFishSpeciesIds" th:value="${fish.id}">
+                                        <div>
+                                            <i data-lucide="fish"></i> <span th:text="${fish.name}">Nazwa Ryby</span>
+                                        </div>
+                                    </label>
+                                </th:block>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-auto pt-5">
+                        <button type="submit" class="btn-launch" id="btn-submit-scan" aria-label="Uruchom skanowanie i generuj prognozę brań">
+                            <span class="btn-launch-content">
+                                <i data-lucide="cpu" style="width: 22px;"></i> Generuj Prognozę Brań
+                            </span>
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </form>
+</main>
+
+<footer th:replace="~{fragments/footer :: footer}"></footer>
+
+</body>
+</html>

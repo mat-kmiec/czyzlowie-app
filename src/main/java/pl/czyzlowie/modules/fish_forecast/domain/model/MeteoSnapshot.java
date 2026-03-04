@@ -26,18 +26,12 @@ import java.time.LocalDateTime;
 @Builder
 public record MeteoSnapshot(
         LocalDateTime timestamp,
-
-        // --- Temperatures ---
         BigDecimal airTemperature,
         BigDecimal groundTemperature,
-
-        // --- Wind Metrics ---
         Integer windDirection,
         BigDecimal windAverageSpeed,
         BigDecimal windMaxSpeed,
         BigDecimal windGust,
-
-        // --- Moisture & Precipitation ---
         BigDecimal humidity,
         BigDecimal precipitation10min
 ) {}

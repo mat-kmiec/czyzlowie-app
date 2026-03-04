@@ -29,21 +29,14 @@ import java.time.LocalDateTime;
  */
 @Builder
 public record MoonSnapshot(
-        // --- Index ---
         LocalDate date,
-
-        // --- Global Lunar Properties ---
         String phaseName,
         BigDecimal illuminationPct,
         BigDecimal moonAgeDays,
         Boolean isSuperMoon,
-
-        // --- Localized Lunar Events ---
         LocalDateTime moonrise,
         LocalDateTime moonset,
         LocalDateTime transit,
-
-        // --- Localized Solar Events ---
         LocalDateTime sunrise,
         LocalDateTime sunset
 ) {}
