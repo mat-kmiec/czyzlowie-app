@@ -18,6 +18,39 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * SunViewService is a service class responsible for calculating and providing solar schedules
+ * and phases based on location and date inputs. The class integrates with external repositories
+ * and services to fetch necessary data and perform calculations to determine sun phases, timings,
+ * and daylight-related information.
+ *
+ * It includes the following main functionalities:
+ * - Fetching the nearest station based on provided geographic coordinates.
+ * - Retrieving solar and astronomical data for specified dates from repositories.
+ * - Calculating various solar phases such as sunrise, sunset, nautical twilight, civil twilight,
+ *   and golden hours.
+ * - Determining daylight status and calculating other time-based information such as day length
+ *   differences, formatted timings, and fishing timelines.
+ *
+ * Notable constants:
+ * - DEFAULT_LAT and DEFAULT_LON: Fallback geographical coordinates.
+ * - NAUTICAL_TWILIGHT_MIN, CIVIL_TWILIGHT_MIN, etc.: Constants defining time ranges for various
+ *   solar phases.
+ * - TIME_FORMATTER: Defines the format used to represent time data.
+ *
+ * Error Handling:
+ * - The service returns an empty data transfer object (SunScheduleDto) in case of missing or
+ *   incomplete solar data.
+ * - Exceptions during processing or data fetching are logged and handled gracefully to ensure
+ *   service reliability.
+ *
+ * Dependencies:
+ * - MoonStationDataRepository: Repository for fetching solar and station data.
+ * - LocationFinderService: Service for determining the nearest weather station based on
+ *   geographical data.
+ * - SunScheduleDto and related classes such as DaylightStatus, SunPhases, and TimelineEventDto
+ *   are used for encapsulating calculated solar information and timelines.
+ */
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -34,6 +67,14 @@ public class SunViewService {
     private static final int GOLDEN_HOUR_MIN = 60;
     private static final int ZENITH_WINDOW_MIN = 60;
 
+    /**
+     * Retrieves the sun schedule for a specific date and location.
+     *
+     * @param lat the latitude of the desired location. If null, a default latitude is used.
+     * @param lon the longitude of the desired location. If null, a default longitude is used.
+     * @param date the date for which the sun schedule is requested.
+     * @return a SunScheduleDto object containing the sun schedule details. Returns an empty SunScheduleDto if data is unavailable or an error occurs.
+     */
     public SunScheduleDto getSunScheduleForDate(Double lat, Double lon, LocalDate date) {
         double targetLat = (lat != null) ? lat : DEFAULT_LAT;
         double targetLon = (lon != null) ? lon : DEFAULT_LON;
@@ -62,6 +103,16 @@ public class SunViewService {
         }
     }
 
+    /**
+     * Calculates the sun schedule for the given date based on provided moon station data and
+     * returns a DTO containing sun phase timings, day length information, and related metadata.
+     *
+     * @param today the MoonStationData object containing sunrise, sunset, and day length information for the selected date
+     * @param yesterday the MoonStationData object containing sunrise, sunset, and day length information for the previous date
+     * @param selectedDate the LocalDate representing the selected date for which the sun schedule is to be calculated
+     * @return a SunScheduleDto object containing computed sunrise, sunset, zenith, various dawn and dusk timings,
+     *         formatted day length, daylight status, and additional information for the selected date
+     */
     private SunScheduleDto calculateSunSchedule(MoonStationData today, MoonStationData yesterday, LocalDate selectedDate) {
         SunPhases phases = calculatePhases(today.getSunrise(), today.getSunset());
         long todayDayLength = today.getDayLengthSec() != null ? today.getDayLengthSec() : Duration.between(phases.sunrise(), phases.sunset()).getSeconds();
@@ -90,6 +141,14 @@ public class SunViewService {
                 .build();
     }
 
+    /**
+     * Calculates the different phases of the sun based on the given sunrise and sunset times.
+     *
+     * @param sunrise the LocalDateTime representing the sunrise time
+     * @param sunset the LocalDateTime representing the sunset time
+     * @return a SunPhases object containing the calculated phases such as nautical dawn, civil dawn, sunrise,
+     *         morning golden end, zenith, evening golden start, sunset, civil dusk, and nautical dusk
+     */
     private SunPhases calculatePhases(LocalDateTime sunrise, LocalDateTime sunset) {
         long halfDaySec = Duration.between(sunrise, sunset).getSeconds() / 2;
         LocalDateTime zenith = sunrise.plusSeconds(halfDaySec);
@@ -107,6 +166,16 @@ public class SunViewService {
         );
     }
 
+    /**
+     * Determines the daylight status based on the current time in relation to the provided sunrise and sunset times.
+     *
+     * @param isToday a boolean indicating whether the day being checked is today;
+     *                if false, the method assumes there is no daylight.
+     * @param sunrise the LocalDateTime representing the sunrise time.
+     * @param sunset the LocalDateTime representing the sunset time.
+     * @return a DaylightStatus object indicating whether it is currently daylight and,
+     *         if so, the formatted time remaining until sunset; otherwise, indicates no daylight.
+     */
     private DaylightStatus checkDaylightStatus(boolean isToday, LocalDateTime sunrise, LocalDateTime sunset) {
         if (!isToday) {
             return new DaylightStatus(false, "");
@@ -121,18 +190,41 @@ public class SunViewService {
         return new DaylightStatus(false, "");
     }
 
+    /**
+     * Calculates the difference in day length between today and yesterday in minutes.
+     *
+     * @param todaySec the duration of daylight today in seconds
+     * @param yesterdaySec the duration of daylight yesterday in seconds
+     * @return a string representing the difference in minutes, with a "+" sign for positive differences,
+     *         "bez zmian" if there is no difference, or a negative value if yesterday was longer
+     */
     private String calculateDayLengthDiff(long todaySec, long yesterdaySec) {
         long diffMin = (todaySec - yesterdaySec) / 60;
         if (diffMin == 0) return "bez zmian";
         return diffMin > 0 ? "+" + diffMin + " minut" : diffMin + " minut";
     }
 
+    /**
+     * Converts the given total seconds into a formatted string representing
+     * hours and minutes in the format "Xh YYm".
+     *
+     * @param totalSeconds the total number of seconds to be converted
+     *                     into hours and minutes.
+     * @return a formatted string in the form "Xh YYm" where X is the number of hours
+     *         and YY is the number of minutes.
+     */
     private String formatSecondsToHoursMinutes(long totalSeconds) {
         long hours = totalSeconds / 3600;
         long minutes = (totalSeconds % 3600) / 60;
         return String.format("%dh %02dm", hours, minutes);
     }
 
+    /**
+     * Builds a list of timeline events representing various fishing activity periods based on the given sun phases.
+     *
+     * @param p an object representing the phases of the sun, including key times such as nautical dawn, sunrise, and sunset
+     * @return a list of {@code TimelineEventDto} objects, each representing a specific time period and its corresponding fishing activity details
+     */
     private List<TimelineEventDto> buildFishingTimeline(SunPhases p) {
         return List.of(
                 createTimelineEvent(p.nauticalDawn(), p.civilDawn(), "Świt Żeglarski (Koniec Nocy)",
@@ -165,6 +257,20 @@ public class SunViewService {
         );
     }
 
+    /**
+     * Creates a timeline event based on the provided parameters and returns a constructed TimelineEventDto object.
+     *
+     * @param start the start time of the timeline event
+     * @param end the end time of the timeline event
+     * @param title the title of the timeline event
+     * @param desc the description of the timeline event
+     * @param icon the icon associated with the timeline event
+     * @param iconColor the CSS class for the icon color
+     * @param iconBg the CSS class for the icon background
+     * @param titleClass the CSS class for the title styling
+     * @param isGolden flag indicating whether the event is marked as a "golden hour" event
+     * @return a TimelineEventDto object representing the timeline event
+     */
     private TimelineEventDto createTimelineEvent(LocalDateTime start, LocalDateTime end, String title, String desc, String icon, String iconColor, String iconBg, String titleClass, boolean isGolden) {
         return TimelineEventDto.builder()
                 .timeRange(start.format(TIME_FORMATTER) + " - " + end.format(TIME_FORMATTER))
@@ -179,11 +285,33 @@ public class SunViewService {
     }
 
 
+    /**
+     * Represents the different phases of the Sun during a specific day.
+     * This record captures various key times from dawn to dusk including golden hour periods.
+     *
+     * This class is immutable and thread-safe.
+     *
+     * Fields:
+     * - nauticalDawn: The time of the first appearance of light before sunrise when the sun is 12 degrees below the horizon.
+     * - civilDawn: The time of the first noticeable light before sunrise when the sun is 6 degrees below the horizon.
+     * - sunrise: The time when the top edge of the Sun appears over the horizon.
+     * - morningGoldenEnd: The time when the morning golden hour ends.
+     * - zenith: The time when the sun reaches its highest point in the sky for the day.
+     * - eveningGoldenStart: The time when the evening golden hour begins.
+     * - sunset: The time when the top edge of the Sun disappears below the horizon.
+     * - civilDusk: The time after sunset when the Sun is 6 degrees below the horizon.
+     * - nauticalDusk: The time after sunset when the Sun is 12 degrees below the horizon.
+     */
     private record SunPhases(
             LocalDateTime nauticalDawn, LocalDateTime civilDawn, LocalDateTime sunrise,
             LocalDateTime morningGoldenEnd, LocalDateTime zenith, LocalDateTime eveningGoldenStart,
             LocalDateTime sunset, LocalDateTime civilDusk, LocalDateTime nauticalDusk
     ) {}
 
+    /**
+     * A record representing the daylight status at a specific moment.
+     *
+     * This record holds information about whether it is currently daylight and
+     * provides a formatted string*/
     private record DaylightStatus(boolean isDaylight, String timeToSunsetFmt) {}
 }

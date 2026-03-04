@@ -7,6 +7,12 @@ import pl.czyzlowie.modules.sun.dto.TimelineEventDto;
 import java.time.LocalDateTime;
 import java.util.List;
 
+/**
+ * Data Transfer Object representing the schedule of the sun's phases and related information.
+ * This class encapsulates various details about sunrise, sunset, dawn, dusk, and other key
+ * solar events. It also provides additional useful metadata such as formatted times, day length,
+ * and timeline events for enhanced context and visualization.
+ */
 @Getter
 @Builder
 public class SunScheduleDto {

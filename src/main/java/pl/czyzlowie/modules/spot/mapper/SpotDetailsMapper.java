@@ -5,9 +5,26 @@ import org.springframework.stereotype.Component;
 import pl.czyzlowie.modules.map.entity.*;
 import pl.czyzlowie.modules.spot.dto.*;
 
+/**
+ * SpotDetailsMapper is responsible for converting instances of various
+ * MapSpot implementations into their corresponding SpotDetailsDto representations.
+ * It ensures type-specific properties are appropriately mapped while handling
+ * all supported spot types, such as LakeSpot, RiverSpot, CommercialSpot, etc.
+ * Unsupported spot types result in an exception.
+ */
 @Component
 public class SpotDetailsMapper {
 
+    /**
+     * Converts a given MapSpot instance into a SpotDetailsDto instance.
+     *
+     * @param spot the MapSpot instance to be converted; can be of various specific types such as
+     *             LakeSpot, RiverSpot, CommercialSpot, ReservoirSpot, OxbowSpot, BoatSlip, or SpecificSpot.
+     *             If the spot is null or an instance of RestrictionSpot, the method returns null.
+     * @return a SpotDetailsDto representation of the provided MapSpot. Returns null if the MapSpot is
+     *         null or an instance of RestrictionSpot. Throws IllegalArgumentException for unsupported
+     *         MapSpot types.
+     */
     public SpotDetailsDto mapToDto(MapSpot spot) {
         if (spot == null || spot instanceof RestrictionSpot) {
             return null;
@@ -152,6 +169,13 @@ public class SpotDetailsMapper {
         return populateCommonFields(dto, spot);
     }
 
+    /**
+     * Populates common fields in a SpotDetailsDto object using data from a MapSpot entity.
+     *
+     * @param dto the SpotDetailsDto object to be populated
+     * @param spot the MapSpot entity containing the source data
+     * @return the updated SpotDetailsDto object with populated fields
+     */
     private SpotDetailsDto populateCommonFields(SpotDetailsDto dto, MapSpot spot) {
         dto.setId(spot.getId());
         dto.setName(spot.getName());
