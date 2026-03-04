@@ -34,10 +34,8 @@ public record SynopSnapshot(
         Integer windDirection,
         BigDecimal humidity,
         BigDecimal precipitation,
-
-        // --- Extended fields (can be null if source doesn't provide them) ---
-        BigDecimal windGusts,           // From Virtual and Forecast
-        Integer cloudCover,             // From Forecast
-        BigDecimal apparentTemperature, // From Virtual and Forecast
-        BigDecimal uvIndex              // From Forecast
+        BigDecimal windGusts,
+        Integer cloudCover,
+        BigDecimal apparentTemperature,
+        BigDecimal uvIndex
 ) {}

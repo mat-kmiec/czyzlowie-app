@@ -1,0 +1,1075 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pl">
+<head>
+    <th:block th:replace="~{fragments/head :: head-content(pageTitle='Prognoza brań ')}"></th:block>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/fish-forecast.css}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/hammerjs@2.0.8" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@2.0.1/dist/chartjs-plugin-zoom.min.js" defer></script>
+    <script th:inline="javascript">
+        window.synopData = /*[[${report?.fullContext?.synopTimeline}]]*/ [];
+        window.hydroData = /*[[${report?.fullContext?.hydroTimeline}]]*/ [];
+    </script>
+
+    <script th:src="@{/js/fish-forecast/fish-forecast_out.js}" defer></script>
+</head>
+<body>
+
+<nav th:replace="~{fragments/navbar :: navbar}"></nav>
+
+<div class="container-xl pt-5 mt-3">
+
+    <div class="report-header mt-4 mb-4">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <div class="d-flex align-items-center gap-3 mb-1">
+                    <div class="icon-fishing-pulse">
+                        <i data-lucide="fishing-rod" style="color: #34d399; width: 28px; height: 28px;"></i>
+                    </div>
+                    <div>
+                        <h1 class="m-0 fw-bold text-white page-title">
+                            Prognoza Brań: <span style="color: #34d399;">Co w wodzie pływa?</span>
+                        </h1>
+                    </div>
+                </div>
+                <div class="mt-2 ms-1">
+                    <span class="fs-6">ŁOWISKO: <strong class="text-white" th:text="${locationName ?: 'Nieznane łowisko'}">Jezioro Zegrzyńskie</strong></span>
+                </div>
+            </div>
+
+            <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                <div class="d-inline-block p-2 px-3 rounded-3 text-start text-md-end glass-box">
+                    <div class="data-lbl mb-1" style="border-left: 3px solid #34d399; padding-left: 8px;">Ostatni pomiar warunków</div>
+                    <div class="text-white fw-bold d-flex align-items-center justify-content-md-end gap-2 fs-6">
+                        <i data-lucide="thermometer-sun" width="16" style="color: #34d399;"></i>
+                        <span th:text="${report?.currentSynop?.timestamp != null ? #temporals.format(report.currentSynop.timestamp, 'HH:mm / dd.MM.yyyy') : 'Brak danych'}"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <th:block th:with="meteoList=${report?.fullContext?.meteoTimeline}, lastMeteo=${(meteoList != null and !meteoList.isEmpty()) ? meteoList[meteoList.size() - 1] : null}">
+
+        <div class="modern-card mb-4">
+            <div class="card-header-glow"></div>
+
+            <div class="hero-grid">
+
+                <div class="hero-segment d-flex flex-column justify-content-center">
+                    <div class="d-flex align-items-center gap-3 mb-2">
+                        <i data-lucide="cloud-sun" class="icon-glow-gold"></i>
+                        <div>
+                            <div class="data-val val-huge" th:text="${report?.currentSynop?.temperature != null ? #numbers.formatDecimal(report.currentSynop.temperature, 1, 1) : '--'}">18.5</div>
+                            <div class="data-lbl text-brand-blue">Temp. Powietrza °C</div>
+                            <div class="fs-8 mt-1 ff-data">
+                                Odczuwalna: <span class="text-white fw-bold" th:text="${report?.currentSynop?.apparentTemperature != null ? #numbers.formatDecimal(report.currentSynop.apparentTemperature, 1, 1) + '°C' : '--'}">16.0°C</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="d-flex gap-2 mt-2">
+                        <div class="fs-8 text-white fw-bold d-flex align-items-center justify-content-center gap-1 p-2 rounded flex-grow-1 glass-box">
+                            <i data-lucide="cloud" width="16" class="text-brand-blue"></i> <span class="ff-data" th:text="${report?.currentSynop?.cloudCover ?: '--'}">65</span>%
+                        </div>
+                        <div class="fs-8 text-white fw-bold d-flex align-items-center justify-content-center gap-1 p-2 rounded flex-grow-1 glass-box">
+                            <i data-lucide="sun" width="16" class="text-brand-gold"></i> UV: <span class="ff-data text-brand-gold" th:text="${report?.currentSynop?.uvIndex ?: '--'}">3</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="hero-segment">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <span class="data-lbl m-0 text-brand-purple">Ciśnienie</span>
+                        <i data-lucide="gauge" width="18" class="text-brand-purple"></i>
+                    </div>
+                    <div class="data-val mb-3"><span th:text="${report?.currentSynop?.pressure != null ? #numbers.formatDecimal(report.currentSynop.pressure, 1, 1) : '--'}">1024.1</span> <span class="data-unit">hPa</span></div>
+
+                    <div class="d-flex justify-content-between align-items-center pt-2 pb-2 border-top border-glass-subtle">
+                        <span class="data-lbl m-0 d-flex align-items-center gap-1"><i data-lucide="thermometer-sun" width="14" style="color: #fca5a5;"></i> Temp. Gruntu</span>
+                        <span class="data-val fs-6" style="color: #fca5a5;"><span th:text="${lastMeteo?.groundTemperature != null ? #numbers.formatDecimal(lastMeteo.groundTemperature, 1, 1) : '--'}">4.9</span><span class="data-unit" style="color: #fca5a5;">°C</span></span>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center pt-2 border-top border-glass-subtle">
+                        <span class="data-lbl m-0 d-flex align-items-center gap-1"><i data-lucide="cloud-rain" width="14" class="text-brand-blue"></i> Opady (Live)</span>
+                        <span class="data-val fs-6 text-brand-blue">
+                            <span th:text="${lastMeteo?.precipitation10min != null ? #numbers.formatDecimal(lastMeteo.precipitation10min, 1, 2) : '0.00'}">0.0</span><span class="data-unit text-brand-blue">mm</span>
+                        </span>
+                    </div>
+                </div>
+
+                <div class="hero-segment">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <span class="data-lbl m-0 text-brand-main">Wiatr & Porywy</span>
+                        <i data-lucide="wind" width="18" class="text-brand-main"></i>
+                    </div>
+
+                    <div class="d-flex align-items-center gap-3 mb-3">
+                        <div>
+                            <div class="data-val d-flex align-items-baseline gap-1">
+                                <span th:text="${report?.currentSynop?.windSpeed != null ? #numbers.formatDecimal(report.currentSynop.windSpeed, 1, 1) : '--'}">10.5</span>
+                                <span class="data-unit">km/h</span>
+                            </div>
+                        </div>
+
+                        <div style="width: 1px; height: 30px; background: rgba(255,255,255,0.1);"></div>
+
+                        <div>
+                            <div class="fs-8 text-danger text-uppercase fw-bold mb-1 ls-1"><i data-lucide="wind" width="16"></i> Max</div>
+                            <div class="data-val fs-6 text-brand-red">
+                                <span th:text="${report?.currentSynop?.windGusts ?: '--'}">15</span> <span class="data-unit text-brand-red">km/h</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center pt-2 border-top border-glass-subtle">
+                        <span class="data-lbl m-0 d-flex align-items-center gap-1"><i data-lucide="compass" width="14" class="text-brand-gold"></i> Wektor (Kierunek)</span>
+                        <span class="data-val fs-6 text-brand-gold">
+                            <span id="hero-wind-dir" th:data-dir="${report?.currentSynop?.windDirection ?: 0}">--</span>
+                        </span>
+                    </div>
+                </div>
+
+                <div class="hero-segment">
+                    <div class="row g-2">
+                        <div class="d-flex align-items-center gap-2">
+                            <div style="width: 4px; height: 16px; background: #fb923c; border-radius: 2px;"></div>
+                            <span class="fw-bold text-white text-uppercase fs-8 ls-1">Rytm Dobowy</span>
+                        </div>
+                        <div class="col-6">
+                            <div class="p-3 rounded-3 h-100" style="background: linear-gradient(180deg, rgba(251, 146, 60, 0.1) 0%, rgba(251, 146, 60, 0.02) 100%); border: 1px solid rgba(251, 146, 60, 0.2);">
+                                <div class="d-flex align-items-center gap-2 mb-2">
+                                    <i data-lucide="sunrise" style="color: #fb923c; width: 18px;"></i>
+                                    <span class="fs-9 fw-black text-uppercase" style="color: #fb923c;">Złota Godzina</span>
+                                </div>
+                                <div class="text-white fw-black fs-5 ff-data"
+                                     th:text="${report?.currentMoonData?.sunrise != null ? #temporals.format(report.currentMoonData.sunrise, 'HH:mm') : '--:--'}">
+                                    05:42
+                                </div>
+                                <div class="mt-1 fs-9 text-white" style="line-height: 1.2;">Płycizny ożywają. Czas na białoryb.</div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="p-3 rounded-3 h-100" style="background: linear-gradient(180deg, rgba(239, 68, 68, 0.1) 0%, rgba(239, 68, 68, 0.02) 100%); border: 1px solid rgba(239, 68, 68, 0.2);">
+                                <div class="d-flex align-items-center gap-2 mb-2">
+                                    <i data-lucide="sunset" style="color: #f87171; width: 18px;"></i>
+                                    <span class="fs-9 fw-black text-uppercase" style="color: #f87171;">Wieczorne Wyjście</span>
+                                </div>
+                                <div class="text-white fw-black fs-5 ff-data"
+                                     th:text="${report?.currentMoonData?.sunset != null ? #temporals.format(report.currentMoonData.sunset, 'HH:mm') : '--:--'}">
+                                    18:15
+                                </div>
+                                <div class="mt-1 fs-9 text-white" style="line-height: 1.2;">Szczyt drapieżnika. Zmień przynętę.</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="row g-4 mb-4">
+            <div class="col-lg-4 col-md-6 col-12 mx-auto">
+                <div class="modern-card h-100 d-flex flex-column align-items-center justify-content-between p-4"
+                     style="background: radial-gradient(circle at top, #1e293b 0%, #0f172a 100%); border: 1px solid rgba(16, 185, 129, 0.2); border-radius: 24px; box-shadow: 0 15px 35px rgba(0,0,0,0.4); position: relative;">
+
+                    <div style="position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, transparent, var(--brand-main), transparent); opacity: 0.5;"></div>
+
+                    <div class="text-center mb-3">
+                        <h5 class="section-title mb-1">
+                            Potencjał <span class="text-brand-main">Żerowania</span>
+                        </h5>
+                        <small class="section-subtitle">Analiza aktywności wodnej</small>
+                    </div>
+
+                    <div class="gauge-wrapper position-relative d-flex align-items-center justify-content-center" style="width: 180px; height: 180px;">
+                        <div style="position: absolute; width: 140px; height: 140px; background: rgba(16, 185, 129, 0.1); filter: blur(40px); border-radius: 50%;"></div>
+
+                        <svg class="gauge-svg" viewBox="0 0 200 200">
+                            <circle cx="100" cy="100" r="85" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="12" />
+                            <circle cx="100" cy="100" r="85" fill="none" stroke="#10b981" stroke-width="12"
+                                    stroke-dasharray="534"
+                                    th:attr="stroke-dashoffset=${534 - ((report?.generalBiteIndex ?: 0) * 5.34)}"
+                                    stroke-linecap="round"
+                                    style="transition: stroke-dashoffset 1.5s ease-out; filter: drop-shadow(0 0 5px #10b981);" />
+                        </svg>
+
+                        <div class="position-absolute text-center">
+                            <div class="stat-lg">
+                                <span th:text="${report?.generalBiteIndex ?: '--'}">85</span><small class="stat-unit" style="color: var(--brand-main);">%</small>
+                            </div>
+                            <div class="fs-9 text-uppercase ls-2 fw-black" style="color: #a1a1aa;">Szansa na rybę</div>
+                        </div>
+                    </div>
+
+                    <div class="mt-4 w-100">
+                        <div class="p-2 rounded-3 d-flex align-items-center justify-content-between glass-box-dark">
+                            <div class="d-flex align-items-center gap-2">
+                                <i data-lucide="users" width="16" class="text-white-50"></i>
+                                <span class="fs-8 fw-bold text-uppercase" style="color: #94a3b8;">Ruch nad wodą:</span>
+                            </div>
+                            <span class="badge ls-1 fs-8"
+                                  th:styleappend="${report?.anglingPressureLevel != null and #strings.contains(report.anglingPressureLevel, 'WYSOKA')} ? 'background: rgba(239, 68, 68, 0.2); color: var(--brand-red);' : 'background: rgba(16, 185, 129, 0.2); color: var(--brand-main);'"
+                                  th:text="${report?.anglingPressureLevel ?: 'BRAK'}">
+                    NISKI
+                </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-8">
+                <div class="modern-card card-dark h-100 d-flex flex-column p-4">
+                    <div style="position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, var(--brand-blue), transparent); opacity: 0.6;"></div>
+
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <div>
+                            <h6 class="section-title mb-1">
+                                <i data-lucide="line-chart" class="me-2 text-brand-blue" style="vertical-align: middle;"></i> Trend Warunków: <span class="text-brand-blue">Oś Czasu</span>
+                            </h6>
+                            <div class="section-subtitle">ZAPIS HISTORYCZNY I PROGNOZA (+/- 48H)</div>
+                        </div>
+                    </div>
+
+                    <div class="chart-tabs d-flex gap-2 mb-4" id="chart-tabs">
+                        <button class="chart-tab-btn active" data-metric="temperature"><i data-lucide="thermometer" width="14" class="text-brand-red"></i> Temp.</button>
+                        <button class="chart-tab-btn" data-metric="pressure"><i data-lucide="gauge" width="14" class="text-brand-purple"></i> Ciśnienie</button>
+                        <button class="chart-tab-btn" data-metric="windSpeed"><i data-lucide="wind" width="14" class="text-brand-main"></i> Wiatr</button>
+                        <button class="chart-tab-btn" data-metric="windDirection"><i data-lucide="compass" width="14" class="text-brand-gold"></i> Kierunek</button>
+                        <button class="chart-tab-btn" data-metric="humidity"><i data-lucide="droplets" width="14" class="text-brand-blue"></i> Wilgoć</button>
+                        <button class="chart-tab-btn" data-metric="precipitation"><i data-lucide="cloud-rain" width="14" style="color: #6366f1;"></i> Opady</button>
+                    </div>
+
+                    <div class="chart-container flex-grow-1 p-3 rounded-4">
+                        <div style="position: absolute; inset: 0; background-image: radial-gradient(rgba(255,255,255,0.03) 1px, transparent 1px); background-size: 30px 30px; pointer-events: none;"></div>
+                        <canvas id="dynamicChart" style="position: relative; z-index: 1;"></canvas>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <div class="modern-card card-dark mb-4 p-0"
+             th:if="${report?.speciesReports != null and !report.speciesReports.isEmpty()}"
+             th:with="mainSpecies=${report.speciesReports[0]}">
+            <div class="card-header-glow" style="background: linear-gradient(90deg, transparent, var(--brand-purple), transparent);"></div>
+
+            <div class="row g-0">
+                <div class="col-lg-4 p-4 border-end border-glass-subtle glass-box-light" style="border-radius: 20px 0 0 20px;">
+                    <div class="d-flex align-items-center justify-content-between mb-4">
+                        <div class="fw-bold text-white uppercase shadow-sm fs-8 ls-2">
+                            <i data-lucide="gauge" width="14" class="me-1 text-brand-purple"></i> ODCZYT BARYCZNY
+                        </div>
+                        <div class="spinner-grow spinner-grow-sm text-brand-purple" role="status" style="width: 8px; height: 8px;"></div>
+                    </div>
+
+                    <div class="d-flex gap-4 align-items-center">
+                        <div style="width: 14px; height: 160px; background: #000; border-radius: 10px; position: relative; border: 1px solid rgba(255,255,255,0.2); overflow: hidden;">
+                            <div th:style="'position: absolute; bottom: 0; width: 100%; transition: height 2s ease; height: ' + (${mainSpecies?.pressureScore ?: 0}) + '%; background: linear-gradient(to top, #6b21a8, #a855f7); box-shadow: 0 0 15px rgba(168, 85, 247, 0.5);'"></div>
+                            <div style="position:absolute; top:25%; width:100%; height:1px; background:rgba(255,255,255,0.3);"></div>
+                            <div style="position:absolute; top:50%; width:100%; height:1px; background:rgba(255,255,255,0.3);"></div>
+                            <div style="position:absolute; top:75%; width:100%; height:1px; background:rgba(255,255,255,0.3);"></div>
+                        </div>
+
+                        <div class="flex-grow-1">
+                            <div class="mb-3">
+                                <div class="stat-huge" th:text="${report?.currentSynop?.pressure != null ? #numbers.formatDecimal(report.currentSynop.pressure, 1, 0) : '--'}">1012</div>
+                                <div class="section-subtitle mt-2">HEKTOPASKALE (hPa)</div>
+                            </div>
+
+                            <div class="p-2 px-3 rounded-3 border d-inline-flex align-items-center gap-2"
+                                 th:styleappend="${(mainSpecies?.pressureScore ?: 50) >= 70 ? 'border-color: #10b981; background: rgba(16, 185, 129, 0.1);' : ((mainSpecies?.pressureScore ?: 50) <= 40 ? 'border-color: #ef4444; background: rgba(239, 68, 68, 0.1);' : 'border-color: #f59e0b; background: rgba(245, 158, 11, 0.1);')}">
+                                <i th:if="${(mainSpecies?.pressureScore ?: 50) >= 70}" data-lucide="check-circle" class="text-brand-main" width="16"></i>
+                                <i th:if="${(mainSpecies?.pressureScore ?: 50) < 70}" data-lucide="alert-circle" th:style="'color:' + (${(mainSpecies?.pressureScore ?: 50) <= 40 ? '#ef4444' : '#f59e0b'})" width="16"></i>
+                                <span class="fw-bold text-white fs-8 text-uppercase"
+                                      th:text="${(mainSpecies?.pressureScore ?: 50) >= 70 ? 'Stabilne warunki' : ((mainSpecies?.pressureScore ?: 50) <= 40 ? 'Szok Baryczny' : 'Lekkie wahania')}">STATUS</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-8 p-4">
+                    <div class="d-flex justify-content-between align-items-start mb-4">
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="p-2 rounded-3 bg-primary bg-opacity-10 border border-primary border-opacity-25">
+                                <i data-lucide="fish" style="color: #38bdf8;" width="24"></i>
+                            </div>
+                            <div>
+                                <h2 class="m-0 fw-black text-white text-uppercase ls-1" th:text="${mainSpecies?.speciesName ?: 'GATUNEK NIEZNANY'}">SZCZUPAK</h2>
+                                <span class="badge bg-white text-dark fw-bold" style="font-size: 0.6rem;">CEL WYPRAWY</span>
+                            </div>
+                        </div>
+                        <div class="text-end">
+                            <div class="fw-black text-brand-purple ff-data" style="font-size: 2rem; line-height: 1;" th:text="${mainSpecies?.pressureScore ?: '--'} + '%'">85%</div>
+                            <div class="section-subtitle" style="font-size: 0.55rem;">INDEX AKTYWNOŚCI</div>
+                        </div>
+                    </div>
+
+                    <div class="row g-3" th:with="isPeaceful=${mainSpecies?.speciesName != null and (#strings.containsIgnoreCase(mainSpecies.speciesName, 'Karp') or #strings.containsIgnoreCase(mainSpecies.speciesName, 'Leszcz') or #strings.containsIgnoreCase(mainSpecies.speciesName, 'Płoć'))}">
+
+                        <div class="col-sm-6">
+                            <div class="p-3 rounded-4 h-100 glass-box">
+                                <div class="d-flex align-items-center gap-2 mb-2">
+                                    <i data-lucide="info" width="16" class="text-info"></i>
+                                    <span class="text-white-50 fw-bold fs-9 text-uppercase" th:text="${isPeaceful ? 'Taktyka nęcenia' : 'Styl prowadzenia'}">TAKTYKA</span>
+                                </div>
+                                <div class="text-white fw-bold fs-6" th:text="${(mainSpecies?.pressureScore ?: 50) >= 70 ? (isPeaceful ? 'Syp grubo - ryba żeruje pewnie.' : 'Agresywne prowadzenie, szybkie tempo.') : (isPeaceful ? 'Nęcenie punktowe, drobna frakcja.' : 'Leniwe ruchy, długie pauzy.')}"></div>
+                            </div>
+                        </div>
+
+                        <div class="col-sm-6">
+                            <div class="p-3 rounded-4 h-100 glass-box">
+                                <div class="d-flex align-items-center gap-2 mb-2">
+                                    <i data-lucide="fishing-hook" width="16" class="text-brand-gold"></i>
+                                    <span class="text-white-50 fw-bold fs-9 text-uppercase" th:text="${isPeaceful ? 'Dobór zestawu' : 'Rozmiar przynęty'}">SPRZĘT</span>
+                                </div>
+                                <div class="text-white fw-bold fs-6" th:text="${(mainSpecies?.pressureScore ?: 50) >= 70 ? (isPeaceful ? 'Mocne zestawy, grubsze przypony.' : 'Selektywne, duże przynęty.') : (isPeaceful ? 'Zestawy light, cienkie żyłki.' : 'Downsizing - mikro-gumy.')}"></div>
+                            </div>
+                        </div>
+
+                        <div class="col-12">
+                            <div class="p-3 rounded-4 d-flex align-items-center gap-3" style="background: linear-gradient(90deg, rgba(168, 85, 247, 0.15), rgba(15, 23, 42, 0.4)); border: 1px solid rgba(168, 85, 247, 0.3);">
+                                <div class="p-2 rounded-3 bg-purple" style="background: var(--brand-purple);">
+                                    <i data-lucide="map" width="20" class="text-white"></i>
+                                </div>
+                                <div>
+                                    <div class="text-white-50 fw-bold fs-9 text-uppercase">Głębokość operacyjna (Gdzie ich szukać?)</div>
+                                    <div class="text-white fw-bold fs-6" th:text="${(mainSpecies?.pressureScore ?: 50) >= 60 ? 'Ryba aktywna w toni i na płytkich blatach.' : 'Ryba przyklejona do dna - szukaj w rynnach.'}">POZYCJA</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modern-card mb-4 p-0">
+            <div class="card-header-glow" style="background: linear-gradient(90deg, transparent, var(--brand-cyan), transparent);"></div>
+
+            <div class="p-4 border-bottom border-glass-subtle">
+                <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2">
+                    <h6 class="section-title">
+                        <i data-lucide="waves" class="me-2 text-brand-cyan"></i> Telemetria Wody
+                    </h6>
+                    <span th:if="${report?.currentHydro != null}" class="badge d-flex align-items-center gap-2 ff-data" style="background: rgba(14, 165, 233, 0.1); border: 1px solid rgba(14, 165, 233, 0.3); color: var(--brand-cyan); padding: 6px 12px;">
+                        <i data-lucide="map-pin" width="12"></i>
+                        <span>Najbliższa stacja hydrologiczna IMGW</span>
+                    </span>
+                    <span th:if="${report?.currentHydro == null}" class="badge bg-secondary">Akwen Zamknięty / Brak Stacji</span>
+                </div>
+            </div>
+
+            <div th:if="${report?.currentHydro == null}" class="text-center p-5">
+                <i data-lucide="droplets" style="width: 48px; height: 48px; color: #64748b; opacity: 0.3; margin-bottom: 15px;"></i>
+                <h6 class="text-white text-uppercase fw-bold">Brak czujników wodnych na tym obszarze</h6>
+                <p class="text-muted fs-7 mb-0">System działa w trybie jeziora / wody stojącej.</p>
+            </div>
+
+            <div th:if="${report?.currentHydro != null}" class="row g-0">
+                <div class="col-lg-5 p-4 hydro-panel border-end border-glass-subtle" style="border-radius: 0;">
+                    <div class="position-relative z-1">
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <div>
+                                <div class="data-lbl text-brand-cyan">Temperatura Wody</div>
+                                <div class="stat-lg" style="text-shadow: 0 0 15px rgba(14, 165, 233, 0.4);">
+                                    <span th:text="${report.currentHydro.waterTemperature != null ? #numbers.formatDecimal(report.currentHydro.waterTemperature, 1, 1) : '--'}">15.0</span><span class="data-unit text-brand-cyan">°C</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row g-3">
+                            <div class="col-6">
+                                <div class="data-lbl text-white">Poziom Wody</div>
+                                <div class="data-val fs-2"><span th:text="${report.currentHydro.waterLevel ?: '--'}">245</span><span class="data-unit">cm</span></div>
+                            </div>
+                            <div class="col-6">
+                                <div class="data-lbl text-white">Przepływ Nurtu</div>
+                                <div class="data-val fs-2"><span th:text="${report.currentHydro.discharge != null ? #numbers.formatDecimal(report.currentHydro.discharge, 1, 1) : '--'}">12.5</span><span class="data-unit">m³/s</span></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="wave-bg wave-1"></div>
+                    <div class="wave-bg wave-2"></div>
+                </div>
+
+                <div class="col-lg-7 p-0 d-flex flex-column">
+                    <div class="d-flex border-bottom border-glass-subtle">
+                        <button type="button" class="hydro-tab-btn active" data-target="hydro-ai"><i data-lucide="cpu" width="14" class="me-1"></i> Bio-Skaner AI</button>
+                        <button type="button" class="hydro-tab-btn" data-target="hydro-chart"><i data-lucide="line-chart" width="14" class="me-1"></i> Historia Danych</button>
+                    </div>
+
+                    <div class="p-4 flex-grow-1 position-relative" style="min-height: 350px;">
+                        <div id="hydro-ai" class="hydro-pane" style="display: block;">
+                            <div class="d-flex flex-column gap-3">
+                                <div class="p-3 rounded glass-box-highlight">
+                                    <div class="data-lbl text-brand-cyan">Wynik Analizatora (Woda / Termika)</div>
+                                    <div class="text-white fs-6 fw-bold mt-1 ff-data" th:text="${report?.waterLevelTrend ?: 'Brak danych o trendzie'}">Temp. wody: 15°C | Stan wody: Stabilny</div>
+                                    <div class="fs-8 mt-2 text-white-50">Zbyt szybkie wahania poziomu wody (+/- 5cm na dobę) negatywnie wpływają na żerowanie.</div>
+                                </div>
+
+                                <div class="p-3 rounded border-start border-3" style="background: rgba(14, 165, 233, 0.05); border-color: #0ea5e9 !important;">
+                                    <div class="data-lbl mb-2 text-brand-cyan"><i data-lucide="thermometer" width="12" class="me-1"></i> Termika wody</div>
+                                    <div class="fs-7 text-white" style="line-height: 1.6;" th:with="temp=${report.currentHydro.waterTemperature}">
+                                        <th:block th:if="${temp == null}"><strong style="color: #94a3b8;">LOKALIZACJA:</strong> Brak odczytów termicznych. Szukaj drapieżników zgodnie z porą roku.</th:block>
+                                        <th:block th:if="${temp != null and temp < 8.0}">
+                                            <strong class="text-brand-cyan">LOKALIZACJA:</strong> Woda jest zimna. Ryby w zimowiskach. Szukaj na przegłębieniach.<br>
+                                            <strong class="text-brand-cyan mt-1 d-inline-block">TAKTYKA:</strong> Znacznie spowolnij przynętę. Metabolizm uśpiony.
+                                        </th:block>
+                                        <th:block th:if="${temp != null and temp > 22.0}">
+                                            <strong class="text-danger">LOKALIZACJA:</strong> Woda bardzo ciepła. Ryby uciekają w nurt lub toń w poszukiwaniu tlenu.
+                                        </th:block>
+                                        <th:block th:if="${temp != null and temp >= 8.0 and temp <= 22.0}">
+                                            <strong class="text-brand-main">LOKALIZACJA:</strong> Temperatura optymalna. Ryby swobodnie penetrują płycizny i strefę przybrzeżną.
+                                        </th:block>
+                                    </div>
+                                </div>
+
+                                <div class="p-3 rounded border-start border-3 glass-box-light" style="border-color: #64748b !important;">
+                                    <div class="data-lbl mb-2"><i data-lucide="arrow-up-down" width="12" class="me-1"></i> Wpływ poziomu wody</div>
+                                    <div class="fs-7" style="line-height: 1.6;" th:with="trend=${report?.waterLevelTrend ?: ''}">
+                                        <th:block th:switch="${true}">
+                                            <th:block th:case="${#strings.containsIgnoreCase(trend, 'Opad')}">
+                                                <div class="p-3 rounded-3 mb-0" style="background: rgba(239, 68, 68, 0.1); border-left: 4px solid #ef4444;">
+                                                    <div class="d-flex align-items-center gap-2 mb-1">
+                                                        <i data-lucide="trending-down" width="16" class="text-danger"></i>
+                                                        <strong class="text-brand-red text-uppercase fs-9 ls-1">Woda opada</strong>
+                                                    </div>
+                                                    <span class="text-white fw-bold">Ryby wycofują się z płycizn. Skup się na rynnach i spadkach na głębszą wodę.</span>
+                                                </div>
+                                            </th:block>
+                                            <th:block th:case="${#strings.containsIgnoreCase(trend, 'Rosn')}">
+                                                <div class="p-3 rounded-3 mb-0" style="background: rgba(16, 185, 129, 0.1); border-left: 4px solid var(--brand-main);">
+                                                    <div class="d-flex align-items-center gap-2 mb-1">
+                                                        <i data-lucide="trending-up" width="16" class="text-success"></i>
+                                                        <strong class="text-brand-main text-uppercase fs-9 ls-1">Woda przybiera</strong>
+                                                    </div>
+                                                    <span class="text-white fw-bold">Szukaj ryb blisko zalanych traw i brzegów – tam wypłukiwany jest pokarm.</span>
+                                                </div>
+                                            </th:block>
+                                            <th:block th:case="*">
+                                                <div class="p-3 rounded-3 mb-0" style="background: rgba(14, 165, 233, 0.1); border-left: 4px solid var(--brand-cyan);">
+                                                    <div class="d-flex align-items-center gap-2 mb-1">
+                                                        <i data-lucide="anchor" width="16" class="text-brand-cyan"></i>
+                                                        <strong class="text-brand-cyan text-uppercase fs-9 ls-1">Stan stabilny</strong>
+                                                    </div>
+                                                    <span class="text-white fw-bold">Ryby na swoich naturalnych stanowiskach. Klasyczne obławianie miejscówek.</span>
+                                                </div>
+                                            </th:block>
+                                        </th:block>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="hydro-chart" class="hydro-pane" style="display: none; position: relative;">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <div class="d-flex flex-wrap gap-2">
+                                    <button type="button" class="badge-btn active" data-hydro-metric="waterLevel">Poziom Wody</button>
+                                    <button type="button" class="badge-btn" data-hydro-metric="discharge">Przepływ Nurtu</button>
+                                    <button type="button" class="badge-btn" data-hydro-metric="waterTemperature">Termika</button>
+                                </div>
+                                <i data-lucide="zoom-in" width="16" class="text-muted" title="Pinch to Zoom"></i>
+                            </div>
+
+                            <div style="position: relative; width: 100%; height: 260px; touch-action: pan-y;">
+                                <div class="chart-absolute-wrapper">
+                                    <canvas id="hydroChartCanvas"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modern-card mb-4" th:if="${report?.forecast24h != null and !report.forecast24h.isEmpty()}">
+            <div class="card-header-glow" style="background: linear-gradient(90deg, transparent, #00bbff, transparent);"></div>
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h6 class="section-title">
+                    <i data-lucide="calendar-clock" class="text-info me-2"></i> Symulacja Pogodowa (Następne 24H)
+                </h6>
+            </div>
+
+            <div class="forecast-scroll">
+                <th:block th:each="f : ${report.forecast24h}">
+                    <div class="forecast-card">
+                        <div class="fc-time" th:text="${f.timestamp != null ? #temporals.format(f.timestamp, 'HH:00') : '--:--'}">12:00</div>
+                        <th:block th:with="hour=${f.timestamp != null ? f.timestamp.hour : 12}, isNight=${hour < 6 or hour >= 20}">
+                            <th:block th:if="${f.precipitation != null and f.precipitation > 0}"><i data-lucide="cloud-rain" style="color: var(--brand-blue); width: 32px; height: 32px;"></i></th:block>
+                            <th:block th:unless="${f.precipitation != null and f.precipitation > 0}">
+                                <th:block th:if="${f.cloudCover != null and f.cloudCover >= 70}"><i data-lucide="cloud" style="color: #cbd5e1; width: 32px; height: 32px;"></i></th:block>
+                                <th:block th:if="${f.cloudCover != null and f.cloudCover >= 30 and f.cloudCover < 70}">
+                                    <i th:if="${isNight}" data-lucide="cloud-moon" style="color: #a78bfa; width: 32px; height: 32px;"></i>
+                                    <i th:unless="${isNight}" data-lucide="cloud-sun" style="color: var(--brand-gold); width: 32px; height: 32px;"></i>
+                                </th:block>
+                                <th:block th:if="${f.cloudCover == null or f.cloudCover < 30}">
+                                    <i th:if="${isNight}" data-lucide="moon" style="color: #a78bfa; width: 32px; height: 32px;"></i>
+                                    <i th:unless="${isNight}" data-lucide="sun" style="color: var(--brand-gold); width: 32px; height: 32px;"></i>
+                                </th:block>
+                            </th:block>
+                        </th:block>
+                        <div class="fc-temp"><span th:text="${f.temperature != null ? #numbers.formatDecimal(f.temperature, 1, 0) : '--'}">15</span>°</div>
+                        <div class="fc-wind"><i data-lucide="wind" width="12" class="text-brand-main"></i><span th:text="${f.windSpeed != null ? #numbers.formatDecimal(f.windSpeed, 1, 0) : '--'}">10</span> km/h</div>
+                    </div>
+                </th:block>
+            </div>
+        </div>
+
+        <div class="modern-card mb-4 p-0" th:if="${report?.moonForecast3d != null and !report.moonForecast3d.isEmpty()}" th:with="mainSpecies=${report.speciesReports != null and !report.speciesReports.isEmpty() ? report.speciesReports[0] : null}">
+            <div class="card-header-glow" style="background: linear-gradient(90deg, transparent, var(--brand-gold), transparent); opacity: 0.5;"></div>
+
+            <div class="p-3 border-bottom d-flex justify-content-between align-items-center border-glass-subtle">
+                <h6 class="section-title">
+                    <i data-lucide="moon" class="text-warning me-2"></i> Aktywność Solunarna
+                </h6>
+            </div>
+
+            <div class="row g-0">
+                <div class="col-lg-7 p-4 border-end border-glass-subtle" style="background: rgba(0,0,0,0.1);">
+                    <div class="data-lbl text-warning mb-3">Cykl Księżyca (3 dni)</div>
+
+                    <div class="d-flex gap-3 overflow-auto pb-2 scroll-thin">
+                        <th:block th:each="moonDay, iterStat : ${report.moonForecast3d}" th:if="${iterStat.index < 3}">
+                            <div class="flex-fill p-3 rounded-4 d-flex flex-column align-items-center justify-content-center glass-box-light"
+                                 style="min-width: 140px; position: relative; overflow: hidden;"
+                                 th:styleappend="${iterStat.index == 0} ? 'border-color: rgba(245, 158, 11, 0.4); background: rgba(245, 158, 11, 0.05);' : ''">
+
+                                <div th:if="${iterStat.index == 0}" style="position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--brand-gold);"></div>
+
+                                <div class="fs-8 fw-bold mb-3 text-uppercase"
+                                     th:classappend="${iterStat.index == 0} ? 'text-warning' : 'text-secondary'"
+                                     th:text="${iterStat.index == 0 ? 'DZISIAJ' : (iterStat.index == 1 ? 'JUTRO' : (moonDay.date != null ? #temporals.format(moonDay.date, 'dd.MM') : '--'))}">
+                                </div>
+
+                                <div class="moon-icon mb-3" th:switch="${moonDay.phaseName}">
+                                    <span th:case="'NEW_MOON'">🌑</span><span th:case="'WAXING_CRESCENT'">🌒</span><span th:case="'FIRST_QUARTER'">🌓</span>
+                                    <span th:case="'WAXING_GIBBOUS'">🌔</span><span th:case="'FULL_MOON'">🌕</span><span th:case="'WANING_GIBBOUS'">🌖</span>
+                                    <span th:case="'LAST_QUARTER'">🌗</span><span th:case="'WANING_CRESCENT'">🌘</span><span th:case="*">🌕</span>
+                                </div>
+
+                                <div class="data-val fs-6 text-white mb-1 text-center" th:switch="${moonDay.phaseName}">
+                                    <span th:case="'NEW_MOON'">NÓW</span><span th:case="'WAXING_CRESCENT'">PRZYB. SIERP</span><span th:case="'FIRST_QUARTER'">PIERWSZA KW.</span>
+                                    <span th:case="'WAXING_GIBBOUS'">PRZYBYWAJĄCY</span><span th:case="'FULL_MOON'">PEŁNIA</span><span th:case="'WANING_GIBBOUS'">UBYWAJĄCY</span>
+                                    <span th:case="'LAST_QUARTER'">OSTATNIA KW.</span><span th:case="'WANING_CRESCENT'">STARY KSIĘŻYC</span><span th:case="*">NIEZNANA</span>
+                                </div>
+
+                                <div class="fs-8 text-secondary">
+                                    Iluminacja: <strong class="text-white" th:text="${moonDay.illuminationPct != null ? #numbers.formatDecimal(moonDay.illuminationPct, 1, 0) : '0'} + '%'"></strong>
+                                </div>
+                            </div>
+                        </th:block>
+                    </div>
+
+                    <div class="mt-3 fs-8 text-secondary">
+                        <i data-lucide="info" width="12" class="me-1"></i> Faza księżyca determinuje siłę grawitacji. Pełnia i nów to najsilniejsze pływy i największy ruch w wodzie.
+                    </div>
+                </div>
+
+                <div class="col-lg-5 p-4 d-flex flex-column">
+                    <div class="p-3 rounded-4 mb-4 d-flex align-items-center justify-content-between"
+                         th:styleappend="${(mainSpecies?.solunarScore ?: 50) >= 70 ? 'background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.3);' : ((mainSpecies?.solunarScore ?: 50) < 40 ? 'background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1);' : 'background: rgba(14, 165, 233, 0.1); border: 1px solid rgba(14, 165, 233, 0.2);')}">
+                        <div>
+                            <div class="text-white-50 fw-bold mb-1 fs-9 text-uppercase">Status Grawitacyjny</div>
+                            <div class="fw-black fs-6"
+                                 th:classappend="${(mainSpecies?.solunarScore ?: 50) >= 70 ? 'text-warning' : ((mainSpecies?.solunarScore ?: 50) < 40 ? 'text-white-50' : 'text-info')}"
+                                 th:text="${(mainSpecies?.solunarScore ?: 50) >= 70 ? 'AKTYWNE OKNO ŻEROWANIA' : ((mainSpecies?.solunarScore ?: 50) < 40 ? 'FAZA PASYWNA' : 'WARUNKI NEUTRALNE')}">
+                            </div>
+                        </div>
+                        <div class="fw-black text-white ff-data" style="font-size: 1.8rem;">
+                            <span th:text="${mainSpecies?.solunarScore ?: '--'}">85</span><small style="font-size: 1rem; color: #64748b;">pkt</small>
+                        </div>
+                    </div>
+
+                    <div class="data-lbl text-white mb-3 fs-9"><i data-lucide="message-circle-more" width="12" class="me-1"></i> SZCZEGÓŁY:</div>
+
+                    <div class="tactical-tips flex-grow-1">
+                        <th:block th:if="${mainSpecies?.solunarTips != null and !mainSpecies.solunarTips.isEmpty()}">
+                            <div class="d-flex flex-column gap-2">
+                                <div th:each="tip : ${mainSpecies.solunarTips}" class="p-2 rounded-3 glass-box-dark" style="border-left: 3px solid #3b82f6;">
+                                    <div class="d-flex align-items-start gap-2">
+                                        <i th:if="${#strings.contains(tip, 'JACKPOT')}" data-lucide="flame" width="16" class="text-danger flex-shrink-0 mt-1"></i>
+                                        <i th:if="${#strings.contains(tip, 'TAKTYKA')}" data-lucide="crosshair" width="16" class="text-success flex-shrink-0 mt-1"></i>
+                                        <i th:if="${#strings.contains(tip, 'FAZA PASYWNA')}" data-lucide="sleep" width="16" class="text-muted flex-shrink-0 mt-1"></i>
+                                        <i th:if="${#strings.contains(tip, 'NOC')}" data-lucide="moon-star" width="16" class="text-info flex-shrink-0 mt-1"></i>
+                                        <i th:if="${#strings.contains(tip, 'LOKALIZACJA')}" data-lucide="map-pin" width="16" style="color: #a855f7;" class="flex-shrink-0 mt-1"></i>
+                                        <i th:if="${!#strings.contains(tip, 'JACKPOT') and !#strings.contains(tip, 'TAKTYKA') and !#strings.contains(tip, 'FAZA PASYWNA') and !#strings.contains(tip, 'NOC') and !#strings.contains(tip, 'LOKALIZACJA')}" data-lucide="chevron-right" width="16" class="text-blue flex-shrink-0 mt-1"></i>
+
+                                        <div class="fs-7 text-white-50" style="line-height: 1.4;">
+                                            <strong class="text-white ls-05" th:if="${#strings.contains(tip, ':')}" th:text="${#strings.substringBefore(tip, ':') + ':'}"></strong>
+                                            <span th:text="${#strings.contains(tip, ':') ? #strings.substringAfter(tip, ':') : tip}"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                        </th:block>
+                        <th:block th:if="${mainSpecies?.solunarTips == null or mainSpecies?.solunarTips?.isEmpty()}">
+                            <div class="p-3 rounded-3 glass-box-dashed">
+                                <div class="fs-7 text-white-50 text-center">Brak specjalnych anomalii solunarnych na dzisiaj. Oprzyj się na wskazaniach barometru.</div>
+                            </div>
+                        </th:block>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </th:block>
+
+    <div class="modern-card mb-4 p-0"
+         th:if="${report?.currentMoonData != null and report.currentMoonData.sunrise != null and report.currentMoonData.sunset != null}"
+         th:with="moon=${report.currentMoonData}, now=${T(java.time.LocalTime).now()}, mainSpecies=${report.speciesReports != null and !report.speciesReports.isEmpty() ? report.speciesReports[0] : null}, isPeaceful=${mainSpecies != null and (#strings.containsIgnoreCase(mainSpecies.speciesName, 'Karp') or #strings.containsIgnoreCase(mainSpecies.speciesName, 'Leszcz') or #strings.containsIgnoreCase(mainSpecies.speciesName, 'Płoć') or #strings.containsIgnoreCase(mainSpecies.speciesName, 'Amur'))}">
+
+        <div class="card-header-glow" style="background: linear-gradient(90deg, transparent, var(--brand-gold), transparent); opacity: 0.4;"></div>
+
+        <div class="row g-0">
+            <div class="col-lg-4 p-4 border-end border-glass-subtle" style="background: rgba(15, 23, 42, 0.3);">
+                <div class="d-flex align-items-center justify-content-between mb-4">
+                    <div class="data-lbl text-brand-gold ls-2">Pozycjonowanie Słońca</div>
+                </div>
+
+                <div class="text-center py-3">
+                    <div class="mb-4">
+                        <th:block th:with="isDay=${now.isAfter(moon.sunrise.toLocalTime()) and now.isBefore(moon.sunset.toLocalTime())}">
+                            <div th:if="${!isDay}">
+                                <i data-lucide="moon-star" style="color: #94a3b8; width: 50px; height: 50px; filter: drop-shadow(0 0 15px rgba(148, 163, 184, 0.2));"></i>
+                                <div class="data-lbl mt-2 text-muted fs-9">Status: Cykl Nocny</div>
+                            </div>
+                            <div th:if="${isDay}">
+                                <i data-lucide="sun" class="icon-glow-gold"></i>
+                                <div class="data-lbl mt-2 text-warning fs-9">Status: Operacja Dzień</div>
+                            </div>
+                        </th:block>
+                    </div>
+
+                    <div class="stat-mega" th:text="${#temporals.format(now, 'HH:mm')}">23:42</div>
+                    <div class="data-lbl mt-3" style="opacity: 0.4; font-size: 0.55rem;">Zegar Systemowy Łowiska</div>
+
+                </div>
+
+                <div class="mt-4 d-flex flex-column gap-2">
+                    <div class="solar-slot slot-sunrise">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <div class="data-lbl text-brand-gold" style="font-size: 0.55rem;">Pierwsze Światło</div>
+                                <div class="fs-time-big" th:text="${#temporals.format(moon.sunrise, 'HH:mm')}">06:20</div>
+                            </div>
+                            <i data-lucide="sunrise" style="color: #fb923c;" width="24"></i>
+                        </div>
+                    </div>
+                    <div class="solar-slot slot-sunset">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <div class="data-lbl text-brand-red" style="font-size: 0.55rem;">Ostatnie Światło</div>
+                                <div class="fs-time-big" th:text="${#temporals.format(moon.sunset, 'HH:mm')}">17:17</div>
+                            </div>
+                            <i data-lucide="sunset" style="color: #ef4444;" width="24"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-8 p-4">
+                <h6 class="section-title mb-4 ls-2">
+                    <i data-lucide="layout-list" class="me-2 text-primary"></i>
+                    Analiza Okien Żerowania: <span class="text-brand-blue" th:text="${mainSpecies?.speciesName ?: 'Gatunek Mieszany'}"></span>
+                </h6>
+
+                <div style="position: relative;">
+                    <div class="chrono-line"></div>
+
+                    <div class="timeline-node">
+                        <div class="node-indicator" style="background: #475569;"></div>
+                        <div class="d-flex align-items-baseline gap-4">
+                            <span class="data-val fs-6 text-secondary" style="min-width: 100px;" th:text="${#temporals.format(moon.sunrise.minusMinutes(75), 'HH:mm')} + ' - ' + ${#temporals.format(moon.sunrise.minusMinutes(35), 'HH:mm')}"></span>
+                            <div>
+                                <div class="text-white fw-bold fs-7 text-uppercase mb-1">Świt Żeglarski</div>
+                                <p class="tactical-desc" th:text="${isPeaceful ? 'Grube ryby spokojnego żeru kończą nocne żerowanie na płyciznach. Ostatni moment na branie z brzegu przed odejściem ryb w głębię.' : 'Sandacz i Sum są wciąż bardzo aktywni w strefie przybrzeżnej. Wykorzystaj całkowity brak światła do agresywnych rzutów.'}"></p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="timeline-node">
+                        <div class="node-indicator" style="background: var(--brand-gold); box-shadow: 0 0 10px var(--brand-gold);"></div>
+                        <div class="hot-zone">
+                            <div class="d-flex align-items-baseline gap-4">
+                                <span class="data-val fs-5 text-warning" style="min-width: 100px;" th:text="${#temporals.format(moon.sunrise, 'HH:mm')} + ' - ' + ${#temporals.format(moon.sunrise.plusHours(1), 'HH:mm')}"></span>
+                                <div>
+                                    <div class="text-warning fw-black fs-7 text-uppercase mb-1"><i data-lucide="zap" width="14" class="me-1"></i> Poranna Złota Godzina</div>
+                                    <p class="tactical-desc text-light" th:text="${isPeaceful ? 'Gwałtowny skok aktywności białorybu. Czas na intensywne nęcenie — ryby zaczynają aktywne poszukiwanie pokarmu po nocy.' : 'Absolutny peak drapieżnika. Szczupak i Okoń wykorzystują półmrok do błyskawicznych ataków. Najlepszy czas na głośne przynęty.'}"></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="timeline-node">
+                        <div class="node-indicator" style="background: #fff;"></div>
+                        <div class="d-flex align-items-baseline gap-4 opacity-75">
+                            <span class="data-val fs-6 text-white" style="min-width: 100px;">11:30 - 13:30</span>
+                            <div>
+                                <div class="text-white fw-bold fs-7 text-uppercase mb-1">Górowanie (Zenit)</div>
+                                <p class="tactical-desc" th:text="${isPeaceful ? 'Szczyt aktywności Amura i Klenia. Wiosną Karpie chętnie wychodzą na płycizny, by ogrzać się w promieniach słońca.' : 'Drapieżniki szukają schronienia w głębszych rynnach lub cieniu przeszkód. Spowolnij prowadzenie przynęty i szukaj ryb głębiej.'}"></p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="timeline-node">
+                        <div class="node-indicator" style="background: var(--brand-red); box-shadow: 0 0 10px var(--brand-red);"></div>
+                        <div class="hot-zone" style="background: rgba(239, 68, 68, 0.05); border-color: rgba(239, 68, 68, 0.2);">
+                            <div class="d-flex align-items-baseline gap-4">
+                                <span class="data-val fs-5 text-brand-red" style="min-width: 100px;" th:text="${#temporals.format(moon.sunset.minusHours(1), 'HH:mm')} + ' - ' + ${#temporals.format(moon.sunset, 'HH:mm')}"></span>
+                                <div>
+                                    <div class="fw-black fs-7 text-uppercase mb-1 text-brand-red"><i data-lucide="flame" width="14" class="me-1"></i> Wieczorna Złota Godzina</div>
+                                    <p class="tactical-desc text-light" th:text="${isPeaceful ? 'Ryby spokojnego żeru opuszczają głębokie kryjówki i ruszają na nęcone za dnia pola. Woda tętni życiem przy trzcinowiskach.' : 'Rzeź drobnicy w strefie przybrzeżnej. Szczupaki i Bolenie wpadają w amok przed zachodem. Stosuj szybkie, agresywne przynęty.'}"></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="timeline-node">
+                        <div class="node-indicator" style="background: var(--brand-purple);"></div>
+                        <div class="d-flex align-items-baseline gap-4">
+                            <span class="data-val fs-6 text-brand-purple" style="min-width: 100px;" th:text="${#temporals.format(moon.sunset.plusMinutes(40), 'HH:mm')} + ' - ' + ${#temporals.format(moon.sunset.plusMinutes(90), 'HH:mm')}"></span>
+                            <div>
+                                <div class="fw-bold fs-7 text-uppercase mb-1 text-brand-purple">Zmierzch Żeglarski</div>
+                                <p class="tactical-desc" th:text="${isPeaceful ? 'Początek nocnych żerowisk. Ryby stają się mniej ostrożne, wchodząc w partie wody, których unikały w pełnym słońcu.' : 'Czas Wampirów. Sandacze i Sumy wchodzą na ekstremalne płycizny. Skup się na wolno prowadzonych woblerach i martwej naturze.'}"></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modern-card card-dark mb-4 p-0"
+         th:with="mainSpecies=${report?.speciesReports != null and !report.speciesReports.isEmpty() ? report.speciesReports[0] : null}"
+         style="border-color: rgba(14, 165, 233, 0.2);">
+
+        <div class="card-header-glow" style="background: linear-gradient(90deg, transparent, #00bbff, transparent); opacity: 0.4;"></div>
+
+        <div class="p-4 border-bottom border-glass-subtle" style="background: rgba(14, 165, 233, 0.03);">
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+                <div class="d-flex align-items-center gap-2">
+                    <i data-lucide="wind" style="color: #0ea5e9; width: 24px; height: 24px;"></i>
+                    <h6 class="section-title">
+                        Wiatr i <span class="text-brand-cyan">Kamuflaż</span>
+                    </h6>
+                </div>
+            </div>
+        </div>
+
+        <th:block th:with="isVeto=${report?.currentSynop != null and ((report.currentSynop.windGusts ?: 0) > 50 or (report.currentSynop.precipitation ?: 0) > 15)}">
+
+            <div th:if="${isVeto}" class="p-5 m-3 rounded-4 text-center position-relative overflow-hidden" style="background: rgba(239, 68, 68, 0.1); border: 2px solid #ef4444;">
+                <i data-lucide="cloud-lightning" class="text-danger mb-3" width="64" height="64" style="filter: drop-shadow(0 0 15px rgba(239, 68, 68, 0.6));"></i>
+                <h3 class="text-danger fw-black text-uppercase ls-2">Ostrzeżenie Pogodowe</h3>
+                <p class="text-white fs-6 mt-2 mb-4" th:text="${(report?.currentSynop?.windGusts ?: 0) > 50 ? 'Niebezpieczne porywy wiatru (' + report.currentSynop.windGusts + ' km/h). Ryzyko wywrotki łodzi i łamania gałęzi.' : 'Ulewny deszcz (' + report.currentSynop.precipitation + ' mm). Woda błyskawicznie mętnieje, ryby nie widzą przynęt.'}"></p>
+                <div class="d-inline-block px-4 py-2 rounded-3 fw-bold fs-7 text-white text-uppercase bg-danger ls-1">Zalecenie: Pozostań w domu</div>
+            </div>
+
+            <div th:if="${!isVeto}" class="row g-0">
+                <div class="col-lg-5 p-4 border-end border-glass-subtle d-flex flex-column justify-content-center" style="background: rgba(0,0,0,0.15);">
+                    <div class="row align-items-center g-4">
+                        <div class="col-auto">
+                            <div class="position-relative d-flex align-items-center justify-content-center" style="width: 80px; height: 80px; border: 2px dashed rgba(14, 165, 233, 0.3); border-radius: 50%;">
+                                <span class="position-absolute text-white-50 fw-bold fs-9" style="top: -15px;">N</span>
+                                <span class="position-absolute text-white-50 fw-bold fs-9" style="bottom: -15px;">S</span>
+                                <span class="position-absolute text-white-50 fw-bold fs-9" style="right: -15px;">E</span>
+                                <span class="position-absolute text-white-50 fw-bold fs-9" style="left: -15px;">W</span>
+                                <i data-lucide="navigation" style="color: #0ea5e9; width: 32px; height: 32px; transition: transform 1s ease;"
+                                   th:styleappend="'transform: rotate(' + (${report?.currentSynop?.windDirection ?: 0}) + 'deg);'"></i>
+                            </div>
+                        </div>
+
+                        <div class="col">
+                            <div class="text-white-50 fw-bold mb-1 fs-9 text-uppercase ls-1">Prędkość wiatru</div>
+                            <div class="d-flex align-items-baseline gap-1">
+                                <span class="stat-huge" th:text="${report?.currentSynop?.windSpeed ?: 0}">15</span>
+                                <span class="fs-6 fw-bold text-brand-cyan">km/h</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-4 pt-3 border-top border-glass-subtle">
+                        <th:block th:with="speed=${report?.currentSynop?.windSpeed ?: 0}">
+                            <div class="d-flex gap-2 align-items-center mb-2">
+                                <span class="badge"
+                                      th:classappend="${speed == 0 ? 'bg-warning text-dark' : (speed < 20 ? 'bg-success text-white' : 'bg-danger text-white')}"
+                                      th:text="${speed == 0 ? 'TAFLA (LUSTRO)' : (speed < 20 ? 'LEKKA FALA' : 'SILNA FALA')}"></span>
+                                <span class="fs-7 text-white" th:text="${speed == 0 ? 'Woda jak soczewka. Ryby bardzo ostrożne.' : (speed < 20 ? 'Idealne rozbicie tafli. Dobry kamuflaż.' : 'Trudna kontrola zestawu i brań.')}"></span>
+                            </div>
+                        </th:block>
+                    </div>
+                </div>
+
+                <div class="col-lg-7 p-4">
+                    <div class="row g-4 mb-4">
+                        <div class="col-sm-6">
+                            <div class="d-flex justify-content-between mb-1">
+                                <span class="text-white-50 fw-bold fs-9 text-uppercase">Zachmurzenie</span>
+                                <span class="text-white fw-bold ff-data" th:text="${report?.currentSynop?.cloudCover ?: 0} + '%'"></span>
+                            </div>
+                            <div class="progress" style="height: 6px; background: rgba(255,255,255,0.1);">
+                                <div class="progress-bar" style="background: #cbd5e1;" th:styleappend="'width: ' + (${report?.currentSynop?.cloudCover ?: 0}) + '%;'"></div>
+                            </div>
+                        </div>
+
+                        <div class="col-sm-6">
+                            <div class="d-flex justify-content-between mb-1">
+                                <span class="text-white-50 fw-bold fs-9 text-uppercase">Opady</span>
+                                <span class="text-white fw-bold ff-data" th:text="${report?.currentSynop?.precipitation ?: '0.0'} + ' mm'"></span>
+                            </div>
+                            <div class="progress" style="height: 6px; background: rgba(255,255,255,0.1);">
+                                <div class="progress-bar" style="background: #38bdf8;" th:styleappend="'width: ' + (${report?.currentSynop?.precipitation ?: 0} * 10 > 100 ? 100 : (${report?.currentSynop?.precipitation ?: 0} * 10)) + '%;'"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="p-3 rounded-4 glass-box-dashed">
+                        <div class="d-flex align-items-center gap-2 mb-3">
+                            <i data-lucide="list-checks" width="16" class="text-info"></i>
+                            <span class="text-white fw-bold fs-8 text-uppercase">Wskazówki z analizatora:</span>
+                        </div>
+
+                        <div class="tactical-tips">
+                            <th:block th:if="${mainSpecies?.windTips != null and !mainSpecies.windTips.isEmpty()}">
+                                <div class="d-flex flex-column gap-3">
+                                    <div th:each="tip : ${mainSpecies.windTips}" class="d-flex align-items-start gap-2">
+                                        <i th:if="${#strings.contains(tip, 'WIATR')}" data-lucide="wind" width="18" class="text-info flex-shrink-0 mt-1"></i>
+                                        <i th:if="${#strings.contains(tip, 'KAMUFLAŻ') or #strings.contains(tip, 'WIDOCZNOŚĆ')}" data-lucide="eye-off" width="18" class="text-success flex-shrink-0 mt-1"></i>
+                                        <i th:if="${#strings.contains(tip, 'OPAD')}" data-lucide="cloud-rain" width="18" class="text-primary flex-shrink-0 mt-1"></i>
+                                        <i th:if="${#strings.contains(tip, 'ZAGROŻENIE')}" data-lucide="alert-triangle" width="18" class="text-danger flex-shrink-0 mt-1"></i>
+                                        <i th:if="${!#strings.contains(tip, 'WIATR') and !#strings.contains(tip, 'KAMUFLAŻ') and !#strings.contains(tip, 'WIDOCZNOŚĆ') and !#strings.contains(tip, 'OPAD') and !#strings.contains(tip, 'ZAGROŻENIE')}" data-lucide="chevron-right" width="18" class="text-muted flex-shrink-0 mt-1"></i>
+
+                                        <div class="fs-7 text-white-50" style="line-height: 1.5;">
+                                            <strong class="text-white ls-05" th:if="${#strings.contains(tip, ':')}" th:text="${#strings.substringBefore(tip, ':') + ':'}"></strong>
+                                            <span th:text="${#strings.contains(tip, ':') ? #strings.substringAfter(tip, ':') : tip}"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </th:block>
+
+                            <th:block th:if="${mainSpecies?.windTips == null or mainSpecies?.windTips?.isEmpty()}">
+                                <div class="fs-7 text-white-50">Warunki neutralne. Brak szczególnych zaleceń dotyczących wiatru i maskowania na łowisku.</div>
+                            </th:block>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </th:block>
+    </div>
+
+    <div class="modern-card card-dark mb-4 p-0" th:if="${report?.forecast24h != null and !report.forecast24h.isEmpty()}" th:with="moon=${report.currentMoonData}, now=${T(java.time.LocalTime).now()}" style="border-color: rgba(16, 185, 129, 0.2);">
+
+        <div class="card-header-glow" style="background: linear-gradient(90deg, transparent, #69d846, transparent); opacity: 0.4;"></div>
+
+        <div class="p-3 border-bottom border-glass-subtle d-flex justify-content-between align-items-center" style="background: rgba(16, 185, 129, 0.03);">
+            <h6 class="section-title">
+                <i data-lucide="activity" class="me-2 text-success"></i> Godzinowy Indeks Brań (24H)
+            </h6>
+        </div>
+
+        <div class="p-3">
+            <div class="d-flex gap-2 overflow-auto pb-2 scroll-thin">
+                <th:block th:each="f : ${report.forecast24h}">
+                    <th:block th:with="
+                    hour=${f.timestamp != null ? f.timestamp.hour : 12},
+                    isCurrentHour=${f.timestamp != null and hour == now.hour and f.timestamp.toLocalDate().equals(T(java.time.LocalDate).now())},
+                    sunriseHr=${moon?.sunrise != null ? moon.sunrise.hour : 6},
+                    sunsetHr=${moon?.sunset != null ? moon.sunset.hour : 18},
+                    clouds=${f.cloudCover != null ? f.cloudCover : 50},
+                    wind=${f.windSpeed != null ? f.windSpeed.doubleValue() : 10.0},
+                    rain=${f.precipitation != null ? f.precipitation.doubleValue() : 0.0},
+                    temp=${f.temperature != null ? f.temperature.doubleValue() : 15.0},
+                    isGolden=${hour == sunriseHr or hour == (sunriseHr + 1) or hour == sunsetHr or hour == (sunsetHr - 1)},
+                    isMidday=${hour > (sunriseHr + 1) and hour < (sunsetHr - 1)},
+                    isNight=${hour < sunriseHr or hour > sunsetHr},
+                    baseScore=40,
+                    timeMod=${isGolden ? 30 : (isNight ? 5 : -5)},
+                    cloudMod=${isMidday and clouds > 70 ? 20 : (isMidday and clouds < 30 ? -15 : (clouds > 50 ? 5 : 0))},
+                    windMod=${wind >= 5.0 and wind <= 20.0 ? 15 : (wind > 25.0 ? -15 : (wind < 3.0 and isMidday and clouds < 30 ? -15 : 0))},
+                    rainMod=${rain > 0.0 and rain <= 3.0 ? 20 : (rain > 5.0 ? -25 : 0)},
+                    tempMod=${temp >= 12.0 and temp <= 22.0 ? 5 : (temp > 25.0 ? -20 : (temp < 4.0 ? -15 : 0))},
+                    rawScore=${baseScore + timeMod + cloudMod + windMod + rainMod + tempMod},
+                    noise=${(hour * 7 + clouds) % 6},
+                    finalScore=${rawScore + noise > 95 ? 95 : (rawScore + noise < 10 ? 10 : rawScore + noise)},
+                    color=${finalScore >= 70 ? '#10b981' : (finalScore >= 45 ? '#f59e0b' : '#ef4444')}">
+
+                        <div class="flex-shrink-0 d-flex flex-column align-items-center justify-content-end p-3 rounded-4 position-relative"
+                             th:style="'min-width: 75px; background: ' + (${isCurrentHour} ? 'rgba(16, 185, 129, 0.1)' : 'rgba(255,255,255,0.02)') + '; border: 1px solid ' + (${isCurrentHour} ? 'rgba(16, 185, 129, 0.4)' : 'rgba(255,255,255,0.05)') + ';'">
+
+                            <div th:if="${isCurrentHour}" class="position-absolute top-0 start-50 translate-middle-x px-2 py-1 rounded-bottom-2 fw-bold text-dark ls-1" style="background: #10b981; font-size: 0.5rem;">TERAZ</div>
+
+                            <div class="text-white fw-bold mb-2 mt-2 fs-7 ff-data" th:text="${f.timestamp != null ? #temporals.format(f.timestamp, 'HH:00') : '--:--'}">12:00</div>
+
+                            <th:block th:with="isNightIco=${hour < sunriseHr or hour > sunsetHr}">
+                                <div class="mb-3" style="opacity: 0.9;">
+                                    <i th:if="${f.precipitation != null and f.precipitation > 0}" data-lucide="cloud-rain" style="color: #38bdf8;" width="20"></i>
+                                    <th:block th:unless="${f.precipitation != null and f.precipitation > 0}">
+                                        <i th:if="${f.cloudCover != null and f.cloudCover >= 70}" data-lucide="cloud" style="color: #cbd5e1;" width="20"></i>
+                                        <th:block th:if="${f.cloudCover != null and f.cloudCover >= 30 and f.cloudCover < 70}">
+                                            <i th:if="${isNightIco}" data-lucide="cloud-moon" class="text-brand-purple" width="20"></i>
+                                            <i th:unless="${isNightIco}" data-lucide="cloud-sun" class="text-brand-gold" width="20"></i>
+                                        </th:block>
+                                        <th:block th:if="${f.cloudCover == null or f.cloudCover < 30}">
+                                            <i th:if="${isNightIco}" data-lucide="moon" class="text-brand-purple" width="20"></i>
+                                            <i th:unless="${isNightIco}" data-lucide="sun" class="text-brand-gold" width="20"></i>
+                                        </th:block>
+                                    </th:block>
+                                </div>
+                            </th:block>
+
+                            <div class="activity-bar-container mb-2">
+                                <div class="activity-bar-fill" th:style="'height: ' + ${finalScore} + '%; background: ' + ${color} + '; box-shadow: 0 0 10px ' + ${color} + '; transition: height 1s ease-out;'"></div>
+                            </div>
+
+                            <div class="fw-black fs-7 ff-data" th:style="'color: ' + ${color}" th:text="${finalScore} + '%'">85%</div>
+                            <div class="text-secondary fw-bold mt-1 fs-9" th:text="${f.temperature != null ? #numbers.formatDecimal(f.temperature, 1, 0) : '--'} + '°C'">15°C</div>
+                        </div>
+
+                    </th:block>
+                </th:block>
+            </div>
+        </div>
+    </div>
+
+    <div class="modern-card card-dark mb-4 p-0"
+         th:with="
+        temp=${report?.currentSynop?.temperature != null ? report.currentSynop.temperature.doubleValue() : 15.0},
+        appTemp=${report?.currentSynop?.apparentTemperature != null ? report.currentSynop.apparentTemperature.doubleValue() : temp},
+        uv=${report?.currentSynop?.uvIndex != null ? report.currentSynop.uvIndex : 0},
+        uvLevel=${uv <= 2 ? 'Niski' : (uv <= 5 ? 'Umiarkowany' : (uv <= 7 ? 'Wysoki' : 'Ekstremalny'))},
+        uvColor=${uv <= 2 ? '#10b981' : (uv <= 5 ? '#f59e0b' : (uv <= 7 ? '#f97316' : '#ef4444'))}
+     " style="border-color: rgba(245, 158, 11, 0.2);">
+
+        <div class="card-header-glow" style="background: linear-gradient(90deg, #f59e0b, #ef4444, transparent); opacity: 0.4;"></div>
+
+        <div class="p-4 border-bottom border-glass-subtle" style="background: rgba(245, 158, 11, 0.03);">
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+                <div class="d-flex align-items-center gap-2">
+                    <i data-lucide="shirt" class="text-brand-gold" width="24" height="24"></i>
+                    <h6 class="section-title">Ekwipunek i <span class="text-brand-gold">Komfort</span></h6>
+                </div>
+                <div class="badge px-3 py-1 rounded-pill ff-data" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.2); color: #cbd5e1;">
+                    PRZYGOTOWANIE DO WYPRAWY
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-0">
+            <div class="col-lg-5 p-4 border-end border-glass-subtle d-flex flex-column justify-content-center" style="background: rgba(0,0,0,0.15);">
+                <div class="mb-4 p-3 rounded-4 glass-box-light">
+                    <div class="text-white-50 fw-bold mb-3 fs-9 text-uppercase ls-1">Termika (Wpływ wiatru i wilgoci)</div>
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="p-3 rounded-4" th:style="'background: ' + (${appTemp < 5 ? 'rgba(14, 165, 233, 0.1)' : (appTemp > 22 ? 'rgba(239, 68, 68, 0.1)' : 'rgba(16, 185, 129, 0.1)')}) + '; border: 1px solid ' + (${appTemp < 5 ? 'rgba(14, 165, 233, 0.3)' : (appTemp > 22 ? 'rgba(239, 68, 68, 0.3)' : 'rgba(16, 185, 129, 0.3)')}) + ';'">
+                            <i data-lucide="thermometer" width="28" height="28" th:style="'color: ' + (${appTemp < 5 ? '#0ea5e9' : (appTemp > 22 ? '#ef4444' : '#10b981')}) + ';'"></i>
+                        </div>
+                        <div>
+                            <div class="d-flex align-items-baseline gap-1 mb-1">
+                                <span class="stat-lg" th:text="${#numbers.formatDecimal(appTemp, 1, 1)}">14.5</span>
+                                <span class="fs-5 fw-bold text-secondary">°C</span>
+                            </div>
+                            <div class="fs-8 fw-bold text-white text-uppercase ls-05">Temperatura Odczuwalna</div>
+                        </div>
+                    </div>
+                    <div class="mt-3 pt-2 border-top d-flex justify-content-between align-items-center border-glass-subtle">
+                        <span class="fs-8 text-white-50">Słupki rtęci wskazują:</span>
+                        <span class="fs-7 fw-bold text-white" th:text="${#numbers.formatDecimal(temp, 1, 1)} + '°C'"></span>
+                    </div>
+                </div>
+
+                <div class="p-3 rounded-4 glass-box-light">
+                    <div class="text-white-50 fw-bold mb-3 fs-9 text-uppercase ls-1">Promieniowanie UV (Słońce)</div>
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="p-3 rounded-4" th:style="'background: ' + ${uvColor} + '15; border: 1px solid ' + ${uvColor} + '40;'">
+                            <i data-lucide="sun-dim" width="28" height="28" th:style="'color: ' + ${uvColor} + ';'"></i>
+                        </div>
+                        <div>
+                            <div class="d-flex align-items-baseline gap-2 mb-1">
+                                <span class="text-white fw-black ff-data" style="font-size: 2.2rem; line-height: 0.8;" th:text="${uv}">3</span>
+                                <span class="fs-7 fw-bold text-uppercase px-2 py-1 rounded-2" th:style="'color: ' + ${uvColor} + '; background: ' + ${uvColor} + '15;'" th:text="${uvLevel}">Umiarkowany</span>
+                            </div>
+                            <div class="fs-8 text-white-50 mt-2" style="line-height: 1.4;" th:text="${uv >= 5 ? 'Konieczny krem z filtrem i osłona karku (chusta).' : 'Słońce nie stwarza dużego zagrożenia na wodzie.'}"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-7 p-4">
+                <div class="d-flex align-items-center gap-2 mb-4">
+                    <i data-lucide="briefcase" width="16" class="text-brand-gold"></i>
+                    <span class="text-white fw-bold fs-8 text-uppercase">Zalecany ubiór na wodę</span>
+                </div>
+
+                <div class="d-flex flex-column gap-3">
+                    <div class="d-flex align-items-start gap-3 p-3 rounded-4 glass-box-highlight">
+                        <div class="p-2 rounded-3 flex-shrink-0" th:style="'background: ' + (${appTemp < 10 ? 'rgba(14, 165, 233, 0.1)' : (appTemp > 22 ? 'rgba(239, 68, 68, 0.1)' : 'rgba(16, 185, 129, 0.1)')}) + ';'">
+                            <i th:if="${appTemp < 10}" data-lucide="layers" class="text-brand-cyan"></i>
+                            <i th:if="${appTemp >= 10 and appTemp <= 22}" data-lucide="shirt" class="text-brand-main"></i>
+                            <i th:if="${appTemp > 22}" data-lucide="flame" class="text-brand-red"></i>
+                        </div>
+                        <div>
+                            <div class="text-white fw-bold fs-6 mb-1" th:text="${appTemp < 5 ? 'Zimowy Pancerz (Cebulka)' : (appTemp < 12 ? 'Bielizna termo i gruby polar' : (appTemp <= 22 ? 'Wiosenny luz (Długi rękaw)' : 'Oddychająca odzież UPF50+'))}"></div>
+                            <p class="fs-7 text-white-50 m-0" style="line-height: 1.5;">
+                                <th:block th:if="${appTemp < 5}">Jest mroźnie i przenikliwie. Załóż grubą bieliznę z wełny merino, ciepły polar i kombinezon. Ogrzewacze chemiczne do butów wskazane!</th:block>
+                                <th:block th:if="${appTemp >= 5 and appTemp < 12}">Temperatura potrafi oszukać na wodzie. Załóż bieliznę termoaktywną, polar i wiatrówkę. Warto mieć dodatkową warstwę w torbie.</th:block>
+                                <th:block th:if="${appTemp >= 12 and appTemp <= 22}">Komfortowe warunki. Wystarczy longsleeve (koszulka z długim rękawem), cienka bluza i lekkie spodnie trekkingowe.</th:block>
+                                <th:block th:if="${appTemp > 22}">Słońce pali. Zrezygnuj z bawełny na rzecz szybkoschnących koszul (odprowadzających pot). Unikaj oparzeń!</th:block>
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="d-flex align-items-start gap-3 p-3 rounded-4 glass-box-highlight">
+                        <div class="p-2 rounded-3 flex-shrink-0" style="background: rgba(255,255,255,0.05);">
+                            <i data-lucide="glasses" style="color: #cbd5e1;"></i>
+                        </div>
+                        <div>
+                            <div class="text-white fw-bold fs-6 mb-1">Głowa i Oczy</div>
+                            <p class="fs-7 text-white-50 m-0" style="line-height: 1.5;">
+                                <th:block th:if="${appTemp < 10}">Ciepła czapka zimowa i komin na szyję. <strong class="text-white">Okulary polaryzacyjne</strong> to mus, zniwelują zimne odblaski z tafli wody.</th:block>
+                                <th:block th:if="${appTemp >= 10 and uv < 5}">Zwykła czapka z daszkiem. Zawsze zabieraj <strong class="text-white">okulary polaryzacyjne</strong> – to podstawowe narzędzie do namierzania ryb pod wodą.</th:block>
+                                <th:block th:if="${appTemp >= 10 and uv >= 5}">Czapka z daszkiem + chusta (Buff) na kark i twarz. <strong class="text-white">Polaryzacja to absolutny wymóg</strong> przy takim słońcu.</th:block>
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="d-flex align-items-start gap-3 p-3 rounded-4 glass-box-highlight" th:with="rain=${report?.currentSynop?.precipitation ?: 0}">
+                        <div class="p-2 rounded-3 flex-shrink-0" th:style="'background: ' + (${rain > 0 ? 'rgba(56, 189, 248, 0.1)' : 'rgba(255,255,255,0.05)'}) + ';'">
+                            <i th:if="${rain > 0}" data-lucide="umbrella" style="color: #38bdf8;"></i>
+                            <i th:unless="${rain > 0}" data-lucide="footprints" style="color: #cbd5e1;"></i>
+                        </div>
+                        <div>
+                            <div class="text-white fw-bold fs-6 mb-1" th:text="${rain > 0 ? 'Ochrona przed deszczem' : 'Dłonie i Obuwie'}"></div>
+                            <p class="fs-7 text-white-50 m-0" style="line-height: 1.5;">
+                                <th:block th:if="${rain > 0}">Zapowiada się opad. Kurtka z mocną membraną to podstawa. Zwykły płaszcz foliowy sprawi, że zapocisz się przy zarzucaniu. Wskazane wodoodporne trekkingi.</th:block>
+                                <th:block th:if="${rain == 0 and appTemp < 8}">Rękawiczki neoprenowe (z odsłanianymi palcami do wiązania węzłów). Grube buty zimowe izolujące od zmarzniętej ziemi lub pokładu łodzi.</th:block>
+                                <th:block th:if="${rain == 0 and appTemp >= 8}">Lekkie i wygodne buty trailowe. Rękawiczki można zostawić w aucie (chyba że chronisz dłonie przed słońcem).</th:block>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="mb-4 p-4 rounded-4" style="background: rgba(245, 158, 11, 0.03); border: 1px solid rgba(245, 158, 11, 0.1); border-left: 4px solid var(--brand-gold); box-shadow: 0 10px 30px rgba(0,0,0,0.2);">
+        <div class="d-flex align-items-start gap-3">
+            <div class="p-2 rounded-3 flex-shrink-0" style="background: rgba(245, 158, 11, 0.1);">
+                <i data-lucide="triangle-alert" class="text-brand-gold" width="24" height="24"></i>
+            </div>
+            <div>
+                <h6 class="fw-black mb-2 text-uppercase text-brand-gold ls-1 fs-8">Ważne: To tylko predykcja, a nie gwarancja</h6>
+                <p class="m-0 fs-6 text-light" style="line-height: 1.6; text-align: justify; opacity: 0.8;">
+                    System predykcyjny opiera się na zaawansowanej analityce danych (IMGW/API), barometrze, fazach księżyca i biologii ryb. Pamiętaj jednak, że <strong class="text-white">wędkarstwo to nie matematyka</strong>. Ryby to żywe organizmy, których zachowanie bywa kapryśne i zależy od dziesiątek mikrowarunków na konkretnym łowisku (np. zakwity wody, lokalna presja wędkarska, dostępność naturalnego pokarmu).
+                    <br><br>
+                    Powyższy raport ma charakter wyłącznie <strong class="text-white">doradczy i wspomagający decyzje</strong>. Nawet przy 95% wskaźniku brań, ostateczny sukces zależy od Twojego doświadczenia, doboru miejsca i wędkarskiego szczęścia. Aplikacja nie gwarantuje złowienia ryby i nie ponosi odpowiedzialności za Twoje bezpieczeństwo nad wodą. Zawsze oceniaj warunki na żywo przed wypłynięciem.
+                    <br><br>
+                    <span class="text-brand-gold fw-bold" style="opacity: 0.9;">Z wędkarskim pozdrowieniem, połamania kija! 🎣</span>
+                </p>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<footer th:replace="~{fragments/footer :: footer}"></footer>
+
+</body>
+</html>
