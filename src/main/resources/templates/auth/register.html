@@ -36,45 +36,58 @@
                         <p class="auth-subtitle">Załóż darmowe konto w 15 sekund i zyskaj dostęp do narzędzi PRO.</p>
                     </div>
 
-                    <div th:if="${param.error}" class="alert auth-alert alert-danger d-flex align-items-center gap-2">
+                    <div th:if="${errorMessage}" class="alert auth-alert alert-danger d-flex align-items-center gap-2">
                         <i data-lucide="shield-alert" style="width: 20px;"></i>
-                        <span>Konto o podanym adresie e-mail już istnieje!</span>
+                        <span th:text="${errorMessage}">Wystąpił błąd rejestracji.</span>
                     </div>
 
-                    <form th:action="@{/rejestracja}" method="post" class="auth-form mt-4">
+                    <form th:action="@{/rejestracja}" th:object="${registerDto}" method="post" class="auth-form mt-4">
 
                         <div class="form-group mb-3">
-                            <label for="nickname" class="form-label text-white-50 fs-7 fw-bold text-uppercase mb-2">Jak się nazywasz? (Nick)</label>
+                            <label for="username" class="form-label text-white-50 fs-7 fw-bold text-uppercase mb-2">Jak się nazywasz? (Nick)</label>
                             <div class="input-icon-wrapper">
                                 <i data-lucide="user" class="input-icon"></i>
-                                <input type="text" id="nickname" name="nickname" class="form-control auth-input" placeholder="Wędkarski Świrus" required autofocus>
+                                <input type="text" id="username" th:field="*{username}"
+                                       class="form-control auth-input"
+                                       th:classappend="${#fields.hasErrors('username')} ? 'border-danger text-danger' : ''"
+                                       placeholder="Wędkarski Świrus" required autofocus>
                             </div>
+                            <span class="text-danger fs-8 fw-bold mt-1 d-block" th:if="${#fields.hasErrors('username')}" th:errors="*{username}"></span>
                         </div>
 
                         <div class="form-group mb-3">
-                            <label for="username" class="form-label text-white-50 fs-7 fw-bold text-uppercase mb-2">Adres E-mail</label>
+                            <label for="email" class="form-label text-white-50 fs-7 fw-bold text-uppercase mb-2">Adres E-mail</label>
                             <div class="input-icon-wrapper">
                                 <i data-lucide="mail" class="input-icon"></i>
-                                <input type="email" id="username" name="username" class="form-control auth-input" placeholder="wedkarz@pzw.pl" required>
+                                <input type="email" id="email" th:field="*{email}"
+                                       class="form-control auth-input"
+                                       th:classappend="${#fields.hasErrors('email')} ? 'border-danger text-danger' : ''"
+                                       placeholder="wedkarz@pzw.pl" required>
                             </div>
+                            <span class="text-danger fs-8 fw-bold mt-1 d-block" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></span>
                         </div>
 
                         <div class="form-group mb-3">
                             <label for="password" class="form-label text-white-50 fs-7 fw-bold text-uppercase mb-2">Utwórz hasło</label>
                             <div class="input-icon-wrapper">
                                 <i data-lucide="lock" class="input-icon"></i>
-                                <input type="password" id="password" name="password" class="form-control auth-input" placeholder="Min. 8 znaków" required minlength="8">
+                                <input type="password" id="password" th:field="*{password}"
+                                       class="form-control auth-input"
+                                       th:classappend="${#fields.hasErrors('password')} ? 'border-danger text-danger' : ''"
+                                       placeholder="Min. 8 znaków" required minlength="8">
                                 <button type="button" class="btn-toggle-pass" aria-label="Pokaż hasło">
                                     <i data-lucide="eye" style="width: 18px;"></i>
                                 </button>
                             </div>
+                            <span class="text-danger fs-8 fw-bold mt-1 d-block" th:if="${#fields.hasErrors('password')}" th:errors="*{password}"></span>
                         </div>
 
                         <div class="form-check custom-checkbox mb-4 mt-3">
-                            <input type="checkbox" class="form-check-input" id="terms" name="terms" required>
-                            <label class="form-check-label text-white-50 fs-7" for="terms">
+                            <input type="checkbox" class="form-check-input" id="termsAccepted" th:field="*{termsAccepted}" required>
+                            <label class="form-check-label text-white-50 fs-7" for="termsAccepted">
                                 Akceptuję <a th:href="@{/regulamin}" class="auth-link fw-bold">Regulamin</a> oraz <a th:href="@{/polityka-prywatnosci}" class="auth-link fw-bold">Politykę Prywatności</a>.
                             </label>
+                            <span class="text-danger fs-8 fw-bold mt-1 d-block" th:if="${#fields.hasErrors('termsAccepted')}" th:errors="*{termsAccepted}"></span>
                         </div>
 
                         <button type="submit" class="btn btn-auth-primary w-100 position-relative overflow-hidden">

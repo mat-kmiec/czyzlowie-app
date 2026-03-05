@@ -29,7 +29,6 @@
                 <div class="col-lg-6 auth-form-section pe-lg-5 mb-5 mb-lg-0">
 
                     <div class="text-center text-lg-start mb-4">
-
                         <a class="d-none d-lg-block" th:href="@{/}">
                             <img src="/assets/logo.png" alt="CzyZlowie Logo" class="auth-logo mb-4">
                         </a>
@@ -37,22 +36,66 @@
                         <p class="auth-subtitle">Zaloguj się, aby sprawdzić dzisiejszą prognozę brań.</p>
                     </div>
 
-                    <div th:if="${param.error}" class="alert auth-alert alert-danger d-flex align-items-center gap-2">
-                        <i data-lucide="shield-alert" style="width: 20px;"></i>
-                        <span>Nieprawidłowy e-mail lub hasło.</span>
+                    <div th:if="${param.error}" class="auth-toast auth-toast-danger">
+                        <div class="toast-icon-box">
+                            <i data-lucide="shield-alert"></i>
+                        </div>
+                        <div class="toast-content w-100">
+                            <span class="toast-title">Ups, coś poszło nie tak</span>
+
+                            <span class="toast-message d-block mb-1" th:text="${session.SPRING_SECURITY_LAST_EXCEPTION != null ? session.SPRING_SECURITY_LAST_EXCEPTION.message : 'Nieprawidłowy e-mail lub hasło. Spróbuj ponownie.'}"></span>
+
+                            <div th:if="${session.SPRING_SECURITY_LAST_EXCEPTION != null and #strings.containsIgnoreCase(session.SPRING_SECURITY_LAST_EXCEPTION.message, 'aktywowane')}" class="mt-2">
+
+                                <form th:action="@{/resend-activation}" method="get" class="d-flex align-items-center gap-2 mt-2">
+                                    <input type="hidden" name="email" th:value="${session.SPRING_SECURITY_LAST_USERNAME != null ? session.SPRING_SECURITY_LAST_USERNAME : param.email}">
+                                    <button type="submit" class="btn btn-sm btn-outline-light rounded-pill px-3 py-1" style="font-size: 0.8rem; border-color: rgba(255,255,255,0.2); transition: all 0.3s;">
+                                        <i data-lucide="mail-plus" class="me-1" style="width: 14px; height: 14px; display: inline-block; vertical-align: middle;"></i>
+                                        Wyślij link ponownie
+                                    </button>
+                                </form>
+
+                            </div>
+                        </div>
                     </div>
-                    <div th:if="${param.logout}" class="alert auth-alert alert-success d-flex align-items-center gap-2">
-                        <i data-lucide="check-circle" style="width: 20px;"></i>
-                        <span>Zostałeś pomyślnie wylogowany.</span>
+
+                    <div th:if="${param.logout}" class="auth-toast auth-toast-success">
+                        <div class="toast-icon-box">
+                            <i data-lucide="log-out"></i>
+                        </div>
+                        <div class="toast-content">
+                            <span class="toast-title">Do zobaczenia!</span>
+                            <span class="toast-message">Zostałeś pomyślnie wylogowany. Wracaj szybko na ryby.</span>
+                        </div>
                     </div>
+
+                    <div th:if="${successMessage}" class="auth-toast auth-toast-success">
+                        <div class="toast-icon-box">
+                            <i data-lucide="check-circle"></i>
+                        </div>
+                        <div class="toast-content">
+                            <span class="toast-title">Sukces!</span>
+                            <span class="toast-message" th:text="${successMessage}"></span>
+                        </div>
+                    </div>
+                    <div th:if="${errorMessage}" class="auth-toast auth-toast-danger">
+                        <div class="toast-icon-box">
+                            <i data-lucide="shield-alert"></i>
+                        </div>
+                        <div class="toast-content w-100">
+                            <span class="toast-title">Ostrzeżenie</span>
+                            <span class="toast-message d-block" th:text="${errorMessage}"></span>
+                        </div>
+                    </div>
+
 
                     <form th:action="@{/login}" method="post" class="auth-form mt-4">
 
                         <div class="form-group mb-3">
-                            <label for="username" class="form-label text-white-50 fs-7 fw-bold text-uppercase mb-2">Adres E-mail</label>
+                            <label for="email" class="form-label text-white-50 fs-7 fw-bold text-uppercase mb-2">Adres E-mail</label>
                             <div class="input-icon-wrapper">
                                 <i data-lucide="mail" class="input-icon"></i>
-                                <input type="email" id="username" name="username" class="form-control auth-input" placeholder="wedkarz@pzw.pl" required autofocus>
+                                <input type="email" id="email" name="email" class="form-control auth-input" placeholder="wedkarz@pzw.pl" required autofocus>
                             </div>
                         </div>
 

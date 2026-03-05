@@ -7,16 +7,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 public class TestController {
 
 
-    @GetMapping("/login")
-    public String login(){
-        return "auth/login";
-    }
-
-    @GetMapping("/register")
-    public String register(){
-        return "auth/register";
-    }
-
     @GetMapping("/forgot-password")
     public String forgotPass(){
         return "auth/forgot-password";

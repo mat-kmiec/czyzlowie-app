@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="v2-0-0-00-drop-old-tables" author="mateusz kmiec">
+        <dropTable tableName="user_follows" cascadeConstraints="true"/>
+        <dropTable tableName="user_gear" cascadeConstraints="true"/>
+        <dropTable tableName="user_statistics" cascadeConstraints="true"/>
+        <dropTable tableName="user_settings" cascadeConstraints="true"/>
+        <dropTable tableName="users" cascadeConstraints="true"/>
+    </changeSet>
+
+    <changeSet id="v2-0-0-01-create-users" author="mateusz kmiec">
+        <createTable tableName="users">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false" />
+            </column>
+            <column name="email" type="VARCHAR(255)">
+                <constraints unique="true" nullable="false" />
+            </column>
+            <column name="username" type="varchar(50)">
+                <constraints unique="true" nullable="false" />
+            </column>
+            <column name="password_hash" type="varchar(255)" />
+            <column name="provider" type="varchar(20)" defaultValue="LOCAL">
+                <constraints nullable="false" />
+            </column>
+            <column name="provider_id" type="varchar(255)" />
+            <column name="role" type="varchar(20)" defaultValue="USER">
+                <constraints nullable="false" />
+            </column>
+            <column name="is_enabled" type="boolean" defaultValueBoolean="true" />
+            <column name="is_email_verified" type="boolean" defaultValueBoolean="false" />
+            <column name="is_locked" type="boolean" defaultValueBoolean="false" />
+            <column name="failed_login_attempts" type="integer" defaultValueNumeric="0" />
+            <column name="created_at" type="timestamp" defaultValueComputed="CURRENT_TIMESTAMP" />
+            <column name="updated_at" type="timestamp" />
+        </createTable>
+    </changeSet>
+
+    <changeSet id="v2-0-0-02-create-user-settings" author="mateusz kmiec">
+        <createTable tableName="user_settings">
+            <column name="user_id" type="bigint">
+                <constraints primaryKey="true" nullable="false" />
+            </column>
+            <column name="distance_unit" type="varchar(10)" defaultValue="KM" />
+            <column name="temp_unit" type="varchar(5)" defaultValue="C" />
+            <column name="preferred_language" type="varchar(5)" defaultValue="PL" />
+            <column name="push_notifications_enabled" type="boolean" defaultValueBoolean="false" />
+            <column name="email_notifications_enabled" type="boolean" defaultValueBoolean="false" />
+            <column name="privacy_mode" type="varchar(20)" defaultValue="PUBLIC" />
+        </createTable>
+        <addForeignKeyConstraint baseTableName="user_settings" baseColumnNames="user_id" constraintName="fk_settings_user" referencedTableName="users" referencedColumnNames="id" onDelete="CASCADE" />
+    </changeSet>
+
+    <changeSet id="v2-0-0-03-create-user-consents" author="mateusz kmiec">
+        <createTable tableName="user_consents">
+            <column name="user_id" type="bigint">
+                <constraints primaryKey="true" nullable="false" />
+            </column>
+            <column name="terms_accepted" type="boolean" defaultValueBoolean="false">
+                <constraints nullable="false"/>
+            </column>
+            <column name="terms_version" type="varchar(20)" />
+            <column name="newsletter_accepted" type="boolean" defaultValueBoolean="false" />
+            <column name="marketing_accepted" type="boolean" defaultValueBoolean="false" />
+            <column name="consented_at" type="timestamp" defaultValueComputed="CURRENT_TIMESTAMP" />
+        </createTable>
+        <addForeignKeyConstraint baseTableName="user_consents" baseColumnNames="user_id" constraintName="fk_consents_user" referencedTableName="users" referencedColumnNames="id" onDelete="CASCADE" />
+    </changeSet>
+
+    <changeSet id="v2-0-0-04-create-user-statistics" author="mateusz kmiec">
+        <createTable tableName="user_statistics">
+            <column name="user_id" type="bigint">
+                <constraints primaryKey="true" nullable="false" />
+            </column>
+            <column name="total_catch_count" type="integer" defaultValueNumeric="0" />
+            <column name="total_weight_kg" type="decimal(10,2)" defaultValueNumeric="0.0" />
+            <column name="longest_fish_cm" type="integer" defaultValueNumeric="0" />
+            <column name="points_total" type="integer" defaultValueNumeric="0" />
+            <column name="rank_position" type="integer" />
+            <column name="total_logins" type="integer" defaultValueNumeric="0" />
+            <column name="profile_views" type="integer" defaultValueNumeric="0" />
+            <column name="last_login_at" type="timestamp" />
+            <column name="last_active_at" type="timestamp" />
+            <column name="updated_at" type="timestamp" defaultValueComputed="CURRENT_TIMESTAMP" />
+        </createTable>
+        <addForeignKeyConstraint baseTableName="user_statistics" baseColumnNames="user_id" constraintName="fk_stats_user" referencedTableName="users" referencedColumnNames="id" onDelete="CASCADE" />
+    </changeSet>
+
+    <changeSet id="v2-0-0-05-create-user-gear" author="mateusz kmiec">
+        <createTable tableName="user_gear">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false" />
+            </column>
+            <column name="user_id" type="bigint">
+                <constraints nullable="false" />
+            </column>
+            <column name="name" type="varchar(150)">
+                <constraints nullable="false" />
+            </column>
+            <column name="type" type="varchar(50)" />
+            <column name="brand" type="varchar(100)" />
+            <column name="model" type="varchar(100)" />
+            <column name="is_favorite" type="boolean" defaultValueBoolean="false" />
+            <column name="created_at" type="timestamp" defaultValueComputed="CURRENT_TIMESTAMP" />
+        </createTable>
+        <addForeignKeyConstraint baseTableName="user_gear" baseColumnNames="user_id" constraintName="fk_gear_user" referencedTableName="users" referencedColumnNames="id" onDelete="CASCADE" />
+    </changeSet>
+
+    <changeSet id="v2-0-0-06-create-user-follows" author="mateusz kmiec">
+        <createTable tableName="user_follows">
+            <column name="follower_id" type="bigint">
+                <constraints nullable="false" />
+            </column>
+            <column name="followed_id" type="bigint">
+                <constraints nullable="false" />
+            </column>
+            <column name="created_at" type="timestamp" defaultValueComputed="CURRENT_TIMESTAMP" />
+        </createTable>
+        <addPrimaryKey tableName="user_follows" columnNames="follower_id, followed_id" constraintName="pk_user_follows" />
+        <addForeignKeyConstraint baseTableName="user_follows" baseColumnNames="follower_id" constraintName="fk_follow_follower" referencedTableName="users" referencedColumnNames="id" onDelete="CASCADE" />
+        <addForeignKeyConstraint baseTableName="user_follows" baseColumnNames="followed_id" constraintName="fk_follow_followed" referencedTableName="users" referencedColumnNames="id" onDelete="CASCADE" />
+    </changeSet>
+
+</databaseChangeLog>

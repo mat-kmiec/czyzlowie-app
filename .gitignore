@@ -34,3 +34,4 @@ build/
 
 ### API KEYS
 .env
+application-secrets.yml

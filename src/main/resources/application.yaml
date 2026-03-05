@@ -1,6 +1,8 @@
 spring:
   application:
     name: czyzlowie
+  config:
+    import: optional:classpath:application-secrets.yml
 
   datasource:
     url: jdbc:postgresql://localhost:5432/czyzlowie
@@ -28,8 +30,41 @@ spring:
     enabled: true
 
   mail:
-    host: localhost
-    port: 1025
+    host: ssl0.ovh.net
+    port: 587
+    username: "kontakt@czyzlowie.pl"
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
+        debug: true
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            provider: google
+            scope:
+              - email
+              - profile
+            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
+          facebook:
+            provider: facebook
+            scope:
+              - email
+              - public_profile
+            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
+        provider:
+          facebook:
+            user-info-uri: https://graph.facebook.com/me?fields=id,name,email,picture
+
+app:
+  url: http://localhost:8080
+  mail:
+    from: "kontakt@czyzlowie.pl"
 
 logging:
   level:
