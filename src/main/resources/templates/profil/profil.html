@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pl">
+<head>
+    <th:block th:replace="~{fragments/head :: head-content(
+        pageTitle='Mój Profil | CzyZlowie',
+        pageDescription='Zarządzaj swoim kontem na CzyZlowie.pl. Zmieniaj dane, hasło i śledź swoje wędkarskie statystyki.',
+        currentUrl='https://czyzlowie.pl/profil'
+    )}"></th:block>
+
+    <link rel="stylesheet" th:href="@{/css/main.css}">
+    <link rel="stylesheet" th:href="@{/css/atlas.css}">
+
+    <style>
+        /* === BAZA: CIEMNY GRANAT ATLASU === */
+        body.atlas-page {
+            background-color: #020617;
+            color: #e2e8f0;
+            min-height: 100vh;
+            font-family: 'Inter', sans-serif;
+            background-image: radial-gradient(circle at 50% -20%, #1e293b 0%, #020617 80%);
+        }
+
+        .profile-wrapper {
+            margin-top: 60px; /* Mniejszy margines na mobile */
+            padding-bottom: 3rem;
+        }
+
+        @media (min-width: 992px) {
+            .profile-wrapper {
+                margin-top: 100px;
+                padding-bottom: 5rem;
+            }
+        }
+
+        /* === STATYSTYKI === */
+        .stat-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-top: 25px;
+        }
+
+        @media (max-width: 380px) {
+            .stat-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .stat-card-kozacka {
+            background: linear-gradient(145deg, rgba(30, 41, 59, 0.4) 0%, rgba(15, 23, 42, 0.8) 100%);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .stat-card-kozacka:hover {
+            transform: translateY(-5px);
+            border-color: rgba(56, 189, 248, 0.3);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.5);
+        }
+
+        .stat-card-kozacka .big-icon-bg {
+            position: absolute;
+            right: -10px;
+            bottom: -10px;
+            width: 70px;
+            height: 70px;
+            opacity: 0.1;
+            transform: rotate(-15deg);
+        }
+
+        .stat-val {
+            font-size: 1.8rem;
+            font-weight: 900;
+            line-height: 1.2;
+            background: linear-gradient(to bottom, #fff, #94a3b8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .stat-lbl {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            font-weight: 800;
+            letter-spacing: 1px;
+            color: rgba(255,255,255,0.4);
+        }
+
+        /* === KARTA PROFILU === */
+        .glass-panel-profile {
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 24px;
+            padding: 30px 20px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.4);
+        }
+
+        .user-avatar-hex {
+            width: 90px;
+            height: 90px;
+            margin: 0 auto 20px;
+            background: linear-gradient(135deg, #0ea5e9 0%, #2563eb 100%);
+            border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* === SEKTY USTAWIŃ === */
+        .settings-card {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 24px;
+            padding: 25px;
+            margin-bottom: 20px;
+        }
+
+        @media (min-width: 768px) {
+            .settings-card {
+                padding: 35px;
+                margin-bottom: 30px;
+            }
+        }
+
+        /* FIX IKONKI PRZY NAGŁÓWKU - KLUCZOWE */
+        .icon-box-header {
+            width: 48px;
+            height: 48px;
+            flex-shrink: 0; /* To zapobiega gnieceniu ikony */
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.05);
+            color: #0ea5e9;
+        }
+
+        /* === INPUTY === */
+        .input-group-kozacka {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            transition: 0.3s;
+        }
+
+        .input-group-kozacka:focus-within {
+            border-color: #0ea5e9;
+            box-shadow: 0 0 15px rgba(14, 165, 233, 0.2);
+        }
+
+        .input-kozacki {
+            background: transparent !important;
+            border: none !important;
+            color: #fff !important;
+            box-shadow: none !important;
+            padding: 12px 15px;
+        }
+
+        /* === PRZYCISKI - RESPONSYWNOŚĆ 100% === */
+        .btn-premium {
+            background: linear-gradient(135deg, #0ea5e9 0%, #2563eb 100%);
+            color: #020617;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border: none;
+            padding: 14px 25px;
+            border-radius: 12px;
+            transition: 0.3s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+        }
+
+        @media (max-width: 767.98px) {
+            .btn-premium {
+                width: 100% !important; /* Przycisk na całą szerokość na mobile */
+                margin-top: 10px;
+            }
+            .icon-box-header {
+                width: 42px;
+                height: 42px;
+            }
+        }
+
+        .btn-premium:hover {
+            transform: translateY(-2px);
+            filter: brightness(1.1);
+            color: #020617;
+        }
+
+        .border-accent-red { border-top: 2px solid #ef4444 !important; }
+    </style>
+</head>
+<body class="atlas-page">
+
+<nav th:replace="~{fragments/navbar :: navbar('profil')}"></nav>
+
+<main class="profile-wrapper">
+    <div class="container-xl">
+        <div class="row g-4">
+
+            <aside class="col-lg-4">
+                <div class="sticky-sidebar position-sticky" style="top: 100px;">
+                    <div class="glass-panel-profile">
+                        <div class="text-center mb-4">
+                            <div class="user-avatar-hex">
+                                <i data-lucide="user" style="width: 40px; height: 40px; color: #020617;"></i>
+                            </div>
+                            <h2 class="fs-4 fw-black text-white mb-1" th:text="${user?.username ?: 'Użytkownik'}">Jan Kowalski</h2>
+                            <div class="badge bg-info bg-opacity-10 text-info px-3 py-2 rounded-pill fs-8">
+                                <i data-lucide="award" class="me-1" style="width: 14px;"></i> Aktywny Łowca
+                            </div>
+                        </div>
+
+                        <div class="stat-grid">
+                            <div class="stat-card-kozacka">
+                                <i data-lucide="gauge" class="big-icon-bg"></i>
+                                <span class="stat-val" th:text="${stats?.forecastsChecked ?: 156}">156</span>
+                                <span class="stat-lbl">Prognozy</span>
+                            </div>
+                            <div class="stat-card-kozacka">
+                                <i data-lucide="fish" class="big-icon-bg" style="color: #2ecc71;"></i>
+                                <span class="stat-val" style="background: linear-gradient(to bottom, #fff, #2ecc71); -webkit-background-clip: text;" th:text="${stats?.fishCaught ?: 42}">42</span>
+                                <span class="stat-lbl">Złowione</span>
+                            </div>
+                            <div class="stat-card-kozacka">
+                                <i data-lucide="map" class="big-icon-bg" style="color: #f59e0b;"></i>
+                                <span class="stat-val" style="background: linear-gradient(to bottom, #fff, #f59e0b); -webkit-background-clip: text;" th:text="${stats?.tripsCount ?: 14}">14</span>
+                                <span class="stat-lbl">Wyprawy</span>
+                            </div>
+                            <div class="stat-card-kozacka">
+                                <i data-lucide="map-pin" class="big-icon-bg" style="color: #a855f7;"></i>
+                                <span class="stat-val" style="background: linear-gradient(to bottom, #fff, #a855f7); -webkit-background-clip: text;" th:text="${stats?.favoriteSpots ?: 8}">8</span>
+                                <span class="stat-lbl">Miejsca</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+
+            <div class="col-lg-8">
+
+                <section class="settings-card">
+                    <div class="d-flex align-items-start gap-3 gap-md-4 mb-4">
+                        <div class="icon-box-header">
+                            <i data-lucide="fingerprint" style="width: 24px; height: 24px;"></i>
+                        </div>
+                        <div>
+                            <h3 class="h5 text-white fw-bold mb-1">Publiczna Tożsamość</h3>
+                            <p class="text-muted fs-7 mb-0">Pod tą nazwą będą Cię widzieć inni użytkownicy.</p>
+                        </div>
+                    </div>
+
+                    <form th:action="@{/profil/zmien-nazwe}" method="post">
+                        <div class="row g-2 g-md-3 align-items-end">
+                            <div class="col-md-8">
+                                <label class="form-label text-muted fs-8 text-uppercase fw-bold mb-2">Twoja ksywka</label>
+                                <div class="input-group-kozacka">
+                                    <i data-lucide="at-sign" class="ms-3 text-muted" style="width: 18px;"></i>
+                                    <input type="text" name="username" class="form-control input-kozacki" th:value="${user?.username ?: 'Jan Kowalski'}" required>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <button type="submit" class="btn-premium w-100">Zapisz</button>
+                            </div>
+                        </div>
+                    </form>
+                </section>
+
+                <section class="settings-card">
+                    <div class="d-flex align-items-start gap-3 gap-md-4 mb-4">
+                        <div class="icon-box-header" style="color: #a855f7; background: rgba(168, 85, 247, 0.1);">
+                            <i data-lucide="mail" style="width: 24px; height: 24px;"></i>
+                        </div>
+                        <div>
+                            <h3 class="h5 text-white fw-bold mb-1">Dane Kontaktowe</h3>
+                            <p class="text-muted fs-7 mb-0">Zmień swój adres e-mail do logowania.</p>
+                        </div>
+                    </div>
+
+                    <form th:action="@{/profil/zmien-email}" method="post">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label text-muted fs-8 text-uppercase fw-bold mb-2">Aktualny e-mail</label>
+                                <div class="input-group-kozacka opacity-50">
+                                    <input type="email" class="form-control input-kozacki" th:value="${user?.email ?: 'jan.kowalski@email.com'}" readonly>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label text-muted fs-8 text-uppercase fw-bold mb-2">Nowy e-mail</label>
+                                <div class="input-group-kozacka">
+                                    <input type="email" name="newEmail" class="form-control input-kozacki" placeholder="Wpisz nowy..." required>
+                                </div>
+                            </div>
+                            <div class="col-12 text-md-end">
+                                <button type="submit" class="btn-premium" style="background: linear-gradient(135deg, #a855f7 0%, #d946ef 100%);">
+                                    Aktualizuj E-mail
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </section>
+
+                <section class="settings-card border-accent-red">
+                    <div class="d-flex align-items-start gap-3 gap-md-4 mb-4">
+                        <div class="icon-box-header" style="color: #ef4444; background: rgba(239, 68, 68, 0.1);">
+                            <i data-lucide="lock" style="width: 24px; height: 24px;"></i>
+                        </div>
+                        <div>
+                            <h3 class="h5 text-white fw-bold mb-1">Bezpieczeństwo</h3>
+                            <p class="text-muted fs-7 mb-0">Zalecamy zmianę hasła co najmniej raz na kilka miesięcy.</p>
+                        </div>
+                    </div>
+
+                    <form th:action="@{/profil/zmien-haslo}" method="post">
+                        <div class="row g-3">
+                            <div class="col-12">
+                                <label class="form-label text-muted fs-8 text-uppercase fw-bold mb-2">Aktualne hasło</label>
+                                <div class="input-group-kozacka">
+                                    <input type="password" name="oldPassword" class="form-control input-kozacki" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label text-muted fs-8 text-uppercase fw-bold mb-2">Nowe hasło</label>
+                                <div class="input-group-kozacka">
+                                    <input type="password" name="newPassword" class="form-control input-kozacki" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label text-muted fs-8 text-uppercase fw-bold mb-2">Powtórz nowe hasło</label>
+                                <div class="input-group-kozacka">
+                                    <input type="password" name="confirmPassword" class="form-control input-kozacki" required>
+                                </div>
+                            </div>
+                            <div class="col-12 text-md-end">
+                                <button type="submit" class="btn-premium" style="background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%); color: #fff;">
+                                    Zmień Hasło
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </section>
+
+            </div>
+        </div>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/footer :: footer}"></footer>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        lucide.createIcons();
+    });
+</script>
+
+</body>
+</html>

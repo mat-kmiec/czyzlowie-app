@@ -36,7 +36,7 @@ public class LoginSuccessHandler extends SavedRequestAwareAuthenticationSuccessH
 
         userRepository.save(user);
 
-        setDefaultTargetUrl("/dashboard");
+        setDefaultTargetUrl("/");
         super.onAuthenticationSuccess(request, response, authentication);
     }
 }

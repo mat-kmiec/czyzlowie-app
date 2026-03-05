@@ -1,11 +1,15 @@
 :root {
     --nav-bg-main: #020617;
     --nav-accent-green: #2ecc71;
-    --nav-accent-blue: #38bdf8;
+    --nav-accent-blue: #00bbff;
     --nav-accent-red: #ef4444;
     --nav-accent-purple: #a855f7;
     --nav-accent-orange: #f59e0b;
     --nav-text-high: #ffffff;
+    --nav-accent-cyan: #fffc00;
+    --nav-accent-indigo: #6366f1;
+    --nav-accent-violet: #8b5cf6;
+    --nav-accent-gray: #94a3b8;
     --nav-text-muted: #94a3b8;
     --nav-glass-bg: rgba(15, 23, 42, 0.95);
     --nav-glass-border: rgba(255, 255, 255, 0.08);
@@ -116,11 +120,18 @@
     display: flex; align-items: center; justify-content: center;
     flex-shrink: 0;
 }
-.bg-icon-blue { background: rgba(56, 189, 248, 0.15); color: var(--nav-accent-blue); }
-.bg-icon-red { background: rgba(239, 68, 68, 0.15); color: var(--nav-accent-red); }
-.bg-icon-green { background: rgba(46, 204, 113, 0.15); color: var(--nav-accent-green); }
+/* Klasy kolorystyczne ikon */
+.bg-icon-blue   { background: rgba(56, 189, 248, 0.15); color: var(--nav-accent-blue); }
+.bg-icon-red    { background: rgba(239, 68, 68, 0.15);  color: var(--nav-accent-red); }
+.bg-icon-green  { background: rgba(46, 204, 113, 0.15); color: var(--nav-accent-green); }
 .bg-icon-purple { background: rgba(168, 85, 247, 0.15); color: var(--nav-accent-purple); }
 .bg-icon-orange { background: rgba(245, 158, 11, 0.15); color: var(--nav-accent-orange); }
+
+/* NOWE KLASY: */
+.bg-icon-cyan   { background: rgba(6, 182, 212, 0.15);  color: var(--nav-accent-cyan); }
+.bg-icon-indigo { background: rgba(99, 102, 241, 0.15); color: var(--nav-accent-indigo); }
+.bg-icon-violet { background: rgba(139, 92, 246, 0.15); color: var(--nav-accent-violet); }
+.bg-icon-gray   { background: rgba(148, 163, 184, 0.15);color: var(--nav-accent-gray); }
 
 .menu-item {
     display: flex; align-items: flex-start; gap: 12px;
@@ -155,8 +166,10 @@
         transform: translateX(-50%) !important;
     }
 
+    /* Szerokości poszczególnych Mega Menu */
     .mega-niezbednik { width: 950px; }
     .mega-atlas { width: 700px; }
+    .mega-profil { width: 680px; } /* NOWE: idealna szerokość pod 2 kolumny profilu */
 
     .col-divider { border-right: 1px solid var(--nav-glass-border); }
 
@@ -169,10 +182,12 @@
         to { opacity: 1; transform: translate(-50%, 0) !important; }
     }
 
-    .dropdown-menu-end {
+    /* Nadpisanie dla menu wyrównanego do prawej (np. Mój Profil) */
+    .dropdown-menu-end,
+    .dropdown-menu-end.dropdown-menu-mega {
         left: auto !important;
         right: 0 !important;
-        transform: none !important;
+        transform: translateY(0) !important;
     }
 
     .dropdown-menu-end.show {
@@ -180,8 +195,8 @@
     }
 
     @keyframes fadeInRight {
-        from { opacity: 0; transform: translateY(15px); }
-        to { opacity: 1; transform: translateY(0); }
+        from { opacity: 0; transform: translateY(15px) !important; }
+        to { opacity: 1; transform: translateY(0) !important; }
     }
 }
 
