@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pl">
+<head>
+    <th:block th:replace="~{fragments/head :: head-content(
+        pageTitle='Kwatermistrzostwo - Checklisty | CzyZlowie',
+        pageDescription='Wędkarskie listy sprzętowe. Korzystaj z gotowych wzorców lub twórz własne checklisty na wyprawy.',
+        currentUrl='https://czyzlowie.pl/checklisty'
+    )}"></th:block>
+
+    <link rel="stylesheet" th:href="@{/css/main.css}">
+
+    <style>
+        /* === ZMIENNE BAZOWE (KLIMAT KWATERMISTRZOWSKI - BURSZTYN I CYJAN) === */
+        :root {
+            --brand-green: #2ecc71;
+            --brand-green-glow: rgba(46, 204, 113, 0.25);
+            --brand-cyan: #06b6d4;
+            --brand-cyan-glow: rgba(6, 182, 212, 0.25);
+            --tactical-amber: #f59e0b; /* Główny kolor checklist */
+            --tactical-amber-glow: rgba(245, 158, 11, 0.25);
+            --bg-dark-base: #0f172a;
+            --glass-bg: rgba(15, 23, 42, 0.75);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --text-main: #f8fafc;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+        }
+
+        body.algo-page { background-color: var(--bg-dark-base); min-height: 100vh; color: var(--text-main); font-family: 'Inter', sans-serif; }
+        .algo-bg-container { position: fixed; top: 0; left: 0; width: 100%; height: 100vh; z-index: 0; overflow: hidden; }
+        .algo-bg-image { width: 100%; height: 100%; object-fit: cover; opacity: 0.1; filter: blur(5px); mix-blend-mode: luminosity; }
+        .algo-bg-overlay { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(15,23,42,0.92) 0%, rgba(15,23,42,0.98) 100%); }
+        .algo-glow { position: absolute; border-radius: 50%; filter: blur(120px); opacity: 0.2; pointer-events: none; }
+        .glow-top-left { top: -10%; left: -10%; width: 40vw; height: 40vw; background: rgba(245, 158, 11, 0.2); }
+        .glow-bottom-right { bottom: -10%; right: -10%; width: 50vw; height: 50vw; background: rgba(6, 182, 212, 0.15); }
+
+        .algo-glass-panel {
+            background: var(--glass-bg); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--glass-border); border-radius: 16px; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+            transition: all 0.3s ease; display: flex; flex-direction: column;
+        }
+
+        .section-header { font-size: 0.95rem; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase; color: #fff; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.75rem; padding-bottom: 1rem; border-bottom: 1px solid var(--glass-border); }
+
+        /* === TOP STATS === */
+        .top-stats-grid { display: flex; gap: 10px; flex-wrap: wrap; }
+        .top-stat-box { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 12px; padding: 10px 15px; flex-grow: 1; display: flex; flex-direction: column; border-left: 3px solid var(--tactical-amber); }
+        .top-stat-box.cyan { border-left-color: var(--brand-cyan); }
+        .top-stat-box.green { border-left-color: var(--brand-green); }
+        .top-stat-box .stat-label { font-size: 0.65rem; text-transform: uppercase; font-weight: 800; color: var(--text-secondary); letter-spacing: 1px; display: flex; align-items: center; gap: 4px;}
+        .top-stat-box .stat-value { font-size: 1.3rem; font-weight: 900; color: #fff; margin-top: 2px; }
+
+        /* === FORMULARZ (CREATOR) === */
+        .algo-input-group { position: relative; display: flex; align-items: center; width: 100%; margin-bottom: 1rem; }
+        .algo-input { background: rgba(0, 0, 0, 0.5); border: 1px solid var(--glass-border); color: #fff; border-radius: 10px; padding: 0.9rem 1rem 0.9rem 2.8rem; font-size: 0.95rem; width: 100%; transition: all 0.3s; }
+        textarea.algo-input { padding-left: 1rem; resize: vertical; min-height: 120px; line-height: 1.5; }
+        .algo-input::placeholder { color: var(--text-muted); opacity: 0.7; font-size: 0.85rem; }
+        .algo-input:focus { outline: none; background: rgba(0, 0, 0, 0.7); border-color: var(--tactical-amber); box-shadow: 0 0 0 3px var(--tactical-amber-glow); }
+        .input-icon { position: absolute; left: 1rem; top: 0.9rem; color: #64748b; pointer-events: none; transition: 0.3s; width: 18px; }
+        .algo-input:focus ~ .input-icon { color: var(--tactical-amber); }
+
+        select.algo-input { appearance: none; cursor: pointer; font-weight: 600; color: var(--tactical-amber); }
+        select.algo-input option { background: var(--bg-dark-base); color: #fff; }
+        .select-arrow { position: absolute; right: 1rem; color: #64748b; pointer-events: none; width: 16px; }
+
+        .input-label { display: block; font-size: 0.7rem; text-transform: uppercase; font-weight: 800; letter-spacing: 1px; color: var(--text-secondary); margin-bottom: 0.4rem; margin-left: 0.25rem; display: flex; align-items: center; gap: 6px; }
+
+        /* === KARTY MANIFESTÓW (CHECKLIST) === */
+        .manifest-grid { display: grid; grid-template-columns: 1fr; gap: 1.5rem; margin-bottom: 3rem; }
+        @media (min-width: 992px) { .manifest-grid { grid-template-columns: repeat(2, 1fr); } }
+
+        .manifest-card { background: rgba(0, 0, 0, 0.4); border: 1px solid var(--glass-border); border-radius: 16px; padding: 1.5rem; transition: all 0.3s; position: relative; overflow: hidden; display: flex; flex-direction: column; cursor: pointer; }
+        .manifest-card:hover { transform: translateY(-3px); background: rgba(255, 255, 255, 0.02); border-color: rgba(255,255,255,0.2); box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+
+        /* Akcent dla kart Globalnych vs Prywatnych */
+        .manifest-card.global { border-top: 3px solid var(--brand-cyan); }
+        .manifest-card.personal { border-top: 3px solid var(--tactical-amber); }
+
+        .manifest-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem; }
+        .manifest-icon { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; }
+        .global .manifest-icon { background: rgba(6, 182, 212, 0.1); color: var(--brand-cyan); border: 1px solid rgba(6, 182, 212, 0.3); }
+        .personal .manifest-icon { background: rgba(245, 158, 11, 0.1); color: var(--tactical-amber); border: 1px solid rgba(245, 158, 11, 0.3); }
+
+        .manifest-type-badge { padding: 4px 10px; border-radius: 6px; font-size: 0.65rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; border: 1px solid; }
+        .global .manifest-type-badge { background: rgba(6, 182, 212, 0.1); color: var(--brand-cyan); border-color: rgba(6, 182, 212, 0.3); }
+        .personal .manifest-type-badge { background: rgba(245, 158, 11, 0.1); color: var(--tactical-amber); border-color: rgba(245, 158, 11, 0.3); }
+
+        .manifest-title { font-size: 1.2rem; font-weight: 900; color: #fff; margin: 0 0 5px 0; text-transform: uppercase; letter-spacing: 1px; }
+        .manifest-desc { font-size: 0.8rem; color: var(--text-muted); line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+
+        /* Pasek Postępu na Karcie */
+        .progress-wrapper { margin-top: 1.5rem; }
+        .progress-info { display: flex; justify-content: space-between; font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; color: var(--text-secondary); }
+        .progress-track { width: 100%; height: 6px; background: rgba(255,255,255,0.05); border-radius: 3px; overflow: hidden; position: relative; }
+        .progress-fill { height: 100%; background: var(--text-muted); transition: width 0.4s ease, background 0.4s ease; }
+
+        /* Klasy pomocnicze dla JS do kolorowania paska */
+        .fill-partial { background: var(--tactical-amber); box-shadow: 0 0 10px var(--tactical-amber-glow); }
+        .fill-complete { background: var(--brand-green); box-shadow: 0 0 10px var(--brand-green-glow); }
+
+        /* === BUTTONY === */
+        .btn-algo { background-size: 200% auto; color: #fff; font-weight: 800; font-size: 0.95rem; letter-spacing: 1px; text-transform: uppercase; border-radius: 10px; padding: 1rem; width: 100%; transition: all 0.3s ease; position: relative; overflow: hidden; cursor: pointer; border: none; display: flex; align-items: center; justify-content: center; gap: 0.5rem; text-decoration: none; }
+        .btn-algo:hover { transform: translateY(-2px); background-position: right center; color: #fff; }
+        .btn-amber { background-image: linear-gradient(90deg, #d97706, #f59e0b, #d97706); box-shadow: 0 0 15px var(--tactical-amber-glow); border: 1px solid rgba(245, 158, 11, 0.4); }
+
+        /* === MODAL CHECKLISTY (INTERAKTYWNY HUD) === */
+        .modal-glass .modal-content { background: var(--glass-bg); backdrop-filter: blur(25px); border: 1px solid var(--glass-border); border-radius: 20px; color: #fff; box-shadow: 0 20px 50px rgba(0,0,0,0.8); }
+        .modal-glass .modal-header { border-bottom: 1px solid var(--glass-border); padding: 1.5rem; display: flex; flex-direction: column; align-items: stretch; gap: 10px; }
+        .modal-header-top { display: flex; justify-content: space-between; align-items: center; width: 100%; }
+        .modal-glass .modal-footer { border-top: 1px solid var(--glass-border); padding: 1.2rem 1.5rem; }
+        .modal-glass .btn-close { filter: invert(1) grayscale(100%) brightness(200%); position: absolute; right: 1.5rem; top: 1.5rem; }
+
+        .modal-progress-track { width: 100%; height: 4px; background: rgba(255,255,255,0.1); border-radius: 2px; overflow: hidden; margin-top: 10px; }
+        .modal-progress-fill { height: 100%; background: var(--tactical-amber); transition: width 0.3s ease; }
+
+        /* Stylizacja Checkboxów w liście */
+        .check-list-container { max-height: 50vh; overflow-y: auto; padding: 1rem 1.5rem; display: flex; flex-direction: column; gap: 8px; }
+        /* Scrollbar dla modalu */
+        .check-list-container::-webkit-scrollbar { width: 6px; }
+        .check-list-container::-webkit-scrollbar-track { background: rgba(255,255,255,0.02); }
+        .check-list-container::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 3px; }
+
+        .tactical-check-item { display: flex; align-items: center; gap: 12px; padding: 12px 15px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.05); border-radius: 10px; cursor: pointer; transition: 0.2s; user-select: none; }
+        .tactical-check-item:hover { background: rgba(255,255,255,0.05); }
+
+        .t-checkbox { width: 24px; height: 24px; border: 2px solid var(--text-muted); border-radius: 6px; display: flex; align-items: center; justify-content: center; transition: 0.2s; flex-shrink: 0; }
+        .t-checkbox i { width: 14px; opacity: 0; transition: 0.2s; color: var(--bg-dark-base); }
+
+        .t-label { font-size: 0.95rem; font-weight: 600; color: #fff; transition: 0.2s; flex-grow: 1; word-break: break-word; }
+
+        /* Stan Zaznaczony */
+        .tactical-check-item.checked { background: rgba(46, 204, 113, 0.05); border-color: rgba(46, 204, 113, 0.2); }
+        .tactical-check-item.checked .t-checkbox { background: var(--brand-green); border-color: var(--brand-green); box-shadow: 0 0 10px var(--brand-green-glow); }
+        .tactical-check-item.checked .t-checkbox i { opacity: 1; }
+        .tactical-check-item.checked .t-label { color: var(--text-muted); text-decoration: line-through; }
+
+        .modal-action-btns { display: flex; gap: 10px; align-items: center; width: 100%; justify-content: flex-end; }
+
+        @media (max-width: 767.98px) {
+            .btn-algo { width: 100% !important; max-width: 100% !important; }
+            .modal-action-btns { flex-direction: column; width: 100%; }
+            .modal-action-btns > button { width: 100% !important; justify-content: center; margin: 0 !important; }
+        }
+    </style>
+</head>
+<body class="algo-page">
+
+<nav th:replace="~{fragments/navbar :: navbar(activeTab='checklisty')}"></nav>
+
+<div class="algo-bg-container" aria-hidden="true">
+    <picture>
+        <img src="/assets/drapiezniki.jpg" alt="Tło kwatermistrzostwa" class="algo-bg-image" loading="lazy">
+    </picture>
+    <div class="algo-bg-overlay"></div>
+    <div class="algo-glow glow-top-left"></div>
+    <div class="algo-glow glow-bottom-right"></div>
+</div>
+
+<main class="container-xl position-relative z-2 pb-5" style="margin-top: 90px;">
+
+    <header class="algo-glass-panel p-4 mb-4 h-auto">
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-4 mb-4">
+            <div class="d-flex align-items-center gap-3">
+                <div class="icon-wrapper" style="background: rgba(245, 158, 11, 0.1); border: 1px solid var(--tactical-amber); padding: 12px; border-radius: 12px;">
+                    <i data-lucide="clipboard-check" style="color: var(--tactical-amber); width: 32px; height: 32px;"></i>
+                </div>
+                <div>
+                    <h1 class="display-5 fw-black text-white mb-0" style="text-shadow: 0 0 15px var(--tactical-amber-glow); letter-spacing: -1px;">Kwatermistrzostwo</h1>
+                    <p class="fs-7 mb-0 text-secondary-custom">Zarządzaj ekwipunkiem przed wyprawą. Odznaczaj spakowany sprzęt i unikaj zapominalstwa.</p>
+                </div>
+            </div>
+            <button class="btn btn-algo btn-amber d-xl-none" type="button" data-bs-toggle="collapse" data-bs-target="#createChecklistForm" aria-expanded="false" style="width: auto;">
+                <i data-lucide="plus-square"></i> Utwórz Własną
+            </button>
+        </div>
+
+        <div class="top-stats-grid border-top border-secondary border-opacity-25 pt-4">
+            <div class="top-stat-box cyan">
+                <span class="stat-label"><i data-lucide="globe" style="width: 12px;"></i> Wzorce Dowództwa</span>
+                <span class="stat-value">4 <span class="fs-8 text-secondary fw-normal">szablony</span></span>
+            </div>
+            <div class="top-stat-box">
+                <span class="stat-label"><i data-lucide="user" style="width: 12px;"></i> Moje Manifesty</span>
+                <span class="stat-value">2 <span class="fs-8 text-secondary fw-normal">zapisane</span></span>
+            </div>
+        </div>
+    </header>
+
+    <div class="row g-4">
+
+        <aside class="col-xl-4 d-flex flex-column gap-3">
+            <div class="collapse d-xl-block" id="createChecklistForm">
+                <div class="algo-glass-panel p-4 h-auto position-sticky" style="top: 100px;">
+                    <h2 class="section-header m-0 mb-4" style="border-bottom-color: rgba(245, 158, 11, 0.2);">
+                        <i data-lucide="pen-tool" style="color: var(--tactical-amber);"></i> Skonstruuj Manifest
+                    </h2>
+
+                    <form action="#" method="post">
+
+                        <label class="input-label"><i data-lucide="tag"></i> Tytuł / Przeznaczenie</label>
+                        <div class="algo-input-group">
+                            <input type="text" name="listName" class="algo-input" placeholder="np. Wyjazd do Szwecji '26..." required>
+                            <i data-lucide="flag" class="input-icon"></i>
+                        </div>
+
+                        <label class="input-label"><i data-lucide="layers"></i> Klasyfikacja Wyprawy</label>
+                        <div class="algo-input-group">
+                            <select name="listCategory" class="algo-input" required>
+                                <option value="spinning">Spinning / Drapieżnik</option>
+                                <option value="carp">Karpiowanie / Biwak</option>
+                                <option value="feeder">Feeder / Stacjonarka</option>
+                                <option value="general">Ogólny Ekwipunek (Dokumenty, Jedzenie)</option>
+                            </select>
+                            <i data-lucide="chevron-down" class="select-arrow"></i>
+                            <i data-lucide="folder" class="input-icon"></i>
+                        </div>
+
+                        <label class="input-label" style="margin-top: 1rem;"><i data-lucide="list-todo"></i> Zawartość (Pozycje)</label>
+                        <p class="fs-8 text-muted mb-2 lh-sm">Wpisz każdy element wyposażenia w nowej linii (użyj Enter). System automatycznie przekonwertuje to na interaktywną checklistę.</p>
+                        <div class="algo-input-group">
+                            <textarea name="listItems" class="algo-input" required placeholder="Wędka&#10;Kołowrotek&#10;Pudełko z gumami&#10;Podbierak&#10;Termos z kawą..."></textarea>
+                            <i data-lucide="align-left" class="input-icon"></i>
+                        </div>
+
+                        <button type="submit" class="btn-algo btn-amber w-100 mt-2">
+                            <i data-lucide="save" style="width: 20px;"></i> Zapisz do Bazy
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </aside>
+
+        <div class="col-xl-8">
+
+            <h2 class="fs-5 fw-bold text-white mb-4 ps-2 border-start border-3" style="border-color: var(--brand-cyan) !important;">
+                <i data-lucide="globe" style="width: 20px; color: var(--brand-cyan); margin-right: 8px;"></i> Wzorce Dowództwa (Globalne)
+            </h2>
+
+            <div class="manifest-grid">
+
+                <div class="manifest-card global open-checklist"
+                     data-title="Podstawowy Spinning"
+                     data-type="Globalny Wzorzec"
+                     data-items='["Wędka spinningowa", "Kołowrotek z plecionką", "Przypony (FC / Stal)", "Pudełko z przynętami", "Szczypce do odhaczania", "Podbierak", "Miarka i waga", "Zezwolenie / Karta PZW"]'>
+
+                    <div class="manifest-header">
+                        <div class="manifest-icon"><i data-lucide="crosshair"></i></div>
+                        <div class="manifest-type-badge">Systemowy</div>
+                    </div>
+                    <div class="manifest-body">
+                        <h3 class="manifest-title">Podstawowy Spinning</h3>
+                        <p class="manifest-desc">Szybki wyjazd nad wodę z lekkim ekwipunkiem. Niezbędne minimum dla łowcy drapieżników.</p>
+                    </div>
+
+                    <div class="progress-wrapper">
+                        <div class="progress-info">
+                            <span>Status Oporządzenia</span>
+                            <span class="p-count">0/8</span>
+                        </div>
+                        <div class="progress-track"><div class="progress-fill" style="width: 0%;"></div></div>
+                    </div>
+                </div>
+
+                <div class="manifest-card global open-checklist"
+                     data-title="Nocna Zasiadka (Feeder)"
+                     data-type="Globalny Wzorzec"
+                     data-items='["Wędki Feederowe (2x)", "Podpórki / Tripod", "Sygnalizatory brań", "Świetliki / Latarka Czołowa", "Zanęta i Przynęty (Robaki)", "Fotel wędkarski", "Odzież termiczna", "Ciepły napój / Prowiant", "Siatka wędkarska", "Parasol / Namiot"]'>
+
+                    <div class="manifest-header">
+                        <div class="manifest-icon"><i data-lucide="moon"></i></div>
+                        <div class="manifest-type-badge">Systemowy</div>
+                    </div>
+                    <div class="manifest-body">
+                        <h3 class="manifest-title">Nocna Zasiadka (Feeder)</h3>
+                        <p class="manifest-desc">Kompleksowa lista sprzętu i ubrań na chłodne, nocne oczekiwanie na branie białorybu.</p>
+                    </div>
+
+                    <div class="progress-wrapper">
+                        <div class="progress-info">
+                            <span>Status Oporządzenia</span>
+                            <span class="p-count">0/10</span>
+                        </div>
+                        <div class="progress-track"><div class="progress-fill" style="width: 0%;"></div></div>
+                    </div>
+                </div>
+
+            </div>
+
+            <h2 class="fs-5 fw-bold text-white mb-4 ps-2 border-start border-3" style="border-color: var(--tactical-amber) !important; margin-top: 2rem;">
+                <i data-lucide="user" style="width: 20px; color: var(--tactical-amber); margin-right: 8px;"></i> Prywatne Manifesty
+            </h2>
+
+            <div class="manifest-grid">
+
+                <div class="manifest-card personal open-checklist"
+                     data-title="Wyprawa do Szwecji '26"
+                     data-type="Prywatna Misja"
+                     data-items='["Paszport / Dowód", "Bilety na prom", "Duże Jerki (Pudełko A)", "Ciężki kij castingowy", "Ubranie przeciwdeszczowe", "Echosonda + Akumulator", "Kamera sportowa + Powerbank", "Zestaw narzędzi na łódź"]'>
+
+                    <div class="manifest-header">
+                        <div class="manifest-icon"><i data-lucide="ship"></i></div>
+                        <div class="manifest-type-badge">Własny</div>
+                    </div>
+                    <div class="manifest-body">
+                        <h3 class="manifest-title">Wyprawa do Szwecji '26</h3>
+                        <p class="manifest-desc">Sprzęt dedykowany pod ciężkie łowienie szczupaków ze szwedzkich szkierów.</p>
+                    </div>
+
+                    <div class="progress-wrapper">
+                        <div class="progress-info">
+                            <span>Status Oporządzenia</span>
+                            <span class="p-count">3/8</span>
+                        </div>
+                        <div class="progress-track"><div class="progress-fill fill-partial" style="width: 37%;"></div></div>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/footer :: footer}"></footer>
+
+<div class="modal fade modal-glass" id="checklistModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                <div class="modal-header-top">
+                    <div>
+                        <span class="fs-8 text-uppercase fw-bold text-secondary mb-1 d-block" id="clType">Typ Listy</span>
+                        <h4 class="modal-title fw-black text-white m-0 d-flex align-items-center gap-2" id="clTitle">
+                            <i data-lucide="clipboard-list" style="color: var(--tactical-amber);"></i> Tytuł
+                        </h4>
+                    </div>
+                    <div class="text-end">
+                        <div class="fs-7 fw-bold text-white mb-1"><span id="clDone">0</span> / <span id="clTotal">0</span></div>
+                        <div class="fs-8 text-secondary text-uppercase ls-1">Skompletowano</div>
+                    </div>
+                </div>
+                <div class="modal-progress-track">
+                    <div class="modal-progress-fill" id="clProgressBar" style="width: 0%;"></div>
+                </div>
+            </div>
+
+            <div class="check-list-container" id="clItemsContainer">
+            </div>
+
+            <div class="modal-footer">
+                <div class="modal-action-btns">
+                    <button type="button" class="btn btn-outline-secondary border-secondary text-white" id="clResetBtn">
+                        <i data-lucide="rotate-ccw" style="width: 16px; margin-right: 4px;"></i> Resetuj Listę
+                    </button>
+                    <button type="button" class="btn-algo btn-amber" style="width: auto;" data-bs-dismiss="modal">
+                        <i data-lucide="check-circle" style="width:18px;"></i> Zatwierdź Stan
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        lucide.createIcons();
+
+        // ELEMENTY MODALU
+        const checklistModal = new bootstrap.Modal(document.getElementById('checklistModal'));
+        const clTitle = document.getElementById('clTitle');
+        const clType = document.getElementById('clType');
+        const clItemsContainer = document.getElementById('clItemsContainer');
+        const clDone = document.getElementById('clDone');
+        const clTotal = document.getElementById('clTotal');
+        const clProgressBar = document.getElementById('clProgressBar');
+        const clResetBtn = document.getElementById('clResetBtn');
+
+        let totalItems = 0;
+        let checkedItems = 0;
+
+        // Funkcja aktualizująca UI progresu
+        function updateProgress() {
+            clDone.innerText = checkedItems;
+            let percentage = totalItems > 0 ? (checkedItems / totalItems) * 100 : 0;
+            clProgressBar.style.width = `${percentage}%`;
+
+            // Zmiana kolorów w zależności od postępu
+            clProgressBar.style.background = percentage === 100 ? 'var(--brand-green)' : 'var(--tactical-amber)';
+            clProgressBar.style.boxShadow = percentage === 100 ? '0 0 10px var(--brand-green-glow)' : 'none';
+        }
+
+        // Otwieranie Kart
+        document.querySelectorAll('.open-checklist').forEach(card => {
+            card.addEventListener('click', function() {
+                // Pobieranie danych z atrybutów data-* karty
+                const title = this.getAttribute('data-title');
+                const type = this.getAttribute('data-type');
+                const itemsArray = JSON.parse(this.getAttribute('data-items'));
+
+                // Ustawianie Nagłówka
+                clTitle.innerHTML = `<i data-lucide="clipboard-list" style="color: var(--tactical-amber);"></i> ${title}`;
+                clType.innerText = type;
+
+                // Resetowanie stanu
+                totalItems = itemsArray.length;
+                checkedItems = 0;
+                clTotal.innerText = totalItems;
+                clItemsContainer.innerHTML = '';
+
+                // Generowanie Itemów (Checkboxów)
+                itemsArray.forEach((itemText, index) => {
+                    const itemDiv = document.createElement('div');
+                    itemDiv.className = 'tactical-check-item';
+
+                    itemDiv.innerHTML = `
+                        <div class="t-checkbox"><i data-lucide="check"></i></div>
+                        <div class="t-label">${itemText}</div>
+                    `;
+
+                    // Obsługa kliknięcia (Zaznacz/Odznacz)
+                    itemDiv.addEventListener('click', function() {
+                        this.classList.toggle('checked');
+                        if (this.classList.contains('checked')) {
+                            checkedItems++;
+                        } else {
+                            checkedItems--;
+                        }
+                        updateProgress();
+                    });
+
+                    clItemsContainer.appendChild(itemDiv);
+                });
+
+                // Odświeżenie ikon Lucide w nowo wygenerowanych elementach
+                lucide.createIcons();
+                updateProgress();
+
+                checklistModal.show();
+            });
+        });
+
+        // Obsługa Resetu (Odznaczenie wszystkiego w otwartym modalu)
+        clResetBtn.addEventListener('click', () => {
+            const allItems = clItemsContainer.querySelectorAll('.tactical-check-item');
+            allItems.forEach(item => item.classList.remove('checked'));
+            checkedItems = 0;
+            updateProgress();
+        });
+
+    });
+</script>
+
+</body>
+</html>

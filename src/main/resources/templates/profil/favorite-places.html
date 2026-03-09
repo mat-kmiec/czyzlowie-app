@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pl">
+<head>
+    <th:block th:replace="~{fragments/head :: head-content(
+        pageTitle='Ulubione Miejscówki | CzyZlowie',
+        pageDescription='Zarządzaj swoimi tajnymi łowiskami. Zapisuj współrzędne, zdjęcia i informacje o występujących gatunkach ryb.',
+        currentUrl='https://czyzlowie.pl/miejscowki'
+    )}"></th:block>
+
+    <link rel="stylesheet" th:href="@{/css/main.css}">
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+
+    <style>
+        /* === ZMIENNE BAZOWE === */
+        :root {
+            --brand-green: #2ecc71;
+            --brand-blue: #0ea5e9;
+            --brand-blue-glow: rgba(14, 165, 233, 0.25);
+            --ignore-orange: #f59e0b;
+            --purple-night: #a855f7;
+            --cyan-water: #06b6d4; /* Specjalny akcent dla miejscówek */
+            --cyan-glow: rgba(6, 182, 212, 0.25);
+            --bg-dark-base: #0f172a;
+            --glass-bg: rgba(15, 23, 42, 0.75);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --text-main: #f8fafc;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+        }
+
+        body.algo-page { background-color: var(--bg-dark-base); min-height: 100vh; color: var(--text-main); font-family: 'Inter', sans-serif; }
+        .algo-bg-container { position: fixed; top: 0; left: 0; width: 100%; height: 100vh; z-index: 0; overflow: hidden; }
+        .algo-bg-image { width: 100%; height: 100%; object-fit: cover; opacity: 0.15; filter: blur(6px); }
+        .algo-bg-overlay { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(15,23,42,0.88) 0%, rgba(15,23,42,0.98) 100%); }
+        .algo-glow { position: absolute; border-radius: 50%; filter: blur(120px); opacity: 0.25; pointer-events: none; }
+        .glow-top-left { top: -10%; left: -10%; width: 40vw; height: 40vw; background: rgba(6, 182, 212, 0.2); }
+        .glow-bottom-right { bottom: -10%; right: -10%; width: 50vw; height: 50vw; background: rgba(14, 165, 233, 0.15); }
+
+        .algo-glass-panel {
+            background: var(--glass-bg); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--glass-border); border-radius: 16px; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+            transition: all 0.3s ease; display: flex; flex-direction: column;
+        }
+
+        .section-header { font-size: 0.95rem; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase; color: #fff; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.75rem; padding-bottom: 1rem; border-bottom: 1px solid var(--glass-border); }
+
+        /* === TOP STATS === */
+        .top-stats-grid { display: flex; gap: 10px; flex-wrap: wrap; }
+        .top-stat-box { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 12px; padding: 10px 15px; flex-grow: 1; display: flex; flex-direction: column; border-left: 3px solid var(--cyan-water); }
+        .top-stat-box.blue { border-left-color: var(--brand-blue); }
+        .top-stat-box.green { border-left-color: var(--brand-green); }
+        .top-stat-box .stat-label { font-size: 0.65rem; text-transform: uppercase; font-weight: 800; color: var(--text-secondary); letter-spacing: 1px; }
+        .top-stat-box .stat-value { font-size: 1.2rem; font-weight: 900; color: #fff; margin-top: 2px; }
+
+        /* === FORMULARZE === */
+        .algo-input-group { position: relative; display: flex; align-items: center; width: 100%; margin-bottom: 1.2rem; }
+        .algo-input { background: rgba(0, 0, 0, 0.5); border: 1px solid var(--glass-border); color: #fff; border-radius: 10px; padding: 0.9rem 1rem 0.9rem 2.8rem; font-size: 0.95rem; width: 100%; transition: all 0.3s; }
+        textarea.algo-input { padding-left: 1rem; resize: vertical; min-height: 80px; }
+        .algo-input::placeholder { color: var(--text-muted); opacity: 0.7; }
+        .algo-input:focus { outline: none; background: rgba(0, 0, 0, 0.7); border-color: var(--cyan-water); box-shadow: 0 0 0 3px var(--cyan-glow); }
+        .input-icon { position: absolute; left: 1rem; color: #64748b; pointer-events: none; transition: 0.3s; width: 18px; }
+        .algo-input:focus ~ .input-icon { color: var(--cyan-water); }
+
+        select.algo-input { appearance: none; cursor: pointer; }
+        .select-arrow { position: absolute; right: 1rem; color: #64748b; pointer-events: none; width: 16px; }
+        .input-label { display: block; font-size: 0.75rem; text-transform: uppercase; font-weight: 800; letter-spacing: 1px; color: var(--text-secondary); margin-bottom: 0.5rem; margin-left: 0.25rem; }
+
+        .btn-map-picker { position: absolute; right: 0.3rem; background: rgba(6, 182, 212, 0.15); border: 1px solid rgba(6, 182, 212, 0.3); color: var(--cyan-water); border-radius: 8px; padding: 0.5rem; cursor: pointer; transition: 0.3s; display: flex; align-items: center; justify-content: center; z-index: 5; }
+        .btn-map-picker:hover { background: var(--cyan-water); color: #fff; box-shadow: 0 0 10px var(--cyan-glow); }
+
+        input[type="file"].algo-input { padding: 0.6rem 1rem 0.6rem 2.8rem; font-size: 0.85rem; color: var(--text-secondary); }
+        input[type="file"].algo-input::-webkit-file-upload-button { background: rgba(255,255,255,0.1); border: none; color: #fff; padding: 6px 12px; border-radius: 6px; cursor: pointer; margin-right: 10px; font-weight: bold; font-size: 0.8rem; transition: 0.3s; }
+        input[type="file"].algo-input::-webkit-file-upload-button:hover { background: var(--cyan-water); }
+
+        /* Multi Checkbox Gatunków */
+        .tag-checkboxes { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 1.2rem; }
+        .tag-check-label { background: rgba(0,0,0,0.4); border: 1px solid var(--glass-border); padding: 6px 12px; border-radius: 8px; font-size: 0.8rem; color: var(--text-secondary); cursor: pointer; transition: 0.3s; font-weight: 700; user-select: none; display: flex; align-items: center; gap: 6px; }
+        .tag-check-input { display: none; }
+        .tag-check-input:checked + .tag-check-label { background: rgba(6, 182, 212, 0.2); border-color: var(--cyan-water); color: #fff; box-shadow: 0 0 10px rgba(6, 182, 212, 0.2); }
+        .tag-check-input:checked + .tag-check-label i { color: var(--cyan-water); }
+
+        /* === KARTY MIEJSCÓWEK (SPOTS) === */
+        .spot-grid { display: grid; grid-template-columns: 1fr; gap: 1.5rem; }
+        @media (min-width: 992px) { .spot-grid { grid-template-columns: repeat(2, 1fr); } }
+
+        .spot-card { background: rgba(0, 0, 0, 0.4); border: 1px solid var(--glass-border); border-radius: 16px; transition: all 0.3s; overflow: hidden; display: flex; flex-direction: column; position: relative; }
+        .spot-card:hover { transform: translateY(-5px); background: rgba(255, 255, 255, 0.03); border-color: rgba(255,255,255,0.2); box-shadow: 0 15px 35px rgba(0,0,0,0.5); }
+
+        .spot-image-wrapper { width: 100%; height: 180px; position: relative; overflow: hidden; border-bottom: 1px solid var(--glass-border); cursor: pointer; }
+        .spot-image-wrapper img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s; }
+        .spot-image-wrapper:hover img { transform: scale(1.05); filter: brightness(0.8); }
+        .spot-image-wrapper::after { content: '\21F2'; font-family: 'lucide'; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: #fff; font-size: 2rem; opacity: 0; transition: 0.3s; z-index: 2; pointer-events: none; }
+        .spot-image-wrapper:hover::after { opacity: 0.8; }
+        .spot-image-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, transparent 60%); pointer-events: none; }
+
+        .spot-type-badge { position: absolute; top: 12px; right: 12px; padding: 5px 12px; border-radius: 8px; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; color: #fff; border: 1px solid rgba(255,255,255,0.2); backdrop-filter: blur(5px); z-index: 2; }
+        .type-river { background: rgba(14, 165, 233, 0.6); }
+        .type-lake { background: rgba(46, 204, 113, 0.6); }
+        .type-commercial { background: rgba(168, 85, 247, 0.6); }
+
+        .spot-body { padding: 1.5rem; display: flex; flex-direction: column; flex-grow: 1; }
+        .spot-title { font-size: 1.3rem; font-weight: 900; color: #fff; margin: 0 0 5px 0; text-transform: uppercase; letter-spacing: 1px; }
+        .spot-meta { font-size: 0.8rem; color: var(--brand-blue); display: flex; align-items: center; gap: 6px; font-family: monospace; letter-spacing: 0.5px; margin-bottom: 1rem; }
+        .spot-meta i { width: 14px; }
+
+        .fish-tags-list { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 1rem; }
+        .fish-tag-badge { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; padding: 4px 8px; font-size: 0.7rem; color: var(--text-secondary); font-weight: 700; display: flex; align-items: center; gap: 4px; }
+        .fish-tag-badge i { width: 12px; color: var(--cyan-water); }
+
+        .spot-notes { background: rgba(0,0,0,0.2); border-left: 2px solid var(--text-muted); padding: 10px 12px; border-radius: 0 8px 8px 0; font-size: 0.85rem; color: #cbd5e1; font-style: italic; margin-bottom: 1.5rem; flex-grow: 1; line-height: 1.4; }
+
+        .spot-actions { display: flex; gap: 10px; border-top: 1px dashed rgba(255,255,255,0.1); padding-top: 1rem; }
+        .btn-spot-action { flex: 1; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); color: #fff; padding: 8px; border-radius: 8px; font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; cursor: pointer; transition: 0.3s; display: flex; align-items: center; justify-content: center; gap: 6px; text-decoration: none; }
+        .btn-spot-action:hover { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.3); }
+        .btn-spot-action.primary { background: rgba(6, 182, 212, 0.1); border-color: rgba(6, 182, 212, 0.4); color: var(--cyan-water); }
+        .btn-spot-action.primary:hover { background: var(--cyan-water); color: #fff; }
+
+        /* === BUTTONY === */
+        .btn-algo { background-size: 200% auto; color: #fff; font-weight: 800; font-size: 0.95rem; letter-spacing: 1px; text-transform: uppercase; border-radius: 10px; padding: 1rem; width: 100%; transition: all 0.3s ease; position: relative; overflow: hidden; cursor: pointer; border: none; display: flex; align-items: center; justify-content: center; gap: 0.5rem; text-decoration: none; }
+        .btn-algo:hover { transform: translateY(-2px); background-position: right center; color: #fff; }
+        .btn-cyan { background-image: linear-gradient(90deg, #0891b2, #06b6d4, #0891b2); box-shadow: 0 0 15px rgba(6, 182, 212, 0.3); border: 1px solid rgba(6, 182, 212, 0.4); }
+
+        /* === MODALE SZKLANE === */
+        .modal-glass .modal-content { background: var(--glass-bg); backdrop-filter: blur(25px); border: 1px solid var(--glass-border); border-radius: 20px; color: #fff; box-shadow: 0 20px 50px rgba(0,0,0,0.8); }
+        .modal-glass .modal-header { border-bottom: 1px solid var(--glass-border); padding: 1.2rem 1.5rem; }
+        .modal-glass .modal-footer { border-top: 1px solid var(--glass-border); padding: 1.2rem 1.5rem; }
+        .modal-glass .btn-close { filter: invert(1) grayscale(100%) brightness(200%); }
+        .modal-action-btns { display: flex; gap: 10px; align-items: center; }
+
+        @media (max-width: 767.98px) {
+            .btn-algo { width: 100% !important; max-width: 100% !important; }
+            .modal-action-btns { flex-direction: column; width: 100%; }
+            .modal-action-btns > button { width: 100% !important; justify-content: center; margin: 0 !important; }
+            .map-modal-footer { flex-direction: column; gap: 15px; align-items: center; text-align: center; }
+            .map-modal-footer > span { order: -1; }
+        }
+    </style>
+</head>
+<body class="algo-page">
+
+<nav th:replace="~{fragments/navbar :: navbar(activeTab='miejscowki')}"></nav>
+
+<div class="algo-bg-container" aria-hidden="true">
+    <picture>
+        <img src="/assets/drapiezniki.jpg" alt="Tło miejscówek" class="algo-bg-image" loading="lazy">
+    </picture>
+    <div class="algo-bg-overlay"></div>
+    <div class="algo-glow glow-top-left"></div>
+    <div class="algo-glow glow-bottom-right"></div>
+</div>
+
+<main class="container-xl position-relative z-2 pb-5" style="margin-top: 90px;">
+
+    <header class="algo-glass-panel p-4 mb-4 h-auto">
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-4 mb-4">
+            <div class="d-flex align-items-center gap-3">
+                <div class="icon-wrapper" style="background: rgba(6, 182, 212, 0.1); border: 1px solid var(--cyan-water); padding: 12px; border-radius: 12px;">
+                    <i data-lucide="map-pinned" style="color: var(--cyan-water); width: 32px; height: 32px;"></i>
+                </div>
+                <div>
+                    <h1 class="display-5 fw-black text-white mb-0" style="text-shadow: 0 0 15px rgba(6, 182, 212, 0.3); letter-spacing: -1px;">Baza Geograficzna</h1>
+                    <p class="fs-7 mb-0 text-secondary-custom">Zarządzaj swoimi tajnymi łowiskami, analizuj ukształtowanie i gatunki.</p>
+                </div>
+            </div>
+            <button class="btn btn-algo btn-cyan d-xl-none" type="button" data-bs-toggle="collapse" data-bs-target="#addSpotForm" aria-expanded="false" style="width: auto;">
+                <i data-lucide="plus-circle"></i> Dodaj Punkt Zborny
+            </button>
+        </div>
+
+        <div class="top-stats-grid border-top border-secondary border-opacity-25 pt-4">
+            <div class="top-stat-box">
+                <span class="stat-label">Odkryte Lokacje</span>
+                <span class="stat-value">8 <span class="fs-8 text-secondary fw-normal">zapisanych</span></span>
+            </div>
+            <div class="top-stat-box blue">
+                <span class="stat-label">Ulubiony Akwen</span>
+                <span class="stat-value">Rzeka Odra</span>
+            </div>
+            <div class="top-stat-box green">
+                <span class="stat-label">Główny Cel</span>
+                <span class="stat-value">Sandacz <i data-lucide="fish" style="width: 14px; margin-left: 4px; color: var(--brand-green);"></i></span>
+            </div>
+        </div>
+    </header>
+
+    <div class="row g-4">
+
+        <aside class="col-xl-4 d-flex flex-column gap-3">
+            <div class="collapse d-xl-block" id="addSpotForm">
+                <div class="algo-glass-panel p-4 h-auto position-sticky" style="top: 100px;">
+                    <h2 class="section-header m-0 mb-4" style="border-bottom-color: rgba(6, 182, 212, 0.2);">
+                        <i data-lucide="crosshair" style="color: var(--cyan-water);"></i> Zapisz Nową Lokację
+                    </h2>
+
+                    <form action="#" method="post" enctype="multipart/form-data">
+
+                        <label class="input-label">Kryptonim / Nazwa</label>
+                        <div class="algo-input-group">
+                            <input type="text" name="spotName" class="algo-input" placeholder="np. Tajne Zakole, Główka nr 4..." required>
+                            <i data-lucide="flag" class="input-icon"></i>
+                        </div>
+
+                        <label class="input-label">Współrzędne (Lokalizacja)</label>
+                        <div class="algo-input-group">
+                            <input type="text" name="location" id="inputLocation" class="algo-input" placeholder="Oznacz na mapie..." required style="padding-right: 3.5rem;">
+                            <i data-lucide="map-pin" class="input-icon"></i>
+                            <button type="button" class="btn-map-picker" id="openMapBtn" title="Oznacz na mapie">
+                                <i data-lucide="radar" style="width: 18px;"></i>
+                            </button>
+                        </div>
+                        <input type="hidden" name="lat" id="inputLat">
+                        <input type="hidden" name="lng" id="inputLng">
+
+                        <label class="input-label">Typ Akwenu</label>
+                        <div class="algo-input-group">
+                            <select name="waterType" class="algo-input" required>
+                                <option value="river">Rzeka płynąca</option>
+                                <option value="lake">Jezioro naturalne</option>
+                                <option value="pond">Staw / PZW</option>
+                                <option value="commercial">Łowisko Komercyjne</option>
+                                <option value="sea">Morze / Zatoka</option>
+                            </select>
+                            <i data-lucide="waves" class="input-icon"></i>
+                            <i data-lucide="chevron-down" class="select-arrow"></i>
+                        </div>
+
+                        <label class="input-label">Namierzone Gatunki (Cel)</label>
+                        <div class="tag-checkboxes">
+                            <input type="checkbox" id="fish_1" class="tag-check-input" name="fishTags" value="Szczupak">
+                            <label for="fish_1" class="tag-check-label"><i data-lucide="fish"></i> Szczupak</label>
+
+                            <input type="checkbox" id="fish_2" class="tag-check-input" name="fishTags" value="Sandacz">
+                            <label for="fish_2" class="tag-check-label"><i data-lucide="fish"></i> Sandacz</label>
+
+                            <input type="checkbox" id="fish_3" class="tag-check-input" name="fishTags" value="Okoń">
+                            <label for="fish_3" class="tag-check-label"><i data-lucide="fish"></i> Okoń</label>
+
+                            <input type="checkbox" id="fish_4" class="tag-check-input" name="fishTags" value="Karp">
+                            <label for="fish_4" class="tag-check-label"><i data-lucide="fish"></i> Karp</label>
+
+                            <input type="checkbox" id="fish_5" class="tag-check-input" name="fishTags" value="Leszcz">
+                            <label for="fish_5" class="tag-check-label"><i data-lucide="fish"></i> Leszcz</label>
+                        </div>
+
+                        <label class="input-label">Fotografia Poglądowa</label>
+                        <div class="algo-input-group">
+                            <input type="file" name="spotPhoto" class="algo-input" accept="image/*">
+                            <i data-lucide="camera" class="input-icon"></i>
+                        </div>
+
+                        <label class="input-label">Raport Rozpoznawczy (Notatka)</label>
+                        <div class="algo-input-group">
+                            <textarea name="note" class="algo-input" rows="4" maxlength="500" placeholder="Rozkład dna, zaczepy, dojazd, gdzie zostawić auto..."></textarea>
+                        </div>
+
+                        <button type="submit" class="btn-algo btn-cyan w-100 mt-2">
+                            <i data-lucide="save" style="width: 20px;"></i> Zapisz do Bazy
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </aside>
+
+        <div class="col-xl-8">
+            <h2 class="fs-5 fw-bold text-white mb-4 ps-2 border-start border-3" style="border-color: var(--cyan-water) !important;">
+                <i data-lucide="satellite" style="width: 20px; color: var(--cyan-water); margin-right: 8px;"></i> Zapisane Punkty Zborne
+            </h2>
+
+            <div class="spot-grid">
+
+                <div class="spot-card">
+                    <div class="spot-image-wrapper image-popup-trigger" data-img-src="/assets/drapiezniki.jpg">
+                        <img src="/assets/drapiezniki.jpg" alt="Zdjęcie miejscówki" loading="lazy">
+                        <div class="spot-image-overlay"></div>
+                        <div class="spot-type-badge type-river">Rzeka</div>
+                    </div>
+
+                    <div class="spot-body">
+                        <h3 class="spot-title">Tajne Zakole Odry</h3>
+                        <div class="spot-meta"><i data-lucide="navigation"></i> Kord: 51.107, 17.038</div>
+
+                        <div class="fish-tags-list">
+                            <span class="fish-tag-badge"><i data-lucide="fish"></i> Sandacz</span>
+                            <span class="fish-tag-badge"><i data-lucide="fish"></i> Boleń</span>
+                            <span class="fish-tag-badge"><i data-lucide="fish"></i> Kleń</span>
+                        </div>
+
+                        <div class="spot-notes">
+                            "Mocny warkocz na końcu główki. Sporo twardych zaczepów (zatopione kamienie). Najlepiej obławiać z samego rana lekkim jigiem. Samochód można zostawić przy wale."
+                        </div>
+
+                        <div class="spot-actions">
+                            <a href="https://maps.google.com/?q=51.107,17.038" target="_blank" class="btn-spot-action primary">
+                                <i data-lucide="compass"></i> Nawiguj
+                            </a>
+                            <button class="btn-spot-action">
+                                <i data-lucide="settings-2"></i> Edytuj
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="spot-card">
+                    <div class="spot-image-wrapper image-popup-trigger" data-img-src="/assets/drapiezniki.jpg">
+                        <img src="/assets/drapiezniki.jpg" alt="Zdjęcie miejscówki" loading="lazy">
+                        <div class="spot-image-overlay"></div>
+                        <div class="spot-type-badge type-lake">Jezioro</div>
+                    </div>
+
+                    <div class="spot-body">
+                        <h3 class="spot-title">Płytka Zatoka Szczupakowa</h3>
+                        <div class="spot-meta"><i data-lucide="navigation"></i> Kord: 53.782, 20.485</div>
+
+                        <div class="fish-tags-list">
+                            <span class="fish-tag-badge"><i data-lucide="fish"></i> Szczupak</span>
+                            <span class="fish-tag-badge"><i data-lucide="fish"></i> Okoń</span>
+                        </div>
+
+                        <div class="spot-notes">
+                            "Mega zarośnięta zatoka, głębokość max 1.5m. Konieczne jerki bezzaczepowe lub lekkie gumy na offsecie. Wiosną woda szybko się nagrzewa."
+                        </div>
+
+                        <div class="spot-actions">
+                            <a href="https://maps.google.com/?q=53.782,20.485" target="_blank" class="btn-spot-action primary">
+                                <i data-lucide="compass"></i> Nawiguj
+                            </a>
+                            <button class="btn-spot-action">
+                                <i data-lucide="settings-2"></i> Edytuj
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="spot-card">
+                    <div class="spot-image-wrapper image-popup-trigger" data-img-src="/assets/drapiezniki.jpg">
+                        <img src="/assets/drapiezniki.jpg" alt="Zdjęcie miejscówki" loading="lazy">
+                        <div class="spot-image-overlay"></div>
+                        <div class="spot-type-badge type-commercial">Komercja</div>
+                    </div>
+
+                    <div class="spot-body">
+                        <h3 class="spot-title">Łowisko Kormoran (Stan. 4)</h3>
+                        <div class="spot-meta"><i data-lucide="navigation"></i> Kord: 50.251, 19.023</div>
+
+                        <div class="fish-tags-list">
+                            <span class="fish-tag-badge"><i data-lucide="fish"></i> Karp</span>
+                            <span class="fish-tag-badge"><i data-lucide="fish"></i> Jesiotr</span>
+                        </div>
+
+                        <div class="spot-notes">
+                            "Twarde dno około 60 metrów od brzegu. Reagują bardzo dobrze na pellet halibutowy. Właściciel pozwala wjechać autem na samo stanowisko."
+                        </div>
+
+                        <div class="spot-actions">
+                            <a href="https://maps.google.com/?q=50.251,19.023" target="_blank" class="btn-spot-action primary">
+                                <i data-lucide="compass"></i> Nawiguj
+                            </a>
+                            <button class="btn-spot-action">
+                                <i data-lucide="settings-2"></i> Edytuj
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="text-center mt-5 mb-3">
+                <button class="btn btn-link text-secondary text-decoration-none fw-bold text-uppercase ls-1 fs-8">
+                    <i data-lucide="rotate-cw" style="width: 14px; margin-right: 4px;"></i> Załaduj resztę bazy
+                </button>
+            </div>
+
+        </div>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/footer :: footer}"></footer>
+
+<div class="modal fade modal-glass" id="mapModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title fw-bold d-flex align-items-center gap-2"><i data-lucide="radar" style="color: var(--cyan-water);"></i> Zaznacz na Radarze</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-0 position-relative">
+                <div id="map" style="width: 100%; height: 400px; border-radius: 0 0 20px 20px;"></div>
+            </div>
+            <div class="modal-footer map-modal-footer d-flex justify-content-between">
+                <span class="fs-8 text-secondary" id="mapSelectedInfo">Kliknij na mapie...</span>
+                <div class="modal-action-btns">
+                    <button type="button" class="btn btn-outline-secondary border-secondary text-white" data-bs-dismiss="modal">Anuluj</button>
+                    <button type="button" class="btn-algo btn-cyan" id="btnConfirmMap" style="width: auto;"><i data-lucide="check-circle" style="width:18px;"></i> Zatwierdź Pozycję</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade modal-glass" id="imagePreviewModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
+        <div class="modal-content">
+            <div class="modal-header border-0 pb-0 position-absolute w-100 z-3" style="top: 0; justify-content: flex-end;">
+                <button type="button" class="btn-close" data-bs-dismiss="modal" style="background-color: rgba(0,0,0,0.5); padding: 10px; border-radius: 50%;"></button>
+            </div>
+            <div class="modal-body p-0 position-relative" style="background: #000; border-radius: 19px 19px 0 0; overflow: hidden;">
+                <img id="modalPreviewImg" src="" style="width: 100%; max-height: 80vh; object-fit: contain; display: block;">
+            </div>
+            <div class="modal-footer" style="background: rgba(15, 23, 42, 0.9);">
+                <div class="modal-action-btns w-100 justify-content-end">
+                    <button type="button" class="btn btn-outline-secondary border-secondary text-white px-4 fw-bold text-uppercase ls-1 fs-8" data-bs-dismiss="modal">Zamknij</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        lucide.createIcons();
+
+        // Obsługa modalu ze zdjęciem
+        const imagePreviewModal = new bootstrap.Modal(document.getElementById('imagePreviewModal'));
+        const modalImg = document.getElementById('modalPreviewImg');
+
+        document.querySelectorAll('.image-popup-trigger').forEach(container => {
+            container.addEventListener('click', function() {
+                const img = this.querySelector('img');
+                const imgSrc = img.getAttribute('src');
+                if(imgSrc) {
+                    modalImg.src = imgSrc;
+                    imagePreviewModal.show();
+                }
+            });
+        });
+
+        // Obsługa Mapy (Leaflet + Nominatim API)
+        const mapModal = new bootstrap.Modal(document.getElementById('mapModal'));
+        let map, marker;
+
+        document.getElementById('openMapBtn').addEventListener('click', () => { mapModal.show(); });
+
+        document.getElementById('mapModal').addEventListener('shown.bs.modal', function () {
+            if (!map) {
+                map = L.map('map').setView([52.069, 19.480], 6);
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(map);
+
+                map.on('click', function(e) {
+                    const coord = e.latlng;
+                    if (marker) marker.setLatLng(coord); else marker = L.marker(coord, {draggable: true}).addTo(map);
+
+                    document.getElementById('mapSelectedInfo').innerText = "Pobieranie lokalizacji...";
+                    fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${coord.lat}&lon=${coord.lng}&zoom=10`)
+                        .then(res => res.json())
+                        .then(data => {
+                            const city = data.address.city || data.address.town || data.address.village || "Zdalna Lokacja";
+                            document.getElementById('mapSelectedInfo').innerText = city;
+                            document.getElementById('mapSelectedInfo').setAttribute('data-city', city);
+                        }).catch(() => document.getElementById('mapSelectedInfo').innerText = "Współrzędne zapisane");
+                });
+            }
+            map.invalidateSize();
+        });
+
+        document.getElementById('btnConfirmMap').addEventListener('click', () => {
+            if (marker) {
+                const coord = marker.getLatLng();
+                const city = document.getElementById('mapSelectedInfo').getAttribute('data-city') || "Wybrany Punkt";
+                document.getElementById('inputLat').value = coord.lat.toFixed(6);
+                document.getElementById('inputLng').value = coord.lng.toFixed(6);
+                // Tworzymy format np. "Wrocław (51.10, 17.03)"
+                document.getElementById('inputLocation').value = `${city} (${coord.lat.toFixed(2)}, ${coord.lng.toFixed(2)})`;
+                mapModal.hide();
+            } else alert("Oznacz cel na radarze klikając na mapę.");
+        });
+    });
+</script>
+
+</body>
+</html>

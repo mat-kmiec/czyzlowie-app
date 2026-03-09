@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pl">
+<head>
+    <th:block th:replace="~{fragments/head :: head-content(
+        pageTitle='Kalendarz Wyjazdów | CzyZlowie',
+        pageDescription='Planuj swoje wędkarskie misje. Zarządzaj czasem, sprzętem i ekipą.',
+        currentUrl='https://czyzlowie.pl/kalendarz'
+    )}"></th:block>
+
+    <link rel="stylesheet" th:href="@{/css/main.css}">
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+
+    <style>
+        /* === ZMIENNE BAZOWE === */
+        :root {
+            --brand-green: #2ecc71;
+            --brand-blue: #0ea5e9;
+            --brand-blue-glow: rgba(14, 165, 233, 0.25);
+            --ignore-orange: #f59e0b;
+            --ignore-orange-glow: rgba(245, 158, 11, 0.25);
+            --bg-dark-base: #0f172a;
+            --glass-bg: rgba(15, 23, 42, 0.75);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --text-main: #f8fafc;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+        }
+
+        body.algo-page { background-color: var(--bg-dark-base); min-height: 100vh; color: var(--text-main); font-family: 'Inter', sans-serif; }
+        .algo-bg-container { position: fixed; top: 0; left: 0; width: 100%; height: 100vh; z-index: 0; overflow: hidden; }
+        .algo-bg-image { width: 100%; height: 100%; object-fit: cover; opacity: 0.15; filter: blur(6px); }
+        .algo-bg-overlay { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(15,23,42,0.88) 0%, rgba(15,23,42,0.98) 100%); }
+        .algo-glow { position: absolute; border-radius: 50%; filter: blur(120px); opacity: 0.25; pointer-events: none; }
+        .glow-top-left { top: -10%; left: -10%; width: 40vw; height: 40vw; background: rgba(245, 158, 11, 0.15); }
+        .glow-bottom-right { bottom: -10%; right: -10%; width: 50vw; height: 50vw; background: rgba(14, 165, 233, 0.15); }
+
+        .algo-glass-panel {
+            background: var(--glass-bg); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--glass-border); border-radius: 16px; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+            transition: all 0.3s ease; display: flex; flex-direction: column;
+        }
+
+        .section-header { font-size: 0.95rem; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase; color: #fff; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.75rem; padding-bottom: 1rem; border-bottom: 1px solid var(--glass-border); }
+
+        /* === TOP STATS === */
+        .top-stats-grid { display: flex; gap: 10px; flex-wrap: wrap; }
+        .top-stat-box { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 12px; padding: 10px 15px; flex-grow: 1; display: flex; flex-direction: column; border-left: 3px solid var(--ignore-orange); }
+        .top-stat-box.blue { border-left-color: var(--brand-blue); }
+        .top-stat-box .stat-label { font-size: 0.65rem; text-transform: uppercase; font-weight: 800; color: var(--text-secondary); letter-spacing: 1px; }
+        .top-stat-box .stat-value { font-size: 1.2rem; font-weight: 900; color: #fff; margin-top: 2px; }
+
+        /* === FORMULARZE === */
+        .algo-input-group { position: relative; display: flex; align-items: center; width: 100%; margin-bottom: 1.2rem; }
+        .algo-input { background: rgba(0, 0, 0, 0.5); border: 1px solid var(--glass-border); color: #fff; border-radius: 10px; padding: 0.9rem 1rem 0.9rem 2.8rem; font-size: 0.95rem; width: 100%; transition: all 0.3s; }
+        textarea.algo-input { padding-left: 1rem; resize: vertical; min-height: 80px; }
+        .algo-input::placeholder { color: var(--text-muted); opacity: 0.7; }
+        .algo-input:focus { outline: none; background: rgba(0, 0, 0, 0.7); border-color: var(--ignore-orange); box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.2); }
+        .input-icon { position: absolute; left: 1rem; color: #64748b; pointer-events: none; transition: 0.3s; width: 18px; }
+        .algo-input:focus ~ .input-icon { color: var(--ignore-orange); }
+
+        select.algo-input { appearance: none; cursor: pointer; }
+        .select-arrow { position: absolute; right: 1rem; color: #64748b; pointer-events: none; width: 16px; }
+        input[type="datetime-local"].algo-input::-webkit-calendar-picker-indicator { filter: invert(1); opacity: 0.5; cursor: pointer; }
+        input[type="datetime-local"].algo-input:focus::-webkit-calendar-picker-indicator { opacity: 1; }
+        .input-label { display: block; font-size: 0.75rem; text-transform: uppercase; font-weight: 800; letter-spacing: 1px; color: var(--text-secondary); margin-bottom: 0.5rem; margin-left: 0.25rem; }
+
+        .btn-map-picker { position: absolute; right: 0.3rem; background: rgba(14, 165, 233, 0.15); border: 1px solid rgba(14, 165, 233, 0.3); color: var(--brand-blue); border-radius: 8px; padding: 0.5rem; cursor: pointer; transition: 0.3s; display: flex; align-items: center; justify-content: center; z-index: 5; }
+        .btn-map-picker:hover { background: var(--brand-blue); color: #fff; box-shadow: 0 0 10px var(--brand-blue-glow); }
+
+        /* === DYNAMICZNY KALENDARZ TAKTYCZNY === */
+        .calendar-container { background: rgba(0,0,0,0.3); border: 1px solid var(--glass-border); border-radius: 16px; padding: 1.5rem; margin-bottom: 2rem; }
+        .calendar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
+        .calendar-title { font-size: 1.2rem; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; color: #fff; margin: 0; min-width: 150px; text-align: center; }
+        .calendar-nav-btn { background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); color: #fff; border-radius: 8px; padding: 6px 12px; cursor: pointer; transition: 0.3s; display: flex; align-items: center; justify-content: center; }
+        .calendar-nav-btn:hover { background: rgba(245, 158, 11, 0.2); border-color: var(--ignore-orange); color: var(--ignore-orange); }
+
+        .calendar-grid-header { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; text-align: center; margin-bottom: 10px; font-size: 0.75rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; }
+        .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; }
+
+        .cal-day { background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); border-radius: 8px; aspect-ratio: 1; display: flex; align-items: center; justify-content: center; font-size: 0.9rem; font-weight: 700; color: var(--text-secondary); position: relative; transition: 0.3s; }
+        .cal-day:hover:not(.empty) { background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.2); color: #fff; }
+        .cal-day.empty { background: transparent; border: none; }
+        .cal-day.today { border: 2px solid var(--brand-blue); color: #fff; box-shadow: inset 0 0 10px rgba(14, 165, 233, 0.3); background: rgba(14, 165, 233, 0.1); }
+
+        /* Oznaczanie dni z zaplanowaną wyprawą */
+        .cal-day.has-mission { color: #fff; border-color: var(--ignore-orange); background: rgba(245, 158, 11, 0.15); cursor: pointer; }
+        .cal-day.has-mission:hover { background: var(--ignore-orange); border-color: var(--ignore-orange); box-shadow: 0 0 15px var(--ignore-orange-glow); color: #000; }
+        .cal-day.has-mission::after { content: ''; position: absolute; bottom: 5px; left: 50%; transform: translateX(-50%); width: 6px; height: 6px; background: var(--ignore-orange); border-radius: 50%; }
+        .cal-day.has-mission:hover::after { background: #000; }
+
+        /* === KARTA NAJBLIŻSZEJ MISJI === */
+        .mission-card { background: rgba(0, 0, 0, 0.4); border: 1px solid var(--glass-border); border-radius: 16px; margin-bottom: 1.5rem; padding: 1.5rem; transition: all 0.3s; position: relative; border-left: 4px solid var(--ignore-orange); }
+        .mission-card:hover { transform: translateX(5px); background: rgba(255, 255, 255, 0.03); border-color: rgba(255,255,255,0.2); box-shadow: 0 10px 30px rgba(0,0,0,0.4); }
+
+        .mission-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem; flex-wrap: wrap; gap: 10px; }
+        .countdown-badge { padding: 6px 12px; border-radius: 8px; font-size: 0.8rem; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; display: inline-flex; align-items: center; gap: 6px; background: rgba(245, 158, 11, 0.15); border: 1px solid rgba(245, 158, 11, 0.4); color: var(--ignore-orange); animation: pulseAlert 2s infinite; }
+
+        .mission-title { font-size: 1.4rem; font-weight: 900; color: #fff; margin: 0; text-transform: uppercase; letter-spacing: 1px; }
+        .mission-meta { font-size: 0.85rem; color: var(--text-muted); display: flex; gap: 15px; margin-top: 8px; flex-wrap: wrap; }
+        .mission-meta span { display: flex; align-items: center; gap: 6px; }
+        .mission-meta span i { width: 14px; color: var(--brand-blue); }
+
+        .mission-notes { background: rgba(0,0,0,0.2); border-left: 2px solid var(--text-muted); padding: 10px 15px; border-radius: 0 8px 8px 0; font-size: 0.85rem; color: #cbd5e1; margin-top: 1rem; font-style: italic; }
+
+        /* === BUTTONY === */
+        .btn-algo { background-size: 200% auto; color: #fff; font-weight: 800; font-size: 0.95rem; letter-spacing: 1px; text-transform: uppercase; border-radius: 10px; padding: 1rem; width: 100%; transition: all 0.3s ease; position: relative; overflow: hidden; cursor: pointer; border: none; display: flex; align-items: center; justify-content: center; gap: 0.5rem; text-decoration: none; }
+        .btn-algo:hover { transform: translateY(-2px); background-position: right center; color: #fff; }
+        .btn-blue { background-image: linear-gradient(90deg, #0284c7, #0ea5e9, #0284c7); box-shadow: 0 0 15px var(--brand-blue-glow); border: 1px solid rgba(14, 165, 233, 0.4); }
+        .btn-orange { background-image: linear-gradient(90deg, #d97706, #f59e0b, #d97706); box-shadow: 0 0 15px rgba(245, 158, 11, 0.3); border: 1px solid rgba(245, 158, 11, 0.4); }
+
+        /* === MODALE SZKLANE === */
+        .modal-glass .modal-content { background: var(--glass-bg); backdrop-filter: blur(25px); border: 1px solid var(--glass-border); border-radius: 20px; color: #fff; box-shadow: 0 20px 50px rgba(0,0,0,0.8); }
+        .modal-glass .modal-header { border-bottom: 1px solid var(--glass-border); padding: 1.2rem 1.5rem; }
+        .modal-glass .modal-footer { border-top: 1px solid var(--glass-border); padding: 1.2rem 1.5rem; }
+        .modal-glass .btn-close { filter: invert(1) grayscale(100%) brightness(200%); }
+        .modal-action-btns { display: flex; gap: 10px; align-items: center; width: 100%; justify-content: flex-end; }
+
+        /* Style dla Modalu z Informacjami o Wyprawie */
+        .mission-detail-list { list-style: none; padding: 0; margin: 0; }
+        .mission-detail-list li { padding: 12px 0; border-bottom: 1px dashed rgba(255,255,255,0.1); display: flex; flex-direction: column; gap: 4px; }
+        .mission-detail-list li:last-child { border-bottom: none; }
+        .mission-detail-list li strong { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; color: var(--brand-blue); display: flex; align-items: center; gap: 6px; }
+        .mission-detail-list li span { font-size: 0.95rem; color: #fff; }
+
+        @keyframes pulseAlert { 0% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.4); } 70% { box-shadow: 0 0 0 10px rgba(245, 158, 11, 0); } 100% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0); } }
+
+        /* RESPONSIVE LAYOUT */
+        @media (max-width: 767.98px) {
+            .btn-algo { width: 100% !important; max-width: 100% !important; }
+            .cal-day { font-size: 0.8rem; border-radius: 6px; }
+            .modal-action-btns { flex-direction: column; width: 100%; }
+            .modal-action-btns > button { width: 100% !important; justify-content: center; margin: 0 !important; }
+            .map-modal-footer { flex-direction: column; gap: 15px; align-items: center; text-align: center; }
+            .map-modal-footer > span { order: -1; }
+        }
+    </style>
+</head>
+<body class="algo-page">
+
+<nav th:replace="~{fragments/navbar :: navbar(activeTab='kalendarz')}"></nav>
+
+<div class="algo-bg-container" aria-hidden="true">
+    <picture>
+        <img src="/assets/drapiezniki.jpg" alt="Tło planowania" class="algo-bg-image" loading="lazy">
+    </picture>
+    <div class="algo-bg-overlay"></div>
+    <div class="algo-glow glow-top-left"></div>
+    <div class="algo-glow glow-bottom-right"></div>
+</div>
+
+<main class="container-xl position-relative z-2 pb-5" style="margin-top: 90px;">
+
+    <header class="algo-glass-panel p-4 mb-4 h-auto">
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-4 mb-4">
+            <div class="d-flex align-items-center gap-3">
+                <div class="icon-wrapper" style="background: rgba(245, 158, 11, 0.1); border: 1px solid var(--ignore-orange); padding: 12px; border-radius: 12px;">
+                    <i data-lucide="calendar-days" style="color: var(--ignore-orange); width: 32px; height: 32px;"></i>
+                </div>
+                <div>
+                    <h1 class="display-5 fw-black text-white mb-0" style="text-shadow: 0 0 15px rgba(245,158,11,0.3); letter-spacing: -1px;">Kalendarz Taktyczny</h1>
+                    <p class="fs-7 mb-0 text-secondary-custom">Zarządzaj terminami, lokalizacjami i składem osobowym przyszłych wypraw.</p>
+                </div>
+            </div>
+            <button class="btn btn-algo btn-orange d-xl-none" type="button" data-bs-toggle="collapse" data-bs-target="#planTripForm" aria-expanded="false" style="width: auto;">
+                <i data-lucide="plus-circle"></i> Zaplanuj Łowienie
+            </button>
+        </div>
+
+        <div class="top-stats-grid border-top border-secondary border-opacity-25 pt-4">
+            <div class="top-stat-box">
+                <span class="stat-label">Zaplanowane Wyprawy (Całość)</span>
+                <span class="stat-value">3 <span class="fs-8 text-secondary fw-normal">wyjazdy</span></span>
+            </div>
+            <div class="top-stat-box blue">
+                <span class="stat-label">Najbliższa Łowienie</span>
+                <span class="stat-value">Za 3 dni</span>
+            </div>
+        </div>
+    </header>
+
+    <div class="row g-4">
+
+        <aside class="col-xl-4 d-flex flex-column gap-3">
+            <div class="collapse d-xl-block" id="planTripForm">
+                <div class="algo-glass-panel p-4 h-auto position-sticky" style="top: 100px;">
+                    <h2 class="section-header m-0 mb-4" style="border-bottom-color: rgba(245, 158, 11, 0.2);">
+                        <i data-lucide="map" style="color: var(--ignore-orange);"></i> Zaplanuj Łowienie
+                    </h2>
+
+                    <form action="#" method="post">
+
+                        <label class="input-label">Kryptonim Łowienia / Tytuł</label>
+                        <div class="algo-input-group">
+                            <input type="text" name="missionName" class="algo-input" placeholder="np. Wiosenny Leszcz..." required>
+                            <i data-lucide="flag" class="input-icon"></i>
+                        </div>
+
+                        <label class="input-label">Lokalizacja</label>
+                        <div class="algo-input-group">
+                            <input type="text" name="location" id="inputLocation" class="algo-input" placeholder="Wybierz wodę..." required style="padding-right: 3.5rem;">
+                            <i data-lucide="map-pin" class="input-icon"></i>
+                            <button type="button" class="btn-map-picker" id="openMapBtn" title="Oznacz na mapie">
+                                <i data-lucide="radar" style="width: 18px;"></i>
+                            </button>
+                        </div>
+                        <input type="hidden" name="lat" id="inputLat">
+                        <input type="hidden" name="lng" id="inputLng">
+
+                        <div class="row g-2 mb-3">
+                            <div class="col-12">
+                                <label class="input-label">Planowany Start</label>
+                                <div class="algo-input-group" style="margin-bottom:0;">
+                                    <input type="datetime-local" name="startDate" id="startDateInput" class="algo-input" required>
+                                    <i data-lucide="calendar-plus" class="input-icon"></i>
+                                </div>
+                            </div>
+                            <div class="col-12 mt-2">
+                                <label class="input-label">Planowane Zakończenie</label>
+                                <div class="algo-input-group" style="margin-bottom:0;">
+                                    <input type="datetime-local" name="endDate" id="endDateInput" class="algo-input" required>
+                                    <i data-lucide="calendar-minus" class="input-icon"></i>
+                                </div>
+                            </div>
+                        </div>
+
+                        <label class="input-label">Metoda</label>
+                        <div class="algo-input-group">
+                            <select name="type" class="algo-input" required>
+                                <option value="spinning">Spinning</option>
+                                <option value="karpiowanie">Karpiowanie</option>
+                                <option value="feeder">Feeder / Grunt</option>
+                                <option value="splawik">Spławik</option>
+                                <option value="morskie">Morskie</option>
+                            </select>
+                            <i data-lucide="crosshair" class="input-icon"></i>
+                            <i data-lucide="chevron-down" class="select-arrow"></i>
+                        </div>
+
+                        <label class="input-label">Skład Osobowy (Ekipa)</label>
+                        <div class="algo-input-group">
+                            <input type="text" name="team" class="algo-input" placeholder="np. Kolega Tomek, Kolega Jacek...">
+                            <i data-lucide="users" class="input-icon"></i>
+                        </div>
+
+                        <label class="input-label">Wytyczne / Lista Sprzętu</label>
+                        <div class="algo-input-group">
+                            <textarea name="gearNotes" class="algo-input" rows="3" maxlength="255" placeholder="Co zabrać, taktyka, ustalenia..."></textarea>
+                        </div>
+
+                        <button type="submit" class="btn-algo btn-orange w-100 mt-2">
+                            <i data-lucide="calendar-check" style="width: 20px;"></i> Dodaj do Kalendarza
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </aside>
+
+        <div class="col-xl-8">
+
+            <div class="calendar-container">
+                <div class="calendar-header">
+                    <button class="calendar-nav-btn" id="prevMonth"><i data-lucide="chevron-left" style="width:20px;"></i></button>
+                    <h2 class="calendar-title" id="currentMonthYear">--</h2>
+                    <button class="calendar-nav-btn" id="nextMonth"><i data-lucide="chevron-right" style="width:20px;"></i></button>
+                </div>
+
+                <div class="calendar-grid-header">
+                    <div>Pn</div><div>Wt</div><div>Śr</div><div>Czw</div><div>Pt</div><div>Sb</div><div>Nd</div>
+                </div>
+                <div class="calendar-grid" id="calendarGrid">
+                </div>
+            </div>
+
+            <h2 class="fs-5 fw-bold text-white mb-4 ps-2 border-start border-3 border-warning"><i data-lucide="clock" style="width: 20px; color: var(--ignore-orange); margin-right: 8px;"></i> Najbliższa Zaplanowane Łowienie</h2>
+
+            <div class="mission-card imminent" id="nextMissionCard">
+                <div class="mission-header">
+                    <div>
+                        <h3 class="mission-title" id="nmTitle">Otwarcie Sezonu na Sandacza</h3>
+                        <div class="mission-meta">
+                            <span><i data-lucide="calendar"></i> <span id="nmDate">12 Marca 2026, 04:00 - 12:00</span></span>
+                            <span><i data-lucide="map-pin"></i> <span id="nmLocation">Zbiornik Mietków</span></span>
+                            <span><i data-lucide="users"></i> <span id="nmTeam">Tomek, Jacek</span></span>
+                        </div>
+                    </div>
+                    <div class="countdown-badge"><i data-lucide="timer" style="width:16px;"></i> Za 3 dni</div>
+                </div>
+
+                <div class="mission-notes" id="nmNotes">
+                    "Zabieramy echosondę. Sprawdzić silnik przed wyjazdem. Celem są blaty na głębokości 4-6m."
+                </div>
+            </div>
+
+        </div>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/footer :: footer}"></footer>
+
+<div class="modal fade modal-glass" id="mapModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title fw-bold d-flex align-items-center gap-2"><i data-lucide="radar" style="color: var(--brand-blue);"></i> Oznacz Punkt na Mapie</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-0 position-relative">
+                <div id="map" style="width: 100%; height: 400px; border-radius: 0 0 20px 20px;"></div>
+            </div>
+            <div class="modal-footer map-modal-footer d-flex justify-content-between">
+                <span class="fs-8 text-secondary" id="mapSelectedInfo">Kliknij na mapie...</span>
+                <div class="modal-action-btns">
+                    <button type="button" class="btn btn-outline-secondary border-secondary text-white" data-bs-dismiss="modal">Anuluj</button>
+                    <button type="button" class="btn-algo btn-blue" id="btnConfirmMap" style="width: auto;"><i data-lucide="check-circle" style="width:18px;"></i> Zatwierdź</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade modal-glass" id="missionDetailModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header border-bottom border-secondary border-opacity-25" style="background: rgba(245, 158, 11, 0.1);">
+                <h5 class="modal-title fw-black d-flex align-items-center gap-2 text-uppercase ls-1 text-white" id="mdTitle">
+                    <i data-lucide="flag" style="color: var(--ignore-orange);"></i> Tytuł Misji
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-4">
+                <ul class="mission-detail-list">
+                    <li>
+                        <strong><i data-lucide="calendar" style="width: 14px;"></i> Termin</strong>
+                        <span id="mdTime">--</span>
+                    </li>
+                    <li>
+                        <strong><i data-lucide="map-pin" style="width: 14px;"></i> Lokalizacja</strong>
+                        <span id="mdLocation">--</span>
+                    </li>
+                    <li>
+                        <strong><i data-lucide="crosshair" style="width: 14px;"></i> Metoda</strong>
+                        <span id="mdMethod">--</span>
+                    </li>
+                    <li>
+                        <strong><i data-lucide="users" style="width: 14px;"></i> Skład (Ekipa)</strong>
+                        <span id="mdTeam">--</span>
+                    </li>
+                    <li style="border-bottom: none;">
+                        <strong><i data-lucide="file-text" style="width: 14px;"></i> Wytyczne</strong>
+                        <span id="mdNotes" style="font-style: italic; color: #cbd5e1;">--</span>
+                    </li>
+                </ul>
+            </div>
+            <div class="modal-footer">
+                <div class="modal-action-btns">
+                    <button type="button" class="btn btn-algo btn-blue w-100" data-bs-dismiss="modal">Zrozumiałem</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        lucide.createIcons();
+
+        // Daty formularza na starcie
+        const now = new Date();
+        now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+        document.getElementById('startDateInput').value = now.toISOString().slice(0, 16);
+        const later = new Date(now);
+        later.setHours(later.getHours() + 8); // np. domyślnie 8h łowienia
+        document.getElementById('endDateInput').value = later.toISOString().slice(0, 16);
+
+        // --- BAZA MISJI (MOCK - Zastąpisz z Backend'u) ---
+        // Rok i miesiąc na sztywno, żeby kalendarz miał co pokazać testowo (Marzec 2026)
+        const missions = [
+            { dateStr: '2026-03-12', title: 'Otwarcie Sezonu na Sandacza', location: 'Zbiornik Mietków', start: '04:00', end: '12:00', method: 'Spinning', team: 'Tomek, Jacek', notes: 'Zabieramy echosondę. Sprawdzić silnik przed wyjazdem. Celem są blaty na głębokości 4-6m.' },
+            { dateStr: '2026-03-20', title: 'Karpiowy Maraton', location: 'Łowisko Dobro Klasztorne', start: '10:00 (20.03)', end: '18:00 (22.03)', method: 'Karpiowanie', team: 'Marek, Tomek', notes: 'Zarezerwowane stanowisko nr 4. Dokupić pellet 12mm.' },
+            { dateStr: '2026-04-05', title: 'Wiosenny Spławik', location: 'Staw Gminny', start: '06:00', end: '14:00', method: 'Spławik', team: 'Sam', notes: 'Przetestować nowe spławiki przelotowe.' }
+        ];
+
+        // --- SKRYPT KALENDARZA ---
+        let currentDate = new Date(2026, 2, 9); // Zaczynamy od Marca 2026, wg systemowego czasu (miesiące od 0: 2 = Marzec)
+        const currentMonthYearEl = document.getElementById('currentMonthYear');
+        const calendarGrid = document.getElementById('calendarGrid');
+        const monthNames = ["Styczeń", "Luty", "Marzec", "Kwiecień", "Maj", "Czerwiec", "Lipiec", "Sierpień", "Wrzesień", "Październik", "Listopad", "Grudzień"];
+
+        const missionModal = new bootstrap.Modal(document.getElementById('missionDetailModal'));
+
+        function renderCalendar() {
+            const year = currentDate.getFullYear();
+            const month = currentDate.getMonth();
+            currentMonthYearEl.innerText = `${monthNames[month]} ${year}`;
+
+            // Reset gridu
+            calendarGrid.innerHTML = '';
+
+            // Obliczenia dni
+            const firstDay = new Date(year, month, 1).getDay();
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+            // Konwersja na to, że Poniedziałek = 1 (zamiast Niedziela = 0)
+            let startOffset = firstDay === 0 ? 6 : firstDay - 1;
+
+            // Puste dni na początku
+            for(let i=0; i < startOffset; i++) {
+                calendarGrid.innerHTML += `<div class="cal-day empty"></div>`;
+            }
+
+            // Właściwe dni
+            for(let day = 1; day <= daysInMonth; day++) {
+                // Formatujemy date YYYY-MM-DD z zerami
+                const currentStr = `${year}-${String(month+1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+
+                let classes = 'cal-day';
+                // Załóżmy że dzisiaj to zawsze 9 dzień aktualnie wybranego miesiąca testowo (lub faktyczne today w realu)
+                const realToday = new Date();
+                if(year === realToday.getFullYear() && month === realToday.getMonth() && day === realToday.getDate()) {
+                    classes += ' today';
+                }
+
+                // Sprawdzanie czy w ten dzień jest misja
+                const dayMission = missions.find(m => m.dateStr === currentStr);
+
+                if(dayMission) {
+                    classes += ' has-mission';
+                    // Tworzymy div jako obiekt w JS, żeby łatwo podpiąć event
+                    const div = document.createElement('div');
+                    div.className = classes;
+                    div.innerText = day;
+                    div.addEventListener('click', () => {
+                        openMissionDetails(dayMission);
+                    });
+                    calendarGrid.appendChild(div);
+                } else {
+                    const div = document.createElement('div');
+                    div.className = classes;
+                    div.innerText = day;
+                    calendarGrid.appendChild(div);
+                }
+            }
+        }
+
+        // Nawigacja kalendarza
+        document.getElementById('prevMonth').addEventListener('click', () => {
+            currentDate.setMonth(currentDate.getMonth() - 1);
+            renderCalendar();
+        });
+        document.getElementById('nextMonth').addEventListener('click', () => {
+            currentDate.setMonth(currentDate.getMonth() + 1);
+            renderCalendar();
+        });
+
+        // Otwieranie szczegółów misji z kalendarza
+        function openMissionDetails(mission) {
+            document.getElementById('mdTitle').innerHTML = `<i data-lucide="flag" style="color: var(--ignore-orange);"></i> ${mission.title}`;
+            document.getElementById('mdTime').innerText = `${mission.dateStr}, ${mission.start} - ${mission.end}`;
+            document.getElementById('mdLocation').innerText = mission.location;
+            document.getElementById('mdMethod').innerText = mission.method;
+            document.getElementById('mdTeam').innerText = mission.team ? mission.team : 'Brak danych';
+            document.getElementById('mdNotes').innerText = mission.notes;
+
+            lucide.createIcons(); // Re-render icon w tytule
+            missionModal.show();
+        }
+
+        // Inicjalny render kalendarza
+        renderCalendar();
+
+
+        // --- OBSŁUGA MAPY ---
+        const mapModal = new bootstrap.Modal(document.getElementById('mapModal'));
+        let map, marker;
+
+        document.getElementById('openMapBtn').addEventListener('click', () => { mapModal.show(); });
+
+        document.getElementById('mapModal').addEventListener('shown.bs.modal', function () {
+            if (!map) {
+                map = L.map('map').setView([52.069, 19.480], 6);
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(map);
+
+                map.on('click', function(e) {
+                    const coord = e.latlng;
+                    if (marker) marker.setLatLng(coord); else marker = L.marker(coord, {draggable: true}).addTo(map);
+
+                    document.getElementById('mapSelectedInfo').innerText = "Wyszukiwanie terenu...";
+                    fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${coord.lat}&lon=${coord.lng}&zoom=10`)
+                        .then(res => res.json())
+                        .then(data => {
+                            const city = data.address.city || data.address.town || data.address.village || "Zdalna Lokacja";
+                            document.getElementById('mapSelectedInfo').innerText = city;
+                            document.getElementById('mapSelectedInfo').setAttribute('data-city', city);
+                        }).catch(() => document.getElementById('mapSelectedInfo').innerText = "Współrzędne zapisane");
+                });
+            }
+            map.invalidateSize();
+        });
+
+        document.getElementById('btnConfirmMap').addEventListener('click', () => {
+            if (marker) {
+                const coord = marker.getLatLng();
+                const city = document.getElementById('mapSelectedInfo').getAttribute('data-city') || "Wybrany Punkt Zrzutu";
+                document.getElementById('inputLat').value = coord.lat.toFixed(6);
+                document.getElementById('inputLng').value = coord.lng.toFixed(6);
+                document.getElementById('inputLocation').value = `${city} (Kord: ${coord.lat.toFixed(4)}, ${coord.lng.toFixed(4)})`;
+                mapModal.hide();
+            } else alert("Oznacz cel na radarze klikając na mapę.");
+        });
+    });
+</script>
+
+</body>
+</html>

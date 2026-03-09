@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pl">
+<head>
+    <th:block th:replace="~{fragments/head :: head-content(
+        pageTitle='Wirtualny Arsenał | CzyZlowie',
+        pageDescription='Zarządzaj swoim pudełkiem z przynętami. Rejestruj skuteczność, śledź zapasy i analizuj najlepsze wabiki.',
+        currentUrl='https://czyzlowie.pl/arsenal'
+    )}"></th:block>
+
+    <link rel="stylesheet" th:href="@{/css/main.css}">
+
+    <style>
+        /* === ZMIENNE BAZOWE ARSENAŁU === */
+        :root {
+            --brand-green: #2ecc71;
+            --brand-blue: #0ea5e9;
+            --warning-yellow: #f59e0b;
+            --danger-red: #ef4444;
+            --arsenal-red: #f43f5e; /* Główny kolor zbrojowni */
+            --arsenal-red-glow: rgba(244, 63, 94, 0.25);
+            --bg-dark-base: #0f172a;
+            --glass-bg: rgba(15, 23, 42, 0.75);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --text-main: #f8fafc;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+        }
+
+        body.algo-page { background-color: var(--bg-dark-base); min-height: 100vh; color: var(--text-main); font-family: 'Inter', sans-serif; }
+        .algo-bg-container { position: fixed; top: 0; left: 0; width: 100%; height: 100vh; z-index: 0; overflow: hidden; }
+        .algo-bg-image { width: 100%; height: 100%; object-fit: cover; opacity: 0.1; filter: blur(8px); mix-blend-mode: luminosity; }
+        .algo-bg-overlay { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(15,23,42,0.9) 0%, rgba(15,23,42,0.98) 100%); }
+        .algo-glow { position: absolute; border-radius: 50%; filter: blur(120px); opacity: 0.2; pointer-events: none; }
+        .glow-top-left { top: -10%; left: -10%; width: 40vw; height: 40vw; background: rgba(244, 63, 94, 0.2); }
+        .glow-bottom-right { bottom: -10%; right: -10%; width: 50vw; height: 50vw; background: rgba(245, 158, 11, 0.15); }
+
+        .algo-glass-panel {
+            background: var(--glass-bg); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--glass-border); border-radius: 16px; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+            transition: all 0.3s ease; display: flex; flex-direction: column;
+        }
+
+        .section-header { font-size: 0.95rem; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase; color: #fff; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.75rem; padding-bottom: 1rem; border-bottom: 1px solid var(--glass-border); }
+
+        /* === TOP STATS === */
+        .top-stats-grid { display: flex; gap: 10px; flex-wrap: wrap; }
+        .top-stat-box { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 12px; padding: 10px 15px; flex-grow: 1; display: flex; flex-direction: column; border-left: 3px solid var(--arsenal-red); }
+        .top-stat-box.green { border-left-color: var(--brand-green); }
+        .top-stat-box.yellow { border-left-color: var(--warning-yellow); }
+        .top-stat-box .stat-label { font-size: 0.65rem; text-transform: uppercase; font-weight: 800; color: var(--text-secondary); letter-spacing: 1px; display: flex; align-items: center; gap: 4px;}
+        .top-stat-box .stat-value { font-size: 1.3rem; font-weight: 900; color: #fff; margin-top: 2px; }
+
+        /* === FORMULARZ ZBROJOWNI === */
+        .algo-input-group { position: relative; display: flex; align-items: center; width: 100%; margin-bottom: 1.2rem; }
+        .algo-input { background: rgba(0, 0, 0, 0.5); border: 1px solid var(--glass-border); color: #fff; border-radius: 10px; padding: 0.9rem 1rem 0.9rem 2.8rem; font-size: 0.95rem; width: 100%; transition: all 0.3s; }
+        textarea.algo-input { padding-left: 1rem; resize: vertical; min-height: 80px; }
+        .algo-input::placeholder { color: var(--text-muted); opacity: 0.7; font-family: monospace; }
+        .algo-input:focus { outline: none; background: rgba(0, 0, 0, 0.7); border-color: var(--arsenal-red); box-shadow: 0 0 0 3px var(--arsenal-red-glow); }
+        .input-icon { position: absolute; left: 1rem; color: #64748b; pointer-events: none; transition: 0.3s; width: 18px; }
+        .algo-input:focus ~ .input-icon { color: var(--arsenal-red); }
+        select.algo-input { appearance: none; cursor: pointer; }
+        .select-arrow { position: absolute; right: 1rem; color: #64748b; pointer-events: none; width: 16px; }
+        .input-label { display: block; font-size: 0.75rem; text-transform: uppercase; font-weight: 800; letter-spacing: 1px; color: var(--text-secondary); margin-bottom: 0.5rem; margin-left: 0.25rem; }
+
+        /* === FILTRY TAKTYCZNE === */
+        .arsenal-filters { display: flex; gap: 10px; margin-bottom: 1.5rem; flex-wrap: wrap; border-bottom: 1px dashed var(--glass-border); padding-bottom: 1rem; }
+        .filter-btn { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); color: var(--text-secondary); padding: 6px 14px; border-radius: 20px; font-size: 0.8rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; cursor: pointer; transition: 0.3s; display: flex; align-items: center; gap: 6px; }
+        .filter-btn:hover { background: rgba(255,255,255,0.08); color: #fff; border-color: rgba(255,255,255,0.2); }
+        .filter-btn.active { background: rgba(244, 63, 94, 0.15); border-color: var(--arsenal-red); color: var(--arsenal-red); box-shadow: 0 0 10px var(--arsenal-red-glow); }
+
+        /* === KARTY ARSENAŁU (BEZ ZDJĘĆ) === */
+        .arsenal-grid { display: grid; grid-template-columns: 1fr; gap: 1.5rem; }
+        @media (min-width: 992px) { .arsenal-grid { grid-template-columns: repeat(2, 1fr); } }
+
+        .lure-card { background: rgba(0, 0, 0, 0.4); border: 1px solid var(--glass-border); border-radius: 12px; transition: all 0.3s; position: relative; overflow: hidden; display: flex; flex-direction: column; }
+        .lure-card:hover { transform: translateY(-3px); background: rgba(255, 255, 255, 0.02); border-color: rgba(255,255,255,0.2); box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+
+        /* Znak Wodny Tła (Zastępuje zdjęcie) */
+        .lure-watermark { position: absolute; right: -20px; bottom: -20px; color: #fff; opacity: 0.03; font-size: 10rem; pointer-events: none; transform: rotate(-15deg); z-index: 0; }
+        .lure-card:hover .lure-watermark { opacity: 0.06; transform: rotate(-10deg) scale(1.1); transition: 0.5s ease-out; }
+
+        /* Status Bar po lewej */
+        .status-bar { position: absolute; left: 0; top: 0; bottom: 0; width: 4px; z-index: 1; }
+        .status-ready .status-bar { background: var(--brand-green); box-shadow: 0 0 10px var(--brand-green); }
+        .status-low .status-bar { background: var(--warning-yellow); box-shadow: 0 0 10px var(--warning-yellow); }
+        .status-mia .status-bar { background: var(--danger-red); box-shadow: 0 0 10px var(--danger-red); }
+
+        .lure-body { padding: 1.5rem; position: relative; z-index: 2; flex-grow: 1; display: flex; flex-direction: column; }
+
+        .lure-header-row { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
+        .lure-id { font-family: monospace; font-size: 0.75rem; color: var(--text-muted); background: rgba(255,255,255,0.05); padding: 2px 6px; border-radius: 4px; letter-spacing: 1px; }
+        .lure-type { font-size: 0.7rem; text-transform: uppercase; font-weight: 800; color: var(--brand-blue); letter-spacing: 1px; display: flex; align-items: center; gap: 4px; }
+
+        .lure-title { font-size: 1.4rem; font-weight: 900; color: #fff; margin: 0 0 12px 0; text-transform: uppercase; letter-spacing: 1px; line-height: 1.2; }
+
+        /* Terminal Specs */
+        .lure-specs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 1.2rem; }
+        .spec-badge { background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.05); padding: 6px 10px; border-radius: 6px; font-size: 0.8rem; color: #cbd5e1; font-family: monospace; display: flex; align-items: center; gap: 6px; }
+        .spec-badge i { width: 14px; color: var(--text-muted); }
+
+        /* Kill Count / Skuteczność */
+        .lure-performance { display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.02); border-radius: 8px; padding: 10px 15px; margin-bottom: 1rem; border: 1px solid rgba(255,255,255,0.03); }
+        .kill-count { display: flex; flex-direction: column; }
+        .kc-label { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); font-weight: 700; margin-bottom: 2px; }
+        .kc-value { font-size: 1.2rem; font-weight: 900; color: var(--arsenal-red); display: flex; align-items: center; gap: 6px; }
+
+        .status-badge { padding: 4px 8px; border-radius: 6px; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; }
+        .status-ready .status-badge { background: rgba(46, 204, 113, 0.1); color: var(--brand-green); border: 1px solid rgba(46, 204, 113, 0.3); }
+        .status-low .status-badge { background: rgba(245, 158, 11, 0.1); color: var(--warning-yellow); border: 1px solid rgba(245, 158, 11, 0.3); }
+        .status-mia .status-badge { background: rgba(239, 68, 68, 0.1); color: var(--danger-red); border: 1px solid rgba(239, 68, 68, 0.3); text-decoration: line-through; }
+
+        .lure-notes { background: transparent; border-left: 2px solid var(--text-muted); padding: 0 0 0 10px; font-size: 0.85rem; color: var(--text-secondary); font-style: italic; flex-grow: 1; }
+
+        .lure-actions { display: flex; gap: 10px; border-top: 1px dashed rgba(255,255,255,0.1); padding-top: 1rem; margin-top: 1rem; }
+        .btn-lure-action { flex: 1; background: transparent; border: 1px solid rgba(255,255,255,0.1); color: var(--text-secondary); padding: 6px; border-radius: 6px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; cursor: pointer; transition: 0.3s; display: flex; align-items: center; justify-content: center; gap: 6px; }
+        .btn-lure-action:hover { background: rgba(255,255,255,0.05); color: #fff; border-color: rgba(255,255,255,0.3); }
+        .btn-add-kill { border-color: rgba(46, 204, 113, 0.3); color: var(--brand-green); }
+        .btn-add-kill:hover { background: rgba(46, 204, 113, 0.1); color: var(--brand-green); border-color: var(--brand-green); }
+
+        /* === BUTTONY === */
+        .btn-algo { background-size: 200% auto; color: #fff; font-weight: 800; font-size: 0.95rem; letter-spacing: 1px; text-transform: uppercase; border-radius: 10px; padding: 1rem; width: 100%; transition: all 0.3s ease; position: relative; overflow: hidden; cursor: pointer; border: none; display: flex; align-items: center; justify-content: center; gap: 0.5rem; text-decoration: none; }
+        .btn-algo:hover { transform: translateY(-2px); background-position: right center; color: #fff; }
+        .btn-red { background-image: linear-gradient(90deg, #e11d48, #f43f5e, #e11d48); box-shadow: 0 0 15px var(--arsenal-red-glow); border: 1px solid rgba(244, 63, 94, 0.4); }
+
+        @media (max-width: 767.98px) {
+            .btn-algo { width: 100% !important; max-width: 100% !important; }
+        }
+    </style>
+</head>
+<body class="algo-page">
+
+<nav th:replace="~{fragments/navbar :: navbar(activeTab='arsenal')}"></nav>
+
+<div class="algo-bg-container" aria-hidden="true">
+    <picture>
+        <img src="/assets/drapiezniki.jpg" alt="Tło arsenału" class="algo-bg-image" loading="lazy">
+    </picture>
+    <div class="algo-bg-overlay"></div>
+    <div class="algo-glow glow-top-left"></div>
+    <div class="algo-glow glow-bottom-right"></div>
+</div>
+
+<main class="container-xl position-relative z-2 pb-5" style="margin-top: 90px;">
+
+    <header class="algo-glass-panel p-4 mb-4 h-auto">
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-4 mb-4">
+            <div class="d-flex align-items-center gap-3">
+                <div class="icon-wrapper" style="background: rgba(244, 63, 94, 0.1); border: 1px solid var(--arsenal-red); padding: 12px; border-radius: 12px;">
+                    <i data-lucide="package-search" style="color: var(--arsenal-red); width: 32px; height: 32px;"></i>
+                </div>
+                <div>
+                    <h1 class="display-5 fw-black text-white mb-0" style="text-shadow: 0 0 15px var(--arsenal-red-glow); letter-spacing: -1px;">Wirtualny Arsenał</h1>
+                    <p class="fs-7 mb-0 text-secondary-custom">Zarządzaj swoim sprzętem, śledź braki i notuj najskuteczniejsze warianty.</p>
+                </div>
+            </div>
+            <button class="btn btn-algo btn-red d-xl-none" type="button" data-bs-toggle="collapse" data-bs-target="#addLureForm" aria-expanded="false" style="width: auto;">
+                <i data-lucide="plus-square"></i> Dołóż Sprzęt
+            </button>
+        </div>
+
+        <div class="top-stats-grid border-top border-secondary border-opacity-25 pt-4">
+            <div class="top-stat-box">
+                <span class="stat-label"><i data-lucide="layers" style="width: 12px;"></i> Stan Magazynu</span>
+                <span class="stat-value">148 <span class="fs-8 text-secondary fw-normal">sztuk</span></span>
+            </div>
+            <div class="top-stat-box green">
+                <span class="stat-label"><i data-lucide="target" style="width: 12px;"></i> M.V.P (Skuteczność)</span>
+                <span class="stat-value">Kopyto 4" <span class="fs-8 text-secondary fw-normal">(14 trafień)</span></span>
+            </div>
+            <div class="top-stat-box yellow">
+                <span class="stat-label"><i data-lucide="alert-triangle" style="width: 12px;"></i> Braki Zapasów</span>
+                <span class="stat-value">5 <span class="fs-8 text-secondary fw-normal">pozycji</span></span>
+            </div>
+        </div>
+    </header>
+
+    <div class="row g-4">
+
+        <aside class="col-xl-4 d-flex flex-column gap-3">
+            <div class="collapse d-xl-block" id="addLureForm">
+                <div class="algo-glass-panel p-4 h-auto position-sticky" style="top: 100px;">
+                    <h2 class="section-header m-0 mb-4" style="border-bottom-color: rgba(244, 63, 94, 0.2);">
+                        <i data-lucide="crosshair" style="color: var(--arsenal-red);"></i> Rejestracja Wyposażenia
+                    </h2>
+
+                    <form action="#" method="post">
+
+                        <label class="input-label">Model / Nazwa</label>
+                        <div class="algo-input-group">
+                            <input type="text" name="lureName" class="algo-input" placeholder="np. Westin ShadTeez, Mepps Aglia..." required>
+                            <i data-lucide="tag" class="input-icon"></i>
+                        </div>
+
+                        <label class="input-label">Klasyfikacja (Kategoria)</label>
+                        <div class="algo-input-group">
+                            <select name="category" class="algo-input" required>
+                                <option value="" disabled selected>Wybierz podgrupę...</option>
+                                <option value="soft">Guma / Silikon (Spinning)</option>
+                                <option value="hard">Wobler / Jerk (Spinning)</option>
+                                <option value="metal">Błystka / Wahadło</option>
+                                <option value="feeder">Koszyki / Podajniki</option>
+                                <option value="bait">Zanęta / Pellet / Kulki</option>
+                                <option value="other">Akcesoria końcowe</option>
+                            </select>
+                            <i data-lucide="folder-tree" class="input-icon"></i>
+                            <i data-lucide="chevron-down" class="select-arrow"></i>
+                        </div>
+
+                        <div class="row g-2 mb-3">
+                            <div class="col-6">
+                                <label class="input-label">Kolor / Smak</label>
+                                <div class="algo-input-group" style="margin-bottom:0;">
+                                    <input type="text" name="variant" class="algo-input" placeholder="np. Motor Oil">
+                                    <i data-lucide="palette" class="input-icon"></i>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <label class="input-label">Waga / Rozmiar</label>
+                                <div class="algo-input-group" style="margin-bottom:0;">
+                                    <input type="text" name="size" class="algo-input" placeholder="np. 12cm / 15g">
+                                    <i data-lucide="scale" class="input-icon"></i>
+                                </div>
+                            </div>
+                        </div>
+
+                        <label class="input-label">Początkowe Trafienia (Kill Count)</label>
+                        <div class="algo-input-group">
+                            <input type="number" name="killCount" class="algo-input" placeholder="0" min="0">
+                            <i data-lucide="crosshair" class="input-icon"></i>
+                        </div>
+
+                        <label class="input-label">Stan Gotowości</label>
+                        <div class="algo-input-group">
+                            <select name="status" class="algo-input" required>
+                                <option value="ready" style="color: green;">🟢 W gotowości bojowej</option>
+                                <option value="low" style="color: orange;">🟡 Na wyczerpaniu</option>
+                                <option value="mia" style="color: red;">🔴 M.I.A (Utracona / Zerwana)</option>
+                            </select>
+                            <i data-lucide="shield-alert" class="input-icon"></i>
+                            <i data-lucide="chevron-down" class="select-arrow"></i>
+                        </div>
+
+                        <label class="input-label">Dokumentacja / Notatka taktyczna</label>
+                        <div class="algo-input-group">
+                            <textarea name="tacticalNotes" class="algo-input" rows="3" maxlength="255" placeholder="Kiedy najlepiej działa? Jak to prowadzić?"></textarea>
+                        </div>
+
+                        <button type="submit" class="btn-algo btn-red w-100 mt-2">
+                            <i data-lucide="hard-drive-upload" style="width: 20px;"></i> Wprowadź do Rejestru
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </aside>
+
+        <div class="col-xl-8">
+
+            <div class="arsenal-filters">
+                <button class="filter-btn active"><i data-lucide="layers"></i> Cały Arsenał</button>
+                <button class="filter-btn"><i data-lucide="anchor"></i> Gumy & Woblery</button>
+                <button class="filter-btn"><i data-lucide="drum"></i> Koszyki Feeder</button>
+                <button class="filter-btn"><i data-lucide="cherry"></i> Kulki & Pellet</button>
+            </div>
+
+            <div class="arsenal-grid">
+
+                <div class="lure-card status-ready">
+                    <div class="status-bar"></div>
+                    <i data-lucide="fish-symbol" class="lure-watermark"></i>
+
+                    <div class="lure-body">
+                        <div class="lure-header-row">
+                            <span class="lure-id">ID: LUR-094A</span>
+                            <span class="lure-type"><i data-lucide="anchor"></i> Silikon</span>
+                        </div>
+
+                        <h3 class="lure-title">Westin ShadTeez</h3>
+
+                        <div class="lure-specs">
+                            <span class="spec-badge"><i data-lucide="palette"></i> Kolor: Headlight</span>
+                            <span class="spec-badge"><i data-lucide="ruler"></i> Rozmiar: 12cm</span>
+                            <span class="spec-badge"><i data-lucide="weight"></i> Waga: 15g</span>
+                        </div>
+
+                        <div class="lure-performance">
+                            <div class="kill-count">
+                                <span class="kc-label">Potwierdzone Zdobycze</span>
+                                <span class="kc-value"><i data-lucide="target"></i> 14 Trafień</span>
+                            </div>
+                            <div class="status-badge">W gotowości</div>
+                        </div>
+
+                        <div class="lure-notes">
+                            "Absolutny kiler na szczupaki w pochmurne, jesienne dni. Najlepiej prowadzić wolnym opadem z podbiciem z kołowrotka."
+                        </div>
+
+                        <div class="lure-actions">
+                            <button class="btn-lure-action btn-add-kill" title="Zanotuj kolejne branie na ten sprzęt">
+                                <i data-lucide="plus-circle"></i> Dodaj Trafienie
+                            </button>
+                            <button class="btn-lure-action">
+                                <i data-lucide="edit-3"></i> Modyfikuj
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="lure-card status-low">
+                    <div class="status-bar"></div>
+                    <i data-lucide="bug" class="lure-watermark"></i>
+
+                    <div class="lure-body">
+                        <div class="lure-header-row">
+                            <span class="lure-id">ID: WBL-211X</span>
+                            <span class="lure-type"><i data-lucide="target"></i> Wobler</span>
+                        </div>
+
+                        <h3 class="lure-title">Salmo Hornet Wobler</h3>
+
+                        <div class="lure-specs">
+                            <span class="spec-badge"><i data-lucide="palette"></i> Kolor: Pstrąg</span>
+                            <span class="spec-badge"><i data-lucide="scale"></i> Głęb: 1.5 - 2m</span>
+                        </div>
+
+                        <div class="lure-performance">
+                            <div class="kill-count">
+                                <span class="kc-label">Potwierdzone Zdobycze</span>
+                                <span class="kc-value" style="color: var(--warning-yellow);"><i data-lucide="target"></i> 3 Trafienia</span>
+                            </div>
+                            <div class="status-badge">Końcówka zapasów</div>
+                        </div>
+
+                        <div class="lure-notes">
+                            "Mocna praca na kiju. Została mi ostatnia sztuka, muszę dokupić przed wyjazdem na Narew, bo świetnie kusi klenie."
+                        </div>
+
+                        <div class="lure-actions">
+                            <button class="btn-lure-action btn-add-kill">
+                                <i data-lucide="plus-circle"></i> Trafienie
+                            </button>
+                            <button class="btn-lure-action">
+                                <i data-lucide="edit-3"></i> Modyfikuj
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="lure-card status-mia">
+                    <div class="status-bar"></div>
+                    <i data-lucide="cherry" class="lure-watermark"></i>
+
+                    <div class="lure-body">
+                        <div class="lure-header-row">
+                            <span class="lure-id">ID: BTL-404E</span>
+                            <span class="lure-type"><i data-lucide="flask-conical"></i> Pellet / Kulki</span>
+                        </div>
+
+                        <h3 class="lure-title">Dynamite Baits Source</h3>
+
+                        <div class="lure-specs">
+                            <span class="spec-badge"><i data-lucide="flask-conical"></i> Smak: Pikantna Ryba</span>
+                            <span class="spec-badge"><i data-lucide="circle"></i> Rozmiar: 15mm</span>
+                        </div>
+
+                        <div class="lure-performance">
+                            <div class="kill-count">
+                                <span class="kc-label">Potwierdzone Zdobycze</span>
+                                <span class="kc-value" style="color: var(--text-muted);"><i data-lucide="x-circle"></i> 0 Trafień</span>
+                            </div>
+                            <div class="status-badge">M.I.A (Brak Magazynowy)</div>
+                        </div>
+
+                        <div class="lure-notes">
+                            "Zjedzone do zera podczas zasiadki na Kormoranie. Jesiotry wchodziły w to jak dzikie. Pilnie zamówić 2kg!"
+                        </div>
+
+                        <div class="lure-actions">
+                            <button class="btn-lure-action" style="color: var(--brand-blue); border-color: rgba(14,165,233,0.3);">
+                                <i data-lucide="rotate-ccw"></i> Ponów Zamówienie
+                            </button>
+                            <button class="btn-lure-action">
+                                <i data-lucide="trash-2"></i> Wyczyść log
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="text-center mt-5 mb-3">
+                <button class="btn btn-link text-secondary text-decoration-none fw-bold text-uppercase ls-1 fs-8">
+                    <i data-lucide="download-cloud" style="width: 14px; margin-right: 4px;"></i> Załaduj kolejne zasoby
+                </button>
+            </div>
+
+        </div>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/footer :: footer}"></footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        lucide.createIcons();
+
+        // Opcjonalnie: prosta obsługa podświetlania przycisków filtrów
+        const filterBtns = document.querySelectorAll('.filter-btn');
+        filterBtns.forEach(btn => {
+            btn.addEventListener('click', function() {
+                filterBtns.forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+    });
+</script>
+
+</body>
+</html>

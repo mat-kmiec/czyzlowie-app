@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pl">
+<head>
+    <th:block th:replace="~{fragments/head :: head-content(
+        pageTitle='Cele Wędkarskie | CzyZlowie',
+        pageDescription='Tablica wyzwań i kontraktów. Ustalaj wędkarskie cele, śledź postępy i zdobywaj swoje prywatne trofea.',
+        currentUrl='https://czyzlowie.pl/cele'
+    )}"></th:block>
+
+    <link rel="stylesheet" th:href="@{/css/main.css}">
+
+    <style>
+        /* === ZMIENNE BAZOWE (KLIMAT KONTRAKTÓW / ZŁOTO) === */
+        :root {
+            --brand-green: #2ecc71;
+            --brand-blue: #0ea5e9;
+            --bounty-gold: #eab308; /* Złoty / Żółty kolor trofeów */
+            --bounty-gold-glow: rgba(234, 179, 8, 0.25);
+            --danger-red: #ef4444;
+            --bg-dark-base: #0f172a;
+            --glass-bg: rgba(15, 23, 42, 0.75);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --text-main: #f8fafc;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+        }
+
+        body.algo-page { background-color: var(--bg-dark-base); min-height: 100vh; color: var(--text-main); font-family: 'Inter', sans-serif; }
+        .algo-bg-container { position: fixed; top: 0; left: 0; width: 100%; height: 100vh; z-index: 0; overflow: hidden; }
+        .algo-bg-image { width: 100%; height: 100%; object-fit: cover; opacity: 0.12; filter: blur(6px); mix-blend-mode: luminosity; }
+        .algo-bg-overlay { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(15,23,42,0.9) 0%, rgba(15,23,42,0.98) 100%); }
+        .algo-glow { position: absolute; border-radius: 50%; filter: blur(120px); opacity: 0.2; pointer-events: none; }
+        .glow-top-left { top: -10%; left: -10%; width: 40vw; height: 40vw; background: rgba(234, 179, 8, 0.2); }
+        .glow-bottom-right { bottom: -10%; right: -10%; width: 50vw; height: 50vw; background: rgba(14, 165, 233, 0.1); }
+
+        .algo-glass-panel {
+            background: var(--glass-bg); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--glass-border); border-radius: 16px; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+            transition: all 0.3s ease; display: flex; flex-direction: column;
+        }
+
+        .section-header { font-size: 0.95rem; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase; color: #fff; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.75rem; padding-bottom: 1rem; border-bottom: 1px solid var(--glass-border); }
+
+        /* === TOP STATS === */
+        .top-stats-grid { display: flex; gap: 10px; flex-wrap: wrap; }
+        .top-stat-box { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 12px; padding: 10px 15px; flex-grow: 1; display: flex; flex-direction: column; border-left: 3px solid var(--bounty-gold); }
+        .top-stat-box.blue { border-left-color: var(--brand-blue); }
+        .top-stat-box.green { border-left-color: var(--brand-green); }
+        .top-stat-box .stat-label { font-size: 0.65rem; text-transform: uppercase; font-weight: 800; color: var(--text-secondary); letter-spacing: 1px; display: flex; align-items: center; gap: 4px;}
+        .top-stat-box .stat-value { font-size: 1.3rem; font-weight: 900; color: #fff; margin-top: 2px; }
+
+        /* === FORMULARZ KREATORA === */
+        .algo-input-group { position: relative; display: flex; align-items: center; width: 100%; margin-bottom: 1rem; }
+        .algo-input { background: rgba(0, 0, 0, 0.5); border: 1px solid var(--glass-border); color: #fff; border-radius: 10px; padding: 0.9rem 1rem 0.9rem 2.8rem; font-size: 0.95rem; width: 100%; transition: all 0.3s; }
+        .algo-input::placeholder { color: var(--text-muted); opacity: 0.7; font-size: 0.85rem; }
+        .algo-input:focus { outline: none; background: rgba(0, 0, 0, 0.7); border-color: var(--bounty-gold); box-shadow: 0 0 0 3px var(--bounty-gold-glow); }
+        .input-icon { position: absolute; left: 1rem; color: #64748b; pointer-events: none; transition: 0.3s; width: 18px; }
+        .algo-input:focus ~ .input-icon { color: var(--bounty-gold); }
+
+        select.algo-input { appearance: none; cursor: pointer; font-weight: 600; color: var(--bounty-gold); }
+        select.algo-input option { background: var(--bg-dark-base); color: #fff; }
+        .select-arrow { position: absolute; right: 1rem; color: #64748b; pointer-events: none; width: 16px; }
+
+        .input-label { display: block; font-size: 0.7rem; text-transform: uppercase; font-weight: 800; letter-spacing: 1px; color: var(--text-secondary); margin-bottom: 0.4rem; margin-left: 0.25rem; display: flex; align-items: center; gap: 6px; }
+
+        /* Układ dwukolumnowy dla małych inputów */
+        .input-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+        /* === KARTY KONTRAKTÓW (CELE) === */
+        .bounty-grid { display: grid; grid-template-columns: 1fr; gap: 1.5rem; margin-bottom: 3rem; }
+        @media (min-width: 992px) { .bounty-grid { grid-template-columns: repeat(2, 1fr); } }
+
+        .bounty-card { background: rgba(0, 0, 0, 0.4); border: 1px solid var(--glass-border); border-radius: 16px; padding: 1.5rem; transition: all 0.3s; position: relative; overflow: hidden; display: flex; flex-direction: column; border-top: 3px solid var(--brand-blue); }
+        .bounty-card:hover { transform: translateY(-3px); background: rgba(255, 255, 255, 0.03); border-color: rgba(255,255,255,0.2); box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+
+        /* Oznacznik Wypełnionego Kontraktu */
+        .bounty-card.completed { border-top-color: var(--bounty-gold); background: rgba(234, 179, 8, 0.05); }
+        .bounty-card.completed:hover { background: rgba(234, 179, 8, 0.1); border-color: rgba(234, 179, 8, 0.3); }
+        .completed-stamp { position: absolute; right: -20px; top: -20px; color: var(--bounty-gold); opacity: 0.1; font-size: 8rem; pointer-events: none; transform: rotate(-15deg); z-index: 0; }
+        .bounty-card.completed:hover .completed-stamp { opacity: 0.2; transform: rotate(-10deg) scale(1.1); transition: 0.5s ease-out; }
+
+        .bounty-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.5rem; position: relative; z-index: 2; }
+        .bounty-badge { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; border-radius: 6px; font-size: 0.65rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: var(--text-secondary); margin-bottom: 8px; }
+        .bounty-card.completed .bounty-badge { background: rgba(234, 179, 8, 0.15); border-color: rgba(234, 179, 8, 0.3); color: var(--bounty-gold); }
+
+        .bounty-title { font-size: 1.25rem; font-weight: 900; color: #fff; margin: 0; text-transform: uppercase; letter-spacing: 0.5px; }
+        .bounty-deadline { font-size: 0.75rem; color: var(--text-muted); display: flex; align-items: center; gap: 4px; margin-top: 6px; }
+
+        /* Masywny Pasek Postępu */
+        .bounty-progress-container { margin-bottom: 1.5rem; position: relative; z-index: 2; }
+        .bounty-numbers { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 8px; }
+        .b-current { font-size: 2rem; font-weight: 900; color: #fff; line-height: 1; text-shadow: 0 0 10px rgba(255,255,255,0.2); }
+        .b-target { font-size: 1rem; font-weight: 700; color: var(--text-muted); margin-left: 4px; }
+        .b-unit { font-size: 0.8rem; color: var(--text-secondary); font-weight: bold; text-transform: uppercase; }
+        .b-percent { font-size: 0.9rem; font-weight: 800; color: var(--brand-blue); }
+        .bounty-card.completed .b-percent { color: var(--bounty-gold); }
+
+        .b-track { width: 100%; height: 12px; background: rgba(0,0,0,0.5); border-radius: 6px; border: 1px solid rgba(255,255,255,0.05); overflow: hidden; box-shadow: inset 0 2px 4px rgba(0,0,0,0.5); }
+        .b-fill { height: 100%; background: linear-gradient(90deg, #0284c7, #0ea5e9); border-radius: 6px; transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1); position: relative; }
+        /* Pasek (Złoty) dla ukończonych */
+        .bounty-card.completed .b-fill { background: linear-gradient(90deg, #ca8a04, #eab308); box-shadow: 0 0 10px rgba(234, 179, 8, 0.5); }
+
+        .bounty-actions { display: flex; gap: 10px; border-top: 1px dashed rgba(255,255,255,0.1); padding-top: 1rem; margin-top: auto; position: relative; z-index: 2; }
+        .btn-bounty-action { flex: 1; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); color: var(--text-secondary); padding: 10px; border-radius: 8px; font-size: 0.8rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; cursor: pointer; transition: 0.3s; display: flex; align-items: center; justify-content: center; gap: 6px; }
+        .btn-bounty-action:hover { background: rgba(255,255,255,0.08); color: #fff; border-color: rgba(255,255,255,0.3); }
+
+        .btn-bounty-update { background: rgba(14, 165, 233, 0.1); border-color: rgba(14, 165, 233, 0.4); color: var(--brand-blue); }
+        .btn-bounty-update:hover { background: var(--brand-blue); color: #fff; box-shadow: 0 0 10px var(--brand-blue-glow); }
+
+        /* W ukończonym guziki są bardziej stonowane */
+        .bounty-card.completed .btn-bounty-action { pointer-events: none; opacity: 0.5; }
+        .bounty-card.completed .btn-bounty-action.unlock { pointer-events: auto; opacity: 1; border-color: rgba(239, 68, 68, 0.3); color: var(--danger-red); background: rgba(239, 68, 68, 0.05); }
+        .bounty-card.completed .btn-bounty-action.unlock:hover { background: var(--danger-red); color: #fff; }
+
+        /* === BUTTONY GŁÓWNE === */
+        .btn-algo { background-size: 200% auto; color: #fff; font-weight: 800; font-size: 0.95rem; letter-spacing: 1px; text-transform: uppercase; border-radius: 10px; padding: 1rem; width: 100%; transition: all 0.3s ease; position: relative; overflow: hidden; cursor: pointer; border: none; display: flex; align-items: center; justify-content: center; gap: 0.5rem; text-decoration: none; }
+        .btn-algo:hover { transform: translateY(-2px); background-position: right center; color: #fff; }
+        .btn-gold { background-image: linear-gradient(90deg, #ca8a04, #eab308, #ca8a04); box-shadow: 0 0 15px var(--bounty-gold-glow); border: 1px solid rgba(234, 179, 8, 0.4); color: #000; }
+        .btn-gold:hover { color: #000; }
+
+        /* === MODAL UPDATE PROGRESU === */
+        .modal-glass .modal-content { background: var(--glass-bg); backdrop-filter: blur(25px); border: 1px solid var(--glass-border); border-radius: 20px; color: #fff; box-shadow: 0 20px 50px rgba(0,0,0,0.8); }
+        .modal-glass .modal-header { border-bottom: 1px solid var(--glass-border); padding: 1.5rem; display: flex; align-items: center; justify-content: space-between; }
+        .modal-glass .modal-footer { border-top: 1px solid var(--glass-border); padding: 1.2rem 1.5rem; }
+        .modal-glass .btn-close { filter: invert(1) grayscale(100%) brightness(200%); }
+        .modal-action-btns { display: flex; gap: 10px; align-items: center; width: 100%; justify-content: flex-end; }
+
+        @media (max-width: 767.98px) {
+            .btn-algo { width: 100% !important; max-width: 100% !important; }
+            .modal-action-btns { flex-direction: column; width: 100%; }
+            .modal-action-btns > button { width: 100% !important; justify-content: center; margin: 0 !important; }
+        }
+    </style>
+</head>
+<body class="algo-page">
+
+<nav th:replace="~{fragments/navbar :: navbar(activeTab='cele')}"></nav>
+
+<div class="algo-bg-container" aria-hidden="true">
+    <picture>
+        <img src="/assets/drapiezniki.jpg" alt="Tło osiągnięć" class="algo-bg-image" loading="lazy">
+    </picture>
+    <div class="algo-bg-overlay"></div>
+    <div class="algo-glow glow-top-left"></div>
+    <div class="algo-glow glow-bottom-right"></div>
+</div>
+
+<main class="container-xl position-relative z-2 pb-5" style="margin-top: 90px;">
+
+    <header class="algo-glass-panel p-4 mb-4 h-auto">
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-4 mb-4">
+            <div class="d-flex align-items-center gap-3">
+                <div class="icon-wrapper" style="background: rgba(234, 179, 8, 0.1); border: 1px solid var(--bounty-gold); padding: 12px; border-radius: 12px;">
+                    <i data-lucide="target" style="color: var(--bounty-gold); width: 32px; height: 32px;"></i>
+                </div>
+                <div>
+                    <h1 class="display-5 fw-black text-white mb-0" style="text-shadow: 0 0 15px var(--bounty-gold-glow); letter-spacing: -1px;">Tablica Kontraktów</h1>
+                    <p class="fs-7 mb-0 text-secondary-custom">Wyznaczaj nowe granice. Śledź swoje postępy i zdobywaj wędkarskie trofea.</p>
+                </div>
+            </div>
+            <button class="btn btn-algo btn-gold d-xl-none" type="button" data-bs-toggle="collapse" data-bs-target="#createBountyForm" aria-expanded="false" style="width: auto;">
+                <i data-lucide="award"></i> Wystaw Kontrakt
+            </button>
+        </div>
+
+        <div class="top-stats-grid border-top border-secondary border-opacity-25 pt-4">
+            <div class="top-stat-box">
+                <span class="stat-label"><i data-lucide="award" style="width: 12px;"></i> Zdobyte Trofea (Ukończone)</span>
+                <span class="stat-value">4 <span class="fs-8 text-secondary fw-normal">wykonane</span></span>
+            </div>
+            <div class="top-stat-box blue">
+                <span class="stat-label"><i data-lucide="crosshair" style="width: 12px;"></i> Aktywne Wyzwania</span>
+                <span class="stat-value">2 <span class="fs-8 text-secondary fw-normal">w toku</span></span>
+            </div>
+            <div class="top-stat-box green">
+                <span class="stat-label"><i data-lucide="trending-up" style="width: 12px;"></i> Globalny Postęp</span>
+                <span class="stat-value">66%</span>
+            </div>
+        </div>
+    </header>
+
+    <div class="row g-4">
+
+        <aside class="col-xl-4 d-flex flex-column gap-3">
+            <div class="collapse d-xl-block" id="createBountyForm">
+                <div class="algo-glass-panel p-4 h-auto position-sticky" style="top: 100px;">
+                    <h2 class="section-header m-0 mb-4" style="border-bottom-color: rgba(234, 179, 8, 0.2);">
+                        <i data-lucide="crosshair" style="color: var(--bounty-gold);"></i> Wystaw Nowy Kontrakt
+                    </h2>
+
+                    <form action="#" method="post">
+
+                        <label class="input-label"><i data-lucide="flag"></i> Nazwa Operacji / Tytuł</label>
+                        <div class="algo-input-group">
+                            <input type="text" name="bountyTitle" class="algo-input" placeholder="np. Klub Metrówki, Wiosenny Worek..." required>
+                            <i data-lucide="pen-tool" class="input-icon"></i>
+                        </div>
+
+                        <label class="input-label"><i data-lucide="layers"></i> Klasyfikacja Wymogu</label>
+                        <div class="algo-input-group">
+                            <select name="bountyType" class="algo-input" required>
+                                <option value="length">Długość (PB - Rekord)</option>
+                                <option value="weight">Waga (Ciężar okazu)</option>
+                                <option value="quantity">Ilość (Sztuki w sezonie)</option>
+                                <option value="trips">Wyprawy (Liczba zasiadek)</option>
+                            </select>
+                            <i data-lucide="chevron-down" class="select-arrow"></i>
+                            <i data-lucide="filter" class="input-icon"></i>
+                        </div>
+
+                        <div class="input-row">
+                            <div>
+                                <label class="input-label"><i data-lucide="target"></i> Cel (Target)</label>
+                                <div class="algo-input-group">
+                                    <input type="number" name="targetValue" class="algo-input" placeholder="np. 100" required>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="input-label"><i data-lucide="tag"></i> Jednostka</label>
+                                <div class="algo-input-group">
+                                    <select name="unit" class="algo-input" required style="padding-left: 1rem;">
+                                        <option value="cm">cm</option>
+                                        <option value="kg">kg</option>
+                                        <option value="szt">sztuk</option>
+                                    </select>
+                                    <i data-lucide="chevron-down" class="select-arrow"></i>
+                                </div>
+                            </div>
+                        </div>
+
+                        <label class="input-label"><i data-lucide="calendar"></i> Czas Operacyjny (Opcjonalnie)</label>
+                        <div class="algo-input-group">
+                            <input type="date" name="deadline" class="algo-input">
+                            <i data-lucide="clock" class="input-icon"></i>
+                        </div>
+
+                        <button type="submit" class="btn-algo btn-gold w-100 mt-2">
+                            <i data-lucide="check-circle" style="width: 20px;"></i> Autoryzuj Kontrakt
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </aside>
+
+        <div class="col-xl-8">
+
+            <h2 class="fs-5 fw-bold text-white mb-4 ps-2 border-start border-3" style="border-color: var(--brand-blue) !important;">
+                <i data-lucide="activity" style="width: 20px; color: var(--brand-blue); margin-right: 8px;"></i> Aktywne Kontrakty (W toku)
+            </h2>
+
+            <div class="bounty-grid">
+
+                <div class="bounty-card">
+                    <div class="bounty-header">
+                        <div>
+                            <div class="bounty-badge"><i data-lucide="ruler" style="width:12px;"></i> PB Długość</div>
+                            <h3 class="bounty-title">Klub Metrówki (Szczupak)</h3>
+                            <div class="bounty-deadline"><i data-lucide="clock"></i> Czas nieokreślony</div>
+                        </div>
+                    </div>
+
+                    <div class="bounty-progress-container">
+                        <div class="bounty-numbers">
+                            <div>
+                                <span class="b-current">82</span>
+                                <span class="b-target">/ 100 <span class="b-unit">cm</span></span>
+                            </div>
+                            <span class="b-percent">82%</span>
+                        </div>
+                        <div class="b-track">
+                            <div class="b-fill" style="width: 82%;"></div>
+                        </div>
+                    </div>
+
+                    <div class="bounty-actions">
+                        <button class="btn-bounty-action btn-bounty-update trigger-update-modal" data-title="Klub Metrówki" data-unit="cm" data-current="82" data-target="100">
+                            <i data-lucide="arrow-up-circle"></i> Aktualizuj
+                        </button>
+                        <button class="btn-bounty-action"><i data-lucide="trash-2"></i> Porzuć</button>
+                    </div>
+                </div>
+
+                <div class="bounty-card">
+                    <div class="bounty-header">
+                        <div>
+                            <div class="bounty-badge"><i data-lucide="hash" style="width:12px;"></i> Ilość</div>
+                            <h3 class="bounty-title">50 Okoni w Sezonie</h3>
+                            <div class="bounty-deadline"><i data-lucide="calendar-off" style="color: var(--danger-red);"></i> Koniec: 31 Gru 2026</div>
+                        </div>
+                    </div>
+
+                    <div class="bounty-progress-container">
+                        <div class="bounty-numbers">
+                            <div>
+                                <span class="b-current">18</span>
+                                <span class="b-target">/ 50 <span class="b-unit">szt</span></span>
+                            </div>
+                            <span class="b-percent">36%</span>
+                        </div>
+                        <div class="b-track">
+                            <div class="b-fill" style="width: 36%;"></div>
+                        </div>
+                    </div>
+
+                    <div class="bounty-actions">
+                        <button class="btn-bounty-action btn-bounty-update trigger-update-modal" data-title="50 Okoni w Sezonie" data-unit="szt" data-current="18" data-target="50">
+                            <i data-lucide="arrow-up-circle"></i> Aktualizuj
+                        </button>
+                        <button class="btn-bounty-action"><i data-lucide="trash-2"></i> Porzuć</button>
+                    </div>
+                </div>
+
+            </div>
+
+            <h2 class="fs-5 fw-bold text-white mb-4 ps-2 border-start border-3" style="border-color: var(--bounty-gold) !important; margin-top: 2rem;">
+                <i data-lucide="award" style="width: 20px; color: var(--bounty-gold); margin-right: 8px;"></i> Tablica Trofeów (Zrealizowane)
+            </h2>
+
+            <div class="bounty-grid">
+
+                <div class="bounty-card completed">
+                    <i data-lucide="shield-check" class="completed-stamp"></i>
+
+                    <div class="bounty-header">
+                        <div>
+                            <div class="bounty-badge"><i data-lucide="check-circle" style="width:12px;"></i> Osiągnięcie Odlokowane</div>
+                            <h3 class="bounty-title">Życiówka Okonia</h3>
+                            <div class="bounty-deadline" style="color: var(--bounty-gold);"><i data-lucide="award"></i> Ukończono: 12 Wrz 2025</div>
+                        </div>
+                    </div>
+
+                    <div class="bounty-progress-container">
+                        <div class="bounty-numbers">
+                            <div>
+                                <span class="b-current" style="color: var(--bounty-gold);">42</span>
+                                <span class="b-target">/ 40 <span class="b-unit">cm</span></span>
+                            </div>
+                            <span class="b-percent">MAX</span>
+                        </div>
+                        <div class="b-track">
+                            <div class="b-fill" style="width: 100%;"></div>
+                        </div>
+                    </div>
+
+                    <div class="bounty-actions">
+                        <button class="btn-bounty-action">Zrealizowano</button>
+                        <button class="btn-bounty-action unlock" title="Cofnij status ukończenia"><i data-lucide="rotate-ccw"></i></button>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/footer :: footer}"></footer>
+
+<div class="modal fade modal-glass" id="updateProgressModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+
+            <div class="modal-header border-bottom border-secondary border-opacity-25" style="background: rgba(14, 165, 233, 0.1);">
+                <h5 class="modal-title fw-black d-flex align-items-center gap-2 text-uppercase ls-1 text-white">
+                    <i data-lucide="upload-cloud" style="color: var(--brand-blue);"></i> Zgłoś Nowy Wynik
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+
+            <form action="#" method="post">
+                <div class="modal-body p-4">
+                    <div class="text-center mb-4">
+                        <h4 class="fw-bold text-white mb-1" id="modalGoalTitle">Tytuł Celu</h4>
+                        <div class="fs-7 text-secondary">Obecny stan: <span id="modalCurrentVal" class="text-white fw-bold">--</span> / <span id="modalTargetVal">--</span> <span id="modalUnit">--</span></div>
+                    </div>
+
+                    <label class="input-label"><i data-lucide="crosshair"></i> Wprowadź Nową Wartość</label>
+                    <div class="algo-input-group mb-0">
+                        <input type="number" step="0.1" name="newProgress" id="newProgressInput" class="algo-input" style="font-size: 1.5rem; font-weight: 900; text-align: center; padding-left: 1rem;" required>
+                    </div>
+                    <div class="fs-8 text-muted mt-2 text-center">System automatycznie nadpisze stary wynik i przeliczy procenty. Jeśli przekroczysz cel, kontrakt zostanie oznaczony jako Zrealizowany.</div>
+                </div>
+
+                <div class="modal-footer">
+                    <div class="modal-action-btns">
+                        <button type="button" class="btn btn-outline-secondary border-secondary text-white" data-bs-dismiss="modal">Anuluj</button>
+                        <button type="submit" class="btn-algo" style="width: auto; background-image: linear-gradient(90deg, #0284c7, #0ea5e9, #0284c7); box-shadow: 0 0 15px rgba(14, 165, 233, 0.3); border: 1px solid rgba(14, 165, 233, 0.4);">
+                            <i data-lucide="check-circle" style="width:18px;"></i> Zatwierdź Wynik
+                        </button>
+                    </div>
+                </div>
+            </form>
+
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        lucide.createIcons();
+
+        // Obsługa modalu aktualizacji progresu
+        const updateModal = new bootstrap.Modal(document.getElementById('updateProgressModal'));
+        const modalTitle = document.getElementById('modalGoalTitle');
+        const modalCurrent = document.getElementById('modalCurrentVal');
+        const modalTarget = document.getElementById('modalTargetVal');
+        const modalUnit = document.getElementById('modalUnit');
+        const inputNewProgress = document.getElementById('newProgressInput');
+
+        document.querySelectorAll('.trigger-update-modal').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const title = this.getAttribute('data-title');
+                const unit = this.getAttribute('data-unit');
+                const current = this.getAttribute('data-current');
+                const target = this.getAttribute('data-target');
+
+                modalTitle.innerText = title;
+                modalCurrent.innerText = current;
+                modalTarget.innerText = target;
+                modalUnit.innerText = unit;
+                inputNewProgress.value = current; // Domyślnie wpisana aktualna wartość
+                inputNewProgress.setAttribute('min', current); // Zabezpieczenie HTML5, żeby nie wpisać mniej niż było (opcjonalne)
+
+                updateModal.show();
+            });
+        });
+    });
+</script>
+
+</body>
+</html>

@@ -8,356 +8,341 @@
     )}"></th:block>
 
     <link rel="stylesheet" th:href="@{/css/main.css}">
-    <link rel="stylesheet" th:href="@{/css/atlas.css}">
 
     <style>
-        /* === BAZA: CIEMNY GRANAT ATLASU === */
-        body.atlas-page {
-            background-color: #020617;
-            color: #e2e8f0;
+        /* === ZMIENNE BAZOWE === */
+        :root {
+            --brand-green: #2ecc71;
+            --brand-green-glow: rgba(46, 204, 113, 0.25);
+            --predator-red: #ef4444;
+            --predator-red-glow: rgba(239, 68, 68, 0.25);
+            --brand-blue: #0ea5e9;
+            --brand-blue-glow: rgba(14, 165, 233, 0.25);
+            --ignore-orange: #f59e0b;
+            --bg-dark-base: #0f172a;
+            --glass-bg: rgba(15, 23, 42, 0.75);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --text-main: #f8fafc;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+        }
+
+        /* === BAZA STRONY === */
+        body.algo-page {
+            background-color: var(--bg-dark-base);
             min-height: 100vh;
+            color: var(--text-main);
             font-family: 'Inter', sans-serif;
-            background-image: radial-gradient(circle at 50% -20%, #1e293b 0%, #020617 80%);
         }
 
-        .profile-wrapper {
-            margin-top: 60px; /* Mniejszy margines na mobile */
-            padding-bottom: 3rem;
+        .algo-bg-container {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100vh; z-index: 0; overflow: hidden;
         }
 
-        @media (min-width: 992px) {
-            .profile-wrapper {
-                margin-top: 100px;
-                padding-bottom: 5rem;
-            }
+        .algo-bg-image {
+            width: 100%; height: 100%; object-fit: cover; opacity: 0.25; filter: blur(5px);
         }
 
-        /* === STATYSTYKI === */
-        .stat-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 12px;
-            margin-top: 25px;
+        .algo-bg-overlay {
+            position: absolute; inset: 0; background: linear-gradient(180deg, rgba(15,23,42,0.85) 0%, rgba(15,23,42,0.98) 100%);
         }
 
-        @media (max-width: 380px) {
-            .stat-grid {
-                grid-template-columns: 1fr;
-            }
+        .algo-glow {
+            position: absolute; border-radius: 50%; filter: blur(120px); opacity: 0.3; pointer-events: none;
+        }
+        .glow-top-left { top: -10%; left: -10%; width: 40vw; height: 40vw; background: rgba(14, 165, 233, 0.2); }
+        .glow-bottom-right { bottom: -10%; right: -10%; width: 50vw; height: 50vw; background: rgba(46, 204, 113, 0.1); }
+
+        /* === PANELS & HEADERS === */
+        .algo-glass-panel {
+            background: var(--glass-bg); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--glass-border); border-radius: 16px; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+            transition: all 0.3s ease; height: 100%; display: flex; flex-direction: column;
+        }
+        .algo-glass-panel:hover { border-color: rgba(255, 255, 255, 0.15); box-shadow: 0 8px 40px rgba(0, 0, 0, 0.7); }
+
+        /* Akcenty kafelków (paski na górze) */
+        .border-top-blue { border-top: 2px solid var(--brand-blue); }
+        .border-top-green { border-top: 2px solid var(--brand-green); }
+        .border-top-red { border-top: 2px solid var(--predator-red); }
+
+        .section-header {
+            font-size: 0.95rem; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase;
+            color: #fff; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.75rem;
+            padding-bottom: 1rem; border-bottom: 1px solid var(--glass-border);
         }
 
-        .stat-card-kozacka {
-            background: linear-gradient(145deg, rgba(30, 41, 59, 0.4) 0%, rgba(15, 23, 42, 0.8) 100%);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            border-radius: 20px;
-            padding: 20px;
-            position: relative;
-            overflow: hidden;
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            display: flex;
-            flex-direction: column;
+        /* Dopasowanie koloru linii pod nagłówkiem do sekcji */
+        .header-line-blue { border-bottom-color: rgba(14, 165, 233, 0.2); }
+        .header-line-green { border-bottom-color: rgba(46, 204, 113, 0.2); }
+        .header-line-red { border-bottom-color: rgba(239, 68, 68, 0.2); }
+
+        /* === FORMULARZE I INPUTY === */
+        .algo-input-group {
+            position: relative; display: flex; align-items: center; width: 100%;
         }
 
-        .stat-card-kozacka:hover {
-            transform: translateY(-5px);
-            border-color: rgba(56, 189, 248, 0.3);
-            box-shadow: 0 15px 30px rgba(0,0,0,0.5);
+        .algo-input {
+            background: rgba(0, 0, 0, 0.5); border: 1px solid var(--glass-border); color: #fff;
+            border-radius: 10px; padding: 0.9rem 1rem 0.9rem 2.8rem; font-size: 1rem; width: 100%; transition: all 0.3s;
         }
 
-        .stat-card-kozacka .big-icon-bg {
-            position: absolute;
-            right: -10px;
-            bottom: -10px;
-            width: 70px;
-            height: 70px;
-            opacity: 0.1;
-            transform: rotate(-15deg);
+        .algo-input::placeholder { color: var(--text-muted); opacity: 0.7; font-size: 0.9rem; }
+
+        .algo-input:focus {
+            outline: none; background: rgba(0, 0, 0, 0.7);
         }
 
-        .stat-val {
-            font-size: 1.8rem;
-            font-weight: 900;
-            line-height: 1.2;
-            background: linear-gradient(to bottom, #fff, #94a3b8);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+        /* Focus kolory bazujące na sekcjach */
+        .input-focus-blue:focus { border-color: var(--brand-blue); box-shadow: 0 0 0 3px var(--brand-blue-glow); }
+        .input-focus-green:focus { border-color: var(--brand-green); box-shadow: 0 0 0 3px var(--brand-green-glow); }
+        .input-focus-red:focus { border-color: var(--predator-red); box-shadow: 0 0 0 3px var(--predator-red-glow); }
+
+        .input-icon {
+            position: absolute; left: 1rem; color: #64748b; pointer-events: none; transition: 0.3s; width: 18px;
         }
 
-        .stat-lbl {
-            font-size: 0.7rem;
-            text-transform: uppercase;
-            font-weight: 800;
-            letter-spacing: 1px;
-            color: rgba(255,255,255,0.4);
+        .algo-input:focus ~ .input-icon { color: #fff; }
+
+        .algo-input[readonly] {
+            background: rgba(255, 255, 255, 0.02); color: var(--text-secondary); border-color: transparent; box-shadow: none; cursor: not-allowed;
         }
 
-        /* === KARTA PROFILU === */
-        .glass-panel-profile {
-            background: rgba(15, 23, 42, 0.8);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 24px;
-            padding: 30px 20px;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.4);
+        .input-label {
+            display: block; font-size: 0.75rem; text-transform: uppercase; font-weight: 800;
+            letter-spacing: 1px; color: var(--text-secondary); margin-bottom: 0.5rem; margin-left: 0.25rem;
         }
 
+        /* === PRZYCISKI === */
+        .btn-algo {
+            background-size: 200% auto; color: #fff; font-weight: 800; font-size: 0.95rem;
+            letter-spacing: 1px; text-transform: uppercase; border-radius: 10px; padding: 1rem; width: 100%;
+            transition: all 0.3s ease; position: relative; overflow: hidden; cursor: pointer; border: none;
+            display: flex; align-items: center; justify-content: center; gap: 0.5rem; text-decoration: none;
+        }
+        .btn-algo:hover { transform: translateY(-2px); background-position: right center; color: #fff; }
+
+        .btn-blue { background-image: linear-gradient(90deg, #0284c7, #0ea5e9, #0284c7); box-shadow: 0 0 15px var(--brand-blue-glow); border: 1px solid rgba(14, 165, 233, 0.4); }
+        .btn-green { background-image: linear-gradient(90deg, #059669, #10b981, #059669); box-shadow: 0 0 15px var(--brand-green-glow); border: 1px solid rgba(46, 204, 113, 0.4); }
+        .btn-red { background-image: linear-gradient(90deg, #b91c1c, #ef4444, #b91c1c); box-shadow: 0 0 15px var(--predator-red-glow); border: 1px solid rgba(239, 68, 68, 0.4); }
+
+        /* Ograniczenie szerokości na desktopach */
+        .btn-limit-width { max-width: 250px; }
+
+        /* === AVATAR I STATYSTYKI === */
         .user-avatar-hex {
-            width: 90px;
-            height: 90px;
-            margin: 0 auto 20px;
-            background: linear-gradient(135deg, #0ea5e9 0%, #2563eb 100%);
+            width: 100px; height: 100px; margin: 0 auto 1.5rem;
+            background: linear-gradient(135deg, var(--bg-dark-base) 0%, rgba(14, 165, 233, 0.2) 100%);
+            border: 2px solid var(--brand-blue);
             border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 0 20px var(--brand-blue-glow);
         }
 
-        /* === SEKTY USTAWIŃ === */
-        .settings-card {
-            background: rgba(15, 23, 42, 0.6);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            border-radius: 24px;
-            padding: 25px;
-            margin-bottom: 20px;
+        .stat-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 1.5rem; }
+
+        .algo-stat-card {
+            background: rgba(0, 0, 0, 0.4); border: 1px solid var(--glass-border);
+            border-radius: 12px; padding: 15px; display: flex; flex-direction: column;
+            align-items: center; text-align: center; transition: 0.3s;
+        }
+        .algo-stat-card:hover {
+            background: rgba(255, 255, 255, 0.05); transform: translateY(-3px); border-color: rgba(255, 255, 255, 0.15);
         }
 
-        @media (min-width: 768px) {
-            .settings-card {
-                padding: 35px;
-                margin-bottom: 30px;
-            }
-        }
+        .stat-val { font-size: 1.5rem; font-weight: 900; line-height: 1.1; color: #fff; margin-bottom: 2px; }
+        .stat-lbl { font-size: 0.65rem; text-transform: uppercase; font-weight: 800; letter-spacing: 1px; color: var(--text-secondary); }
 
-        /* FIX IKONKI PRZY NAGŁÓWKU - KLUCZOWE */
-        .icon-box-header {
-            width: 48px;
-            height: 48px;
-            flex-shrink: 0; /* To zapobiega gnieceniu ikony */
-            border-radius: 14px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: rgba(255, 255, 255, 0.05);
-            color: #0ea5e9;
-        }
-
-        /* === INPUTY === */
-        .input-group-kozacka {
-            background: rgba(0, 0, 0, 0.3);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            transition: 0.3s;
-        }
-
-        .input-group-kozacka:focus-within {
-            border-color: #0ea5e9;
-            box-shadow: 0 0 15px rgba(14, 165, 233, 0.2);
-        }
-
-        .input-kozacki {
-            background: transparent !important;
-            border: none !important;
-            color: #fff !important;
-            box-shadow: none !important;
-            padding: 12px 15px;
-        }
-
-        /* === PRZYCISKI - RESPONSYWNOŚĆ 100% === */
-        .btn-premium {
-            background: linear-gradient(135deg, #0ea5e9 0%, #2563eb 100%);
-            color: #020617;
-            font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            border: none;
-            padding: 14px 25px;
-            border-radius: 12px;
-            transition: 0.3s;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            text-decoration: none;
-        }
-
+        /* === RESPONSYWNOŚĆ === */
         @media (max-width: 767.98px) {
-            .btn-premium {
-                width: 100% !important; /* Przycisk na całą szerokość na mobile */
-                margin-top: 10px;
+            .btn-algo {
+                width: 100% !important;
+                max-width: 100% !important; /* Wymuszenie 100% na telefonach */
+                margin-top: 0.5rem;
             }
-            .icon-box-header {
-                width: 42px;
-                height: 42px;
+            .btn-limit-width {
+                max-width: 100%; /* Reset ogranicznika dla mobilki */
+            }
+            /* Poprawa odstepow miedzy inputem a guzikiem na tel */
+            .mobile-stack-btn {
+                margin-top: 1rem;
+                display: flex;
             }
         }
-
-        .btn-premium:hover {
-            transform: translateY(-2px);
-            filter: brightness(1.1);
-            color: #020617;
-        }
-
-        .border-accent-red { border-top: 2px solid #ef4444 !important; }
     </style>
 </head>
-<body class="atlas-page">
+<body class="algo-page">
 
-<nav th:replace="~{fragments/navbar :: navbar('profil')}"></nav>
+<nav th:replace="~{fragments/navbar :: navbar(activeTab='profil')}"></nav>
 
-<main class="profile-wrapper">
-    <div class="container-xl">
-        <div class="row g-4">
+<div class="algo-bg-container" aria-hidden="true">
+    <picture>
+        <img src="/assets/drapiezniki.jpg" alt="Tło profilu" class="algo-bg-image" loading="lazy">
+    </picture>
+    <div class="algo-bg-overlay"></div>
+    <div class="algo-glow glow-top-left"></div>
+    <div class="algo-glow glow-bottom-right"></div>
+</div>
 
-            <aside class="col-lg-4">
-                <div class="sticky-sidebar position-sticky" style="top: 100px;">
-                    <div class="glass-panel-profile">
-                        <div class="text-center mb-4">
-                            <div class="user-avatar-hex">
-                                <i data-lucide="user" style="width: 40px; height: 40px; color: #020617;"></i>
-                            </div>
-                            <h2 class="fs-4 fw-black text-white mb-1" th:text="${user?.username ?: 'Użytkownik'}">Jan Kowalski</h2>
-                            <div class="badge bg-info bg-opacity-10 text-info px-3 py-2 rounded-pill fs-8">
-                                <i data-lucide="award" class="me-1" style="width: 14px;"></i> Aktywny Łowca
-                            </div>
-                        </div>
+<main class="container-xl position-relative z-2 pb-5" style="margin-top: 90px;">
 
-                        <div class="stat-grid">
-                            <div class="stat-card-kozacka">
-                                <i data-lucide="gauge" class="big-icon-bg"></i>
-                                <span class="stat-val" th:text="${stats?.forecastsChecked ?: 156}">156</span>
-                                <span class="stat-lbl">Prognozy</span>
-                            </div>
-                            <div class="stat-card-kozacka">
-                                <i data-lucide="fish" class="big-icon-bg" style="color: #2ecc71;"></i>
-                                <span class="stat-val" style="background: linear-gradient(to bottom, #fff, #2ecc71); -webkit-background-clip: text;" th:text="${stats?.fishCaught ?: 42}">42</span>
-                                <span class="stat-lbl">Złowione</span>
-                            </div>
-                            <div class="stat-card-kozacka">
-                                <i data-lucide="map" class="big-icon-bg" style="color: #f59e0b;"></i>
-                                <span class="stat-val" style="background: linear-gradient(to bottom, #fff, #f59e0b); -webkit-background-clip: text;" th:text="${stats?.tripsCount ?: 14}">14</span>
-                                <span class="stat-lbl">Wyprawy</span>
-                            </div>
-                            <div class="stat-card-kozacka">
-                                <i data-lucide="map-pin" class="big-icon-bg" style="color: #a855f7;"></i>
-                                <span class="stat-val" style="background: linear-gradient(to bottom, #fff, #a855f7); -webkit-background-clip: text;" th:text="${stats?.favoriteSpots ?: 8}">8</span>
-                                <span class="stat-lbl">Miejsca</span>
-                            </div>
-                        </div>
+    <header class="algo-glass-panel p-3 p-md-4 mb-4 h-auto" style="flex-direction: row; justify-content: space-between; align-items: center;">
+        <div>
+            <div class="d-flex align-items-center gap-3 mb-1">
+                <div class="icon-wrapper" style="background: rgba(14, 165, 233, 0.1); border: 1px solid var(--brand-blue); padding: 10px; border-radius: 10px;">
+                    <i data-lucide="user" style="color: var(--brand-blue); width: 28px; height: 28px;"></i>
+                </div>
+                <h1 class="display-6 fw-black text-white mb-0" style="text-shadow: 0 0 15px var(--brand-blue-glow);">Twój Profil</h1>
+            </div>
+            <p class="fs-6 mb-0 ps-1 text-secondary-custom">
+                Zarządzaj swoją tożsamością, zabezpieczeniami i śledź wędkarskie osiągnięcia.
+            </p>
+        </div>
+    </header>
+
+    <div class="row g-4">
+        <aside class="col-xl-4 d-flex flex-column gap-4">
+            <div class="algo-glass-panel p-4 h-auto position-sticky" style="top: 100px;">
+
+                <div class="text-center">
+                    <div class="user-avatar-hex">
+                        <i data-lucide="anchor" style="width: 45px; height: 45px; color: var(--brand-blue);"></i>
+                    </div>
+                    <h2 class="fs-4 fw-black text-white mb-2">Jan Kowalski</h2>
+                    <div class="badge text-uppercase ls-1 fw-bold" style="background: rgba(46, 204, 113, 0.15); color: var(--brand-green); border: 1px solid rgba(46, 204, 113, 0.3); padding: 8px 15px; border-radius: 8px;">
+                        <i data-lucide="award" style="width: 14px; margin-right: 4px; margin-bottom: 2px;"></i> Aktywny Łowca
                     </div>
                 </div>
-            </aside>
 
-            <div class="col-lg-8">
+                <hr style="border-color: var(--glass-border); margin: 1.5rem 0;">
 
-                <section class="settings-card">
-                    <div class="d-flex align-items-start gap-3 gap-md-4 mb-4">
-                        <div class="icon-box-header">
-                            <i data-lucide="fingerprint" style="width: 24px; height: 24px;"></i>
-                        </div>
-                        <div>
-                            <h3 class="h5 text-white fw-bold mb-1">Publiczna Tożsamość</h3>
-                            <p class="text-muted fs-7 mb-0">Pod tą nazwą będą Cię widzieć inni użytkownicy.</p>
-                        </div>
+                <h3 class="fs-8 text-uppercase fw-bold text-secondary-custom mb-0 text-center" style="letter-spacing: 1px;">Twoje Wyniki</h3>
+
+                <div class="stat-grid">
+                    <div class="algo-stat-card">
+                        <i data-lucide="radar" style="color: var(--brand-blue); margin-bottom: 8px;"></i>
+                        <span class="stat-val">156</span>
+                        <span class="stat-lbl">Prognozy</span>
                     </div>
-
-                    <form th:action="@{/profil/zmien-nazwe}" method="post">
-                        <div class="row g-2 g-md-3 align-items-end">
-                            <div class="col-md-8">
-                                <label class="form-label text-muted fs-8 text-uppercase fw-bold mb-2">Twoja ksywka</label>
-                                <div class="input-group-kozacka">
-                                    <i data-lucide="at-sign" class="ms-3 text-muted" style="width: 18px;"></i>
-                                    <input type="text" name="username" class="form-control input-kozacki" th:value="${user?.username ?: 'Jan Kowalski'}" required>
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <button type="submit" class="btn-premium w-100">Zapisz</button>
-                            </div>
-                        </div>
-                    </form>
-                </section>
-
-                <section class="settings-card">
-                    <div class="d-flex align-items-start gap-3 gap-md-4 mb-4">
-                        <div class="icon-box-header" style="color: #a855f7; background: rgba(168, 85, 247, 0.1);">
-                            <i data-lucide="mail" style="width: 24px; height: 24px;"></i>
-                        </div>
-                        <div>
-                            <h3 class="h5 text-white fw-bold mb-1">Dane Kontaktowe</h3>
-                            <p class="text-muted fs-7 mb-0">Zmień swój adres e-mail do logowania.</p>
-                        </div>
+                    <div class="algo-stat-card">
+                        <i data-lucide="fish" style="color: var(--brand-green); margin-bottom: 8px;"></i>
+                        <span class="stat-val">42</span>
+                        <span class="stat-lbl">Złowione</span>
                     </div>
-
-                    <form th:action="@{/profil/zmien-email}" method="post">
-                        <div class="row g-3">
-                            <div class="col-md-6">
-                                <label class="form-label text-muted fs-8 text-uppercase fw-bold mb-2">Aktualny e-mail</label>
-                                <div class="input-group-kozacka opacity-50">
-                                    <input type="email" class="form-control input-kozacki" th:value="${user?.email ?: 'jan.kowalski@email.com'}" readonly>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label text-muted fs-8 text-uppercase fw-bold mb-2">Nowy e-mail</label>
-                                <div class="input-group-kozacka">
-                                    <input type="email" name="newEmail" class="form-control input-kozacki" placeholder="Wpisz nowy..." required>
-                                </div>
-                            </div>
-                            <div class="col-12 text-md-end">
-                                <button type="submit" class="btn-premium" style="background: linear-gradient(135deg, #a855f7 0%, #d946ef 100%);">
-                                    Aktualizuj E-mail
-                                </button>
-                            </div>
-                        </div>
-                    </form>
-                </section>
-
-                <section class="settings-card border-accent-red">
-                    <div class="d-flex align-items-start gap-3 gap-md-4 mb-4">
-                        <div class="icon-box-header" style="color: #ef4444; background: rgba(239, 68, 68, 0.1);">
-                            <i data-lucide="lock" style="width: 24px; height: 24px;"></i>
-                        </div>
-                        <div>
-                            <h3 class="h5 text-white fw-bold mb-1">Bezpieczeństwo</h3>
-                            <p class="text-muted fs-7 mb-0">Zalecamy zmianę hasła co najmniej raz na kilka miesięcy.</p>
-                        </div>
+                    <div class="algo-stat-card">
+                        <i data-lucide="map" style="color: var(--ignore-orange); margin-bottom: 8px;"></i>
+                        <span class="stat-val">14</span>
+                        <span class="stat-lbl">Wyprawy</span>
                     </div>
-
-                    <form th:action="@{/profil/zmien-haslo}" method="post">
-                        <div class="row g-3">
-                            <div class="col-12">
-                                <label class="form-label text-muted fs-8 text-uppercase fw-bold mb-2">Aktualne hasło</label>
-                                <div class="input-group-kozacka">
-                                    <input type="password" name="oldPassword" class="form-control input-kozacki" required>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label text-muted fs-8 text-uppercase fw-bold mb-2">Nowe hasło</label>
-                                <div class="input-group-kozacka">
-                                    <input type="password" name="newPassword" class="form-control input-kozacki" required>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label text-muted fs-8 text-uppercase fw-bold mb-2">Powtórz nowe hasło</label>
-                                <div class="input-group-kozacka">
-                                    <input type="password" name="confirmPassword" class="form-control input-kozacki" required>
-                                </div>
-                            </div>
-                            <div class="col-12 text-md-end">
-                                <button type="submit" class="btn-premium" style="background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%); color: #fff;">
-                                    Zmień Hasło
-                                </button>
-                            </div>
-                        </div>
-                    </form>
-                </section>
+                    <div class="algo-stat-card">
+                        <i data-lucide="map-pin" style="color: #a855f7; margin-bottom: 8px;"></i>
+                        <span class="stat-val">8</span>
+                        <span class="stat-lbl">Miejscówki</span>
+                    </div>
+                </div>
 
             </div>
+        </aside>
+
+        <div class="col-xl-8 d-flex flex-column gap-4">
+
+            <section class="algo-glass-panel p-4 h-auto border-top-blue">
+                <h2 class="section-header header-line-blue m-0 mb-4">
+                    <div class="d-flex align-items-center gap-2"><i data-lucide="fingerprint" style="color: var(--brand-blue);"></i> Publiczna Tożsamość</div>
+                </h2>
+
+                <form action="#" method="post">
+                    <div class="row align-items-end g-3">
+                        <div class="col-md-8">
+                            <label class="input-label">Twoja ksywka wędkarska</label>
+                            <div class="algo-input-group">
+                                <input type="text" name="username" class="algo-input input-focus-blue" value="Jan Kowalski" placeholder="Wpisz nowy nick..." required>
+                                <i data-lucide="at-sign" class="input-icon"></i>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mobile-stack-btn">
+                            <button type="submit" class="btn-algo btn-blue">
+                                Zapisz Zmiany
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </section>
+
+            <section class="algo-glass-panel p-4 h-auto border-top-green">
+                <h2 class="section-header header-line-green m-0 mb-4">
+                    <div class="d-flex align-items-center gap-2"><i data-lucide="mail" style="color: var(--brand-green);"></i> Dane Kontaktowe i Logowanie</div>
+                </h2>
+
+                <form action="#" method="post">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="input-label">Aktualny E-mail</label>
+                            <div class="algo-input-group">
+                                <input type="email" class="algo-input" value="jan.kowalski@email.com" readonly>
+                                <i data-lucide="lock" class="input-icon" style="opacity: 0.5;"></i>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="input-label">Nowy E-mail</label>
+                            <div class="algo-input-group">
+                                <input type="email" name="newEmail" class="algo-input input-focus-green" placeholder="Wpisz nowy e-mail..." required>
+                                <i data-lucide="mail-plus" class="input-icon"></i>
+                            </div>
+                        </div>
+                        <div class="col-12 mt-4 d-flex justify-content-end">
+                            <button type="submit" class="btn-algo btn-green btn-limit-width">
+                                Aktualizuj E-mail
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </section>
+
+            <section class="algo-glass-panel p-4 h-auto border-top-red">
+                <h2 class="section-header header-line-red m-0 mb-4">
+                    <div class="d-flex align-items-center gap-2"><i data-lucide="shield-alert" style="color: var(--predator-red);"></i> Bezpieczeństwo</div>
+                </h2>
+
+                <form action="#" method="post">
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <label class="input-label">Aktualne Hasło</label>
+                            <div class="algo-input-group">
+                                <input type="password" name="oldPassword" class="algo-input input-focus-red" placeholder="Podaj obecne hasło..." required>
+                                <i data-lucide="key" class="input-icon"></i>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="input-label">Nowe Hasło</label>
+                            <div class="algo-input-group">
+                                <input type="password" name="newPassword" class="algo-input input-focus-red" placeholder="Podaj nowe hasło..." required>
+                                <i data-lucide="lock-keyhole" class="input-icon"></i>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="input-label">Powtórz Nowe Hasło</label>
+                            <div class="algo-input-group">
+                                <input type="password" name="confirmPassword" class="algo-input input-focus-red" placeholder="Potwierdź nowe hasło..." required>
+                                <i data-lucide="check-circle" class="input-icon"></i>
+                            </div>
+                        </div>
+                        <div class="col-12 mt-4 d-flex justify-content-end">
+                            <button type="submit" class="btn-algo btn-red btn-limit-width">
+                                <i data-lucide="shield-check" style="width: 18px;"></i> Zmień Hasło
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </section>
+
         </div>
     </div>
 </main>
 
 <footer th:replace="~{fragments/footer :: footer}"></footer>
 
+<script src="https://unpkg.com/lucide@latest"></script>
 <script>
     document.addEventListener('DOMContentLoaded', () => {
         lucide.createIcons();

@@ -11,6 +11,8 @@ class MapApplication {
         this.fetchTimeout = null;
         this.allDataLoaded = false;
         this.isTracking = false;
+        this.tempCollectedPoints = [];
+        this.tempMarkersGroup = L.layerGroup();
 
         const defaultInactive = ['me'];
         this.activeCategories = new Set(Object.keys(this.categories).filter(k => !defaultInactive.includes(k)));
@@ -80,6 +82,9 @@ class MapApplication {
         if (window.lucide) {
             lucide.createIcons();
         }
+
+        // TYMCZASOWE ZBIERANIE PUNKTÓW
+        this.setupTempDataCollector();
     }
 
     async setInitialView() {
@@ -152,6 +157,98 @@ class MapApplication {
             }
 
             alert(errorMsg);
+        });
+    }
+
+    setupTempDataCollector() {
+        this.tempMarkersGroup.addTo(this.map);
+
+        // Tworzenie pływającego okienka UI
+        const container = document.createElement('div');
+        container.style.cssText = `
+        position: fixed; bottom: 20px; left: 20px; z-index: 9999;
+        background: white; padding: 15px; border-radius: 8px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.3); border: 2px solid #3b82f6;
+        max-width: 300px; max-height: 400px; display: flex; flex-direction: column;
+    `;
+
+        container.innerHTML = `
+        <h4 style="margin: 0 0 10px 0; font-size: 14px; color: #1e293b;">Zebrane punkty (PPM na mapie)</h4>
+        <div id="temp-points-list" style="overflow-y: auto; flex-grow: 1; margin-bottom: 10px; font-size: 12px; color: #475569; border-bottom: 1px solid #e2e8f0; padding-bottom: 5px;">
+            Brak punktów.
+        </div>
+        <div style="display: flex; gap: 10px;">
+            <button id="temp-copy-btn" style="flex: 1; padding: 8px; background: #3b82f6; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 12px;">Skopiuj JSON</button>
+            <button id="temp-clear-btn" style="padding: 8px; background: #ef4444; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 12px;">Wyczyść</button>
+        </div>
+    `;
+        document.body.appendChild(container);
+
+        const listEl = document.getElementById('temp-points-list');
+
+        const updateUI = () => {
+            if (this.tempCollectedPoints.length === 0) {
+                listEl.innerHTML = 'Brak punktów.';
+                return;
+            }
+            listEl.innerHTML = this.tempCollectedPoints.map((p, i) =>
+                `<div style="margin-bottom: 4px;"><strong>${i+1}. ${p.name}</strong><br/>${p.lat}, ${p.lng}</div>`
+            ).join('');
+            listEl.scrollTop = listEl.scrollHeight; // Auto-scroll w dół
+        };
+
+        // Nasłuchiwanie na PPM (contextmenu)
+        this.map.on('contextmenu', (e) => {
+            const lat = e.latlng.lat.toFixed(6);
+            const lng = e.latlng.lng.toFixed(6);
+
+            // Pytaj o nazwę
+            const name = prompt(`Podaj nazwę dla punktu (${lat}, ${lng}):`);
+
+            if (name) {
+                this.tempCollectedPoints.push({ name, lat, lng });
+
+                // Dodaj wyraźną tymczasową pinezkę
+                const marker = L.marker([lat, lng], {
+                    icon: L.divIcon({
+                        className: 'temp-marker-icon',
+                        html: `<div style="background: #eab308; width: 14px; height: 14px; border-radius: 50%; border: 2px solid white; box-shadow: 0 0 5px black;"></div>`,
+                        iconSize: [14, 14],
+                        iconAnchor: [7, 7]
+                    })
+                });
+
+                marker.bindTooltip(name, {
+                    permanent: true,
+                    direction: 'top',
+                    offset: [0, -10],
+                    className: 'temp-tooltip'
+                });
+
+                this.tempMarkersGroup.addLayer(marker);
+                updateUI();
+            }
+        });
+
+        // Obsługa przycisków
+        document.getElementById('temp-copy-btn').addEventListener('click', () => {
+            if (this.tempCollectedPoints.length === 0) {
+                alert('Nie ma czego kopiować!');
+                return;
+            }
+            // Formatuj jako ładny JSON
+            const dataStr = JSON.stringify(this.tempCollectedPoints, null, 2);
+            navigator.clipboard.writeText(dataStr).then(() => {
+                alert(`Skopiowano ${this.tempCollectedPoints.length} obiektów do schowka!`);
+            });
+        });
+
+        document.getElementById('temp-clear-btn').addEventListener('click', () => {
+            if (confirm('Na pewno wyczyścić zebraną listę i znaczniki? Upewnij się, że skopiowałeś dane!')) {
+                this.tempCollectedPoints = [];
+                this.tempMarkersGroup.clearLayers(); // Usuń pinezki
+                updateUI();
+            }
         });
     }
 

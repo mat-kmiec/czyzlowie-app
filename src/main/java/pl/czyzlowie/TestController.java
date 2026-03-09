@@ -27,6 +27,50 @@ public class TestController {
         return "profil/profil";
     }
 
+    @GetMapping("/moje-polowy")
+    public String mojePolowy(){
+        return "profil/my-catches";
+    }
+
+    @GetMapping("/dziennik-wypraw")
+    public String dziennikWypraw(){
+        return "profil/expedition-journal";
+    }
+
+    @GetMapping("/kalendarz-wypraw")
+    public String kalendarzWypraw(){
+        return "profil/trip-calendar";
+    }
+
+    @GetMapping("/ulubione-miejscowki")
+    public String ulubioneMiejsca(){
+        return "profil/favorite-places";
+    }
+
+    @GetMapping("/lista-przynet")
+    public String listaPrzynet(){
+        return "profil/lure-list";
+    }
+
+    @GetMapping("/moje-zestawy")
+    public String mojeZestawy(){
+        return "profil/my-sets";
+    }
+
+    @GetMapping("checklisty")
+    public String checklisty(){
+        return "profil/equipment-checklist";
+    }
+
+    @GetMapping("/notatki")
+    public String wyprawy(){
+        return "profil/private-notes";
+    }
+
+    @GetMapping("/cele-wedkarskie")
+    public String celeWedkarskie(){
+        return "profil/fishing-goals";
+    }
 
 
 
