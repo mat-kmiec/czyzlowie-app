@@ -29,10 +29,6 @@ public class TestController {
         return "profil/my-catches";
     }
 
-    @GetMapping("/dziennik-wypraw")
-    public String dziennikWypraw(){
-        return "profil/expedition-journal";
-    }
 
     @GetMapping("/kalendarz-wypraw")
     public String kalendarzWypraw(){

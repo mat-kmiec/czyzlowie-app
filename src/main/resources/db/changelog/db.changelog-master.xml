@@ -26,6 +26,7 @@
     <include file="db/changelog/releases/v1-0-0/19-replace-weather-code-with-humidity.xml"/>
     <include file="db/changelog/releases/v1-0-0/20-replace-user-schema.xml"/>
     <include file="db/changelog/releases/v1-0-0/21-create-verification-tokens.xml"/>
+    <include file="db/changelog/releases/v1-0-0/22-create-fishing-trips-schema.xml"/>
 
 
 </databaseChangeLog>

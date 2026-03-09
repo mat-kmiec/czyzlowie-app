@@ -14,18 +14,24 @@
 </head>
 <body class="algo-page">
 
-<nav th:replace="~{fragments/navbar :: navbar(activeTab='wyprawy')}"></nav>
+<nav th:replace="~{fragments/navbar :: navbar(activeTab='wyprawy')}" style="z-index: 1050; position: relative;"></nav>
 
 <div class="algo-bg-container" aria-hidden="true">
-    <picture>
-        <img src="/assets/drapiezniki.jpg" alt="Tło dziennika" class="algo-bg-image" loading="lazy">
-    </picture>
     <div class="algo-bg-overlay"></div>
     <div class="algo-glow glow-top-left"></div>
     <div class="algo-glow glow-bottom-right"></div>
 </div>
 
 <main class="container-xl position-relative z-2 pb-5" style="margin-top: 90px;">
+
+    <div th:if="${success}" class="alert alert-success alert-dismissible fade show mb-4" role="alert" style="background: rgba(46, 204, 113, 0.1); border-color: var(--brand-green); color: #fff;">
+        <i data-lucide="check-circle" class="me-2 text-brand-green" style="width: 18px;"></i> <span th:text="${success}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close" style="filter: invert(1);"></button>
+    </div>
+    <div th:if="${error}" class="alert alert-danger alert-dismissible fade show mb-4" role="alert" style="background: rgba(239, 68, 68, 0.1); border-color: var(--predator-red); color: #fff;">
+        <i data-lucide="shield-alert" class="me-2 text-predator-red" style="width: 18px;"></i> <span th:text="${error}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close" style="filter: invert(1);"></button>
+    </div>
 
     <header class="algo-glass-panel p-4 mb-4 h-auto">
         <div class="d-flex flex-wrap justify-content-between align-items-center gap-4 mb-4">
@@ -39,22 +45,40 @@
                 </div>
             </div>
             <button class="btn btn-algo btn-purple d-xl-none" type="button" data-bs-toggle="collapse" data-bs-target="#addTripForm" aria-expanded="false" style="width: auto;">
-                <i data-lucide="tent"></i> Loguj Nową Wyprawę
+                <i data-lucide="tent"></i> Zapisz Nową Wyprawę
             </button>
         </div>
 
         <div class="top-stats-grid border-top border-secondary border-opacity-25 pt-4">
             <div class="top-stat-box">
                 <span class="stat-label">Ilość Wypraw</span>
-                <span class="stat-value">14 <span class="fs-8 text-secondary fw-normal">zasiadek</span></span>
+                <span class="stat-value">
+                    <th:block th:text="${tripPage.totalElements}"></th:block>
+                    <span class="fs-8 text-secondary fw-normal">zasiadek</span>
+                </span>
             </div>
+
             <div class="top-stat-box green">
-                <span class="stat-label">Czas nad wodą</span>
-                <span class="stat-value">128 <span class="fs-8 text-secondary fw-normal">godzin</span></span>
+                <span class="stat-label">Łącznie Złowione</span>
+                <span class="stat-value">
+                    <th:block th:text="${totalFish}"></th:block>
+                    <span class="fs-8 text-secondary fw-normal">sztuk</span>
+                </span>
             </div>
+
             <div class="top-stat-box purple">
                 <span class="stat-label">Ulubiona Metoda</span>
-                <span class="stat-value">Spinning <i data-lucide="crosshair" style="width: 14px; margin-left: 4px; color: var(--purple-night);"></i></span>
+                <span class="stat-value">
+                    <th:block th:switch="${favoriteMethod}">
+                        <th:block th:case="'SPINNING'">Spinning</th:block>
+                        <th:block th:case="'KARPIOWANIE'">Karpiowanie</th:block>
+                        <th:block th:case="'FEEDER'">Feeder/Grunt</th:block>
+                        <th:block th:case="'SPLAWIK'">Spławik</th:block>
+                        <th:block th:case="'MORSKIE'">Morskie</th:block>
+                        <th:block th:case="*">Brak danych</th:block>
+                    </th:block>
+                    <i data-lucide="crosshair" style="width: 14px; margin-left: 4px; color: var(--purple-night);"></i>
+                </span>
             </div>
         </div>
     </header>
@@ -65,12 +89,12 @@
             <div class="collapse d-xl-block" id="addTripForm">
                 <div class="algo-glass-panel p-4 h-auto position-sticky" style="top: 100px;">
                     <h2 class="section-header m-0 mb-4" style="border-bottom-color: rgba(168, 85, 247, 0.2);">
-                        <i data-lucide="tent" style="color: var(--purple-night);"></i> Zaloguj Wyprawę
+                        <i data-lucide="tent" style="color: var(--purple-night);"></i> Zapisz Wyprawę
                     </h2>
 
-                    <form action="#" method="post" enctype="multipart/form-data">
+                    <form th:action="@{/dziennik-wypraw}" method="post">
 
-                        <label class="input-label">Nazwa Misji / Cel</label>
+                        <label class="input-label">Nazwa / Cel</label>
                         <div class="algo-input-group">
                             <input type="text" name="tripName" class="algo-input" placeholder="np. Jesienny Szczupak..." required>
                             <i data-lucide="flag" class="input-icon"></i>
@@ -107,11 +131,11 @@
                         <label class="input-label">Typ Wędkowania</label>
                         <div class="algo-input-group">
                             <select name="type" class="algo-input" required>
-                                <option value="spinning">Spinning</option>
-                                <option value="karpiowanie">Karpiowanie</option>
-                                <option value="feeder">Feeder / Grunt</option>
-                                <option value="splawik">Spławik</option>
-                                <option value="morskie">Morskie</option>
+                                <option value="SPINNING">Spinning</option>
+                                <option value="KARPIOWANIE">Karpiowanie</option>
+                                <option value="FEEDER">Feeder / Grunt</option>
+                                <option value="SPLAWIK">Spławik</option>
+                                <option value="MORSKIE">Morskie</option>
                             </select>
                             <i data-lucide="crosshair" class="input-icon"></i>
                             <i data-lucide="chevron-down" class="select-arrow"></i>
@@ -120,40 +144,40 @@
                         <label class="input-label">Ocena Wyników</label>
                         <div class="algo-input-group">
                             <select name="rating" class="algo-input" required>
-                                <option value="epic">🐟🐟🐟 El Dorado (Kozacko)</option>
-                                <option value="good">🐟🐟 Udana Wyprawa</option>
-                                <option value="average">🐟 Jedna ryba to też ryba</option>
-                                <option value="blank">❌ Zejście o kiju (Blank)</option>
+                                <option value="EPIC">🐟🐟🐟 El Dorado</option>
+                                <option value="GOOD">🐟🐟 Udana Wyprawa</option>
+                                <option value="AVERAGE">🐟 Jedna ryba to też ryba</option>
+                                <option value="BLANK">❌ Zejście o kiju</option>
                             </select>
                             <i data-lucide="star" class="input-icon"></i>
                             <i data-lucide="chevron-down" class="select-arrow"></i>
                         </div>
 
-                        <label class="input-label">Warunki / Opcje</label>
-                        <div class="tag-checkboxes">
-                            <input type="checkbox" id="tagBoat" class="tag-check-input" name="tags" value="boat">
-                            <label for="tagBoat" class="tag-check-label"><i data-lucide="ship"></i> Z łodzi</label>
-
-                            <input type="checkbox" id="tagNight" class="tag-check-input" name="tags" value="night">
-                            <label for="tagNight" class="tag-check-label"><i data-lucide="moon"></i> Nocka</label>
-
-                            <input type="checkbox" id="tagIce" class="tag-check-input" name="tags" value="ice">
-                            <label for="tagIce" class="tag-check-label"><i data-lucide="snowflake"></i> Pod lodem</label>
+                        <label class="input-label">Ilość złowionych ryb</label>
+                        <div class="algo-input-group">
+                            <input type="number" name="caughtFish" class="algo-input" value="0" min="0" required>
+                            <i data-lucide="fish" class="input-icon"></i>
                         </div>
 
-                        <label class="input-label">Dodaj Zdjęcia (Multi)</label>
-                        <div class="algo-input-group">
-                            <input type="file" name="tripPhotos" class="algo-input" accept="image/*" multiple>
-                            <i data-lucide="images" class="input-icon"></i>
+                        <label class="input-label">Warunki / Opcje</label>
+                        <div class="tag-checkboxes">
+                            <input type="checkbox" id="tagBoat" class="tag-check-input" name="tags" value="BOAT">
+                            <label for="tagBoat" class="tag-check-label"><i data-lucide="ship"></i> Z łodzi</label>
+
+                            <input type="checkbox" id="tagNight" class="tag-check-input" name="tags" value="NIGHT">
+                            <label for="tagNight" class="tag-check-label"><i data-lucide="moon"></i> Nocka</label>
+
+                            <input type="checkbox" id="tagIce" class="tag-check-input" name="tags" value="ICE">
+                            <label for="tagIce" class="tag-check-label"><i data-lucide="snowflake"></i> Pod lodem</label>
                         </div>
 
                         <label class="input-label">Raport z Wyprawy</label>
                         <div class="algo-input-group">
-                            <textarea name="note" class="algo-input" rows="4" maxlength="500" placeholder="Zapisz swoje wnioski, pogodę, taktykę..."></textarea>
+                            <textarea name="note" class="algo-input" rows="4" maxlength="1000" placeholder="Zapisz swoje wnioski, pogodę, taktykę..."></textarea>
                         </div>
 
                         <button type="submit" class="btn-algo btn-purple w-100 mt-2">
-                            <i data-lucide="save" style="width: 20px;"></i> Zarchiwizuj Misję
+                            <i data-lucide="save" style="width: 20px;"></i> Zapisz wyprawę
                         </button>
                     </form>
                 </div>
@@ -165,91 +189,97 @@
 
             <div class="timeline-wrapper">
 
-                <div class="trip-card success">
+                <div th:if="${tripPage.isEmpty()}" class="algo-glass-panel p-5 text-center">
+                    <i data-lucide="tent" class="text-secondary opacity-50 mb-3 mx-auto d-block" style="width: 48px; height: 48px;"></i>
+                    <h3 class="text-white">Brak zapisanych wypraw</h3>
+                    <p class="text-secondary">Zapisz swoją pierwszą misję korzystając z formularza obok.</p>
+                </div>
+
+                <div class="trip-card" th:each="trip : ${tripPage.content}" th:classappend="${trip.rating.name() == 'BLANK' ? 'blank' : 'success'}">
+
                     <div class="timeline-dot"></div>
 
-                    <div class="trip-header">
+                    <form th:action="@{/dziennik-wypraw/{id}/usun(id=${trip.id})}" method="post" class="position-absolute" style="top: 15px; right: 15px; z-index: 10;" onsubmit="return confirm('Czy na pewno chcesz usunąć tę wyprawę bezpowrotnie?');">
+                        <button type="submit" class="btn btn-sm btn-outline-danger border-0" title="Usuń z dziennika" style="color: var(--predator-red); background: rgba(239, 68, 68, 0.1);">
+                            <i data-lucide="trash-2" style="width: 18px;"></i>
+                        </button>
+                    </form>
+
+                    <div class="trip-header pe-5">
                         <div>
-                            <h3 class="trip-title">Weekendowa Zasiadka Karpiowa</h3>
+                            <h3 class="trip-title" th:text="${trip.name}">Nazwa Wyprawy</h3>
                             <div class="trip-meta">
-                                <span><i data-lucide="calendar" style="width: 14px;"></i> 12-14 Sierpnia 2023</span>
-                                <span><i data-lucide="map-pin" style="width: 14px;"></i> Łowisko Nekielka</span>
-                                <span><i data-lucide="moon" style="width: 14px; color: var(--purple-night);"></i> Nocka</span>
+                                <span><i data-lucide="calendar" style="width: 14px;"></i> <th:block th:text="${#temporals.format(trip.startDate, 'dd.MM.yyyy')}"></th:block></span>
+                                <span><i data-lucide="map-pin" style="width: 14px;"></i> <th:block th:text="${trip.location}"></th:block></span>
+
+                                <span th:each="tag : ${trip.tags}">
+                                    <i th:if="${tag.name() == 'BOAT'}" data-lucide="ship" style="width: 14px; color: var(--brand-cyan);"></i>
+                                    <i th:if="${tag.name() == 'NIGHT'}" data-lucide="moon" style="width: 14px; color: var(--purple-night);"></i>
+                                    <i th:if="${tag.name() == 'ICE'}" data-lucide="snowflake" style="width: 14px; color: var(--text-main);"></i>
+                                    <th:block th:text="${tag.name() == 'BOAT' ? 'Z łodzi' : (tag.name() == 'NIGHT' ? 'Nocka' : 'Pod lodem')}"></th:block>
+                                </span>
                             </div>
                         </div>
-                        <div class="rating-badge rating-epic"><i data-lucide="award" style="width:14px;"></i> El Dorado</div>
+
+                        <div class="rating-badge mt-2 mt-md-0"
+                             th:classappend="${trip.rating.name() == 'EPIC' ? 'rating-epic' : (trip.rating.name() == 'GOOD' or trip.rating.name() == 'AVERAGE' ? 'rating-ok' : 'rating-blank')}">
+                            <i data-lucide="award" style="width:14px;" th:if="${trip.rating.name() != 'BLANK'}"></i>
+                            <i data-lucide="x-circle" style="width:14px;" th:if="${trip.rating.name() == 'BLANK'}"></i>
+                            <span th:text="${trip.rating.name() == 'EPIC' ? 'El Dorado' : (trip.rating.name() == 'GOOD' ? 'Udana' : (trip.rating.name() == 'AVERAGE' ? 'Przeciętna' : 'Zejście o kiju'))}"></span>
+                        </div>
                     </div>
 
                     <div class="trip-stats-grid">
                         <div class="stat-monitor">
-                            <span class="s-val">48</span><span class="s-unit">h</span>
+                            <span class="s-val" th:text="${T(java.time.Duration).between(trip.startDate, trip.endDate).toHours()}">48</span><span class="s-unit">h</span>
                             <div class="s-lbl"><i data-lucide="clock"></i> Czas trwania</div>
                         </div>
                         <div class="stat-monitor">
-                            <span class="s-val">9</span><span class="s-unit">szt</span>
+                            <span class="s-val" th:text="${trip.caughtFish}">0</span><span class="s-unit">szt</span>
                             <div class="s-lbl"><i data-lucide="fish"></i> Złowione</div>
                         </div>
                         <div class="stat-monitor">
-                            <span class="s-val">Karpiowe</span>
+                            <span class="s-val" th:switch="${trip.fishingType.name()}">
+                                <th:block th:case="'SPINNING'">Spinning</th:block>
+                                <th:block th:case="'KARPIOWANIE'">Karpiowe</th:block>
+                                <th:block th:case="'FEEDER'">Feeder/Grunt</th:block>
+                                <th:block th:case="'SPLAWIK'">Spławik</th:block>
+                                <th:block th:case="'MORSKIE'">Morskie</th:block>
+                            </span>
                             <div class="s-lbl"><i data-lucide="target"></i> Metoda</div>
                         </div>
                     </div>
 
-                    <div class="trip-notes">
-                        "Wyjazd życia. Pogoda dopisała, równe ciśnienie 1012 hPa. Brały głównie na kulki z krylem. Nowa żyłka sprawdziła się świetnie przy holu w roślinności."
+                    <div class="trip-notes" th:if="${trip.note != null and !trip.note.isEmpty()}">
+                        "<th:block th:text="${trip.note}"></th:block>"
                     </div>
 
-                    <div class="trip-gallery">
-                        <div class="trip-thumb image-popup-trigger" data-img-src="/assets/drapiezniki.jpg">
-                            <img src="/assets/drapiezniki.jpg" alt="Zdjęcie z wyprawy">
-                        </div>
-                        <div class="trip-thumb image-popup-trigger" data-img-src="/assets/drapiezniki.jpg">
-                            <img src="/assets/drapiezniki.jpg" alt="Zdjęcie z wyprawy">
-                        </div>
-                        <div class="trip-thumb more-photos">
-                            +2
-                        </div>
-                    </div>
+                </div>
+            </div>
+            <div th:if="${tripPage.totalPages > 1}" class="d-grid gap-3 d-sm-flex justify-content-sm-between align-items-sm-center mt-5 mb-3 px-2 px-md-3">
+
+                <div class="text-secondary fs-8 fw-bold text-center order-first order-sm-1 mb-1 mb-sm-0">
+                    Strona <span th:text="${tripPage.number + 1}"></span> z <span th:text="${tripPage.totalPages}"></span>
                 </div>
 
-                <div class="trip-card blank">
-                    <div class="timeline-dot"></div>
-
-                    <div class="trip-header">
-                        <div>
-                            <h3 class="trip-title">Szybki Spinning po pracy</h3>
-                            <div class="trip-meta">
-                                <span><i data-lucide="calendar" style="width: 14px;"></i> 5 Sierpnia 2023, 17:00-20:00</span>
-                                <span><i data-lucide="map-pin" style="width: 14px;"></i> Rzeka Odra, Wroc.</span>
-                            </div>
-                        </div>
-                        <div class="rating-badge rating-blank"><i data-lucide="x-circle" style="width:14px;"></i> O kiju</div>
-                    </div>
-
-                    <div class="trip-stats-grid">
-                        <div class="stat-monitor">
-                            <span class="s-val">3</span><span class="s-unit">h</span>
-                            <div class="s-lbl"><i data-lucide="clock"></i> Czas trwania</div>
-                        </div>
-                        <div class="stat-monitor">
-                            <span class="s-val">0</span><span class="s-unit">szt</span>
-                            <div class="s-lbl"><i data-lucide="fish"></i> Złowione</div>
-                        </div>
-                        <div class="stat-monitor">
-                            <span class="s-val">Spinning</span>
-                            <div class="s-lbl"><i data-lucide="target"></i> Metoda</div>
-                        </div>
-                    </div>
-
-                    <div class="trip-notes">
-                        "Woda bardzo niska i przejrzysta. Rzucałem absolutnie wszystkim, od gum po woblery. Kompletne zero aktywności drapieżnika. Wiatr silny wschodni."
-                    </div>
+                <div class="order-sm-0">
+                    <a th:if="${tripPage.hasPrevious()}"
+                       th:href="@{/dziennik-wypraw(page=${tripPage.number - 1})}"
+                       class="btn btn-outline-secondary border-secondary text-white fw-bold fs-8 text-uppercase w-100"
+                       style="border-radius: 10px;">
+                        <i data-lucide="arrow-left" style="width: 16px; margin-right: 4px;"></i> Nowsze
+                    </a>
+                    <div th:unless="${tripPage.hasPrevious()}" class="d-none d-sm-block" style="width: 105px;"></div>
                 </div>
 
-                <div class="text-center mt-5 mb-3">
-                    <button class="btn btn-link text-secondary text-decoration-none fw-bold text-uppercase ls-1 fs-8">
-                        <i data-lucide="rotate-cw" style="width: 14px; margin-right: 4px;"></i> Pobierz starsze logi
-                    </button>
+                <div class="order-sm-2">
+                    <a th:if="${tripPage.hasNext()}"
+                       th:href="@{/dziennik-wypraw(page=${tripPage.number + 1})}"
+                       class="btn btn-outline-secondary border-secondary text-white fw-bold fs-8 text-uppercase w-100"
+                       style="border-radius: 10px;">
+                        Starsze <i data-lucide="arrow-right" style="width: 16px; margin-left: 4px;"></i>
+                    </a>
+                    <div th:unless="${tripPage.hasNext()}" class="d-none d-sm-block" style="width: 105px;"></div>
                 </div>
 
             </div>
@@ -280,26 +310,6 @@
     </div>
 </div>
 
-<div class="modal fade modal-glass" id="imagePreviewModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-xl">
-        <div class="modal-content">
-            <div class="modal-header border-0 pb-0 position-absolute w-100 z-3" style="top: 0; justify-content: flex-end;">
-                <button type="button" class="btn-close" data-bs-dismiss="modal" style="background-color: rgba(0,0,0,0.5); padding: 10px; border-radius: 50%;"></button>
-            </div>
-            <div class="modal-body p-0 position-relative" style="background: #000; border-radius: 19px 19px 0 0; overflow: hidden;">
-                <img id="modalPreviewImg" src="" style="width: 100%; max-height: 80vh; object-fit: contain; display: block;">
-            </div>
-            <div class="modal-footer" style="background: rgba(15, 23, 42, 0.9);">
-                <div class="modal-action-btns w-100 justify-content-end">
-                    <button type="button" class="btn btn-outline-secondary border-secondary text-white px-4 fw-bold text-uppercase ls-1 fs-8" data-bs-dismiss="modal">Zamknij</button>
-                    <a id="downloadImageBtn" href="#" download="wyprawa.jpg" class="btn-algo btn-green" style="width: auto; padding: 0.6rem 1.5rem;"><i data-lucide="download" style="width:18px;"></i> Pobierz</a>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://unpkg.com/lucide@latest"></script>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
@@ -307,33 +317,28 @@
     document.addEventListener('DOMContentLoaded', () => {
         lucide.createIcons();
 
-        // Daty startu i końca
+        // Daty startu i końca - autouzupełnianie na obecny moment
         const now = new Date();
         now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
         document.getElementById('startDateInput').value = now.toISOString().slice(0, 16);
         now.setHours(now.getHours() + 4); // domyślnie 4 godziny później
         document.getElementById('endDateInput').value = now.toISOString().slice(0, 16);
 
-        // Obsługa zdjęć
-        const imagePreviewModal = new bootstrap.Modal(document.getElementById('imagePreviewModal'));
-        document.querySelectorAll('.image-popup-trigger').forEach(container => {
-            container.addEventListener('click', function() {
-                const img = this.querySelector('img');
-                if(img) {
-                    document.getElementById('modalPreviewImg').src = img.src;
-                    document.getElementById('downloadImageBtn').href = img.src;
-                    imagePreviewModal.show();
-                }
-            });
-        });
+        // Obsługa Mapy Leaflet
+        const mapModalEl = document.getElementById('mapModal');
+        let mapModal = null;
 
-        // Obsługa Mapy
-        const mapModal = new bootstrap.Modal(document.getElementById('mapModal'));
+        if(typeof bootstrap !== 'undefined') {
+            mapModal = new bootstrap.Modal(mapModalEl);
+        }
+
         let map, marker;
 
-        document.getElementById('openMapBtn').addEventListener('click', () => { mapModal.show(); });
+        document.getElementById('openMapBtn').addEventListener('click', () => {
+            if(mapModal) mapModal.show();
+        });
 
-        document.getElementById('mapModal').addEventListener('shown.bs.modal', function () {
+        mapModalEl.addEventListener('shown.bs.modal', function () {
             if (!map) {
                 map = L.map('map').setView([52.069, 19.480], 6);
                 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(map);
@@ -362,7 +367,7 @@
                 document.getElementById('inputLat').value = coord.lat.toFixed(6);
                 document.getElementById('inputLng').value = coord.lng.toFixed(6);
                 document.getElementById('inputLocation').value = `${city} (GPS: ${coord.lat.toFixed(4)}, ${coord.lng.toFixed(4)})`;
-                mapModal.hide();
+                if(mapModal) mapModal.hide();
             } else alert("Proszę kliknąć na mapę.");
         });
     });
