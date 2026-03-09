@@ -1,0 +1,34 @@
+.algo-bg-image { opacity: 0.25; filter: blur(5px); }
+.glow-top-left { top: -10%; left: -10%; width: 40vw; height: 40vw; background: rgba(14, 165, 233, 0.2); }
+.border-top-blue { border-top: 2px solid var(--brand-blue); }
+.border-top-green { border-top: 2px solid var(--brand-green); }
+.border-top-red { border-top: 2px solid var(--predator-red); }
+.header-line-blue { border-bottom-color: rgba(14, 165, 233, 0.2); }
+.header-line-green { border-bottom-color: rgba(46, 204, 113, 0.2); }
+.header-line-red { border-bottom-color: rgba(239, 68, 68, 0.2); }
+.input-focus-blue:focus { border-color: var(--brand-blue); box-shadow: 0 0 0 3px var(--brand-blue-glow); }
+.input-focus-green:focus { border-color: var(--brand-green); box-shadow: 0 0 0 3px var(--brand-green-glow); }
+.input-focus-red:focus { border-color: var(--predator-red); box-shadow: 0 0 0 3px var(--predator-red-glow); }
+.algo-input[readonly] { background: rgba(255, 255, 255, 0.02); color: var(--text-secondary); border-color: transparent; cursor: not-allowed; }
+.user-avatar-hex {
+    width: 100px; height: 100px; margin: 0 auto 1.5rem;
+    background: linear-gradient(135deg, var(--bg-dark-base) 0%, rgba(14, 165, 233, 0.2) 100%);
+    border: 2px solid var(--brand-blue);
+    border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 0 20px var(--brand-blue-glow);
+}
+.stat-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 1.5rem; }
+.algo-stat-card {
+    background: rgba(0, 0, 0, 0.4); border: 1px solid var(--glass-border);
+    border-radius: 12px; padding: 15px; display: flex; flex-direction: column;
+    align-items: center; text-align: center; transition: 0.3s;
+}
+.algo-stat-card:hover { background: rgba(255, 255, 255, 0.05); transform: translateY(-3px); border-color: rgba(255, 255, 255, 0.15); }
+.stat-val { font-size: 1.5rem; font-weight: 900; line-height: 1.1; color: #fff; margin-bottom: 2px; }
+.stat-lbl { font-size: 0.65rem; text-transform: uppercase; font-weight: 800; letter-spacing: 1px; color: var(--text-secondary); }
+.btn-limit-width { max-width: 250px; }
+@media (max-width: 767.98px) {
+    .btn-limit-width { max-width: 100%; }
+    .mobile-stack-btn { margin-top: 1rem; display: flex; }
+}

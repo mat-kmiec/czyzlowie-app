@@ -1,4 +1,4 @@
-package pl.czyzlowie.auth;
+package pl.czyzlowie.modules.auth;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -9,8 +9,6 @@ import org.springframework.security.crypto.argon2.Argon2PasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler;
-import pl.czyzlowie.modules.auth.CustomOAuth2UserService;
-import pl.czyzlowie.modules.auth.LoginSuccessHandler;
 
 @Configuration
 @EnableWebSecurity

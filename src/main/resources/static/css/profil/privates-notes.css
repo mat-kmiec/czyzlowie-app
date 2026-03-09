@@ -1,0 +1,22 @@
+.algo-bg-image { opacity: 0.1; filter: blur(5px); mix-blend-mode: luminosity; }
+.glow-top-left { top: -10%; left: -10%; width: 40vw; height: 40vw; background: rgba(139, 92, 246, 0.15); }
+.algo-input:focus { border-color: var(--intel-purple); box-shadow: 0 0 0 3px var(--intel-purple-glow); }
+.algo-input:focus ~ .input-icon { color: var(--intel-purple); }
+.notes-grid { display: grid; grid-template-columns: 1fr; gap: 1.5rem; margin-bottom: 3rem; align-items: start; }
+@media (min-width: 992px) { .notes-grid { grid-template-columns: repeat(2, 1fr); } }
+.note-card { background: rgba(0, 0, 0, 0.4); border: 1px solid var(--glass-border); border-radius: 16px; padding: 1.5rem; transition: all 0.3s; position: relative; overflow: hidden; display: flex; flex-direction: column; cursor: pointer; border-left: 4px solid var(--glass-border); }
+.note-card:hover { transform: translateY(-3px); background: rgba(255, 255, 255, 0.03); border-color: rgba(255,255,255,0.2); border-left-color: var(--brand-blue); box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+.note-card.pinned { border-left-color: var(--intel-purple); background: rgba(139, 92, 246, 0.05); }
+.note-card.pinned:hover { border-left-color: var(--intel-purple); background: rgba(139, 92, 246, 0.1); }
+.pin-indicator { position: absolute; top: 1.2rem; right: 1.2rem; color: var(--intel-purple); font-size: 1.2rem; opacity: 0.8; filter: drop-shadow(0 0 5px var(--intel-purple)); }
+.note-header { margin-bottom: 1rem; padding-right: 2rem; }
+.note-category-badge { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; border-radius: 6px; font-size: 0.65rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: var(--text-secondary); margin-bottom: 10px; }
+.note-card.pinned .note-category-badge { background: rgba(139, 92, 246, 0.15); border-color: rgba(139, 92, 246, 0.3); color: #c4b5fd; }
+.note-title { font-size: 1.2rem; font-weight: 900; color: #fff; margin: 0 0 5px 0; letter-spacing: 0.5px; line-height: 1.3; }
+.note-meta { font-size: 0.75rem; color: var(--text-muted); display: flex; gap: 15px; margin-top: 5px; }
+.note-content { font-size: 0.9rem; color: #cbd5e1; line-height: 1.6; display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; margin-bottom: 1.5rem; }
+.note-actions { display: flex; gap: 10px; border-top: 1px dashed rgba(255,255,255,0.1); padding-top: 1rem; margin-top: auto; }
+.btn-note-action { flex: 1; background: transparent; border: 1px solid rgba(255,255,255,0.1); color: var(--text-secondary); padding: 8px; border-radius: 8px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; cursor: pointer; transition: 0.3s; display: flex; align-items: center; justify-content: center; gap: 6px; }
+.btn-note-action:hover { background: rgba(255,255,255,0.05); color: #fff; border-color: rgba(255,255,255,0.3); }
+.modal-glass .modal-body { padding: 1.5rem; font-size: 1rem; line-height: 1.7; color: #f8fafc; white-space: pre-wrap; }
+.modal-glass .modal-header { flex-direction: column; align-items: flex-start; gap: 10px; position: relative; }

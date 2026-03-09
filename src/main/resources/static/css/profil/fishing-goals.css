@@ -1,0 +1,35 @@
+.algo-bg-image { opacity: 0.12; filter: blur(6px); mix-blend-mode: luminosity; }
+.glow-top-left { top: -10%; left: -10%; width: 40vw; height: 40vw; background: rgba(234, 179, 8, 0.2); }
+.algo-input:focus { border-color: var(--bounty-gold); box-shadow: 0 0 0 3px var(--bounty-gold-glow); }
+.algo-input:focus ~ .input-icon { color: var(--bounty-gold); }
+.input-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.bounty-grid { display: grid; grid-template-columns: 1fr; gap: 1.5rem; margin-bottom: 3rem; }
+@media (min-width: 992px) { .bounty-grid { grid-template-columns: repeat(2, 1fr); } }
+.bounty-card { background: rgba(0, 0, 0, 0.4); border: 1px solid var(--glass-border); border-radius: 16px; padding: 1.5rem; transition: all 0.3s; position: relative; overflow: hidden; display: flex; flex-direction: column; border-top: 3px solid var(--brand-blue); }
+.bounty-card:hover { transform: translateY(-3px); background: rgba(255, 255, 255, 0.03); border-color: rgba(255,255,255,0.2); box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+.bounty-card.completed { border-top-color: var(--bounty-gold); background: rgba(234, 179, 8, 0.05); }
+.completed-stamp { position: absolute; right: -20px; top: -20px; color: var(--bounty-gold); opacity: 0.1; font-size: 8rem; pointer-events: none; transform: rotate(-15deg); z-index: 0; }
+.bounty-card.completed:hover .completed-stamp { opacity: 0.2; transform: rotate(-10deg) scale(1.1); transition: 0.5s ease-out; }
+.bounty-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.5rem; position: relative; z-index: 2; }
+.bounty-badge { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; border-radius: 6px; font-size: 0.65rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: var(--text-secondary); margin-bottom: 8px; }
+.bounty-card.completed .bounty-badge { background: rgba(234, 179, 8, 0.15); border-color: rgba(234, 179, 8, 0.3); color: var(--bounty-gold); }
+.bounty-title { font-size: 1.25rem; font-weight: 900; color: #fff; margin: 0; text-transform: uppercase; letter-spacing: 0.5px; }
+.bounty-deadline { font-size: 0.75rem; color: var(--text-muted); display: flex; align-items: center; gap: 4px; margin-top: 6px; }
+.bounty-progress-container { margin-bottom: 1.5rem; position: relative; z-index: 2; }
+.bounty-numbers { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 8px; }
+.b-current { font-size: 2rem; font-weight: 900; color: #fff; line-height: 1; text-shadow: 0 0 10px rgba(255,255,255,0.2); }
+.b-target { font-size: 1rem; font-weight: 700; color: var(--text-muted); margin-left: 4px; }
+.b-unit { font-size: 0.8rem; color: var(--text-secondary); font-weight: bold; text-transform: uppercase; }
+.b-percent { font-size: 0.9rem; font-weight: 800; color: var(--brand-blue); }
+.bounty-card.completed .b-percent { color: var(--bounty-gold); }
+.b-track { width: 100%; height: 12px; background: rgba(0,0,0,0.5); border-radius: 6px; border: 1px solid rgba(255,255,255,0.05); overflow: hidden; box-shadow: inset 0 2px 4px rgba(0,0,0,0.5); }
+.b-fill { height: 100%; background: linear-gradient(90deg, #0284c7, #0ea5e9); border-radius: 6px; transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1); position: relative; }
+.bounty-card.completed .b-fill { background: linear-gradient(90deg, #ca8a04, #eab308); box-shadow: 0 0 10px rgba(234, 179, 8, 0.5); }
+.bounty-actions { display: flex; gap: 10px; border-top: 1px dashed rgba(255,255,255,0.1); padding-top: 1rem; margin-top: auto; position: relative; z-index: 2; }
+.btn-bounty-action { flex: 1; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); color: var(--text-secondary); padding: 10px; border-radius: 8px; font-size: 0.8rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; cursor: pointer; transition: 0.3s; display: flex; align-items: center; justify-content: center; gap: 6px; }
+.btn-bounty-action:hover { background: rgba(255,255,255,0.08); color: #fff; border-color: rgba(255,255,255,0.3); }
+.btn-bounty-update { background: rgba(14, 165, 233, 0.1); border-color: rgba(14, 165, 233, 0.4); color: var(--brand-blue); }
+.btn-bounty-update:hover { background: var(--brand-blue); color: #fff; box-shadow: 0 0 10px var(--brand-blue-glow); }
+.bounty-card.completed .btn-bounty-action { pointer-events: none; opacity: 0.5; }
+.bounty-card.completed .btn-bounty-action.unlock { pointer-events: auto; opacity: 1; border-color: rgba(239, 68, 68, 0.3); color: var(--danger-red); background: rgba(239, 68, 68, 0.05); }
+.bounty-card.completed .btn-bounty-action.unlock:hover { background: var(--danger-red); color: #fff; }

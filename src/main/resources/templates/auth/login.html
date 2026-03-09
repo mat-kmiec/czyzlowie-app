@@ -59,6 +59,16 @@
                         </div>
                     </div>
 
+                    <div th:if="${param.emailChanged}" class="auth-toast auth-toast-success">
+                        <div class="toast-icon-box">
+                            <i data-lucide="mail-check"></i>
+                        </div>
+                        <div class="toast-content">
+                            <span class="toast-title">E-mail zaktualizowany!</span>
+                            <span class="toast-message">Twój adres e-mail został pomyślnie zmieniony. Zaloguj się ponownie, używając nowych danych.</span>
+                        </div>
+                    </div>
+
                     <div th:if="${param.logout}" class="auth-toast auth-toast-success">
                         <div class="toast-icon-box">
                             <i data-lucide="log-out"></i>

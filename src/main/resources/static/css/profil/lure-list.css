@@ -1,0 +1,40 @@
+.algo-bg-image { opacity: 0.1; filter: blur(8px); mix-blend-mode: luminosity; }
+.glow-top-left { top: -10%; left: -10%; width: 40vw; height: 40vw; background: rgba(244, 63, 94, 0.2); }
+.algo-input:focus { border-color: var(--arsenal-red); box-shadow: 0 0 0 3px var(--arsenal-red-glow); }
+.algo-input:focus ~ .input-icon { color: var(--arsenal-red); }
+.arsenal-filters { display: flex; gap: 10px; margin-bottom: 1.5rem; flex-wrap: wrap; border-bottom: 1px dashed var(--glass-border); padding-bottom: 1rem; }
+.filter-btn { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); color: var(--text-secondary); padding: 6px 14px; border-radius: 20px; font-size: 0.8rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; cursor: pointer; transition: 0.3s; display: flex; align-items: center; gap: 6px; }
+.filter-btn:hover { background: rgba(255,255,255,0.08); color: #fff; border-color: rgba(255,255,255,0.2); }
+.filter-btn.active { background: rgba(244, 63, 94, 0.15); border-color: var(--arsenal-red); color: var(--arsenal-red); box-shadow: 0 0 10px var(--arsenal-red-glow); }
+.arsenal-grid { display: grid; grid-template-columns: 1fr; gap: 1.5rem; }
+@media (min-width: 992px) { .arsenal-grid { grid-template-columns: repeat(2, 1fr); } }
+.lure-card { background: rgba(0, 0, 0, 0.4); border: 1px solid var(--glass-border); border-radius: 12px; transition: all 0.3s; position: relative; overflow: hidden; display: flex; flex-direction: column; }
+.lure-card:hover { transform: translateY(-3px); background: rgba(255, 255, 255, 0.02); border-color: rgba(255,255,255,0.2); box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+.lure-watermark { position: absolute; right: -20px; bottom: -20px; color: #fff; opacity: 0.03; font-size: 10rem; pointer-events: none; transform: rotate(-15deg); z-index: 0; }
+.lure-card:hover .lure-watermark { opacity: 0.06; transform: rotate(-10deg) scale(1.1); transition: 0.5s ease-out; }
+.status-bar { position: absolute; left: 0; top: 0; bottom: 0; width: 4px; z-index: 1; }
+.status-ready .status-bar { background: var(--brand-green); box-shadow: 0 0 10px var(--brand-green); }
+.status-low .status-bar { background: var(--warning-yellow); box-shadow: 0 0 10px var(--warning-yellow); }
+.status-mia .status-bar { background: var(--danger-red); box-shadow: 0 0 10px var(--danger-red); }
+.lure-body { padding: 1.5rem; position: relative; z-index: 2; flex-grow: 1; display: flex; flex-direction: column; }
+.lure-header-row { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
+.lure-id { font-family: monospace; font-size: 0.75rem; color: var(--text-muted); background: rgba(255,255,255,0.05); padding: 2px 6px; border-radius: 4px; letter-spacing: 1px; }
+.lure-type { font-size: 0.7rem; text-transform: uppercase; font-weight: 800; color: var(--brand-blue); letter-spacing: 1px; display: flex; align-items: center; gap: 4px; }
+.lure-title { font-size: 1.4rem; font-weight: 900; color: #fff; margin: 0 0 12px 0; text-transform: uppercase; letter-spacing: 1px; line-height: 1.2; }
+.lure-specs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 1.2rem; }
+.spec-badge { background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.05); padding: 6px 10px; border-radius: 6px; font-size: 0.8rem; color: #cbd5e1; font-family: monospace; display: flex; align-items: center; gap: 6px; }
+.spec-badge i { width: 14px; color: var(--text-muted); }
+.lure-performance { display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.02); border-radius: 8px; padding: 10px 15px; margin-bottom: 1rem; border: 1px solid rgba(255,255,255,0.03); }
+.kill-count { display: flex; flex-direction: column; }
+.kc-label { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); font-weight: 700; margin-bottom: 2px; }
+.kc-value { font-size: 1.2rem; font-weight: 900; color: var(--arsenal-red); display: flex; align-items: center; gap: 6px; }
+.status-badge { padding: 4px 8px; border-radius: 6px; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; }
+.status-ready .status-badge { background: rgba(46, 204, 113, 0.1); color: var(--brand-green); border: 1px solid rgba(46, 204, 113, 0.3); }
+.status-low .status-badge { background: rgba(245, 158, 11, 0.1); color: var(--warning-yellow); border: 1px solid rgba(245, 158, 11, 0.3); }
+.status-mia .status-badge { background: rgba(239, 68, 68, 0.1); color: var(--danger-red); border: 1px solid rgba(239, 68, 68, 0.3); text-decoration: line-through; }
+.lure-notes { background: transparent; border-left: 2px solid var(--text-muted); padding: 0 0 0 10px; font-size: 0.85rem; color: var(--text-secondary); font-style: italic; flex-grow: 1; }
+.lure-actions { display: flex; gap: 10px; border-top: 1px dashed rgba(255,255,255,0.1); padding-top: 1rem; margin-top: 1rem; }
+.btn-lure-action { flex: 1; background: transparent; border: 1px solid rgba(255,255,255,0.1); color: var(--text-secondary); padding: 6px; border-radius: 6px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; cursor: pointer; transition: 0.3s; display: flex; align-items: center; justify-content: center; gap: 6px; }
+.btn-lure-action:hover { background: rgba(255,255,255,0.05); color: #fff; border-color: rgba(255,255,255,0.3); }
+.btn-add-kill { border-color: rgba(46, 204, 113, 0.3); color: var(--brand-green); }
+.btn-add-kill:hover { background: rgba(46, 204, 113, 0.1); color: var(--brand-green); border-color: var(--brand-green); }

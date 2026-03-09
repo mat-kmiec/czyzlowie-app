@@ -1,0 +1,120 @@
+/* === main.css === */
+
+/* --- 1. ZMIENNE BAZOWE (POŁĄCZONE DLA CAŁEGO SYSTEMU) --- */
+:root {
+    --brand-green: #2ecc71;
+    --brand-green-glow: rgba(46, 204, 113, 0.25);
+    --brand-blue: #0ea5e9;
+    --brand-blue-glow: rgba(14, 165, 233, 0.25);
+    --brand-cyan: #06b6d4;
+    --brand-cyan-glow: rgba(6, 182, 212, 0.25);
+    --brand-emerald: #10b981;
+    --brand-emerald-glow: rgba(16, 185, 129, 0.25);
+    --predator-red: #ef4444;
+    --predator-red-glow: rgba(239, 68, 68, 0.25);
+    --arsenal-red: #f43f5e;
+    --arsenal-red-glow: rgba(244, 63, 94, 0.25);
+    --warning-yellow: #f59e0b;
+    --ignore-orange: #f59e0b;
+    --tactical-amber: #f59e0b;
+    --tactical-amber-glow: rgba(245, 158, 11, 0.25);
+    --bounty-gold: #eab308;
+    --bounty-gold-glow: rgba(234, 179, 8, 0.25);
+    --purple-night: #a855f7;
+    --intel-purple: #8b5cf6;
+    --intel-purple-glow: rgba(139, 92, 246, 0.25);
+
+    --bg-dark-base: #0f172a;
+    --glass-bg: rgba(15, 23, 42, 0.75);
+    --glass-border: rgba(255, 255, 255, 0.08);
+    --text-main: #f8fafc;
+    --text-secondary: #94a3b8;
+    --text-muted: #64748b;
+
+    --trend-up: #2ecc71;
+    --trend-down: #ef4444;
+    --trend-stable: #0ea5e9;
+}
+
+/* --- 2. BAZA I TŁO STRON --- */
+body.algo-page { background-color: var(--bg-dark-base); min-height: 100vh; color: var(--text-main); font-family: 'Inter', sans-serif; }
+.algo-bg-container { position: fixed; top: 0; left: 0; width: 100%; height: 100vh; z-index: 0; overflow: hidden; }
+.algo-bg-overlay { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(15,23,42,0.88) 0%, rgba(15,23,42,0.98) 100%); }
+.algo-glow { position: absolute; border-radius: 50%; filter: blur(120px); opacity: 0.25; pointer-events: none; }
+
+/* --- 3. SZKLANE PANELE I NAGŁÓWKI --- */
+.algo-glass-panel {
+    background: var(--glass-bg); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+    border: 1px solid var(--glass-border); border-radius: 16px; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+    transition: all 0.3s ease; display: flex; flex-direction: column;
+}
+.section-header { font-size: 0.95rem; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase; color: #fff; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.75rem; padding-bottom: 1rem; border-bottom: 1px solid var(--glass-border); }
+
+/* --- 4. TOP STATS (GÓRNE KAFELKI) --- */
+.top-stats-grid { display: flex; gap: 10px; flex-wrap: wrap; }
+.top-stat-box { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 12px; padding: 10px 15px; flex-grow: 1; display: flex; flex-direction: column; border-left: 3px solid var(--text-muted); }
+.top-stat-box.cyan { border-left-color: var(--brand-cyan); }
+.top-stat-box.green { border-left-color: var(--brand-green); }
+.top-stat-box.blue { border-left-color: var(--brand-blue); }
+.top-stat-box.purple { border-left-color: var(--purple-night); }
+.top-stat-box.orange { border-left-color: var(--ignore-orange); }
+.top-stat-box.yellow { border-left-color: var(--warning-yellow); }
+.top-stat-box .stat-label { font-size: 0.65rem; text-transform: uppercase; font-weight: 800; color: var(--text-secondary); letter-spacing: 1px; display: flex; align-items: center; gap: 4px; }
+.top-stat-box .stat-value { font-size: 1.2rem; font-weight: 900; color: #fff; margin-top: 2px; }
+
+/* --- 5. FORMULARZE I INPUTY --- */
+.algo-input-group { position: relative; display: flex; align-items: center; width: 100%; margin-bottom: 1rem; }
+.algo-input { background: rgba(0, 0, 0, 0.5); border: 1px solid var(--glass-border); color: #fff; border-radius: 10px; padding: 0.9rem 1rem 0.9rem 2.8rem; font-size: 0.95rem; width: 100%; transition: all 0.3s; }
+textarea.algo-input { padding-left: 1rem; resize: vertical; min-height: 80px; }
+.algo-input::placeholder { color: var(--text-muted); opacity: 0.7; font-size: 0.85rem; }
+.algo-input:focus { outline: none; background: rgba(0, 0, 0, 0.7); }
+.input-icon { position: absolute; left: 1rem; color: #64748b; pointer-events: none; transition: 0.3s; width: 18px; top: auto; }
+select.algo-input { appearance: none; cursor: pointer; }
+select.algo-input option { background: var(--bg-dark-base); color: #fff; }
+.select-arrow { position: absolute; right: 1rem; color: #64748b; pointer-events: none; width: 16px; }
+input[type="datetime-local"].algo-input::-webkit-calendar-picker-indicator { filter: invert(1); opacity: 0.5; cursor: pointer; }
+input[type="datetime-local"].algo-input:focus::-webkit-calendar-picker-indicator { opacity: 1; }
+input[type="file"].algo-input { padding: 0.6rem 1rem 0.6rem 2.8rem; font-size: 0.85rem; color: var(--text-secondary); }
+input[type="file"].algo-input::-webkit-file-upload-button { background: rgba(255,255,255,0.1); border: none; color: #fff; padding: 6px 12px; border-radius: 6px; cursor: pointer; margin-right: 10px; font-weight: bold; font-size: 0.8rem; transition: 0.3s; }
+.input-label { display: block; font-size: 0.75rem; text-transform: uppercase; font-weight: 800; letter-spacing: 1px; color: var(--text-secondary); margin-bottom: 0.5rem; margin-left: 0.25rem; display: flex; align-items: center; gap: 6px; }
+
+.btn-map-picker { position: absolute; right: 0.3rem; background: rgba(14, 165, 233, 0.15); border: 1px solid rgba(14, 165, 233, 0.3); color: var(--brand-blue); border-radius: 8px; padding: 0.5rem; cursor: pointer; transition: 0.3s; display: flex; align-items: center; justify-content: center; z-index: 5; }
+.btn-map-picker:hover { background: var(--brand-blue); color: #fff; box-shadow: 0 0 10px var(--brand-blue-glow); }
+
+/* --- 6. CHECKBOXY / PRZEŁĄCZNIKI (SWITCH) --- */
+.algo-switch-wrapper { display: flex; align-items: flex-start; gap: 0.8rem; padding: 1rem; margin-bottom: 1rem; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; transition: 0.3s; }
+.algo-switch-wrapper:hover { background: rgba(0,0,0,0.5); }
+.algo-switch { width: 3rem; height: 1.5rem; background-color: rgba(255,255,255,0.1); border: none; cursor: pointer; flex-shrink: 0; margin-top: 0.1rem; box-shadow: inset 0 2px 4px rgba(0,0,0,0.5); border-radius: 20px; -webkit-appearance: none; appearance: none; position: relative; }
+.algo-switch::before { content: ''; position: absolute; width: 1.2rem; height: 1.2rem; border-radius: 50%; top: 0.15rem; left: 0.2rem; background: #fff; transition: 0.3s; }
+.algo-switch:checked::before { transform: translateX(1.4rem); }
+
+/* --- 7. BAZOWE BUTTONY I WARIANTY KOLORYSTYCZNE --- */
+.btn-algo { background-size: 200% auto; color: #fff; font-weight: 800; font-size: 0.95rem; letter-spacing: 1px; text-transform: uppercase; border-radius: 10px; padding: 1rem; width: 100%; transition: all 0.3s ease; position: relative; overflow: hidden; cursor: pointer; border: none; display: flex; align-items: center; justify-content: center; gap: 0.5rem; text-decoration: none; }
+.btn-algo:hover { transform: translateY(-2px); background-position: right center; color: #fff; }
+
+.btn-amber { background-image: linear-gradient(90deg, #d97706, #f59e0b, #d97706); box-shadow: 0 0 15px var(--tactical-amber-glow); border: 1px solid rgba(245, 158, 11, 0.4); }
+.btn-blue { background-image: linear-gradient(90deg, #0284c7, #0ea5e9, #0284c7); box-shadow: 0 0 15px var(--brand-blue-glow); border: 1px solid rgba(14, 165, 233, 0.4); }
+.btn-purple { background-image: linear-gradient(90deg, #7c3aed, #8b5cf6, #7c3aed); box-shadow: 0 0 15px var(--intel-purple-glow); border: 1px solid rgba(139, 92, 246, 0.4); }
+.btn-cyan { background-image: linear-gradient(90deg, #0891b2, #06b6d4, #0891b2); box-shadow: 0 0 15px var(--brand-cyan-glow); border: 1px solid rgba(6, 182, 212, 0.4); }
+.btn-gold { background-image: linear-gradient(90deg, #ca8a04, #eab308, #ca8a04); box-shadow: 0 0 15px var(--bounty-gold-glow); border: 1px solid rgba(234, 179, 8, 0.4); color: #000; }
+.btn-gold:hover { color: #000; }
+.btn-red { background-image: linear-gradient(90deg, #e11d48, #f43f5e, #e11d48); box-shadow: 0 0 15px var(--arsenal-red-glow); border: 1px solid rgba(244, 63, 94, 0.4); }
+.btn-green { background-image: linear-gradient(90deg, #059669, #10b981, #059669); box-shadow: 0 0 15px var(--brand-green-glow); border: 1px solid rgba(46, 204, 113, 0.4); }
+.btn-orange { background-image: linear-gradient(90deg, #d97706, #f59e0b, #d97706); box-shadow: 0 0 15px rgba(245, 158, 11, 0.3); border: 1px solid rgba(245, 158, 11, 0.4); }
+.btn-emerald { background-image: linear-gradient(90deg, #059669, #10b981, #059669); box-shadow: 0 0 15px var(--brand-emerald-glow); border: 1px solid rgba(16, 185, 129, 0.4); }
+
+/* --- 8. SZKLANE MODALE --- */
+.modal-glass .modal-content { background: var(--glass-bg); backdrop-filter: blur(25px); border: 1px solid var(--glass-border); border-radius: 20px; color: #fff; box-shadow: 0 20px 50px rgba(0,0,0,0.8); }
+.modal-glass .modal-header { border-bottom: 1px solid var(--glass-border); padding: 1.2rem 1.5rem; }
+.modal-glass .modal-footer { border-top: 1px solid var(--glass-border); padding: 1.2rem 1.5rem; }
+.modal-glass .btn-close { filter: invert(1) grayscale(100%) brightness(200%); }
+.modal-action-btns { display: flex; gap: 10px; align-items: center; width: 100%; justify-content: flex-end; }
+
+/* --- 9. WSPÓLNA RESPONSYWNOŚĆ --- */
+@media (max-width: 767.98px) {
+    .btn-algo { width: 100% !important; max-width: 100% !important; }
+    .modal-action-btns { flex-direction: column; width: 100%; }
+    .modal-action-btns > button, .modal-action-btns > a { width: 100% !important; justify-content: center; margin: 0 !important; }
+    .map-modal-footer { flex-direction: column; gap: 15px; align-items: center; text-align: center; }
+    .map-modal-footer > span { order: -1; }
+}

@@ -22,10 +22,7 @@ public class TestController {
         return "error/error";
     }
 
-    @GetMapping("/profil")
-    public String profil(){
-        return "profil/profil";
-    }
+
 
     @GetMapping("/moje-polowy")
     public String mojePolowy(){

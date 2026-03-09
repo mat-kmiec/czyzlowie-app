@@ -7,169 +7,9 @@
         currentUrl='https://czyzlowie.pl/profil'
     )}"></th:block>
 
-    <link rel="stylesheet" th:href="@{/css/main.css}">
+    <link rel="stylesheet" th:href="@{/css/profil/panel.css}">
+    <link rel="stylesheet" th:href="@{/css/profil/profil.css}">
 
-    <style>
-        /* === ZMIENNE BAZOWE === */
-        :root {
-            --brand-green: #2ecc71;
-            --brand-green-glow: rgba(46, 204, 113, 0.25);
-            --predator-red: #ef4444;
-            --predator-red-glow: rgba(239, 68, 68, 0.25);
-            --brand-blue: #0ea5e9;
-            --brand-blue-glow: rgba(14, 165, 233, 0.25);
-            --ignore-orange: #f59e0b;
-            --bg-dark-base: #0f172a;
-            --glass-bg: rgba(15, 23, 42, 0.75);
-            --glass-border: rgba(255, 255, 255, 0.08);
-            --text-main: #f8fafc;
-            --text-secondary: #94a3b8;
-            --text-muted: #64748b;
-        }
-
-        /* === BAZA STRONY === */
-        body.algo-page {
-            background-color: var(--bg-dark-base);
-            min-height: 100vh;
-            color: var(--text-main);
-            font-family: 'Inter', sans-serif;
-        }
-
-        .algo-bg-container {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100vh; z-index: 0; overflow: hidden;
-        }
-
-        .algo-bg-image {
-            width: 100%; height: 100%; object-fit: cover; opacity: 0.25; filter: blur(5px);
-        }
-
-        .algo-bg-overlay {
-            position: absolute; inset: 0; background: linear-gradient(180deg, rgba(15,23,42,0.85) 0%, rgba(15,23,42,0.98) 100%);
-        }
-
-        .algo-glow {
-            position: absolute; border-radius: 50%; filter: blur(120px); opacity: 0.3; pointer-events: none;
-        }
-        .glow-top-left { top: -10%; left: -10%; width: 40vw; height: 40vw; background: rgba(14, 165, 233, 0.2); }
-        .glow-bottom-right { bottom: -10%; right: -10%; width: 50vw; height: 50vw; background: rgba(46, 204, 113, 0.1); }
-
-        /* === PANELS & HEADERS === */
-        .algo-glass-panel {
-            background: var(--glass-bg); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
-            border: 1px solid var(--glass-border); border-radius: 16px; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
-            transition: all 0.3s ease; height: 100%; display: flex; flex-direction: column;
-        }
-        .algo-glass-panel:hover { border-color: rgba(255, 255, 255, 0.15); box-shadow: 0 8px 40px rgba(0, 0, 0, 0.7); }
-
-        /* Akcenty kafelków (paski na górze) */
-        .border-top-blue { border-top: 2px solid var(--brand-blue); }
-        .border-top-green { border-top: 2px solid var(--brand-green); }
-        .border-top-red { border-top: 2px solid var(--predator-red); }
-
-        .section-header {
-            font-size: 0.95rem; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase;
-            color: #fff; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.75rem;
-            padding-bottom: 1rem; border-bottom: 1px solid var(--glass-border);
-        }
-
-        /* Dopasowanie koloru linii pod nagłówkiem do sekcji */
-        .header-line-blue { border-bottom-color: rgba(14, 165, 233, 0.2); }
-        .header-line-green { border-bottom-color: rgba(46, 204, 113, 0.2); }
-        .header-line-red { border-bottom-color: rgba(239, 68, 68, 0.2); }
-
-        /* === FORMULARZE I INPUTY === */
-        .algo-input-group {
-            position: relative; display: flex; align-items: center; width: 100%;
-        }
-
-        .algo-input {
-            background: rgba(0, 0, 0, 0.5); border: 1px solid var(--glass-border); color: #fff;
-            border-radius: 10px; padding: 0.9rem 1rem 0.9rem 2.8rem; font-size: 1rem; width: 100%; transition: all 0.3s;
-        }
-
-        .algo-input::placeholder { color: var(--text-muted); opacity: 0.7; font-size: 0.9rem; }
-
-        .algo-input:focus {
-            outline: none; background: rgba(0, 0, 0, 0.7);
-        }
-
-        /* Focus kolory bazujące na sekcjach */
-        .input-focus-blue:focus { border-color: var(--brand-blue); box-shadow: 0 0 0 3px var(--brand-blue-glow); }
-        .input-focus-green:focus { border-color: var(--brand-green); box-shadow: 0 0 0 3px var(--brand-green-glow); }
-        .input-focus-red:focus { border-color: var(--predator-red); box-shadow: 0 0 0 3px var(--predator-red-glow); }
-
-        .input-icon {
-            position: absolute; left: 1rem; color: #64748b; pointer-events: none; transition: 0.3s; width: 18px;
-        }
-
-        .algo-input:focus ~ .input-icon { color: #fff; }
-
-        .algo-input[readonly] {
-            background: rgba(255, 255, 255, 0.02); color: var(--text-secondary); border-color: transparent; box-shadow: none; cursor: not-allowed;
-        }
-
-        .input-label {
-            display: block; font-size: 0.75rem; text-transform: uppercase; font-weight: 800;
-            letter-spacing: 1px; color: var(--text-secondary); margin-bottom: 0.5rem; margin-left: 0.25rem;
-        }
-
-        /* === PRZYCISKI === */
-        .btn-algo {
-            background-size: 200% auto; color: #fff; font-weight: 800; font-size: 0.95rem;
-            letter-spacing: 1px; text-transform: uppercase; border-radius: 10px; padding: 1rem; width: 100%;
-            transition: all 0.3s ease; position: relative; overflow: hidden; cursor: pointer; border: none;
-            display: flex; align-items: center; justify-content: center; gap: 0.5rem; text-decoration: none;
-        }
-        .btn-algo:hover { transform: translateY(-2px); background-position: right center; color: #fff; }
-
-        .btn-blue { background-image: linear-gradient(90deg, #0284c7, #0ea5e9, #0284c7); box-shadow: 0 0 15px var(--brand-blue-glow); border: 1px solid rgba(14, 165, 233, 0.4); }
-        .btn-green { background-image: linear-gradient(90deg, #059669, #10b981, #059669); box-shadow: 0 0 15px var(--brand-green-glow); border: 1px solid rgba(46, 204, 113, 0.4); }
-        .btn-red { background-image: linear-gradient(90deg, #b91c1c, #ef4444, #b91c1c); box-shadow: 0 0 15px var(--predator-red-glow); border: 1px solid rgba(239, 68, 68, 0.4); }
-
-        /* Ograniczenie szerokości na desktopach */
-        .btn-limit-width { max-width: 250px; }
-
-        /* === AVATAR I STATYSTYKI === */
-        .user-avatar-hex {
-            width: 100px; height: 100px; margin: 0 auto 1.5rem;
-            background: linear-gradient(135deg, var(--bg-dark-base) 0%, rgba(14, 165, 233, 0.2) 100%);
-            border: 2px solid var(--brand-blue);
-            border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
-            display: flex; align-items: center; justify-content: center;
-            box-shadow: 0 0 20px var(--brand-blue-glow);
-        }
-
-        .stat-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 1.5rem; }
-
-        .algo-stat-card {
-            background: rgba(0, 0, 0, 0.4); border: 1px solid var(--glass-border);
-            border-radius: 12px; padding: 15px; display: flex; flex-direction: column;
-            align-items: center; text-align: center; transition: 0.3s;
-        }
-        .algo-stat-card:hover {
-            background: rgba(255, 255, 255, 0.05); transform: translateY(-3px); border-color: rgba(255, 255, 255, 0.15);
-        }
-
-        .stat-val { font-size: 1.5rem; font-weight: 900; line-height: 1.1; color: #fff; margin-bottom: 2px; }
-        .stat-lbl { font-size: 0.65rem; text-transform: uppercase; font-weight: 800; letter-spacing: 1px; color: var(--text-secondary); }
-
-        /* === RESPONSYWNOŚĆ === */
-        @media (max-width: 767.98px) {
-            .btn-algo {
-                width: 100% !important;
-                max-width: 100% !important; /* Wymuszenie 100% na telefonach */
-                margin-top: 0.5rem;
-            }
-            .btn-limit-width {
-                max-width: 100%; /* Reset ogranicznika dla mobilki */
-            }
-            /* Poprawa odstepow miedzy inputem a guzikiem na tel */
-            .mobile-stack-btn {
-                margin-top: 1rem;
-                display: flex;
-            }
-        }
-    </style>
 </head>
 <body class="algo-page">
 
@@ -200,6 +40,9 @@
         </div>
     </header>
 
+    <div th:if="${success}" class="alert alert-success" role="alert" th:text="${success}"></div>
+    <div th:if="${error}" class="alert alert-danger" role="alert" th:text="${error}"></div>
+
     <div class="row g-4">
         <aside class="col-xl-4 d-flex flex-column gap-4">
             <div class="algo-glass-panel p-4 h-auto position-sticky" style="top: 100px;">
@@ -208,7 +51,7 @@
                     <div class="user-avatar-hex">
                         <i data-lucide="anchor" style="width: 45px; height: 45px; color: var(--brand-blue);"></i>
                     </div>
-                    <h2 class="fs-4 fw-black text-white mb-2">Jan Kowalski</h2>
+                    <h2 class="fs-4 fw-black text-white mb-2" th:text="${user.username}">Jan Kowalski</h2>
                     <div class="badge text-uppercase ls-1 fw-bold" style="background: rgba(46, 204, 113, 0.15); color: var(--brand-green); border: 1px solid rgba(46, 204, 113, 0.3); padding: 8px 15px; border-radius: 8px;">
                         <i data-lucide="award" style="width: 14px; margin-right: 4px; margin-bottom: 2px;"></i> Aktywny Łowca
                     </div>
@@ -251,12 +94,13 @@
                     <div class="d-flex align-items-center gap-2"><i data-lucide="fingerprint" style="color: var(--brand-blue);"></i> Publiczna Tożsamość</div>
                 </h2>
 
-                <form action="#" method="post">
+                <form th:action="@{/profil/username}" method="post">
                     <div class="row align-items-end g-3">
                         <div class="col-md-8">
                             <label class="input-label">Twoja ksywka wędkarska</label>
                             <div class="algo-input-group">
-                                <input type="text" name="username" class="algo-input input-focus-blue" value="Jan Kowalski" placeholder="Wpisz nowy nick..." required>
+                                <input type="text" name="username" class="algo-input input-focus-blue"
+                                       th:value="${user.username}" placeholder="Wpisz nowy nick..." required minlength="3" maxlength="50">
                                 <i data-lucide="at-sign" class="input-icon"></i>
                             </div>
                         </div>
@@ -267,6 +111,7 @@
                         </div>
                     </div>
                 </form>
+
             </section>
 
             <section class="algo-glass-panel p-4 h-auto border-top-green">
@@ -274,12 +119,12 @@
                     <div class="d-flex align-items-center gap-2"><i data-lucide="mail" style="color: var(--brand-green);"></i> Dane Kontaktowe i Logowanie</div>
                 </h2>
 
-                <form action="#" method="post">
+                <form th:action="@{/profil/email}" method="post">
                     <div class="row g-3">
                         <div class="col-md-6">
                             <label class="input-label">Aktualny E-mail</label>
                             <div class="algo-input-group">
-                                <input type="email" class="algo-input" value="jan.kowalski@email.com" readonly>
+                                <input type="email" class="algo-input" th:value="${user.email}" readonly>
                                 <i data-lucide="lock" class="input-icon" style="opacity: 0.5;"></i>
                             </div>
                         </div>
@@ -304,7 +149,7 @@
                     <div class="d-flex align-items-center gap-2"><i data-lucide="shield-alert" style="color: var(--predator-red);"></i> Bezpieczeństwo</div>
                 </h2>
 
-                <form action="#" method="post">
+                <form th:action="@{/profil/password}" method="post">
                     <div class="row g-3">
                         <div class="col-12">
                             <label class="input-label">Aktualne Hasło</label>

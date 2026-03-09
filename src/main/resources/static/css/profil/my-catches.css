@@ -1,0 +1,37 @@
+.algo-bg-image { opacity: 0.15; filter: blur(6px); }
+.glow-top-left { top: -10%; left: -10%; width: 40vw; height: 40vw; background: rgba(46, 204, 113, 0.2); }
+.algo-input:focus { border-color: var(--brand-green); box-shadow: 0 0 0 3px var(--brand-green-glow); }
+.algo-input:focus ~ .input-icon { color: var(--brand-green); }
+.algo-switch-wrapper.telemetry-switch { border-color: rgba(239, 68, 68, 0.2); }
+.algo-switch.switch-orange:checked { background-color: var(--ignore-orange); box-shadow: 0 0 12px rgba(245, 158, 11, 0.4); }
+.algo-switch.switch-red:checked { background-color: var(--predator-red); box-shadow: 0 0 12px var(--predator-red-glow); }
+.auto-telemetry-box { background: rgba(14, 165, 233, 0.05); border: 1px dashed rgba(14, 165, 233, 0.3); border-radius: 10px; padding: 1rem; margin-bottom: 1rem; border-left: 3px solid var(--brand-blue); }
+.catch-card { background: rgba(0, 0, 0, 0.3); border: 1px solid var(--glass-border); border-radius: 16px; margin-bottom: 1.5rem; padding: 1.5rem; transition: all 0.3s; position: relative; overflow: hidden; display: flex; flex-direction: column; }
+.catch-card:hover { transform: translateY(-3px); background: rgba(255, 255, 255, 0.03); border-color: rgba(255,255,255,0.2); box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+.catch-thumbnail { position: absolute; top: 1.5rem; right: 1.5rem; width: 85px; height: 85px; border-radius: 12px; border: 2px solid rgba(255,255,255,0.1); cursor: pointer; overflow: hidden; z-index: 10; }
+.catch-thumbnail img { width: 100%; height: 100%; object-fit: cover; transition: 0.3s; }
+.catch-thumbnail:hover img { filter: brightness(0.6); transform: scale(1.1); }
+.catch-category-badge { display: inline-block; padding: 4px 10px; border-radius: 6px; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; border: 1px solid; width: fit-content; }
+.predator-badge { color: var(--predator-red); background: rgba(239, 68, 68, 0.1); border-color: rgba(239, 68, 68, 0.3); }
+.peaceful-badge { color: var(--brand-green); background: rgba(46, 204, 113, 0.1); border-color: rgba(46, 204, 113, 0.3); }
+.catch-header { padding-right: 100px; margin-bottom: 1rem; }
+.fish-name { font-size: 1.4rem; font-weight: 900; color: #fff; margin: 0; text-transform: uppercase; letter-spacing: 1px; }
+.fish-meta { font-size: 0.8rem; color: var(--text-muted); display: flex; gap: 15px; margin-top: 5px; flex-wrap: wrap; }
+.catch-stats-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 1rem; max-width: 320px; }
+.stat-monitor { background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.05); border-radius: 10px; padding: 10px 15px; text-align: center; width: 100%; }
+.stat-monitor .s-val { font-size: 1.4rem; font-weight: 900; color: #fff; line-height: 1; }
+.stat-monitor .s-lbl { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); margin-top: 4px; display: flex; align-items: center; justify-content: center; gap: 4px; }
+.catch-notes { background: rgba(0,0,0,0.2); border-left: 2px solid var(--text-muted); padding: 8px 12px; border-radius: 0 8px 8px 0; font-size: 0.8rem; color: #cbd5e1; margin-top: 10px; font-style: italic; }
+.env-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px; margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px dashed rgba(255,255,255,0.1); }
+.env-badge { font-size: 0.75rem; color: #e2e8f0; display: flex; flex-direction: column; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.05); border-left: 3px solid rgba(255,255,255,0.1); padding: 8px 10px; border-radius: 8px; }
+.env-badge-left { display: flex; align-items: center; gap: 6px; color: var(--text-secondary); margin-bottom: 4px; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.5px; }
+.env-badge-left i { width: 14px; color: var(--brand-blue); }
+.env-badge-val { font-size: 0.9rem; font-weight: 700; color: #fff; display: flex; justify-content: space-between; align-items: center; }
+.trend-up { color: var(--trend-up); font-weight: bold; }
+.trend-down { color: var(--trend-down); font-weight: bold; }
+.trend-stable { color: var(--trend-stable); font-weight: bold; }
+@media (max-width: 767.98px) {
+    .catch-thumbnail { width: 60px; height: 60px; top: 1rem; right: 1rem; }
+    .catch-header { padding-right: 70px; }
+    .catch-stats-grid { max-width: 100%; }
+}
