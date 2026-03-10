@@ -16,6 +16,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 public class AuthController {
 
     private final RegistrationService registrationService;
+    private final PasswordResetService passwordResetService;
 
     @GetMapping("/login")
     public String showLoginForm() {
@@ -72,5 +73,54 @@ public class AuthController {
             redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
         }
         return "redirect:/login";
+    }
+
+    @GetMapping("/zapomnialem-hasla")
+    public String showForgotPasswordForm() {
+        return "auth/forgot-password";
+    }
+
+    @PostMapping("/zapomnialem-hasla")
+    public String processForgotPassword(@RequestParam("username") String email) {
+        boolean success = passwordResetService.createAndSendPasswordResetToken(email);
+        if (success) {
+            return "redirect:/zapomnialem-hasla?success=true";
+        } else {
+            return "redirect:/zapomnialem-hasla?error=true";
+        }
+    }
+
+    @GetMapping("/reset-hasla")
+    public String showResetPasswordForm(@RequestParam(value = "token", required = false) String token,
+                                        @RequestParam(value = "success", required = false) String success,
+                                        Model model) {
+
+        if ("true".equals(success)) {
+            return "auth/reset-password";
+        }
+
+        if (token == null || token.isEmpty() || !passwordResetService.isTokenValid(token)) {
+            return "redirect:/zapomnialem-hasla?error=true";
+        }
+
+        model.addAttribute("token", token);
+        return "auth/reset-password";
+    }
+
+    @PostMapping("/reset-hasla")
+    public String processResetPassword(@RequestParam("token") String token,
+                                       @RequestParam("password") String password,
+                                       @RequestParam("confirmPassword") String confirmPassword,
+                                       RedirectAttributes redirectAttributes) {
+        try {
+            if (!password.equals(confirmPassword)) {
+                throw new IllegalArgumentException("Hasła nie są identyczne!");
+            }
+            passwordResetService.resetPassword(token, password);
+            return "redirect:/reset-hasla?success=true";
+        } catch (IllegalArgumentException e) {
+            redirectAttributes.addAttribute("token", token);
+            return "redirect:/reset-hasla?error=true";
+        }
     }
 }

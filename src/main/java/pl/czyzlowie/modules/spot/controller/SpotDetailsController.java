@@ -126,7 +126,7 @@ public class SpotDetailsController {
             SpotDetailsDto spotDto = spotDetailsService.getSpotDetailsBySlugAndType(slug, type);
             model.addAttribute("spot", spotDto);
             model.addAttribute("type", spotDto.getSpotType().name());
-            return "spot-details";
+            return "map/spot-details";
         } catch (Exception e) {
             log.warn("Błąd dla sluga {}: {}", slug, e.getMessage());
             return "redirect:/mapa?error=spot_not_found";

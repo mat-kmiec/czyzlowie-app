@@ -1,6 +1,7 @@
 package pl.czyzlowie.modules.auth;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -17,6 +18,10 @@ public class SecurityConfig {
 
     private final CustomOAuth2UserService customOAuth2UserService;
     private final LoginSuccessHandler loginSuccessHandler;
+    private final CustomUserDetailsService customUserDetailsService;
+
+    @Value("${app.security.remember-me.key}")
+    private String rememberMeKey;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -29,6 +34,7 @@ public class SecurityConfig {
                         .requestMatchers("/css/**", "/js/**", "/images/**", "/assets/**", "/webjars/**", "/favicon.ico").permitAll()
                         .requestMatchers("/", "/login", "/register", "/rejestracja", "/error").permitAll()
                         .requestMatchers("/prognoza", "/prognoza/wynik","/barometr", "/ksiezyc", "/ryby/kategoria",
+                                "/zapomnialem-hasla", "/reset-hasla",
                                 "/regulamin", "/o-nas", "/hydro", "/meteo", "/synop", "/mapa", "/wschody-zachody",
                                 "/miejscowka/**", "/miejsce-wodowania/**", "/zbiornik-zaporowy/**",
                                 "/jezioro/**", "/rzeka/**", "/starorzecze/**", "/lowisko-komercyjne/**",
@@ -47,6 +53,12 @@ public class SecurityConfig {
                         })
                         .permitAll()
                 )
+                .rememberMe(remember -> remember
+                        .key(rememberMeKey) // W produkcji wrzuć to w zmienne środowiskowe
+                        .userDetailsService(customUserDetailsService)
+                        .tokenValiditySeconds(2592000) // Ciastko ważne 30 dni
+                        .rememberMeParameter("remember-me") // Łączy się z name="remember-me" w Twoim HTML
+                )
                 .oauth2Login(oauth2 -> oauth2
                         .loginPage("/login")
                         .userInfoEndpoint(userInfo -> userInfo
@@ -58,7 +70,7 @@ public class SecurityConfig {
                         .logoutUrl("/logout")
                         .logoutSuccessUrl("/login?logout=true")
                         .invalidateHttpSession(true)
-                        .deleteCookies("JSESSIONID")
+                        .deleteCookies("JSESSIONID", "remember-me")
                         .permitAll()
                 );
 

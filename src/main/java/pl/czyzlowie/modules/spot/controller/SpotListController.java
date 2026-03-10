@@ -82,6 +82,6 @@ public class SpotListController {
         model.addAttribute("currentType", currentType);
         model.addAttribute("typeName", typeName);
 
-        return "spots-list";
+        return "map/spots-list";
     }
 }

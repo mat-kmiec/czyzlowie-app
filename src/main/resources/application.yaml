@@ -65,6 +65,9 @@ app:
   url: http://localhost:8080
   mail:
     from: "kontakt@czyzlowie.pl"
+  security:
+    remember-me:
+      key: "@z$Z^o$i!_)-0j3ct#2026_?:aFz?uzy_n0t_38A*2zsc*d/*<-+=_K3y_458174671!2sf5@a"
 
 logging:
   level:
