@@ -8,8 +8,7 @@
     )}"></th:block>
 
     <link rel="stylesheet" th:href="@{/css/profil/panel.css}">
-    <link rel="stylesheet" th:href="@{/css/profil/private-notes.css}">
-
+    <link rel="stylesheet" th:href="@{/css/profil/privates-notes.css}">
 </head>
 <body class="algo-page">
 
@@ -17,7 +16,7 @@
 
 <div class="algo-bg-container" aria-hidden="true">
     <picture>
-        <img src="/assets/drapiezniki.jpg" alt="Tło notatek" class="algo-bg-image" loading="lazy">
+        <img th:src="@{/assets/drapiezniki.jpg}" alt="Tło notatek" class="algo-bg-image" loading="lazy">
     </picture>
     <div class="algo-bg-overlay"></div>
     <div class="algo-glow glow-top-left"></div>
@@ -37,21 +36,21 @@
                     <p class="fs-7 mb-0 text-secondary-custom">Szyfruj i przechowuj tu swoje taktyki, przemyślenia i listy zakupów.</p>
                 </div>
             </div>
-            <button class="btn btn-algo btn-purple d-xl-none" type="button" data-bs-toggle="collapse" data-bs-target="#createNoteForm" aria-expanded="false" style="width: auto;">
-                <i data-lucide="pen-tool"></i> Sporządź Notatkę
-            </button>
         </div>
 
         <div class="top-stats-grid border-top border-secondary border-opacity-25 pt-4">
-            <div class="top-stat-box">
-                <span class="stat-label"><i data-lucide="files" style="width: 12px;"></i> Całkowite Zasoby</span>
-                <span class="stat-value">12 <span class="fs-8 text-secondary fw-normal">wpisów</span></span>
+            <div class="top-stat-box" style="border-left-color: var(--purple-night);">
+                <span class="stat-label"><i data-lucide="files" style="width: 12px;"></i> Wszystkie wpisy</span>
+                <span class="stat-value"><th:block th:text="${totalCount}">0</th:block> <span class="fs-8 text-secondary fw-normal">wpisów</span></span>
             </div>
-            <div class="top-stat-box" style="border-left-color: var(--brand-blue);">
+            <div class="top-stat-box" style="border-left-color: var(--purple-night);">
                 <span class="stat-label"><i data-lucide="pin" style="width: 12px;"></i> Priorytety (Przypięte)</span>
-                <span class="stat-value">2 <span class="fs-8 text-secondary fw-normal">aktywne</span></span>
+                <span class="stat-value"><th:block th:text="${pinnedCount}">0</th:block> <span class="fs-8 text-secondary fw-normal">aktywne</span></span>
             </div>
         </div>
+        <button class="btn btn-algo btn-purple d-xl-none mt-3" type="button" data-bs-toggle="collapse" data-bs-target="#createNoteForm" aria-expanded="false" style="width: auto;">
+            <i data-lucide="pen-tool"></i> Sporządź Notatkę
+        </button>
     </header>
 
     <div class="row g-4">
@@ -63,7 +62,7 @@
                         <i data-lucide="file-edit" style="color: var(--intel-purple);"></i> Nowy Wpis
                     </h2>
 
-                    <form action="#" method="post">
+                    <form th:action="@{/notatki/dodaj}" method="post">
 
                         <label class="input-label"><i data-lucide="type"></i> Tytuł / Temat</label>
                         <div class="algo-input-group">
@@ -74,22 +73,24 @@
                         <label class="input-label"><i data-lucide="folder"></i> Klasyfikacja (Tag)</label>
                         <div class="algo-input-group">
                             <select name="noteCategory" class="algo-input" required>
-                                <option value="taktyka">Taktyka i Rozkminy</option>
-                                <option value="zakupy">Braki Sprzętowe / Zakupy</option>
-                                <option value="pogoda">Analiza Pogodowa</option>
-                                <option value="inne">Zapiski Ogólne</option>
+                                <option th:each="cat : ${categories}"
+                                        th:value="${cat.name()}"
+                                        th:text="${cat.displayName}">Taktyka i Rozkminy</option>
                             </select>
                             <i data-lucide="chevron-down" class="select-arrow"></i>
                             <i data-lucide="tag" class="input-icon"></i>
                         </div>
 
-                        <label class="input-label" style="margin-top: 1rem;"><i data-lucide="align-left"></i> Treść Operacyjna</label>
+                        <label class="input-label" style="margin-top: 1rem;"><i data-lucide="align-left"></i> Treść</label>
                         <div class="algo-input-group">
-                            <textarea name="noteContent" class="algo-input" required placeholder="Wprowadź dane wywiadowcze..."></textarea>
+                            <textarea name="noteContent" class="algo-input" required placeholder="Wprowadź dane wywiadowcze..." style="min-height: 120px;"></textarea>
                         </div>
 
                         <div class="algo-switch-wrapper mb-3">
                             <input class="algo-switch" type="checkbox" id="pinNote" name="pinned">
+
+                            <input type="hidden" name="_pinned" value="on">
+
                             <div>
                                 <label for="pinNote" class="text-white fw-bold fs-8 mb-1 cursor-pointer d-flex align-items-center gap-2">
                                     <i data-lucide="pin" style="width: 16px; color: var(--intel-purple);"></i> Priorytet (Przypnij)
@@ -111,93 +112,78 @@
                 <i data-lucide="folder-open" style="width: 20px; color: var(--intel-purple); margin-right: 8px;"></i> Rejestr Wpisów
             </h2>
 
-            <div class="notes-grid">
+            <div th:if="${notesPage.empty}" class="algo-glass-panel p-5 text-center">
+                <i data-lucide="file-question" style="width: 48px; height: 48px; color: #64748b; margin-bottom: 1rem;"></i>
+                <h4 class="text-white mb-2">Pusty Rejestr</h4>
+                <p class="text-secondary-custom mb-0">Nie zapisałeś jeszcze żadnych notatek. Użyj panelu po lewej, aby dodać swój pierwszy wpis.</p>
+            </div>
 
-                <div class="note-card pinned open-note"
-                     data-title="Lista Zakupów na Wiosnę '26"
-                     data-cat="Braki Sprzętowe / Zakupy"
-                     data-date="10 Marca 2026"
-                     data-content="Trzeba koniecznie uzupełnić pudełka z gumami przed majówką:&#10;&#10;- Westin ShadTeez 12cm (kolory naturalne)&#10;- Główki Jigowe 10g, 15g (Mustad, haki #4/0)&#10;- Nowa plecionka Daiwa 0.14mm&#10;- Fluorocarbon Seaguar 0.60mm na przypony szczupakowe&#10;&#10;Dodatkowo: sprawdzić czy w butlach do kuchenki gazowej został jeszcze gaz.">
+            <div class="notes-grid" th:if="${!notesPage.empty}">
 
-                    <i data-lucide="pin" class="pin-indicator"></i>
+                <div th:each="note : ${notesPage.content}"
+                     class="note-card open-note"
+                     th:classappend="${note.pinned} ? 'pinned' : ''"
+                     th:data-title="${note.title}"
+                     th:data-cat="${note.categoryDisplayName}"
+                     th:data-date="${#temporals.format(note.createdAt, 'dd.MM.yyyy HH:mm')}"
+                     th:data-content="${note.content}">
+
+                    <i th:if="${note.pinned}" data-lucide="pin" class="pin-indicator"></i>
 
                     <div class="note-header">
-                        <div class="note-category-badge"><i data-lucide="shopping-cart" style="width:12px;"></i> Zakupy</div>
-                        <h3 class="note-title">Lista Zakupów na Wiosnę '26</h3>
+                        <div class="note-category-badge">
+                            <i th:data-lucide="${note.categoryIcon}" style="width:12px;"></i>
+                            <span th:text="${note.categoryDisplayName}">Zakupy</span>
+                        </div>
+                        <h3 class="note-title" th:text="${note.title}">Tytuł</h3>
                         <div class="note-meta">
-                            <span><i data-lucide="calendar" style="width:12px;"></i> 10 Mar 2026</span>
+                            <span><i data-lucide="calendar" style="width:12px;"></i> <span th:text="${#temporals.format(note.createdAt, 'dd.MM.yyyy')}">Data</span></span>
                         </div>
                     </div>
 
-                    <div class="note-content">
-                        Trzeba koniecznie uzupełnić pudełka z gumami przed majówką:
-                        - Westin ShadTeez 12cm (kolory naturalne)
-                        - Główki Jigowe 10g, 15g...
+                    <div class="note-content" th:text="${note.content}">
+                        Podgląd tekstu...
                     </div>
 
                     <div class="note-actions">
-                        <button class="btn-note-action e-ignore"><i data-lucide="edit-3"></i> Edytuj</button>
-                        <button class="btn-note-action e-ignore" style="color: var(--danger-red); border-color: rgba(239,68,68,0.2);"><i data-lucide="trash-2"></i></button>
-                    </div>
-                </div>
+                        <button type="button" class="btn-note-action e-ignore btn-edit-trigger"
+                                th:data-note-id="${note.id}"
+                                th:data-title="${note.title}"
+                                th:data-cat-raw="${note.categoryRawName}"
+                                th:data-content="${note.content}"
+                                th:data-pinned="${note.pinned}">
+                            <i data-lucide="edit-3"></i> Edytuj
+                        </button>
 
-                <div class="note-card pinned open-note"
-                     data-title="Analiza Łowiska: Starorzecze"
-                     data-cat="Taktyka i Rozkminy"
-                     data-date="5 Marca 2026"
-                     data-content="Woda nagrzewa się tam dużo szybciej niż w głównym nurcie. Szczupak wchodzi w trzciny już pod koniec kwietnia.&#10;&#10;Najlepiej sprawdza się metoda na lekko - gumy bez obciążenia na hakach offsetowych rzucane bezpośrednio w oka grążeli. Trzeba uważać na zwalone drzewo po prawej stronie od wejścia.">
-
-                    <i data-lucide="pin" class="pin-indicator"></i>
-
-                    <div class="note-header">
-                        <div class="note-category-badge"><i data-lucide="crosshair" style="width:12px;"></i> Taktyka</div>
-                        <h3 class="note-title">Analiza Łowiska: Starorzecze</h3>
-                        <div class="note-meta">
-                            <span><i data-lucide="calendar" style="width:12px;"></i> 5 Mar 2026</span>
-                        </div>
-                    </div>
-
-                    <div class="note-content">
-                        Woda nagrzewa się tam dużo szybciej niż w głównym nurcie. Szczupak wchodzi w trzciny już pod koniec kwietnia. Najlepiej sprawdza się metoda na lekko...
-                    </div>
-
-                    <div class="note-actions">
-                        <button class="btn-note-action e-ignore"><i data-lucide="edit-3"></i> Edytuj</button>
-                        <button class="btn-note-action e-ignore" style="color: var(--danger-red); border-color: rgba(239,68,68,0.2);"><i data-lucide="trash-2"></i></button>
-                    </div>
-                </div>
-
-                <div class="note-card open-note"
-                     data-title="Ciśnienie a brania (Obserwacje)"
-                     data-cat="Analiza Pogodowa"
-                     data-date="28 Luty 2026"
-                     data-content="Zauważyłem wyraźny spadek brań sandacza przy szybkich skokach ciśnienia powyżej 1020 hPa. Najlepiej reagują, gdy barometr od 3 dni stoi sztywno w okolicach 1010-1014 hPa. Przy zbliżającym się froncie burzowym (spadek ciśnienia) aktywność drastycznie rośnie na 2h przed deszczem.">
-
-                    <div class="note-header">
-                        <div class="note-category-badge"><i data-lucide="cloud-lightning" style="width:12px;"></i> Pogoda</div>
-                        <h3 class="note-title">Ciśnienie a brania (Obserwacje)</h3>
-                        <div class="note-meta">
-                            <span><i data-lucide="calendar" style="width:12px;"></i> 28 Lut 2026</span>
-                        </div>
-                    </div>
-
-                    <div class="note-content">
-                        Zauważyłem wyraźny spadek brań sandacza przy szybkich skokach ciśnienia powyżej 1020 hPa. Najlepiej reagują, gdy barometr od 3 dni stoi sztywno w okolicach 1010-1014 hPa...
-                    </div>
-
-                    <div class="note-actions">
-                        <button class="btn-note-action e-ignore"><i data-lucide="edit-3"></i> Edytuj</button>
-                        <button class="btn-note-action e-ignore" style="color: var(--danger-red); border-color: rgba(239,68,68,0.2);"><i data-lucide="trash-2"></i></button>
+                        <button type="button" class="btn-note-action e-ignore btn-delete-trigger btn-delete-card"
+                                th:data-note-id="${note.id}">
+                            <i data-lucide="trash-2"></i> Usuń
+                        </button>
                     </div>
                 </div>
 
             </div>
 
-            <div class="text-center mt-5 mb-3">
-                <button class="btn btn-link text-secondary text-decoration-none fw-bold text-uppercase ls-1 fs-8">
-                    <i data-lucide="refresh-cw" style="width: 14px; margin-right: 4px;"></i> Załaduj starsze szyfry
-                </button>
-            </div>
+            <nav aria-label="Nawigacja po stronach dziennika" class="mt-5 d-flex justify-content-center" th:if="${notesPage.totalPages > 1}">
+                <ul class="pagination custom-pagination m-0">
+                    <li class="page-item" th:classappend="${notesPage.first} ? 'disabled'">
+                        <a class="page-link d-flex align-items-center" th:href="@{/notatki(page=${notesPage.number - 1})}">
+                            <i data-lucide="chevron-left" style="width: 18px;"></i>
+                        </a>
+                    </li>
+
+                    <li class="page-item" th:each="i : ${#numbers.sequence(0, notesPage.totalPages - 1)}"
+                        th:classappend="${notesPage.number == i} ? 'active'">
+                        <a class="page-link" th:href="@{/notatki(page=${i})}" th:text="${i + 1}">1</a>
+                    </li>
+
+                    <li class="page-item" th:classappend="${notesPage.last} ? 'disabled'">
+                        <a class="page-link d-flex align-items-center" th:href="@{/notatki(page=${notesPage.number + 1})}">
+                            <i data-lucide="chevron-right" style="width: 18px;"></i>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
 
         </div>
     </div>
@@ -208,29 +194,29 @@
 <div class="modal fade modal-glass" id="readNoteModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                <div class="note-category-badge" id="rnCategory" style="background: rgba(139, 92, 246, 0.15); border-color: rgba(139, 92, 246, 0.3); color: #c4b5fd;">
+            <div class="modal-header border-bottom border-secondary border-opacity-25">
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                <div class="note-category-badge mb-3" id="rnCategory" style="background: rgba(139, 92, 246, 0.15); border-color: rgba(139, 92, 246, 0.3); color: #c4b5fd;">
                     Tag Notatki
                 </div>
                 <h4 class="modal-title fw-black text-white m-0 d-flex align-items-center gap-2" id="rnTitle" style="font-size: 1.5rem;">
                     Tytuł Notatki
                 </h4>
-                <div class="fs-8 text-muted mt-2 d-flex align-items-center gap-2">
+                <div class="fs-8 text-secondary mt-2 d-flex align-items-center gap-2">
                     <i data-lucide="calendar" style="width: 12px;"></i> <span id="rnDate">Data utworzenia</span>
                 </div>
             </div>
 
-            <div class="modal-body" id="rnContent">
+            <div class="modal-body text-light" id="rnContent" style="white-space: pre-wrap; line-height: 1.6;">
                 Treść notatki...
             </div>
 
-            <div class="modal-footer">
-                <div class="modal-action-btns">
-                    <button type="button" class="btn btn-outline-secondary border-secondary text-white" data-bs-dismiss="modal">
-                        Zamknij Panel
+            <div class="modal-footer border-top border-secondary border-opacity-25 py-3">
+                <div class="modal-action-btns w-100 d-flex justify-content-between gap-3">
+                    <button type="button" class="btn btn-outline-secondary text-white m-0 flex-grow-1" data-bs-dismiss="modal">
+                        Zamknij
                     </button>
-                    <button type="button" class="btn-algo btn-purple" style="width: auto;">
+                    <button type="button" class="btn-algo btn-purple m-0 flex-grow-1" data-bs-dismiss="modal">
                         <i data-lucide="edit-3" style="width:18px;"></i> Edytuj Wpis
                     </button>
                 </div>
@@ -239,32 +225,151 @@
     </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script src="https://unpkg.com/lucide@latest"></script>
+<div class="modal fade modal-glass" id="deleteNoteModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header border-bottom border-secondary border-opacity-25">
+                <h5 class="modal-title fw-bold text-white d-flex align-items-center gap-2">
+                    <i data-lucide="alert-triangle" style="color: var(--danger-red);"></i> Potwierdzenie Akcji
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Zamknij"></button>
+            </div>
+            <div class="modal-body text-secondary-custom">
+                Czy na pewno chcesz bezpowrotnie usunąć ten wpis ze swojego dziennika? Tej operacji nie będzie można cofnąć.
+            </div>
+            <div class="modal-footer border-top border-secondary border-opacity-25 py-3">
+                <div class="modal-action-btns w-100 d-flex justify-content-between gap-3">
+                    <button type="button" class="btn btn-outline-secondary text-white m-0 flex-grow-1" data-bs-dismiss="modal">Anuluj</button>
+
+                    <form id="deleteForm" method="post" th:action="@{/}" class="m-0 flex-grow-1 d-flex">
+                        <button type="submit" class="btn-algo btn-red m-0 w-100">
+                            <i data-lucide="trash-2" style="width:18px;"></i> Usuń definitywnie
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade modal-glass" id="editNoteModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+
+            <form id="editForm" method="post" th:action="@{/}" class="m-0 p-0 w-100">
+
+                <div class="modal-header border-bottom border-secondary border-opacity-25 flex-row align-items-center justify-content-between py-3">
+                    <h5 class="modal-title fw-bold text-white d-flex align-items-center gap-2 m-0">
+                        <i data-lucide="edit-3" style="color: var(--intel-purple);"></i> Edytuj Wpis
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white m-0" data-bs-dismiss="modal" aria-label="Zamknij"></button>
+                </div>
+
+                <div class="modal-body text-light">
+
+                    <label class="input-label"><i data-lucide="type"></i> Tytuł / Temat</label>
+                    <div class="algo-input-group">
+                        <input type="text" id="editNoteTitle" name="noteTitle" class="algo-input" required>
+                        <i data-lucide="pen-line" class="input-icon"></i>
+                    </div>
+
+                    <label class="input-label"><i data-lucide="folder"></i> Klasyfikacja (Tag)</label>
+                    <div class="algo-input-group">
+                        <select id="editNoteCategory" name="noteCategory" class="algo-input" required>
+                            <option th:each="cat : ${categories}" th:value="${cat.name()}" th:text="${cat.displayName}"></option>
+                        </select>
+                        <i data-lucide="chevron-down" class="select-arrow"></i>
+                        <i data-lucide="tag" class="input-icon"></i>
+                    </div>
+
+                    <label class="input-label" style="margin-top: 1rem;"><i data-lucide="align-left"></i> Treść Operacyjna</label>
+                    <div class="algo-input-group">
+                        <textarea id="editNoteContent" name="noteContent" class="algo-input" required style="min-height: 120px;"></textarea>
+                    </div>
+
+                    <div class="algo-switch-wrapper mb-0 mt-2">
+                        <input class="algo-switch" type="checkbox" id="editPinNote" name="pinned">
+                        <input type="hidden" name="_pinned" value="on">
+                        <div>
+                            <label for="editPinNote" class="text-white fw-bold fs-8 mb-1 cursor-pointer d-flex align-items-center gap-2">
+                                <i data-lucide="pin" style="width: 16px; color: var(--intel-purple);"></i> Priorytet (Przypnij)
+                            </label>
+                            <div class="fs-8" style="color: #64748b; line-height: 1.3;">Notatka będzie widoczna na samej górze.</div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="modal-footer border-top border-secondary border-opacity-25 py-3">
+                    <div class="modal-action-btns w-100 d-flex justify-content-between">
+                        <button type="button" class="btn btn-outline-secondary text-white" data-bs-dismiss="modal">Anuluj</button>
+                        <button type="submit" class="btn-algo btn-purple" style="width: auto;">Zapisz Zmiany</button>
+                    </div>
+                </div>
+
+            </form>
+
+        </div>
+    </div>
+</div>
 
 <script>
     document.addEventListener('DOMContentLoaded', () => {
         lucide.createIcons();
 
-        // Obsługa otwierania modalu odczytu (HUD)
         const readNoteModal = new bootstrap.Modal(document.getElementById('readNoteModal'));
 
         document.querySelectorAll('.open-note').forEach(card => {
             card.addEventListener('click', function(e) {
-                // Zapobiega otwarciu modalu jeśli kliknięto w guzik "Edytuj" lub "Usuń" na dole karty
                 if(e.target.closest('.e-ignore')) return;
 
-                const title = this.getAttribute('data-title');
-                const cat = this.getAttribute('data-cat');
-                const date = this.getAttribute('data-date');
-                const content = this.getAttribute('data-content');
-
-                document.getElementById('rnTitle').innerText = title;
-                document.getElementById('rnCategory').innerText = cat;
-                document.getElementById('rnDate').innerText = date;
-                document.getElementById('rnContent').textContent = content; // textContent szanuje pre-wrap (entery)
+                document.getElementById('rnTitle').innerText = this.getAttribute('data-title');
+                document.getElementById('rnCategory').innerText = this.getAttribute('data-cat');
+                document.getElementById('rnDate').innerText = this.getAttribute('data-date');
+                document.getElementById('rnContent').textContent = this.getAttribute('data-content');
 
                 readNoteModal.show();
+            });
+        });
+
+        const deleteNoteModal = new bootstrap.Modal(document.getElementById('deleteNoteModal'));
+        const deleteForm = document.getElementById('deleteForm');
+
+        document.querySelectorAll('.btn-delete-trigger').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.stopPropagation();
+
+                const noteId = this.getAttribute('data-note-id');
+                deleteForm.action = `/notatki/${noteId}/usun`;
+
+                deleteNoteModal.show();
+            });
+        });
+
+        const editNoteModal = new bootstrap.Modal(document.getElementById('editNoteModal'));
+        const editForm = document.getElementById('editForm');
+
+        const editInputTitle = document.getElementById('editNoteTitle');
+        const editSelectCategory = document.getElementById('editNoteCategory');
+        const editInputContent = document.getElementById('editNoteContent');
+        const editCheckboxPin = document.getElementById('editPinNote');
+
+        document.querySelectorAll('.btn-edit-trigger').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.stopPropagation();
+
+                const noteId = this.getAttribute('data-note-id');
+                const title = this.getAttribute('data-title');
+                const catRaw = this.getAttribute('data-cat-raw');
+                const content = this.getAttribute('data-content');
+                const isPinned = this.getAttribute('data-pinned') === 'true';
+                editForm.action = `/notatki/${noteId}/edytuj`;
+                editInputTitle.value = title;
+                editSelectCategory.value = catRaw;
+                editInputContent.value = content;
+                editCheckboxPin.checked = isPinned;
+
+                editNoteModal.show();
             });
         });
     });

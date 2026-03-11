@@ -303,17 +303,29 @@
                                         <div><h6 style="color: var(--brand-blue); font-size: 1.05rem;">Zarządzaj Profilem</h6><p>Dane konta i awatar</p></div>
                                     </a>
 
-                                    <a th:href="@{/powiadomienia}" class="menu-item d-flex align-items-center justify-content-between" style="margin-bottom: 16px;">
-                                        <div class="d-flex align-items-center gap-3">
-                                            <div class="icon-box bg-icon-orange">
-                                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
-                                            </div>
-                                            <div>
-                                                <h6 style="margin: 0; font-size: 0.9rem; font-weight: 700; color: #e2e8f0;">Powiadomienia</h6>
-                                                <p style="margin: 0; font-size: 0.75rem; color: #64748b; margin-top: 4px;">Twoje alerty i nowości</p>
-                                            </div>
+<!--                                    <a th:href="@{/powiadomienia}" class="menu-item d-flex align-items-center justify-content-between" style="margin-bottom: 16px;">-->
+<!--                                        <div class="d-flex align-items-center gap-3">-->
+<!--                                            <div class="icon-box bg-icon-orange">-->
+<!--                                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>-->
+<!--                                            </div>-->
+<!--                                            <div>-->
+<!--                                                <h6 style="margin: 0; font-size: 0.9rem; font-weight: 700; color: #e2e8f0;">Powiadomienia</h6>-->
+<!--                                                <p style="margin: 0; font-size: 0.75rem; color: #64748b; margin-top: 4px;">Twoje alerty i nowości</p>-->
+<!--                                            </div>-->
+<!--                                        </div>-->
+<!--                                        <span class="badge bg-danger rounded-pill px-2 py-1" th:if="${unreadNotificationsCount != null and unreadNotificationsCount > 0}" th:text="${unreadNotificationsCount}">3</span>-->
+<!--                                    </a>-->
+
+                                    <a class="menu-item disabled-item" title="Funkcja wkrótce dostępna">
+                                        <div class="badge-soon">Wkrótce</div>
+
+                                        <div class="icon-box bg-icon-indigo">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
                                         </div>
-                                        <span class="badge bg-danger rounded-pill px-2 py-1" th:if="${unreadNotificationsCount != null and unreadNotificationsCount > 0}" th:text="${unreadNotificationsCount}">3</span>
+                                        <div>
+                                            <h6>Powiadomienia</h6>
+                                            <p>Twoje alerty i nowości</p>
+                                        </div>
                                     </a>
 
                                     <div class="menu-header">Moje Wyniki</div>
@@ -332,59 +344,131 @@
                                         <div><h6>Moje Połowy</h6><p>Życiówki, wymiary, trofea</p></div>
                                     </a>
 
-                                    <a th:href="@{/statystyki}" class="menu-item">
-                                        <div class="icon-box bg-icon-purple">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
-                                        </div>
-                                        <div><h6>Statystyki i Analizy</h6><p>Skuteczność, wagi, ilości</p></div>
-                                    </a>
+                                    <a class="menu-item disabled-item" title="Funkcja wkrótce dostępna">
+                                        <div class="badge-soon">Wkrótce</div>
 
-                                    <a th:href="@{/cele-wedkarskie}" class="menu-item">
-                                        <div class="icon-box bg-icon-red">
+                                        <div class="icon-box bg-icon-indigo">
                                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
                                         </div>
-                                        <div><h6>Cele Wędkarskie</h6><p>Wyzwania i marzenia na ten sezon</p></div>
+                                        <div>
+                                            <h6>Cele wędkarskie</h6>
+                                            <p>Wyzwania i marzenia na ten sezon</p>
+                                        </div>
                                     </a>
+
+<!--                                    <a th:href="@{/cele-wedkarskie}" class="menu-item">-->
+<!--                                        <div class="icon-box bg-icon-red">-->
+<!--                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>-->
+<!--                                        </div>-->
+<!--                                        <div><h6>Cele Wędkarskie</h6><p>Wyzwania i marzenia na ten sezon</p></div>-->
+<!--                                    </a>-->
                                 </div>
 
                                 <div class="col-lg-6 ps-lg-3 mt-4 mt-lg-0 flex-column d-flex">
 
                                     <div class="menu-header">Organizacja i Ekwipunek</div>
 
-                                    <a th:href="@{/kalendarz-wypraw}" class="menu-item">
+<!--                                    <a th:href="@{/kalendarz-wypraw}" class="menu-item">-->
+<!--                                        <div class="icon-box bg-icon-indigo">-->
+<!--                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>-->
+<!--                                        </div>-->
+<!--                                        <div><h6>Kalendarz Wyjazdów</h6><p>Zaplanuj kolejne wyprawy</p></div>-->
+<!--                                    </a>-->
+
+                                    <a class="menu-item disabled-item" title="Funkcja wkrótce dostępna">
+                                        <div class="badge-soon">Wkrótce</div>
+
                                         <div class="icon-box bg-icon-indigo">
                                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
                                         </div>
-                                        <div><h6>Kalendarz Wyjazdów</h6><p>Zaplanuj kolejne wyprawy</p></div>
-                                    </a>
-
-                                    <a th:href="@{/ulubione-miejscowki}" class="menu-item">
-                                        <div class="icon-box bg-icon-red">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+                                        <div>
+                                            <h6>Kalendarz Wyjazdów</h6>
+                                            <p>Zaplanuj kolejne wyprawy</p>
                                         </div>
-                                        <div><h6>Ulubione Miejscówki</h6><p>Twoje tajne i zapisane punkty GPS</p></div>
                                     </a>
 
-                                    <a th:href="@{/lista-przynet}" class="menu-item">
-                                        <div class="icon-box bg-icon-orange">
+                                    <a class="menu-item disabled-item" title="Funkcja wkrótce dostępna">
+                                        <div class="badge-soon">Wkrótce</div>
+
+                                        <div class="icon-box bg-icon-indigo">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+
+                                        </div>
+                                        <div>
+                                            <h6>Ulubione miejscówki</h6>
+                                            <p>Twoje tajne i zapisane punkty GPS</p>
+                                        </div>
+                                    </a>
+
+<!--                                    <a th:href="@{/ulubione-miejscowki}" class="menu-item">-->
+<!--                                        <div class="icon-box bg-icon-red">-->
+<!--                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>-->
+<!--                                        </div>-->
+<!--                                        <div><h6>Ulubione Miejscówki</h6><p>Twoje tajne i zapisane punkty GPS</p></div>-->
+<!--                                    </a>-->
+
+<!--                                    <a th:href="@{/lista-przynet}" class="menu-item">-->
+<!--                                        <div class="icon-box bg-icon-orange">-->
+<!--                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-bug"><path d="m8 2 1.88 1.88"/><path d="M14.12 3.88 16 2"/><path d="M9 7.13v-1a3.003 3.003 0 1 1 6 0v1"/><path d="M12 20c-3.3 0-6-2.7-6-6v-3a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v3c0 3.3-2.7 6-6 6"/><path d="M12 20v-9"/><path d="M6.53 9C4.6 8.8 3 7.1 3 5"/><path d="M17.47 9c1.93-.2 3.53-1.9 3.53-4"/><path d="M8 14H4"/><path d="M20 14h-4"/><path d="M9 18h6"/></svg>-->
+<!--                                        </div>-->
+<!--                                        <div><h6>Pudełko Przynęt</h6><p>Twój wirtualny arsenał</p></div>-->
+<!--                                    </a>-->
+
+
+                                    <a class="menu-item disabled-item" title="Funkcja wkrótce dostępna">
+                                        <div class="badge-soon">Wkrótce</div>
+
+                                        <div class="icon-box bg-icon-indigo">
                                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-bug"><path d="m8 2 1.88 1.88"/><path d="M14.12 3.88 16 2"/><path d="M9 7.13v-1a3.003 3.003 0 1 1 6 0v1"/><path d="M12 20c-3.3 0-6-2.7-6-6v-3a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v3c0 3.3-2.7 6-6 6"/><path d="M12 20v-9"/><path d="M6.53 9C4.6 8.8 3 7.1 3 5"/><path d="M17.47 9c1.93-.2 3.53-1.9 3.53-4"/><path d="M8 14H4"/><path d="M20 14h-4"/><path d="M9 18h6"/></svg>
                                         </div>
-                                        <div><h6>Pudełko Przynęt</h6><p>Twój wirtualny arsenał</p></div>
+                                        <div>
+                                            <h6>Pudełko Przynęt</h6>
+                                            <p>Twój wirtualny arsenał</p>
+                                        </div>
                                     </a>
 
-                                    <a th:href="@{/moje-zestawy}" class="menu-item">
-                                        <div class="icon-box bg-icon-violet">
+
+<!--                                    <a th:href="@{/moje-zestawy}" class="menu-item">-->
+<!--                                        <div class="icon-box bg-icon-violet">-->
+<!--                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>-->
+
+<!--                                        </div>-->
+<!--                                        <div><h6>Moje Zestawy</h6><p>Ulubione i sprawdzone konfiguracje</p></div>-->
+<!--                                    </a>-->
+
+                                    <a class="menu-item disabled-item" title="Funkcja wkrótce dostępna">
+                                        <div class="badge-soon">Wkrótce</div>
+
+                                        <div class="icon-box bg-icon-indigo">
                                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
 
                                         </div>
-                                        <div><h6>Moje Zestawy</h6><p>Ulubione i sprawdzone konfiguracje</p></div>
+                                        <div>
+                                            <h6>Moje Zestawy</h6>
+                                            <p>Ulubione i sprawdzone konfiguracje</p>
+                                        </div>
                                     </a>
 
-                                    <a th:href="@{/checklisty}" class="menu-item">
-                                        <div class="icon-box bg-icon-cyan">
+
+
+<!--                                    <a th:href="@{/checklisty}" class="menu-item">-->
+<!--                                        <div class="icon-box bg-icon-cyan">-->
+<!--                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 11 3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>-->
+<!--                                        </div>-->
+<!--                                        <div><h6>Checklisty Sprzętu</h6><p>Lista pakowania przed wyjazdem</p></div>-->
+<!--                                    </a>-->
+
+                                    <a class="menu-item disabled-item" title="Funkcja wkrótce dostępna">
+                                        <div class="badge-soon">Wkrótce</div>
+
+                                        <div class="icon-box bg-icon-indigo">
                                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 11 3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+
                                         </div>
-                                        <div><h6>Checklisty Sprzętu</h6><p>Lista pakowania przed wyjazdem</p></div>
+                                        <div>
+                                            <h6>Checklisty Sprzętu</h6>
+                                            <p>Lista pakowania przed wyjazdem</p>
+                                        </div>
                                     </a>
 
                                     <a th:href="@{/notatki}" class="menu-item">
@@ -397,14 +481,14 @@
                                     <div class="mt-auto">
                                         <div style="border-top: 1px solid rgba(255,255,255,0.05); margin: 12px 10px;"></div>
 
-                                        <a th:href="@{/ustawienia}" class="menu-item mb-0 pb-1">
-                                            <div class="d-flex align-items-center gap-2">
-                                                <div class="icon-box bg-icon-gray" style="width: 28px; height: 28px; background: rgba(255,255,255,0.1); color: #cbd5e1;">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
-                                                </div>
-                                                <h6 style="margin: 0; font-size: 0.9rem;">Ustawienia aplikacji</h6>
-                                            </div>
-                                        </a>
+<!--                                        <a th:href="@{/ustawienia}" class="menu-item mb-0 pb-1">-->
+<!--                                            <div class="d-flex align-items-center gap-2">-->
+<!--                                                <div class="icon-box bg-icon-gray" style="width: 28px; height: 28px; background: rgba(255,255,255,0.1); color: #cbd5e1;">-->
+<!--                                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>-->
+<!--                                                </div>-->
+<!--                                                <h6 style="margin: 0; font-size: 0.9rem;">Ustawienia aplikacji</h6>-->
+<!--                                            </div>-->
+<!--                                        </a>-->
 
                                         <form th:action="@{/logout}" method="post" class="m-0 p-0">
                                             <button type="submit" class="menu-item mb-0 w-100 border-0 text-start bg-transparent" style="cursor: pointer;">

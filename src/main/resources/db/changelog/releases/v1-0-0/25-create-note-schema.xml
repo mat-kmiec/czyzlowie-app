@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.24.xsd">
+
+    <changeSet id="1" author="mateusz kmiec">
+
+        <createTable tableName="notes">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+
+            <column name="title" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="user_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="category" type="varchar(50)">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="content" type="text">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="pinned" type="boolean" defaultValueBoolean="false">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="created_at" type="timestamp">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="updated_at" type="timestamp"/>
+        </createTable>
+
+        <addForeignKeyConstraint baseTableName="notes" baseColumnNames="user_id"
+                                 referencedTableName="users" referencedColumnNames="id"
+                                 constraintName="fk_notes_users"/>
+
+        <createIndex tableName="notes" indexName="idx_notes_user_pinned_created">
+            <column name="user_id"/>
+            <column name="pinned" descending="true"/>
+            <column name="created_at" descending="true"/>
+        </createIndex>
+
+    </changeSet>
+
+</databaseChangeLog>

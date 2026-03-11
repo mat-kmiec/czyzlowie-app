@@ -21,7 +21,6 @@
     border-bottom: 1px solid var(--nav-glass-border);
     padding: 0px;
     box-shadow: 0 5px 25px rgba(0,0,0,0.5);
-    /* GWARANCJA - navbar nie wychodzi poza szerokość ekranu */
     width: 100%;
     max-width: 100vw;
 }
@@ -48,7 +47,6 @@
     display: flex;
     align-items: center;
     gap: 6px;
-    /* Zabezpieczenie na długie teksty */
     white-space: nowrap;
 }
 
@@ -88,7 +86,7 @@
     justify-content: center;
     transition: all 0.3s ease;
     box-shadow: none;
-    white-space: nowrap; /* Button trzyma się w 1 linii */
+    white-space: nowrap;
 }
 
 .btn-nav-primary-custom:hover {
@@ -110,7 +108,6 @@
     box-shadow: 0 20px 60px rgba(0,0,0,0.7);
     margin-top: 15px;
     padding: 10px;
-    /* Na desktopie ograniczenie szerokości by nie wylać ekranu w prawo */
     max-width: 100vw;
 }
 
@@ -120,14 +117,11 @@
     display: flex; align-items: center; justify-content: center;
     flex-shrink: 0;
 }
-/* Klasy kolorystyczne ikon */
 .bg-icon-blue   { background: rgba(56, 189, 248, 0.15); color: var(--nav-accent-blue); }
 .bg-icon-red    { background: rgba(239, 68, 68, 0.15);  color: var(--nav-accent-red); }
 .bg-icon-green  { background: rgba(46, 204, 113, 0.15); color: var(--nav-accent-green); }
 .bg-icon-purple { background: rgba(168, 85, 247, 0.15); color: var(--nav-accent-purple); }
 .bg-icon-orange { background: rgba(245, 158, 11, 0.15); color: var(--nav-accent-orange); }
-
-/* NOWE KLASY: */
 .bg-icon-cyan   { background: rgba(6, 182, 212, 0.15);  color: var(--nav-accent-cyan); }
 .bg-icon-indigo { background: rgba(99, 102, 241, 0.15); color: var(--nav-accent-indigo); }
 .bg-icon-violet { background: rgba(139, 92, 246, 0.15); color: var(--nav-accent-violet); }
@@ -137,7 +131,6 @@
     display: flex; align-items: flex-start; gap: 12px;
     padding: 10px; border-radius: 10px;
     color: var(--nav-text-muted); text-decoration: none; transition: 0.2s;
-    /* Zawijanie długich tekstów a nie uciekanie na boki */
     word-break: break-word;
     white-space: normal;
 }
@@ -149,9 +142,6 @@
 
 .menu-header { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; color: #64748b; font-weight: 700; margin-bottom: 12px; padding-left: 10px; display: flex; align-items: center; gap: 8px; }
 
-/* =========================================
-   DESKTOP STYLES
-   ========================================= */
 @media (min-width: 992px) {
     .dropdown-menu-standard {
         min-width: 260px;
@@ -160,16 +150,14 @@
     }
 
     .dropdown-menu-mega {
-        /* Zapobiegamy 600px i 950px wylewaniu się poza małe ekrany laptopów */
         max-width: 90vw;
         left: 50% !important;
         transform: translateX(-50%) !important;
     }
 
-    /* Szerokości poszczególnych Mega Menu */
     .mega-niezbednik { width: 950px; }
     .mega-atlas { width: 700px; }
-    .mega-profil { width: 680px; } /* NOWE: idealna szerokość pod 2 kolumny profilu */
+    .mega-profil { width: 680px; }
 
     .col-divider { border-right: 1px solid var(--nav-glass-border); }
 
@@ -182,7 +170,6 @@
         to { opacity: 1; transform: translate(-50%, 0) !important; }
     }
 
-    /* Nadpisanie dla menu wyrównanego do prawej (np. Mój Profil) */
     .dropdown-menu-end,
     .dropdown-menu-end.dropdown-menu-mega {
         left: auto !important;
@@ -200,35 +187,29 @@
     }
 }
 
-/* =========================================
-   MOBILE & TABLET STYLES
-   ========================================= */
 @media (max-width: 991px) {
 
-    /* Gwarancja że navbar-collapse nie doda szerokości */
     .navbar-collapse {
         background: transparent !important;
         padding: 0 !important;
         margin: 0 !important;
         border: none !important;
         box-shadow: none !important;
-        width: 100%; /* Fix na rozpychanie */
-        overflow-x: hidden; /* Odcięcie ewentualnych śmieci z boku */
+        width: 100%;
+        overflow-x: hidden;
     }
 
     .mobile-menu-container {
         background: #0a1128;
-        padding: 20px; /* Zmniejszono padding boczny z 24px na 20px */
+        padding: 20px;
         border-radius: 20px;
         border: 1px solid var(--nav-glass-border);
-        /* Zmniejszony max-height by zawsze zmieścić guzik logowania */
         max-height: 80vh;
         overflow-y: auto;
-        /* WAŻNE: max-width blokuje wyskakiwanie poza ekran na iPhonach */
         width: calc(100% - 20px) !important;
         margin: 15px 10px !important;
         box-shadow: 0 20px 50px rgba(0,0,0,0.8);
-        overflow-x: hidden; /* Czystość na boki */
+        overflow-x: hidden;
     }
 
     .dropdown-menu.show {
@@ -253,7 +234,6 @@
         margin-top: 5px;
     }
 
-    /* Na małych urządzeniach "dzielniki" kolumn to teraz linie poziome */
     .col-divider {
         border: none;
         margin-bottom: 20px;
@@ -269,18 +249,51 @@
     .nav-link {
         padding: 12px 16px !important;
         margin-bottom: 4px;
-        white-space: normal; /* Na mobile przytulamy długi tekst do nowej linii, np "Atlas Ryb" */
+        white-space: normal;
     }
 
     .mobile-auth-section {
         margin-top: 24px;
-        width: 100%; /* Przycisk logowania na pełną szerokość kontenera */
+        width: 100%;
     }
 
     .btn-nav-primary-custom {
         padding: 12px 24px;
         background: rgba(56, 189, 248, 0.15);
         width: 100%;
-        display: block; /* Rozciąga Button na maxa na iPhone'ach */
+        display: block;
     }
+}
+
+.menu-item.disabled-item {
+    opacity: 0.4;
+    cursor: not-allowed !important;
+    filter: grayscale(80%);
+    position: relative;
+    background: transparent !important;
+}
+
+.menu-item.disabled-item:hover {
+    transform: none !important;
+    background: transparent !important;
+    border-color: transparent !important;
+}
+
+.menu-item.disabled-item > * {
+    pointer-events: none;
+}
+
+.badge-soon {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    font-size: 0.55rem;
+    font-weight: 800;
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--text-muted);
+    padding: 3px 6px;
+    border-radius: 6px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
 }
