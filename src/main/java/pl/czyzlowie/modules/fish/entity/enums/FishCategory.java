@@ -3,23 +3,29 @@ package pl.czyzlowie.modules.fish.entity.enums;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
+
 /**
- * Categorizes fish species into broad groups based on their biological nature and feeding habits.
+ * Enum representing different categories of fish.
+ * Each category contains a display name describing the type of fish it represents.
  *
- * This classification is used throughout the application to filter the fish atlas,
- * organize search results, and apply different sets of default logic within the
- * forecasting and tackle recommendation modules.
+ * Enum Constants:
+ * - PREDATOR: Represents predatory fish.
+ * - PEACEFUL: Represents peaceful fish, often referred to as whitefish.
+ * - SALMONID: Represents Salmonidae and Thymallidae families.
+ * - MARINE: Represents marine fish species.
+ * - INVASIVE: Represents foreign and invasive fish species.
  *
- * Values:
- * - PREDATOR: Species that primarily hunt other fish or aquatic animals (e.g., Pike, Zander, Perch).
- * - PEACEFUL: Also known as "coarse fish" or "whitefish," these species primarily feed on
- * plants, insects, or small invertebrates (e.g., Carp, Bream, Roach).
+ * Constructor:
+ * Each enum instance is initialized with a display name describing the category.
  */
 @Getter
 @RequiredArgsConstructor
 public enum FishCategory {
     PREDATOR("Drapieżniki"),
-    PEACEFUL("Białoryb (Spokojnego żeru)");
+    PEACEFUL("Spokojnego żeru / Białoryb"),
+    SALMONID("Łososiowate i Lipieniowate"),
+    MARINE("Ryby morskie"),
+    INVASIVE("Gatunki obce i inwazyjne");
 
     private final String displayName;
 }

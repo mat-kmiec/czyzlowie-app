@@ -17,6 +17,125 @@
     </script>
 
     <link rel="stylesheet" th:href="@{/css/home-hero.css}">
+    <style>
+        .spot-card {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid rgba(255,255,255,0.05);
+            border-radius: 16px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        .spot-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--brand-blue);
+            box-shadow: 0 10px 30px rgba(14, 165, 233, 0.15);
+        }
+        .spot-img-wrapper {
+            position: relative;
+            height: 200px;
+            overflow: hidden;
+        }
+        .spot-img-wrapper img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+        .spot-card:hover .spot-img-wrapper img {
+            transform: scale(1.05);
+        }
+        .spot-badge {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(5px);
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .coffee-section {
+            background: linear-gradient(0deg, rgba(15, 23, 42, 1) 0%, rgba(15, 23, 42, 0) 100%);
+            border-top: 1px solid rgba(255,255,255,0.03);
+        }
+        .coffee-card {
+            background: linear-gradient(145deg, rgba(245, 158, 11, 0.05), rgba(0,0,0,0.5));
+            border: 1px solid rgba(245, 158, 11, 0.2);
+            border-radius: 24px;
+            padding: 3rem;
+            position: relative;
+            overflow: hidden;
+        }
+        .coffee-card::before {
+            content: '';
+            position: absolute;
+            top: -50%; right: -20%;
+            width: 300px; height: 300px;
+            background: radial-gradient(circle, rgba(245, 158, 11, 0.15) 0%, rgba(0,0,0,0) 70%);
+            border-radius: 50%;
+            pointer-events: none;
+        }
+        .btn-coffee {
+            background: linear-gradient(90deg, #d97706, #f59e0b);
+            color: #000;
+            font-weight: 800;
+            border: none;
+            box-shadow: 0 0 20px rgba(245, 158, 11, 0.3);
+            transition: all 0.3s;
+        }
+        .btn-coffee:hover {
+            transform: scale(1.05);
+            color: #000;
+            box-shadow: 0 0 30px rgba(245, 158, 11, 0.5);
+        }
+
+        /* --- Style dla Modalu Ostrzegawczego BETA --- */
+        .beta-modal-content {
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            box-shadow: 0 15px 50px rgba(0,0,0,0.8), 0 0 30px rgba(239, 68, 68, 0.15);
+            border-radius: 24px;
+            overflow: hidden;
+        }
+        .beta-icon-ring {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem auto;
+            position: relative;
+        }
+        .beta-icon-ring::after {
+            content: '';
+            position: absolute;
+            width: 100%; height: 100%;
+            border-radius: 50%;
+            border: 1px solid #ef4444;
+            animation: radarPulse 2s infinite;
+        }
+        .btn-beta-confirm {
+            background: linear-gradient(90deg, #ef4444, #b91c1c);
+            color: white;
+            border: none;
+            font-weight: 800;
+            letter-spacing: 1px;
+            box-shadow: 0 5px 15px rgba(239, 68, 68, 0.3);
+            transition: 0.3s;
+        }
+        .btn-beta-confirm:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(239, 68, 68, 0.5);
+            color: white;
+        }
+    </style>
 </head>
 <body class="bg-dark hero-page-body">
 
@@ -135,7 +254,7 @@
                         <i data-lucide="cloud-lightning" class="neon-icon"></i>
                     </div>
                     <h3 class="card-title text-white fw-bold h5 mb-3">Dynamika Ciśnienia</h3>
-                    <p class="card-text text-muted small lh-lg mb-0 mt-auto">
+                    <p class="card-text text-secondary small lh-lg mb-0 mt-auto">
                         Analizujemy skoki ciśnienia atmosferycznego, siłę i kierunek wiatru oraz zachmurzenie z modeli NOAA. Wiemy, kiedy front pobudzi drapieżniki do żerowania.
                     </p>
                 </article>
@@ -147,7 +266,7 @@
                         <i data-lucide="waves" class="neon-icon text-info"></i>
                     </div>
                     <h3 class="card-title text-white fw-bold h5 mb-3">Stany Wód LIVE</h3>
-                    <p class="card-text text-muted small lh-lg mb-0 mt-auto">
+                    <p class="card-text text-secondary small lh-lg mb-0 mt-auto">
                         Pobieramy odczyty wodowskazów IMGW w czasie rzeczywistym. Badamy trend (woda rosnąca/opadająca) oraz temperaturę wody, która definiuje metabolizm ryb.
                     </p>
                 </article>
@@ -159,7 +278,7 @@
                         <i data-lucide="moon" class="neon-icon text-warning"></i>
                     </div>
                     <h3 class="card-title text-white fw-bold h5 mb-3">Wpływ Solunarny</h3>
-                    <p class="card-text text-muted small lh-lg mb-0 mt-auto">
+                    <p class="card-text text-secondary small lh-lg mb-0 mt-auto">
                         Matematycznie wyliczamy okresy wzmożonej aktywności na podstawie położenia słońca i księżyca. Łączymy teorię solunarną z realną pogodą.
                     </p>
                 </article>
@@ -172,7 +291,7 @@
                         <i data-lucide="cpu" class="neon-icon text-danger"></i>
                     </div>
                     <h3 class="card-title text-white fw-bold h5 mb-3 position-relative z-1">Autorski Wskaźnik</h3>
-                    <p class="card-text text-muted small lh-lg mb-0 mt-auto position-relative z-1">
+                    <p class="card-text text-secondary small lh-lg mb-0 mt-auto position-relative z-1">
                         Krzyżujemy wszystkie te dane, tworząc jeden, czytelny wskaźnik szansy na branie (od 0 do 100%). Koniec z analizowaniem kilkunastu wykresów ręcznie.
                     </p>
                 </article>
@@ -181,186 +300,54 @@
         </div>
     </div>
 </section>
-<section id="atlas-ryb" class="atlas-section position-relative z-2 py-5 py-xl-6">
-    <div class="container-xl">
-        <div class="row g-5 align-items-center flex-column-reverse flex-lg-row">
 
-            <div class="col-lg-6 scroll-reveal">
-                <figure class="atlas-visual-wrapper position-relative mb-0 mx-auto">
-                    <div class="scanner-frame"></div>
-
-                    <img src="https://images.unsplash.com/photo-1518002171953-a080ee817e1f?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
-                         alt="Interaktywny atlas ryb słodkowodnych i parametry żerowania"
-                         class="img-fluid atlas-main-img"
-                         loading="lazy"
-                         width="800"
-                         height="533">
-
-                    <figcaption class="tactical-badge badge-top-right d-flex align-items-center gap-2">
-                        <i data-lucide="target" class="text-danger neon-glow-danger" aria-hidden="true"></i>
-                        <div>
-                            <span class="d-block small text-muted text-uppercase fw-bold" style="font-size: 0.65rem;">Gatunek</span>
-                            <span class="d-block text-white fw-black font-mono">SZCZUPAK (Esox lucius)</span>
-                        </div>
-                    </figcaption>
-
-                    <div class="tactical-badge badge-bottom-left d-flex align-items-center gap-3">
-                        <div class="d-flex flex-column">
-                            <span class="text-muted text-uppercase fw-bold" style="font-size: 0.65rem;">Optymalna Temp.</span>
-                            <span class="text-neon fw-bold font-mono">12°C - 16°C</span>
-                        </div>
-                        <div class="border-start border-white-10 h-100 mx-1"></div>
-                        <div class="d-flex flex-column">
-                            <span class="text-muted text-uppercase fw-bold" style="font-size: 0.65rem;">Ciśnienie</span>
-                            <span class="text-info fw-bold font-mono">Stabilne</span>
-                        </div>
-                    </div>
-                </figure>
-            </div>
-
-            <div class="col-lg-6 scroll-reveal" style="transition-delay: 0.2s;">
-                <div class="ps-lg-4">
-                    <span class="badge text-neon bg-neon-dim border border-neon-dim mb-3 px-3 py-2 text-uppercase tracking-wide fw-bold">
-                        Baza Danych
-                    </span>
-                    <h2 class="section-title fw-black text-white mb-4 lh-sm">
-                        Poznaj swojego przeciwnika. <br>
-                        <span class="text-gradient-neon">Taktyczny Atlas Ryb.</span>
-                    </h2>
-                    <p class="section-subtitle text-light-muted mb-5 lh-lg">
-                        Każdy gatunek reaguje inaczej na zmiany frontów. Nasz atlas to nie tylko zbiór zdjęć – to potężna baza zmiennych środowiskowych zintegrowana z głównym algorytmem. Sprawdź, przy jakim ciśnieniu i stanie wody Twój cel zaczyna żerować.
-                    </p>
-
-
-                    <a th:href="@{/atlas}" class="btn btn-cyber-outline btn-lg fw-bold d-inline-flex align-items-center gap-2">
-                        Przejdź do Atlasu <i data-lucide="arrow-right"></i>
-                    </a>
-                </div>
-            </div>
-
-        </div>
-    </div>
-</section>
-
-<section id="regional-intel" class="intel-section position-relative z-2 py-5 py-xl-7">
-    <div class="container-xl">
-        <div class="row g-4 align-items-end mb-5 scroll-reveal">
-            <div class="col-lg-7">
-                <span class="text-neon font-mono fw-bold mb-2 d-block tracking-widest uppercase" style="font-size: 0.8rem;">
-                    [ STATUS: MONITORING KRAJOWY ]
-                </span>
-                <h2 class="section-title fw-black text-white lh-sm mb-0">
-                    Wywiad Regionalny. <br>
-                    <span class="text-gradient-neon">Twoja woda pod lupą.</span>
-                </h2>
-            </div>
-            <div class="col-lg-5 text-lg-end">
-                <p class="text-muted small mb-0 max-w-lg ms-lg-auto">
-                    Monitorujemy 16 województw i ponad 450 stacji pomiarowych IMGW.
-                    System wykrywa gwałtowne przybory i skoki ciśnienia w Twoim powiecie.
-                </p>
-            </div>
-        </div>
-
-        <div class="row g-3">
-            <div class="col-md-6 col-xl-4 scroll-reveal" style="transition-delay: 0.1s;">
-                <div class="intel-card overflow-hidden">
-                    <div class="intel-header d-flex justify-content-between align-items-center">
-                        <span class="region-tag">Dorzecze Wisły</span>
-                        <span class="status-online"><span class="pulse-dot"></span> LIVE</span>
-                    </div>
-                    <div class="intel-body py-4 px-3">
-                        <div class="d-flex align-items-center gap-3 mb-4">
-                            <div class="activity-circle" data-percent="78">
-                                <svg viewBox="0 0 36 36" class="circular-chart neon-green">
-                                    <path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
-                                    <path class="circle" stroke-dasharray="78, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
-                                    <text x="18" y="20.35" class="percentage">78%</text>
-                                </svg>
-                            </div>
-                            <div>
-                                <h4 class="text-white h6 mb-1 fw-bold">Wysoka Aktywność</h4>
-                                <p class="text-muted small mb-0">Stabilizacja po przyborze.</p>
-                            </div>
-                        </div>
-                        <div class="stats-grid">
-                            <div class="stat-box">
-                                <span class="label">Trend Hydro</span>
-                                <span class="val text-info"><i data-lucide="trending-down" class="size-sm"></i> Opadająca</span>
-                            </div>
-                            <div class="stat-box">
-                                <span class="label">Prowincja</span>
-                                <span class="val text-white">Mazowieckie</span>
-                            </div>
-                        </div>
-                    </div>
-                    <a href="#" class="intel-footer-btn">Analizuj ten rejon <i data-lucide="chevron-right"></i></a>
-                </div>
-            </div>
-
-            <div class="col-md-6 col-xl-4 scroll-reveal" style="transition-delay: 0.2s;">
-                <div class="intel-card overflow-hidden warning-border">
-                    <div class="intel-header d-flex justify-content-between align-items-center">
-                        <span class="region-tag">Dorzecze Odry</span>
-                        <span class="status-online"><span class="pulse-dot"></span> LIVE</span>
-                    </div>
-                    <div class="intel-body py-4 px-3">
-                        <div class="d-flex align-items-center gap-3 mb-4">
-                            <div class="activity-circle" data-percent="42">
-                                <svg viewBox="0 0 36 36" class="circular-chart neon-red">
-                                    <path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
-                                    <path class="circle" stroke-dasharray="42, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
-                                    <text x="18" y="20.35" class="percentage">42%</text>
-                                </svg>
-                            </div>
-                            <div>
-                                <h4 class="text-white h6 mb-1 fw-bold">Słabe Brania</h4>
-                                <p class="text-muted small mb-0">Nagły skok ciśnienia.</p>
-                            </div>
-                        </div>
-                        <div class="stats-grid">
-                            <div class="stat-box">
-                                <span class="label">Trend Hydro</span>
-                                <span class="val text-warning"><i data-lucide="trending-up" class="size-sm"></i> Rosnąca</span>
-                            </div>
-                            <div class="stat-box">
-                                <span class="label">Prowincja</span>
-                                <span class="val text-white">Lubuskie</span>
-                            </div>
-                        </div>
-                    </div>
-                    <a href="#" class="intel-footer-btn">Analizuj ten rejon <i data-lucide="chevron-right"></i></a>
-                </div>
-            </div>
-
-            <div class="col-md-12 col-xl-4 scroll-reveal" style="transition-delay: 0.3s;">
-                <div class="intel-card h-100 d-flex flex-column justify-content-center align-items-center p-4 text-center bg-search-cta">
-                    <div class="search-icon-bg mb-4">
-                        <i data-lucide="map-pin" class="text-neon size-lg"></i>
-                    </div>
-                    <h4 class="text-white fw-black mb-3">Nie widzisz swojego łowiska?</h4>
-                    <p class="text-muted small mb-4">Wpisz nazwę miejscowości lub rzeki, aby otrzymać precyzyjny raport taktyczny dla Twojej lokalizacji.</p>
-                    <div class="input-group search-cyber">
-                        <input type="text" class="form-control" placeholder="Wpisz np. 'Zegrze'...">
-                        <button class="btn btn-cyber-primary" type="button">Szukaj</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-
-
-
+<div th:replace="~{fragments/coffe :: coffee-section}"></div>
 
 <footer th:replace="~{fragments/footer :: footer}"></footer>
+
+<div class="modal fade" id="betaDisclaimerModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="betaDisclaimerTitle" aria-hidden="true" style="z-index: 9999;">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content beta-modal-content">
+            <div class="modal-body p-5 text-center">
+
+                <div class="beta-icon-ring">
+                    <i data-lucide="flask-conical" class="text-danger" style="width: 36px; height: 36px;"></i>
+                </div>
+
+                <h3 class="text-white fw-black mb-2" id="betaDisclaimerTitle" style="letter-spacing: -0.5px;">Wersja BETA Systemu</h3>
+                <p class="text-danger fw-bold small text-uppercase tracking-widest mb-4">Faza wczesnych testów</p>
+
+                <p class="text-secondary small lh-lg mb-5 text-start px-2">
+                    Aplikacja <strong>CzyZlowie.pl</strong> znajduje się obecnie we wczesnej fazie rozwoju (BETA). <br><br>
+                    Trwa intensywna kalibracja algorytmów predykcyjnych, podpinanie stacji hydro/meteo oraz masowe zasilanie bazy katalogu łowisk. Mogą występować przerwy w dostępie do niektórych danych lub błędy w prognozach.
+                </p>
+
+                <button type="button" class="btn btn-beta-confirm w-100 py-3 rounded-3" id="btnAcceptBeta">
+                    ROZUMIEM, WCHODZĘ
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
 
 <script th:inline="javascript">
     document.addEventListener('DOMContentLoaded', () => {
         if (typeof lucide !== 'undefined') lucide.createIcons();
 
-        const targetsLayer = document.getElementById('radar-targets-layer');
+        const betaKey = 'czyzlowie_beta_accepted';
 
+        if (!localStorage.getItem(betaKey)) {
+            const betaModalElement = document.getElementById('betaDisclaimerModal');
+            if(typeof bootstrap !== 'undefined') {
+                const betaModal = new bootstrap.Modal(betaModalElement);
+                betaModal.show();
+                document.getElementById('btnAcceptBeta').addEventListener('click', () => {
+                    localStorage.setItem(betaKey, 'true');
+                    betaModal.hide();
+                });
+            }
+        }
+        const targetsLayer = document.getElementById('radar-targets-layer');
         function spawnTarget() {
             if(!targetsLayer) return;
 
@@ -423,18 +410,16 @@
         }, 5000);
     });
 
-    // --- Animacje na scroll (Intersection Observer) ---
     const observerOptions = {
         root: null,
         rootMargin: '0px',
-        threshold: 0.15 // Element pojawi się, gdy 15% wejdzie na ekran
+        threshold: 0.15
     };
 
     const observer = new IntersectionObserver((entries, observer) => {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
                 entry.target.classList.add('is-visible');
-                // Przestajemy obserwować element po jego pojawieniu się (animacja tylko raz)
                 observer.unobserve(entry.target);
             }
         });
@@ -443,9 +428,6 @@
     document.querySelectorAll('.scroll-reveal').forEach(el => {
         observer.observe(el);
     });
-
-    // Pamiętaj, żeby zaktualizować ikony po wczytaniu nowego HTML
-    if (typeof lucide !== 'undefined') lucide.createIcons();
 </script>
 </body>
 </html>

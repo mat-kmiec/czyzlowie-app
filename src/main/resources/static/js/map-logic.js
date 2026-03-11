@@ -83,8 +83,7 @@ class MapApplication {
             lucide.createIcons();
         }
 
-        // TYMCZASOWE ZBIERANIE PUNKTÓW
-        this.setupTempDataCollector();
+        // this.setupTempDataCollector();
     }
 
     async setInitialView() {
@@ -163,7 +162,6 @@ class MapApplication {
     setupTempDataCollector() {
         this.tempMarkersGroup.addTo(this.map);
 
-        // Tworzenie pływającego okienka UI
         const container = document.createElement('div');
         container.style.cssText = `
         position: fixed; bottom: 20px; left: 20px; z-index: 9999;

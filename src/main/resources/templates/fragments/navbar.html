@@ -2,6 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <body>
 <nav th:fragment="navbar(activeTab)" th:with="activeTab=${activeTab ?: 'none'}" class="navbar navbar-expand-lg fixed-top">
+
     <div class="container-fluid container-xl">
 
         <a class="navbar-brand me-4" th:href="@{/}">
@@ -510,7 +511,9 @@
                 </div>
 
             </div> </div>
+
     </div>
+
 </nav>
 </body>
 </html>

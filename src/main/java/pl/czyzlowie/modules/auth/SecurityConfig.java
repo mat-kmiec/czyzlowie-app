@@ -1,5 +1,6 @@
 package pl.czyzlowie.modules.auth;
 
+import jakarta.servlet.DispatcherType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -31,15 +32,26 @@ public class SecurityConfig {
 
         http
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/css/**", "/js/**", "/images/**", "/assets/**", "/webjars/**", "/favicon.ico").permitAll()
-                        .requestMatchers("/", "/login", "/register", "/rejestracja", "/error").permitAll()
-                        .requestMatchers("/prognoza", "/prognoza/wynik","/barometr", "/ksiezyc", "/ryby/kategoria",
-                                "/zapomnialem-hasla", "/reset-hasla",
-                                "/regulamin", "/o-nas", "/hydro", "/meteo", "/synop", "/mapa", "/wschody-zachody",
-                                "/miejscowka/**", "/miejsce-wodowania/**", "/zbiornik-zaporowy/**",
-                                "/jezioro/**", "/rzeka/**", "/starorzecze/**", "/lowisko-komercyjne/**",
-                                "/lowiska", "/lowiska/**", "/api/map/markers", "/weryfikacja", "/resend-activation").permitAll()
-                        .anyRequest().authenticated()
+                        .dispatcherTypeMatchers(DispatcherType.ERROR).permitAll()
+                        .requestMatchers("/error").permitAll()
+
+                        .requestMatchers(
+                                "/profil/**",
+                                "/powiadomienia/**",
+                                "/dziennik-wypraw/**",
+                                "/moje-polowy/**",
+                                "/statystyki/**",
+                                "/cele-wedkarskie/**",
+                                "/kalendarz-wypraw/**",
+                                "/ulubione-miejscowki/**",
+                                "/lista-przynet/**",
+                                "/moje-zestawy/**",
+                                "/checklisty/**",
+                                "/notatki/**",
+                                "/ustawienia/**"
+                        ).authenticated()
+
+                        .anyRequest().permitAll()
                 )
                 .formLogin(form -> form
                         .loginPage("/login")
@@ -54,10 +66,10 @@ public class SecurityConfig {
                         .permitAll()
                 )
                 .rememberMe(remember -> remember
-                        .key(rememberMeKey) // W produkcji wrzuć to w zmienne środowiskowe
+                        .key(rememberMeKey)
                         .userDetailsService(customUserDetailsService)
-                        .tokenValiditySeconds(2592000) // Ciastko ważne 30 dni
-                        .rememberMeParameter("remember-me") // Łączy się z name="remember-me" w Twoim HTML
+                        .tokenValiditySeconds(2592000)
+                        .rememberMeParameter("remember-me")
                 )
                 .oauth2Login(oauth2 -> oauth2
                         .loginPage("/login")

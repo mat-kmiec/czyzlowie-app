@@ -72,7 +72,7 @@ server:
 
 
 app:
-  url: http://localhost:8080
+  url: https://czyzlowie.pl
   mail:
     from: "kontakt@czyzlowie.pl"
   security:

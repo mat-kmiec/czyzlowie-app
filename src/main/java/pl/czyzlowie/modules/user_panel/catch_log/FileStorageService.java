@@ -19,7 +19,7 @@ import java.nio.file.Paths;
 @Slf4j
 public class FileStorageService {
 
-    private final String BASE_UPLOAD_DIR = "uploads/catches/";
+    private final String BASE_UPLOAD_DIR = "/app/uploads/catches/";
 
     /**
      * Saves the given photo file to the server, resizing and optimizing the image,
