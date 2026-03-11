@@ -56,6 +56,16 @@
         }
     </script>
 
+    <style>
+        .hero-img {
+            filter: blur(4px) brightness(0.7);
+            object-fit: cover;
+            width: 100%;
+            height: 100%;
+            transition: opacity 0.3s ease;
+        }
+    </style>
+
     <link rel="stylesheet" th:href="@{/css/atlas.css}">
     <script src="https://unpkg.com/lucide@latest" defer></script>
 </head>
@@ -67,9 +77,15 @@
 
     <header class="atlas-hero category-hero">
         <picture class="hero-bg">
-            <img th:if="${currentCategory == 'PREDATOR'}" src="/assets/drapiezniki.jpg" alt="Dno jeziora i drapieżniki" class="img-fluid" style="filter: blur(4px) brightness(0.7); object-fit: cover; width: 100%; height: 100%;" loading="eager" fetchpriority="high">
-            <img th:if="${currentCategory == 'PEACEFUL'}" src="/assets/bialoryb.jpg" alt="Spokojna woda i białoryb" class="img-fluid" style="filter: blur(4px) brightness(0.7); object-fit: cover; width: 100%; height: 100%;" loading="eager" fetchpriority="high">
-            <img th:if="${currentCategory == 'ALL'}" src="/assets/ryby.jpg" alt="Podwodny świat ryb" class="img-fluid" style="filter: blur(4px) brightness(0.7); object-fit: cover; width: 100%; height: 100%;" loading="eager" fetchpriority="high">
+            <div th:switch="${currentCategory}">
+                <img th:case="'PREDATOR'" src="/assets/drapiezniki.jpg" alt="Drapieżniki" class="hero-img">
+                <img th:case="'PEACEFUL'" src="/assets/bialoryb.jpg" alt="Białoryb" class="hero-img">
+                <img th:case="'SALMONID'" src="/assets/bialoryb.jpg" alt="Łososiowate" class="hero-img">
+                <img th:case="'MARINE'" src="/assets/bialoryb.jpg" alt="Ryby morskie" class="hero-img">
+                <img th:case="'INVASIVE'" src="/assets/bialoryb.jpg" alt="Gatunki inwazyjne" class="hero-img">
+
+                <img th:case="*" src="/assets/bialoryb.jpg" alt="Podwodny świat ryb" class="hero-img">
+            </div>
         </picture>
         <div class="hero-overlay" style="background: linear-gradient(to bottom, rgba(2,6,23,0.3) 0%, rgba(2,6,23,1) 100%);"></div>
 
@@ -145,13 +161,22 @@
             <div class="col-12 col-md-6 col-lg-4" th:each="fish : ${fishPage.content}">
                 <a th:href="@{/ryby/{slug}(slug=${fish.slug})}" class="fish-card text-decoration-none d-block h-100 position-relative" style="background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(255,255,255,0.05); border-radius: 16px; overflow: hidden; transition: transform 0.3s ease, box-shadow 0.3s ease;">
 
-                    <div class="fish-card-img-wrapper" style="height: 200px; overflow: hidden;">
-                        <img th:src="${fish.imgUrl != null ? fish.imgUrl : '/assets/fish/default.jpg'}" th:alt="${fish.name}" class="fish-card-img w-100 h-100 object-fit-cover" style="transition: transform 0.5s ease;" loading="lazy">
+                    <div class="fish-card-img-wrapper" style="height: 200px; overflow: hidden; position: relative;">
+                        <img th:src="${fish.imgUrl != null ? fish.imgUrl : '/assets/fish/default.jpg'}"
+                             th:alt="${fish.name}"
+                             class="fish-card-img w-100 h-100 object-fit-cover"
+                             style="transition: transform 0.5s ease;"
+                             loading="lazy">
 
                         <div class="position-absolute top-0 end-0 m-3 badge"
-                             th:classappend="${fish.category.name() == 'PREDATOR' ? 'bg-danger' : 'bg-success'}"
+                             th:classappend="${
+            fish.category.name() == 'PREDATOR' ? 'bg-danger' :
+            (fish.category.name() == 'PEACEFUL' ? 'bg-success' :
+            (fish.category.name() == 'SALMONID' ? 'bg-info' :
+            (fish.category.name() == 'MARINE' ? 'bg-primary' : 'bg-warning')))
+         }"
                              th:text="${fish.category.displayName}"
-                             style="font-size: 0.7rem; padding: 5px 10px; border-radius: 20px;">
+                             style="font-size: 0.7rem; padding: 5px 10px; border-radius: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">
                         </div>
                     </div>
 
@@ -160,44 +185,30 @@
                             <div>
                                 <h2 class="fish-card-title text-white mb-0 fw-bold fs-4" th:text="${fish.name}">Nazwa</h2>
                                 <span class="fish-card-latin" th:text="${fish.latinName}"
-                                      th:classappend="${fish.category.name() == 'PREDATOR' ? 'text-accent-red' : 'text-accent-green'}"
-                                      style="font-size: 0.85rem; font-style: italic;">Latin name</span>
+                                      style="font-size: 0.85rem; font-style: italic;"
+                                      th:classappend="${
+                    fish.category.name() == 'PREDATOR' ? 'text-danger' :
+                    (fish.category.name() == 'PEACEFUL' ? 'text-success' :
+                    (fish.category.name() == 'SALMONID' ? 'text-info' :
+                    (fish.category.name() == 'MARINE' ? 'text-primary' : 'text-warning')))
+                  }">Latin name</span>
                             </div>
 
                             <div class="fish-icon d-flex align-items-center justify-content-center rounded-circle"
-                                 th:classappend="${fish.category.name() == 'PREDATOR' ? 'bg-danger bg-opacity-10 text-danger' : 'bg-success bg-opacity-10 text-success'}"
-                                 style="flex-shrink: 0; width: 40px; height: 40px;">
-                                <i th:if="${fish.category.name() == 'PREDATOR'}" data-lucide="crosshair" style="width: 20px;"></i>
-                                <i th:if="${fish.category.name() == 'PEACEFUL'}" data-lucide="leaf" style="width: 20px;"></i>
-                            </div>
-                        </div>
+                                 style="flex-shrink: 0; width: 40px; height: 40px;"
+                                 th:classappend="${
+                fish.category.name() == 'PREDATOR' ? 'bg-danger bg-opacity-10 text-danger' :
+                (fish.category.name() == 'PEACEFUL' ? 'bg-success bg-opacity-10 text-success' :
+                (fish.category.name() == 'SALMONID' ? 'bg-info bg-opacity-10 text-info' :
+                (fish.category.name() == 'MARINE' ? 'bg-primary bg-opacity-10 text-primary' : 'bg-warning bg-opacity-10 text-warning')))
+             }">
 
-                        <div th:if="${fish.category.name() == 'PREDATOR'}" class="fish-card-stats mt-4">
-                            <div class="mini-rpg-stat mb-2 d-flex align-items-center justify-content-between">
-                                <span class="mini-label text-white-50" style="font-size: 0.75rem; width: 30%;">Agresja</span>
-                                <div class="rpg-bar bg-dark rounded-pill" style="width: 65%; height: 6px; overflow: hidden;">
-                                    <div class="rpg-fill bg-danger h-100" style="width: 85%;"></div>
-                                </div>
-                            </div>
-                            <div class="mini-rpg-stat d-flex align-items-center justify-content-between">
-                                <span class="mini-label text-white-50" style="font-size: 0.75rem; width: 30%;">Trudność</span>
-                                <div class="rpg-bar bg-dark rounded-pill" style="width: 65%; height: 6px; overflow: hidden;">
-                                    <div class="rpg-fill bg-info h-100" style="width: 60%;"></div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div th:if="${fish.category.name() == 'PEACEFUL'}" class="fish-card-stats mt-4">
-                            <div class="mini-rpg-stat mb-2 d-flex align-items-center justify-content-between">
-                                <span class="mini-label text-white-50" style="font-size: 0.75rem; width: 30%;">Ostrożność</span>
-                                <div class="rpg-bar bg-dark rounded-pill" style="width: 65%; height: 6px; overflow: hidden;">
-                                    <div class="rpg-fill bg-warning h-100" style="width: 90%;"></div>
-                                </div>
-                            </div>
-                            <div class="mini-rpg-stat d-flex align-items-center justify-content-between">
-                                <span class="mini-label text-white-50" style="font-size: 0.75rem; width: 30%;">Siła (Hol)</span>
-                                <div class="rpg-bar bg-dark rounded-pill" style="width: 65%; height: 6px; overflow: hidden;">
-                                    <div class="rpg-fill bg-success h-100" style="width: 75%;"></div>
+                                <div th:switch="${fish.category.name()}">
+                                    <i th:case="'PREDATOR'" data-lucide="crosshair" style="width: 20px;"></i>
+                                    <i th:case="'PEACEFUL'" data-lucide="leaf" style="width: 20px;"></i>
+                                    <i th:case="'SALMONID'" data-lucide="waves" style="width: 20px;"></i>
+                                    <i th:case="'MARINE'" data-lucide="anchor" style="width: 20px;"></i>
+                                    <i th:case="'INVASIVE'" data-lucide="alert-triangle" style="width: 20px;"></i>
                                 </div>
                             </div>
                         </div>
