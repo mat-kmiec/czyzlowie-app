@@ -25,6 +25,12 @@ spring:
         highlight_sql: true
         generate_statistics: true
 
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 15MB
+
+
   liquibase:
     change-log: classpath:db/changelog/db.changelog-master.xml
     enabled: true
@@ -60,6 +66,10 @@ spring:
         provider:
           facebook:
             user-info-uri: https://graph.facebook.com/me?fields=id,name,email,picture
+server:
+  tomcat:
+    max-part-count: 25
+
 
 app:
   url: http://localhost:8080

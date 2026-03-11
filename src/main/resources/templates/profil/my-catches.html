@@ -11,6 +11,37 @@
     <link rel="stylesheet" th:href="@{/css/profil/my-catches.css}">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
 
+    <style>
+        .lucide-spin {
+            animation: lucide-spin 2s linear infinite;
+        }
+        @keyframes lucide-spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        .char-counter {
+            font-size: 0.75rem;
+            color: #64748b;
+            text-align: right;
+            margin-top: 4px;
+            transition: color 0.3s;
+        }
+        .char-counter.near-limit {
+            color: var(--ignore-orange);
+            font-weight: bold;
+        }
+        .char-counter.at-limit {
+            color: var(--predator-red);
+            font-weight: bold;
+        }
+        /* Nowa klasa dla pozycjonowania przycisku usuwania na mobilkach */
+        .delete-btn-wrapper {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            z-index: 10;
+        }
+    </style>
 </head>
 <body class="algo-page">
 
@@ -38,26 +69,33 @@
                     <p class="fs-7 mb-0 text-secondary-custom">Archiwum zdobyczy, zintegrowane z danymi telemetrycznymi IMGW i Open-Meteo.</p>
                 </div>
             </div>
-            <button class="btn btn-algo btn-blue d-xl-none" type="button" data-bs-toggle="collapse" data-bs-target="#addCatchForm" aria-expanded="false" aria-controls="addCatchForm" style="width: auto;">
-                <i data-lucide="crosshair"></i> Zarejestruj nową zdobycz
-            </button>
         </div>
 
         <div class="top-stats-grid border-top border-secondary border-opacity-25 pt-4">
             <div class="top-stat-box">
                 <span class="stat-label">Zarejestrowane Zdobycze</span>
-                <span class="stat-value">42 <span class="fs-8 text-secondary fw-normal">sztuk</span></span>
+                <span class="stat-value" th:text="${catchesPage.totalElements}">0</span> <span class="fs-8 text-secondary fw-normal">sztuk</span>
             </div>
             <div class="top-stat-box blue">
-                <span class="stat-label">Całkowita Masa Połowów</span>
-                <span class="stat-value">124.5 <span class="fs-8 text-secondary fw-normal">kg</span></span>
+                <span class="stat-label">Strony Archiwum</span>
+                <span class="stat-value" th:text="${catchesPage.totalPages}">0</span>
             </div>
             <div class="top-stat-box orange">
-                <span class="stat-label">Najczęstsza Ryba</span>
-                <span class="stat-value">Okoń <i data-lucide="fish" style="width: 14px; margin-left: 4px; color: var(--ignore-orange);"></i></span>
+                <span class="stat-label">Najnowsza Zdobycz</span>
+                <span class="stat-value" th:text="${catchesPage.empty ? 'Brak' : catchesPage.content[0].species}">Okoń</span> <i data-lucide="fish" style="width: 14px; margin-left: 4px; color: var(--ignore-orange);"></i>
             </div>
         </div>
+        <button class="btn btn-algo btn-blue d-xl-none mt-3" type="button" data-bs-toggle="collapse" data-bs-target="#addCatchForm" aria-expanded="false" aria-controls="addCatchForm" style="width: auto;">
+            <i data-lucide="crosshair"></i> Zarejestruj nową zdobycz
+        </button>
     </header>
+
+    <div th:if="${successMessage}" class="alert alert-success d-flex align-items-center gap-2 mb-4" style="background: rgba(46, 204, 113, 0.15); border: 1px solid var(--brand-green); color: white;">
+        <i data-lucide="check-circle" style="color: var(--brand-green);"></i> <span th:text="${successMessage}"></span>
+    </div>
+    <div th:if="${errorMessage}" class="alert alert-danger d-flex align-items-center gap-2 mb-4" style="background: rgba(239, 68, 68, 0.15); border: 1px solid var(--predator-red); color: white;">
+        <i data-lucide="alert-triangle" style="color: var(--predator-red);"></i> <span th:text="${errorMessage}"></span>
+    </div>
 
     <div class="row g-4">
 
@@ -68,7 +106,7 @@
                         <i data-lucide="target" style="color: var(--brand-green);"></i> Parametry Połowu
                     </h2>
 
-                    <form action="#" method="post" enctype="multipart/form-data">
+                    <form th:action="@{/moje-polowy/zapisz}" method="post" enctype="multipart/form-data">
 
                         <label class="input-label">Data i Czas Połowu</label>
                         <div class="algo-input-group">
@@ -77,16 +115,25 @@
                         </div>
 
                         <label class="input-label">Lokalizacja Łowiska</label>
-                        <div class="algo-input-group">
-                            <input type="text" name="location" id="inputLocation" class="algo-input" placeholder="Wpisz wodę lub wybierz..." required style="padding-right: 3.5rem;">
+                        <div class="algo-input-group mb-1 position-relative">
+                            <input type="text" name="location" id="inputLocation" class="algo-input w-100" placeholder="Wpisz wodę lub wybierz z mapy..." required style="padding-right: 45px;">
                             <i data-lucide="map-pin" class="input-icon"></i>
-                            <button type="button" class="btn-map-picker" id="openMapBtn" title="Wybierz z mapy">
-                                <i data-lucide="map" style="width: 18px;"></i>
+
+                            <button type="button" class="btn btn-link position-absolute end-0 top-50 translate-middle-y text-decoration-none p-0 me-3" id="openMapBtn" title="Wybierz punkt z mapy" style="color: var(--brand-green); z-index: 10;">
+                                <i data-lucide="map" style="width: 20px; height: 20px;"></i>
                             </button>
                         </div>
 
+                        <button type="button" id="btnGeocode" class="btn btn-outline-info w-100 mb-3 d-none" style="border-radius: 12px; font-size: 0.85rem; padding: 8px; border-color: rgba(56, 189, 248, 0.5); color: #38bdf8;">
+                            <i data-lucide="check" style="width: 16px; margin-right: 4px; margin-top: -2px;"></i> Zatwierdź lokalizację
+                        </button>
+
                         <input type="hidden" name="lat" id="inputLat">
                         <input type="hidden" name="lng" id="inputLng">
+
+                        <div id="geocodeStatus" class="fs-8 mb-3 ps-2" style="color: #64748b; display: none; border-left: 2px solid var(--brand-green);">
+                            Skalibrowano GPS: <span id="coordsDisplay" class="text-white fw-bold"></span>
+                        </div>
 
                         <label class="input-label">Dowód Zdobyczy (Zdjęcie)</label>
                         <div class="algo-input-group">
@@ -102,6 +149,8 @@
                                 <option value="sandacz">Sandacz</option>
                                 <option value="okon">Okoń</option>
                                 <option value="karp">Karp</option>
+                                <option value="leszcz">Leszcz</option>
+                                <option value="inny">Inny</option>
                             </select>
                             <i data-lucide="fish" class="input-icon"></i>
                             <i data-lucide="chevron-down" class="select-arrow"></i>
@@ -111,31 +160,33 @@
                             <div class="col-6">
                                 <label class="input-label">Waga (kg)</label>
                                 <div class="algo-input-group" style="margin-bottom:0;">
-                                    <input type="number" step="0.1" name="weight" class="algo-input" placeholder="0.0">
+                                    <input type="number" step="0.1" min="0" max="100" name="weight" class="algo-input" placeholder="0.0">
                                     <i data-lucide="scale" class="input-icon"></i>
                                 </div>
                             </div>
                             <div class="col-6">
                                 <label class="input-label">Długość (cm)</label>
                                 <div class="algo-input-group" style="margin-bottom:0;">
-                                    <input type="number" name="length" class="algo-input" placeholder="0">
+                                    <input type="number" step="1" min="0" max="300" name="length" class="algo-input" placeholder="0">
                                     <i data-lucide="ruler" class="input-icon"></i>
                                 </div>
                             </div>
                         </div>
 
                         <label class="input-label">Przynęta / Metoda</label>
-                        <div class="algo-input-group">
-                            <input type="text" name="lure" class="algo-input" maxlength="255" placeholder="np. Kopyto 4 cal...">
+                        <div class="algo-input-group mb-1">
+                            <input type="text" name="lure" id="lureInput" class="algo-input" maxlength="255" placeholder="np. Kopyto 4 cal...">
                             <i data-lucide="hook" class="input-icon"></i>
                         </div>
+                        <div id="lureCounter" class="char-counter mb-3">0 / 255</div>
 
                         <label class="input-label">Notatka (Opcjonalna)</label>
-                        <div class="algo-input-group">
-                            <textarea name="note" class="algo-input" rows="3" maxlength="255" placeholder="Dodaj opis brania, warunki..."></textarea>
+                        <div class="algo-input-group mb-1">
+                            <textarea name="note" id="noteInput" class="algo-input" rows="3" maxlength="500" placeholder="Dodaj opis brania, warunki..."></textarea>
                         </div>
+                        <div id="noteCounter" class="char-counter mb-3">0 / 500</div>
 
-                        <div class="algo-switch-wrapper mb-2">
+                        <div class="algo-switch-wrapper mb-2 mt-2">
                             <input class="algo-switch switch-orange" type="checkbox" id="ignoreHydroLog" name="ignoreHydro">
                             <div>
                                 <label for="ignoreHydroLog" class="text-white fw-bold fs-8 mb-1 cursor-pointer d-flex align-items-center gap-2">
@@ -159,7 +210,7 @@
                             <div class="d-flex align-items-center gap-2 mb-1 text-white fw-bold">
                                 <i data-lucide="cpu" style="color: var(--brand-blue); width: 16px;"></i> Automatyka Aktywna
                             </div>
-                            Domyślnie AI samodzielnie dopasuje ciśnienie, temperaturę i fazę księżyca z chwili złowienia ryby.
+                            Domyślnie system samodzielnie dopasuje ciśnienie, temperaturę i fazę księżyca z chwili złowienia ryby.
                         </div>
 
                         <button type="submit" class="btn-algo btn-green w-100 mt-3">
@@ -171,135 +222,129 @@
         </aside>
 
         <div class="col-xl-8">
-            <h2 class="fs-5 fw-bold text-white mb-4 ps-2 border-start border-3 border-info"><i data-lucide="activity" style="width: 20px; color: var(--brand-blue); margin-right: 8px;"></i> Rejestr Operacji</h2>
+            <h2 class="fs-5 fw-bold text-white mb-4 ps-2 border-start border-3 border-info">
+                <i data-lucide="activity" style="width: 20px; color: var(--brand-blue); margin-right: 8px;"></i> Rejestr Operacji
+            </h2>
 
-            <div class="catch-card">
+            <div th:if="${catchesPage.empty}" class="algo-glass-panel p-5 d-flex flex-column align-items-center justify-content-center text-center">
+                <i data-lucide="fish-off" style="width: 48px; height: 48px; color: #64748b; margin-bottom: 15px;"></i>
+                <h3 class="text-white fs-4 fw-bold">Twój dziennik jest pusty</h3>
+                <p class="text-secondary mb-0">Zarejestruj swój pierwszy połów korzystając z formularza obok.</p>
+            </div>
 
-                <div class="catch-thumbnail image-popup-trigger" title="Powiększ zdjęcie">
-                    <img src="/assets/drapiezniki.jpg" alt="Zdjęcie połowu" loading="lazy">
+            <div th:each="catch : ${catchesPage.content}" class="catch-card mb-4 position-relative pe-5"> <div class="catch-thumbnail image-popup-trigger" title="Powiększ zdjęcie" th:if="${catch.photoUrl != null and !catch.photoUrl.isEmpty()}">
+                <img th:src="${catch.photoUrl}" alt="Zdjęcie połowu" loading="lazy">
+            </div>
+                <div th:unless="${catch.photoUrl != null and !catch.photoUrl.isEmpty()}" class="catch-thumbnail" style="background: rgba(15, 23, 42, 0.4); border: 1px dashed rgba(255,255,255,0.1); cursor: default; position: relative;">
+                    <i data-lucide="fish" style="width: 36px; height: 36px; color: #475569; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);"></i>
                 </div>
 
-                <div class="catch-category-badge predator-badge">Drapieżnik</div>
+                <div class="catch-category-badge"
+                     th:classappend="${#strings.equals(#strings.toLowerCase(catch.species), 'szczupak') || #strings.equals(#strings.toLowerCase(catch.species), 'sandacz') || #strings.equals(#strings.toLowerCase(catch.species), 'okoń') || #strings.equals(#strings.toLowerCase(catch.species), 'okon') ? 'predator-badge' : 'peaceful-badge'}"
+                     th:text="${#strings.equals(#strings.toLowerCase(catch.species), 'szczupak') || #strings.equals(#strings.toLowerCase(catch.species), 'sandacz') || #strings.equals(#strings.toLowerCase(catch.species), 'okoń') || #strings.equals(#strings.toLowerCase(catch.species), 'okon') ? 'Drapieżnik' : 'Białoryb'}">
+                </div>
 
-                <div class="catch-header">
-                    <h3 class="fish-name">Szczupak Pospolity</h3>
+                <div class="delete-btn-wrapper">
+                    <button type="button" class="btn btn-sm btn-outline-danger d-flex align-items-center justify-content-center p-2 delete-btn-trigger"
+                            style="border-radius: 8px; border: none; background: rgba(239, 68, 68, 0.15); transition: 0.3s;"
+                            title="Usuń połów"
+                            th:data-catch-id="${catch.id}"
+                            onmouseover="this.style.background='rgba(239, 68, 68, 0.3)'"
+                            onmouseout="this.style.background='rgba(239, 68, 68, 0.15)'">
+                        <i data-lucide="trash-2" style="width: 18px; color: var(--predator-red);"></i>
+                    </button>
+                </div>
+
+                <div class="catch-header pe-3"> <h3 class="fish-name text-capitalize" th:text="${catch.species}">Szczupak</h3>
                     <div class="fish-meta">
-                        <span><i data-lucide="calendar" style="width: 12px;"></i> Dzisiaj, 06:45</span>
-                        <span><i data-lucide="map-pin" style="width: 12px;"></i> Jezioro Rożnowskie</span>
+                        <span><i data-lucide="calendar" style="width: 12px;"></i> <span th:text="${#temporals.format(catch.catchDate, 'dd.MM.yyyy, HH:mm')}"></span></span>
+                        <span><i data-lucide="map-pin" style="width: 12px;"></i> <span th:text="${catch.locationName}"></span></span>
                     </div>
-                    <div class="fs-8 mt-2 text-light-custom">
-                        <strong class="text-white">Przynęta:</strong> Guma Westin ShadTeez 12cm
+                    <div class="fs-8 mt-2 text-light-custom" th:if="${catch.lureMethod != null and !catch.lureMethod.isEmpty()}">
+                        <strong class="text-white">Przynęta:</strong> <span th:text="${catch.lureMethod}"></span>
                     </div>
-                    <div class="catch-notes">
-                        "Piekielne branie w opadzie na 6 metrach. Ryba stawiała mocny opór w zielsku."
+                    <div class="catch-notes" th:if="${catch.note != null and !catch.note.isEmpty()}">
+                        "<span th:text="${catch.note}"></span>"
                     </div>
                 </div>
 
-                <div class="catch-stats-grid">
+                <div class="catch-stats-grid mt-3">
                     <div class="stat-monitor">
-                        <span class="s-val">92</span><span class="s-unit">cm</span>
+                        <span class="s-val" th:text="${catch.length != null ? catch.length : '-'}"></span><span class="s-unit">cm</span>
                         <div class="s-lbl"><i data-lucide="ruler"></i> Długość</div>
                     </div>
                     <div class="stat-monitor">
-                        <span class="s-val">6.8</span><span class="s-unit">kg</span>
+                        <span class="s-val" th:text="${catch.weight != null ? catch.weight : '-'}"></span><span class="s-unit">kg</span>
                         <div class="s-lbl"><i data-lucide="scale"></i> Waga</div>
                     </div>
                 </div>
 
-                <div class="env-grid">
-                    <div class="env-badge">
-                        <div class="env-badge-left"><i data-lucide="thermometer"></i> Powietrze</div>
-                        <div class="env-badge-val">14°C <span class="trend-stable">→</span></div>
-                    </div>
-                    <div class="env-badge">
-                        <div class="env-badge-left"><i data-lucide="gauge"></i> Barometr</div>
-                        <div class="env-badge-val">1012 hPa <span class="trend-up">↗</span></div>
-                    </div>
-                    <div class="env-badge">
-                        <div class="env-badge-left" style="color: #fde047;"><i data-lucide="moon"></i> Księżyc</div>
-                        <div class="env-badge-val moon-emoji">🌕 <span class="fs-8 fw-normal" style="color:var(--text-secondary)">Pełnia</span></div>
-                    </div>
-                    <div class="env-badge">
-                        <div class="env-badge-left"><i data-lucide="waves"></i> Woda L.</div>
-                        <div class="env-badge-val">120 cm <span class="trend-down">↘</span></div>
-                    </div>
-                    <div class="env-badge">
-                        <div class="env-badge-left"><i data-lucide="cloud-rain"></i> Wilgotność</div>
-                        <div class="env-badge-val">85% <span class="trend-stable">→</span></div>
-                    </div>
-                    <div class="env-badge">
-                        <div class="env-badge-left"><i data-lucide="droplets"></i> Opad</div>
-                        <div class="env-badge-val">0.5 mm <span class="trend-up">↗</span></div>
-                    </div>
-                    <div class="env-badge">
-                        <div class="env-badge-left"><i data-lucide="wind"></i> Wiatr</div>
-                        <div class="env-badge-val">12 km/h <span class="trend-up">↗</span></div>
-                    </div>
-                    <div class="env-badge">
-                        <div class="env-badge-left"><i data-lucide="compass"></i> Kierunek</div>
-                        <div class="env-badge-val">Północny Zach.</div>
-                    </div>
-                    <div class="env-badge">
-                        <div class="env-badge-left"><i data-lucide="activity"></i> Przepływ</div>
-                        <div class="env-badge-val">15 m³/s</div>
-                    </div>
-                    <div class="env-badge">
-                        <div class="env-badge-left"><i data-lucide="thermometer-sun"></i> Temp Wody</div>
-                        <div class="env-badge-val">10.2°C <span class="trend-stable">→</span></div>
+                <div class="catch-env-wrapper mt-3 pt-3 border-top" style="border-color: rgba(255,255,255,0.05) !important;">
+                    <button class="btn btn-sm w-100 d-flex align-items-center justify-content-between p-2" type="button" data-bs-toggle="collapse" th:data-bs-target="'#env-' + ${catch.id}" aria-expanded="false" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); border-radius: 8px; color: #94a3b8; box-shadow: none;">
+                        <span class="d-flex align-items-center gap-2 fw-bold fs-8 text-uppercase ls-1"><i data-lucide="cloud-sun" style="width: 16px; color: var(--brand-blue);"></i> Warunki pogodowe i hydro</span>
+                        <i data-lucide="chevron-down" style="width: 16px;"></i>
+                    </button>
+
+                    <div class="collapse" th:id="'env-' + ${catch.id}">
+                        <div class="env-grid mt-3">
+                            <div class="env-badge">
+                                <div class="env-badge-left"><i data-lucide="thermometer"></i> Powietrze</div>
+                                <div class="env-badge-val" th:text="${catch.airTemperature != null ? catch.airTemperature + '°C' : '-'}"></div>
+                            </div>
+                            <div class="env-badge">
+                                <div class="env-badge-left"><i data-lucide="gauge"></i> Barometr</div>
+                                <div class="env-badge-val" th:text="${catch.pressure != null ? catch.pressure + ' hPa' : '-'}"></div>
+                            </div>
+                            <div class="env-badge">
+                                <div class="env-badge-left" style="color: #fde047;"><i data-lucide="moon"></i> Księżyc</div>
+                                <div class="env-badge-val" th:text="${catch.moonPhase != null ? catch.moonPhase : '-'}"></div>
+                            </div>
+                            <div class="env-badge">
+                                <div class="env-badge-left"><i data-lucide="waves"></i> Woda L.</div>
+                                <div class="env-badge-val" th:text="${catch.waterLevel != null ? catch.waterLevel + ' cm' : '-'}"></div>
+                            </div>
+                            <div class="env-badge">
+                                <div class="env-badge-left"><i data-lucide="cloud-rain"></i> Wilgotność</div>
+                                <div class="env-badge-val" th:text="${catch.humidity != null ? catch.humidity + '%' : '-'}"></div>
+                            </div>
+                            <div class="env-badge">
+                                <div class="env-badge-left"><i data-lucide="droplets"></i> Opad</div>
+                                <div class="env-badge-val" th:text="${catch.precipitation != null ? catch.precipitation + ' mm' : '-'}"></div>
+                            </div>
+                            <div class="env-badge">
+                                <div class="env-badge-left"><i data-lucide="wind"></i> Wiatr</div>
+                                <div class="env-badge-val" th:text="${catch.windSpeed != null ? catch.windSpeed + ' km/h' : '-'}"></div>
+                            </div>
+                            <div class="env-badge">
+                                <div class="env-badge-left"><i data-lucide="compass"></i> Kierunek</div>
+                                <div class="env-badge-val" th:text="${catch.windDirection != null ? catch.windDirection : '-'}"></div>
+                            </div>
+                            <div class="env-badge">
+                                <div class="env-badge-left"><i data-lucide="activity"></i> Przepływ</div>
+                                <div class="env-badge-val" th:text="${catch.discharge != null ? catch.discharge + ' m³/s' : '-'}"></div>
+                            </div>
+                            <div class="env-badge">
+                                <div class="env-badge-left"><i data-lucide="thermometer-sun"></i> Temp Wody</div>
+                                <div class="env-badge-val" th:text="${catch.waterTemperature != null ? catch.waterTemperature + '°C' : '-'}"></div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <div class="catch-card">
-                <div class="catch-category-badge peaceful-badge">Białoryb</div>
-
-                <div class="catch-header">
-                    <h3 class="fish-name">Leszcz</h3>
-                    <div class="fish-meta">
-                        <span><i data-lucide="calendar" style="width: 12px;"></i> Wczoraj, 18:15</span>
-                        <span><i data-lucide="map-pin" style="width: 12px;"></i> Rzeka Odra, Wroc.</span>
-                    </div>
-                    <div class="fs-8 mt-2 text-light-custom">
-                        <strong class="text-white">Metoda:</strong> Feeder, koszyk 60g, 3 białe robaki
-                    </div>
-                </div>
-
-                <div class="catch-stats-grid">
-                    <div class="stat-monitor">
-                        <span class="s-val">55</span><span class="s-unit">cm</span>
-                        <div class="s-lbl"><i data-lucide="ruler"></i> Długość</div>
-                    </div>
-                    <div class="stat-monitor">
-                        <span class="s-val">2.1</span><span class="s-unit">kg</span>
-                        <div class="s-lbl"><i data-lucide="scale"></i> Waga</div>
-                    </div>
-                </div>
-
-                <div class="env-grid">
-                    <div class="env-badge">
-                        <div class="env-badge-left"><i data-lucide="thermometer"></i> Powietrze</div>
-                        <div class="env-badge-val">8°C <span class="trend-down">↘</span></div>
-                    </div>
-                    <div class="env-badge">
-                        <div class="env-badge-left"><i data-lucide="gauge"></i> Barometr</div>
-                        <div class="env-badge-val">1002 hPa <span class="trend-down">↘</span></div>
-                    </div>
-                    <div class="env-badge">
-                        <div class="env-badge-left" style="color: #fde047;"><i data-lucide="moon"></i> Księżyc</div>
-                        <div class="env-badge-val moon-emoji">🌗</div>
-                    </div>
-                    <div class="env-badge">
-                        <div class="env-badge-left"><i data-lucide="waves"></i> Woda L.</div>
-                        <div class="env-badge-val">340 cm <span class="trend-up">↗</span></div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="text-center mt-5 mb-3">
-                <button class="btn btn-link text-secondary text-decoration-none fw-bold text-uppercase ls-1 fs-8">
-                    <i data-lucide="rotate-cw" style="width: 14px; margin-right: 4px;"></i> Pobierz archiwalne wpisy
-                </button>
-            </div>
+            <nav th:if="${catchesPage.totalPages > 1}" aria-label="Nawigacja stron" class="mt-5 mb-3">
+                <ul class="pagination justify-content-center" style="--bs-pagination-bg: rgba(30, 41, 59, 0.8); --bs-pagination-border-color: rgba(255,255,255,0.1); --bs-pagination-color: #94a3b8; --bs-pagination-hover-bg: rgba(46, 204, 113, 0.2); --bs-pagination-hover-color: white;">
+                    <li class="page-item" th:classappend="${catchesPage.first ? 'disabled' : ''}">
+                        <a class="page-link" th:href="@{/moje-polowy(page=${catchesPage.number - 1})}" tabindex="-1">Poprzednia</a>
+                    </li>
+                    <li class="page-item" th:each="i : ${#numbers.sequence(0, catchesPage.totalPages - 1)}" th:classappend="${i == catchesPage.number ? 'active' : ''}">
+                        <a class="page-link" th:href="@{/moje-polowy(page=${i})}" th:text="${i + 1}" th:style="${i == catchesPage.number ? 'background-color: var(--brand-green); border-color: var(--brand-green); color: black; font-weight: bold;' : ''}">1</a>
+                    </li>
+                    <li class="page-item" th:classappend="${catchesPage.last ? 'disabled' : ''}">
+                        <a class="page-link" th:href="@{/moje-polowy(page=${catchesPage.number + 1})}">Następna</a>
+                    </li>
+                </ul>
+            </nav>
 
         </div>
     </div>
@@ -353,90 +398,235 @@
     </div>
 </div>
 
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<div class="modal fade modal-glass" id="deleteConfirmModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="border: 1px solid rgba(239, 68, 68, 0.3);">
+            <div class="modal-header border-bottom-0 pb-0">
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Zamknij"></button>
+            </div>
+            <div class="modal-body text-center pt-0 pb-4">
+                <div class="mb-3 d-inline-flex align-items-center justify-content-center" style="width: 64px; height: 64px; background: rgba(239, 68, 68, 0.1); border-radius: 50%;">
+                    <i data-lucide="alert-triangle" style="width: 32px; height: 32px; color: var(--predator-red);"></i>
+                </div>
+                <h5 class="text-white fw-bold mb-2">Trwałe usunięcie wpisu</h5>
+                <p class="text-secondary fs-7 mb-4">Czy na pewno chcesz usunąć tę zdobycz? Ta operacja jest nieodwracalna. Zdjęcie oraz dane telemetryczne zostaną trwale wykasowane z serwera.</p>
 
-<script src="https://unpkg.com/lucide@latest"></script>
+                <form id="deleteForm" method="post" th:action="@{/moje-polowy/placeholder}">
+                    <div class="d-flex justify-content-center gap-3">
+                        <button type="button" class="btn btn-outline-secondary text-white fw-bold" data-bs-dismiss="modal">Anuluj</button>
+                        <button type="submit" class="btn btn-danger fw-bold d-flex align-items-center gap-2" style="background: var(--predator-red); border-color: var(--predator-red);">
+                            <i data-lucide="trash-2" style="width: 18px;"></i> Usuń bezpowrotnie
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/lucide/0.475.0/umd/lucide.min.js"></script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 
 <script>
     document.addEventListener('DOMContentLoaded', () => {
-        // Inicjalizacja Ikon Lucide
-        lucide.createIcons();
 
-        // Ustawienie aktualnej daty w inpucie
+        if (typeof lucide !== 'undefined') {
+            lucide.createIcons();
+        } else {
+            console.error("Błąd: Biblioteka Lucide nie załadowała się poprawnie.");
+        }
+
         const now = new Date();
         now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
-        document.getElementById('catchDateInput').value = now.toISOString().slice(0, 16);
+        const dateInput = document.getElementById('catchDateInput');
+        if (dateInput) {
+            dateInput.value = now.toISOString().slice(0, 16);
+        }
 
-        // Obsługa modalu ze zdjęciem
-        const imagePreviewModal = new bootstrap.Modal(document.getElementById('imagePreviewModal'));
-        const modalImg = document.getElementById('modalPreviewImg');
-        const downloadBtn = document.getElementById('downloadImageBtn');
+        const setupCharCounter = (inputId, counterId, maxLength) => {
+            const input = document.getElementById(inputId);
+            const counter = document.getElementById(counterId);
+            if (input && counter) {
+                input.addEventListener('input', () => {
+                    const currentLength = input.value.length;
+                    counter.textContent = `${currentLength} / ${maxLength}`;
 
-        document.querySelectorAll('.image-popup-trigger').forEach(container => {
-            container.addEventListener('click', function() {
-                const img = this.querySelector('img');
-                const imgSrc = img.getAttribute('src');
-                if(imgSrc) {
-                    modalImg.src = imgSrc;
-                    downloadBtn.href = imgSrc;
-                    imagePreviewModal.show();
-                }
-            });
-        });
-
-        // Obsługa modalu z mapą
-        const mapModal = new bootstrap.Modal(document.getElementById('mapModal'));
-        let map, marker;
-
-        document.getElementById('openMapBtn').addEventListener('click', () => {
-            mapModal.show();
-        });
-
-        document.getElementById('mapModal').addEventListener('shown.bs.modal', function () {
-            if (!map) {
-                map = L.map('map').setView([52.069, 19.480], 6);
-
-                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                    attribution: '&copy; OpenStreetMap contributors',
-                    maxZoom: 19
-                }).addTo(map);
-
-                map.on('click', function(e) {
-                    const coord = e.latlng;
-                    if (marker) marker.setLatLng(coord);
-                    else marker = L.marker(coord, {draggable: true}).addTo(map);
-
-                    document.getElementById('mapSelectedInfo').innerText = "Szukam miejscowości...";
-
-                    fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${coord.lat}&lon=${coord.lng}&zoom=10&addressdetails=1`)
-                        .then(res => res.json())
-                        .then(data => {
-                            const city = data.address.city || data.address.town || data.address.village || data.address.county || "Nieznana miejscowość";
-                            document.getElementById('mapSelectedInfo').innerText = `${city} (Pobrano pomyślnie)`;
-                            document.getElementById('mapSelectedInfo').setAttribute('data-city', city);
-                        })
-                        .catch(() => {
-                            document.getElementById('mapSelectedInfo').innerText = "Współrzędne zapisane (Brak nazwy)";
-                            document.getElementById('mapSelectedInfo').setAttribute('data-city', 'Zaznaczona Lokalizacja');
-                        });
+                    if (currentLength === maxLength) {
+                        counter.className = 'char-counter at-limit';
+                    } else if (currentLength > maxLength * 0.8) {
+                        counter.className = 'char-counter near-limit';
+                    } else {
+                        counter.className = 'char-counter';
+                    }
                 });
             }
-            map.invalidateSize();
-        });
+        };
 
-        document.getElementById('btnConfirmMap').addEventListener('click', () => {
-            if (marker) {
-                const coord = marker.getLatLng();
-                const city = document.getElementById('mapSelectedInfo').getAttribute('data-city') || "Wybrana lokalizacja";
+        setupCharCounter('lureInput', 'lureCounter', 255);
+        setupCharCounter('noteInput', 'noteCounter', 500);
 
-                document.getElementById('inputLat').value = coord.lat.toFixed(6);
-                document.getElementById('inputLng').value = coord.lng.toFixed(6);
-                document.getElementById('inputLocation').value = `${city} (GPS: ${coord.lat.toFixed(4)}, ${coord.lng.toFixed(4)})`;
-                mapModal.hide();
-            } else {
-                alert("Proszę kliknąć na mapę, aby wybrać punkt.");
+        const inputLocation = document.getElementById('inputLocation');
+        const btnGeocode = document.getElementById('btnGeocode');
+        const geocodeStatus = document.getElementById('geocodeStatus');
+        const coordsDisplay = document.getElementById('coordsDisplay');
+        const inputLat = document.getElementById('inputLat');
+        const inputLng = document.getElementById('inputLng');
+        let lastConfirmedLocation = "";
+
+        try {
+            if (typeof bootstrap !== 'undefined') {
+                const imagePreviewModal = new bootstrap.Modal(document.getElementById('imagePreviewModal'));
+                const modalImg = document.getElementById('modalPreviewImg');
+                const downloadBtn = document.getElementById('downloadImageBtn');
+
+                document.querySelectorAll('.image-popup-trigger').forEach(container => {
+                    container.addEventListener('click', function() {
+                        const img = this.querySelector('img');
+                        if(img && img.getAttribute('src')) {
+                            modalImg.src = img.getAttribute('src');
+                            downloadBtn.href = img.getAttribute('src');
+                            imagePreviewModal.show();
+                        }
+                    });
+                });
+
+                const deleteConfirmModal = new bootstrap.Modal(document.getElementById('deleteConfirmModal'));
+                const deleteForm = document.getElementById('deleteForm');
+
+                document.querySelectorAll('.delete-btn-trigger').forEach(button => {
+                    button.addEventListener('click', function() {
+                        const catchId = this.getAttribute('data-catch-id');
+                        deleteForm.action = `/moje-polowy/${catchId}/usun`;
+                        deleteConfirmModal.show();
+                    });
+                });
+
+                const mapModal = new bootstrap.Modal(document.getElementById('mapModal'));
+                let map, marker;
+
+                document.getElementById('openMapBtn').addEventListener('click', () => {
+                    mapModal.show();
+                });
+
+                document.getElementById('mapModal').addEventListener('shown.bs.modal', function () {
+                    if (!map) {
+                        map = L.map('map').setView([52.069, 19.480], 6);
+
+                        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                            attribution: '&copy; OpenStreetMap contributors',
+                            maxZoom: 19
+                        }).addTo(map);
+
+                        map.on('click', function(e) {
+                            const coord = e.latlng;
+                            if (marker) marker.setLatLng(coord);
+                            else marker = L.marker(coord, {draggable: true}).addTo(map);
+
+                            document.getElementById('mapSelectedInfo').innerText = "Szukam miejscowości...";
+
+                            fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${coord.lat}&lon=${coord.lng}&zoom=10&addressdetails=1`)
+                                .then(res => res.json())
+                                .then(data => {
+                                    const city = data.address.city || data.address.town || data.address.village || data.address.county || "Nieznana miejscowość";
+                                    document.getElementById('mapSelectedInfo').innerText = `${city} (Pobrano pomyślnie)`;
+                                    document.getElementById('mapSelectedInfo').setAttribute('data-city', city);
+                                })
+                                .catch(() => {
+                                    document.getElementById('mapSelectedInfo').innerText = "Współrzędne zapisane (Brak nazwy)";
+                                    document.getElementById('mapSelectedInfo').setAttribute('data-city', 'Zaznaczona Lokalizacja');
+                                });
+                        });
+                    }
+                    map.invalidateSize();
+                });
+
+                document.getElementById('btnConfirmMap').addEventListener('click', () => {
+                    if (marker) {
+                        const coord = marker.getLatLng();
+                        const city = document.getElementById('mapSelectedInfo').getAttribute('data-city') || "Wybrana lokalizacja";
+
+                        const latStr = coord.lat.toFixed(6);
+                        const lngStr = coord.lng.toFixed(6);
+
+                        inputLat.value = latStr;
+                        inputLng.value = lngStr;
+
+                        const newLocationText = `${city} (GPS: ${coord.lat.toFixed(4)}, ${coord.lng.toFixed(4)})`;
+                        inputLocation.value = newLocationText;
+
+                        lastConfirmedLocation = newLocationText;
+
+                        geocodeStatus.style.display = 'block';
+                        coordsDisplay.innerHTML = `${latStr}, ${lngStr} <i data-lucide="check-circle" style="color: var(--brand-green); width: 14px; margin-left: 4px; margin-bottom: 2px;"></i>`;
+                        btnGeocode.classList.add('d-none');
+
+                        if (typeof lucide !== 'undefined') lucide.createIcons();
+                        mapModal.hide();
+                    } else {
+                        alert("Proszę kliknąć na mapę, aby wybrać punkt.");
+                    }
+                });
             }
-        });
+        } catch (e) {
+            console.warn("Skrypty modali nie załadowały się z powodu braku obiektu bootstrap.", e);
+        }
+
+        if (inputLocation && btnGeocode) {
+            inputLocation.addEventListener('input', function() {
+                geocodeStatus.style.display = 'none';
+
+                if(this.value.trim().length > 2 && this.value.trim() !== lastConfirmedLocation) {
+                    btnGeocode.classList.remove('d-none');
+                    inputLat.value = "";
+                    inputLng.value = "";
+                } else if (this.value.trim().length <= 2) {
+                    btnGeocode.classList.add('d-none');
+                }
+            });
+
+            btnGeocode.addEventListener('click', async () => {
+                const query = inputLocation.value.trim();
+                if(!query) return;
+
+                const originalBtnHTML = btnGeocode.innerHTML;
+                btnGeocode.innerHTML = '<i data-lucide="loader-2" class="lucide-spin" style="width: 16px; margin-right: 4px; margin-top: -2px;"></i> Przeszukuję radarem...';
+                btnGeocode.disabled = true;
+                if (typeof lucide !== 'undefined') lucide.createIcons();
+
+                try {
+                    const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&countrycodes=pl&limit=1`);
+                    const data = await response.json();
+
+                    if (data && data.length > 0) {
+                        const lat = parseFloat(data[0].lat).toFixed(6);
+                        const lng = parseFloat(data[0].lon).toFixed(6);
+
+                        inputLat.value = lat;
+                        inputLng.value = lng;
+
+                        lastConfirmedLocation = data[0].name || query;
+                        inputLocation.value = lastConfirmedLocation;
+
+                        geocodeStatus.style.display = 'block';
+                        coordsDisplay.innerHTML = `${lat}, ${lng} <i data-lucide="check-circle" style="color: var(--brand-green); width: 14px; margin-left: 4px; margin-bottom: 2px;"></i>`;
+                        btnGeocode.classList.add('d-none');
+
+                        if (typeof lucide !== 'undefined') lucide.createIcons();
+                    } else {
+                        alert("Nie znaleziono współrzędnych dla tej lokalizacji. Spróbuj wpisać dokładniejszą miejscowość lub wskaż miejsce na mapie.");
+                        btnGeocode.innerHTML = originalBtnHTML;
+                        btnGeocode.disabled = false;
+                        if (typeof lucide !== 'undefined') lucide.createIcons();
+                    }
+                } catch (error) {
+                    console.error("Błąd geokodowania:", error);
+                    alert("Wystąpił problem z połączeniem z radarem. Spróbuj ponownie.");
+                    btnGeocode.innerHTML = originalBtnHTML;
+                    btnGeocode.disabled = false;
+                    if (typeof lucide !== 'undefined') lucide.createIcons();
+                }
+            });
+        }
     });
 </script>
 

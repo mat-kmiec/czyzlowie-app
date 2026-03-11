@@ -9,6 +9,7 @@ import pl.czyzlowie.modules.forecast.entity.VirtualStationData;
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * VirtualStationDataRepository is a repository interface for managing VirtualStationData entities.
@@ -48,6 +49,8 @@ public interface VirtualStationDataRepository extends JpaRepository<VirtualStati
             LocalDateTime start,
             LocalDateTime end
     );
+
+    Optional<VirtualStationData> findFirstByVirtualStationIdAndMeasurementTimeLessThanEqualOrderByMeasurementTimeDesc(Long virtualStationId, LocalDateTime date);
 
     @Query("SELECT v FROM VirtualStationData v WHERE v.virtualStation.id = :stationId AND v.measurementTime >= :startTime AND v.measurementTime <= :endTime ORDER BY v.measurementTime ASC")
     List<VirtualStationData> findHistory(@Param("stationId") String stationId, @Param("startTime") LocalDateTime startTime, @Param("endTime") LocalDateTime endTime);

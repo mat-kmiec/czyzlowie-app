@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="1-create-catch-records" author="mateusz kmiec">
+        <createTable tableName="catch_records">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+
+            <column name="user_id" type="BIGINT">
+                <constraints nullable="false" foreignKeyName="fk_catch_user" references="users(id)"/>
+            </column>
+
+            <column name="catch_date" type="DATETIME">
+                <constraints nullable="false"/>
+            </column>
+            <column name="location_name" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="latitude" type="DECIMAL(9,6)"/>
+            <column name="longitude" type="DECIMAL(9,6)"/>
+            <column name="photo_url" type="VARCHAR(500)"/>
+
+            <column name="species" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="weight" type="DECIMAL(5,2)"/>
+            <column name="length" type="INT"/>
+            <column name="lure_method" type="VARCHAR(255)"/>
+            <column name="note" type="VARCHAR(500)"/>
+
+            <column name="ignore_hydro" type="BOOLEAN" defaultValueBoolean="false"/>
+            <column name="ignore_telemetry" type="BOOLEAN" defaultValueBoolean="false"/>
+
+            <column name="air_temperature" type="DECIMAL(4,1)"/>
+            <column name="pressure" type="DECIMAL(6,1)"/>
+            <column name="moon_phase" type="VARCHAR(50)"/>
+            <column name="water_level" type="INT"/>
+            <column name="water_temperature" type="DECIMAL(4,1)"/>
+            <column name="humidity" type="DECIMAL(4,1)"/>
+            <column name="precipitation" type="DECIMAL(5,2)"/>
+            <column name="wind_speed" type="DECIMAL(4,1)"/>
+            <column name="wind_direction" type="VARCHAR(50)"/>
+            <column name="discharge" type="DECIMAL(8,3)"/>
+
+            <column name="created_at" type="DATETIME" defaultValueComputed="CURRENT_TIMESTAMP"/>
+        </createTable>
+    </changeSet>
+
+</databaseChangeLog>

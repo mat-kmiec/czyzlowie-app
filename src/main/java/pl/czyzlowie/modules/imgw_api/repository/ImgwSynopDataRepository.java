@@ -46,6 +46,9 @@ public interface ImgwSynopDataRepository extends JpaRepository<ImgwSynopData, Lo
 
     @Query("SELECT s FROM ImgwSynopData s WHERE s.station.id = :stationId AND s.createdAt >= :startTime AND s.createdAt <= :endTime ORDER BY s.createdAt ASC")
     List<ImgwSynopData> findHistory(@Param("stationId") Long stationId, @Param("startTime") LocalDateTime startTime, @Param("endTime") LocalDateTime endTime);
+
+    @Query("SELECT s FROM ImgwSynopData s WHERE s.station.id = :stationId AND (s.measurementDate < :date OR (s.measurementDate = :date AND s.measurementHour <= :hour)) ORDER BY s.measurementDate DESC, s.measurementHour DESC LIMIT 1")
+    Optional<ImgwSynopData> findClosestSynopData(@Param("stationId") String stationId, @Param("date") LocalDate date, @Param("hour") Integer hour);
 }
 
 

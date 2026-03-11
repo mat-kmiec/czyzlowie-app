@@ -10,6 +10,11 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Repository interface for managing FishingTrip entities.
+ * Provides methods to interact with the FishingTrip data in the database,
+ * including custom queries for specific operations.
+ */
 @Repository
 public interface FishingTripRepository extends JpaRepository<FishingTrip, Long> {
 

@@ -24,12 +24,6 @@ public class TestController {
 
 
 
-    @GetMapping("/moje-polowy")
-    public String mojePolowy(){
-        return "profil/my-catches";
-    }
-
-
     @GetMapping("/kalendarz-wypraw")
     public String kalendarzWypraw(){
         return "profil/trip-calendar";

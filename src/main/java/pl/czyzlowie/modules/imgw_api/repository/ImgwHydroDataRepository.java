@@ -44,4 +44,6 @@ public interface ImgwHydroDataRepository extends JpaRepository<ImgwHydroData, Lo
                 @Param("startTime") LocalDateTime startTime,
                 @Param("endTime") LocalDateTime endTime
         );
+
+    Optional<ImgwHydroData> findFirstByStationIdAndWaterLevelDateLessThanEqualOrderByWaterLevelDateDesc(String stationId, LocalDateTime date);
 }

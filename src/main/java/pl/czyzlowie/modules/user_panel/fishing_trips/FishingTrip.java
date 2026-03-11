@@ -11,6 +11,10 @@ import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
+/**
+ * Represents a fishing trip entity with details such as location, duration, type of fishing, and other relevant information.
+ * This entity is mapped to the "fishing_trips" table in the database.
+ */
 @Entity
 @Table(name = "fishing_trips")
 @EntityListeners(AuditingEntityListener.class)

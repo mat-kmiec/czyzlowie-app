@@ -34,6 +34,7 @@ public interface ImgwMeteoDataRepository extends JpaRepository<ImgwMeteoData, Lo
             @Param("endTime") LocalDateTime endTime
     );
 
+    Optional<ImgwMeteoData> findFirstByStationIdAndAirTempTimeLessThanEqualOrderByAirTempTimeDesc(String stationId, LocalDateTime date);
 
     List<ImgwMeteoData> findByStationIdAndCreatedAtBetweenOrderByCreatedAtAsc(String stationId, LocalDateTime start, LocalDateTime end);
 }
