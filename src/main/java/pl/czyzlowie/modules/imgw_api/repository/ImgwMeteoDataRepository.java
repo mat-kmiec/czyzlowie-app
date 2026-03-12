@@ -1,9 +1,11 @@
 package pl.czyzlowie.modules.imgw_api.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 import pl.czyzlowie.modules.imgw_api.entity.ImgwMeteoData;
 
 import java.time.LocalDateTime;
@@ -37,4 +39,9 @@ public interface ImgwMeteoDataRepository extends JpaRepository<ImgwMeteoData, Lo
     Optional<ImgwMeteoData> findFirstByStationIdAndAirTempTimeLessThanEqualOrderByAirTempTimeDesc(String stationId, LocalDateTime date);
 
     List<ImgwMeteoData> findByStationIdAndCreatedAtBetweenOrderByCreatedAtAsc(String stationId, LocalDateTime start, LocalDateTime end);
+
+    @Transactional
+    @Modifying
+    @Query("DELETE FROM ImgwMeteoData d WHERE d.createdAt < :thresholdDate")
+    int deleteOlderThan(@Param("thresholdDate") LocalDateTime thresholdDate);
 }

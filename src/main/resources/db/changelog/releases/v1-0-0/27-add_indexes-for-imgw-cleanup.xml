@@ -1,0 +1,19 @@
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.0.xsd">
+
+    <changeSet id="imgw-cleanup-indexes" author="mateusz kmiec">
+        <createIndex tableName="imgw_meteo_data" indexName="idx_meteo_created_at">
+            <column name="created_at"/>
+        </createIndex>
+
+        <createIndex tableName="imgw_synop_data" indexName="idx_synop_created_at">
+            <column name="created_at"/>
+        </createIndex>
+
+        <createIndex tableName="imgw_hydro_data" indexName="idx_hydro_created_at">
+            <column name="created_at"/>
+        </createIndex>
+    </changeSet>
+
+</databaseChangeLog>

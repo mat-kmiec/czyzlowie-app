@@ -31,6 +31,8 @@
     <include file="db/changelog/releases/v1-0-0/24-create-catch-records.xml"/>
     <include file="db/changelog/releases/v1-0-0/25-create-note-schema.xml"/>
     <include file="db/changelog/releases/v1-0-0/26-create-favorite-spots.xml"/>
+    <include file="db/changelog/releases/v1-0-0/27-add_indexes-for-imgw-cleanup.xml"/>
+    <include file="db/changelog/releases/v1-0-0/28-add-indexes-for-forecast-cleanup.xml"/>
 
 
 </databaseChangeLog>

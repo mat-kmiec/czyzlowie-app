@@ -1,9 +1,11 @@
 package pl.czyzlowie.modules.imgw_api.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 import pl.czyzlowie.modules.barometer.dto.PressurePoint;
 import pl.czyzlowie.modules.imgw_api.entity.ImgwSynopData;
 
@@ -15,14 +17,6 @@ import java.util.Optional;
 
 @Repository
 public interface ImgwSynopDataRepository extends JpaRepository<ImgwSynopData, Long> {
-
-    boolean existsByStationIdAndMeasurementDateAndMeasurementHour(
-            String stationId,
-            LocalDate measurementDate,
-            Integer measurementHour
-    );
-
-    Optional<ImgwSynopData> findTopByStationIdOrderByIdDesc(String stationId);
 
     @Query("SELECT d FROM ImgwSynopData d " +
             "WHERE d.id IN (" +
@@ -40,7 +34,6 @@ public interface ImgwSynopDataRepository extends JpaRepository<ImgwSynopData, Lo
             "ORDER BY d.measurementDate DESC, d.measurementHour DESC")
     List<PressurePoint> findPressureHistory(@Param("stationId") String stationId, @Param("sinceDate") LocalDate sinceDate);
 
-    List<ImgwSynopData> findByStationIdAndMeasurementDateOrderByMeasurementHourAsc(String stationId, LocalDate date);
 
     List<ImgwSynopData> findByStationIdAndMeasurementDateBetweenOrderByMeasurementDateAscMeasurementHourAsc(String stationId, LocalDate startDate, LocalDate endDate);
 
@@ -49,6 +42,11 @@ public interface ImgwSynopDataRepository extends JpaRepository<ImgwSynopData, Lo
 
     @Query("SELECT s FROM ImgwSynopData s WHERE s.station.id = :stationId AND (s.measurementDate < :date OR (s.measurementDate = :date AND s.measurementHour <= :hour)) ORDER BY s.measurementDate DESC, s.measurementHour DESC LIMIT 1")
     Optional<ImgwSynopData> findClosestSynopData(@Param("stationId") String stationId, @Param("date") LocalDate date, @Param("hour") Integer hour);
+
+    @Transactional
+    @Modifying
+    @Query("DELETE FROM ImgwSynopData d WHERE d.createdAt < :thresholdDate")
+    int deleteOlderThan(@Param("thresholdDate") LocalDateTime thresholdDate);
 }
 
 

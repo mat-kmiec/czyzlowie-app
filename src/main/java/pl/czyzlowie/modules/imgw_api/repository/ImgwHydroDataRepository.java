@@ -1,9 +1,11 @@
 package pl.czyzlowie.modules.imgw_api.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 import pl.czyzlowie.modules.imgw_api.entity.ImgwHydroData;
 
 import java.time.LocalDateTime;
@@ -46,4 +48,9 @@ public interface ImgwHydroDataRepository extends JpaRepository<ImgwHydroData, Lo
         );
 
     Optional<ImgwHydroData> findFirstByStationIdAndWaterLevelDateLessThanEqualOrderByWaterLevelDateDesc(String stationId, LocalDateTime date);
+
+    @Transactional
+    @Modifying
+    @Query("DELETE FROM ImgwHydroData d WHERE d.createdAt < :thresholdDate")
+    int deleteOlderThan(@Param("thresholdDate") LocalDateTime thresholdDate);
 }
