@@ -1,0 +1,40 @@
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.0.xsd">
+
+    <changeSet id="1" author="mateusz kmiec">
+        <createTable tableName="favorite_spots">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="user_id" type="BIGINT">
+                <constraints nullable="false" foreignKeyName="fk_spot_user" references="users(id)"/>
+            </column>
+            <column name="name" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="location_display" type="VARCHAR(255)"/>
+            <column name="latitude" type="DECIMAL(10, 6)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="longitude" type="DECIMAL(10, 6)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="water_type" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="note" type="VARCHAR(500)"/>
+            <column name="created_at" type="TIMESTAMP"/>
+        </createTable>
+
+        <createTable tableName="spot_fish_tags">
+            <column name="spot_id" type="BIGINT">
+                <constraints nullable="false" foreignKeyName="fk_spot_tags_spot" references="favorite_spots(id)" deleteCascade="true"/>
+            </column>
+            <column name="tag" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+</databaseChangeLog>

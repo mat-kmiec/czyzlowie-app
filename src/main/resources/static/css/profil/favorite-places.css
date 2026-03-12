@@ -31,3 +31,115 @@
 .btn-spot-action:hover { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.3); }
 .btn-spot-action.primary { background: rgba(6, 182, 212, 0.1); border-color: rgba(6, 182, 212, 0.4); color: var(--cyan-water); }
 .btn-spot-action.primary:hover { background: var(--cyan-water); color: #fff; }
+
+/* --- PAGINACJA PRO --- */
+.algo-pagination-container {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.page-link-wrap a {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    background: rgba(15, 23, 42, 0.6);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    color: #94a3b8;
+    font-weight: 600;
+    font-size: 15px;
+    text-decoration: none;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-sizing: border-box;
+}
+
+/* Wymuszenie środka dla ikony */
+.page-link-wrap a svg {
+    margin: 0 auto;
+    display: block;
+}
+
+.page-link-wrap a:hover {
+    background: rgba(6, 182, 212, 0.1);
+    border-color: #06b6d4;
+    color: #fff;
+    transform: translateY(-3px);
+    box-shadow: 0 6px 15px rgba(6, 182, 212, 0.2);
+}
+
+.page-link-wrap a.active {
+    background: #06b6d4;
+    border-color: #06b6d4;
+    color: #0f172a;
+    box-shadow: 0 0 20px rgba(6, 182, 212, 0.4);
+    font-weight: 800;
+    transform: scale(1.05);
+    pointer-events: none;
+}
+
+.page-link-wrap.disabled a {
+    opacity: 0.3;
+    pointer-events: none;
+    background: rgba(15, 23, 42, 0.3);
+    border-color: rgba(255,255,255,0.05);
+}
+
+
+/* --- IKONY PERFECT CENTER --- */
+.header-icon-box {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 58px;
+    height: 58px;
+    flex-shrink: 0;
+    background: rgba(6, 182, 212, 0.1);
+    border: 1px solid #06b6d4;
+    border-radius: 12px;
+}
+
+.header-icon-box svg {
+    width: 32px;
+    height: 32px;
+    color: #06b6d4;
+    display: block;
+    margin: 0;
+}
+
+.modal-alert-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 80px;
+    height: 80px;
+    background: rgba(239, 68, 68, 0.15);
+    border-radius: 50%;
+    box-shadow: 0 0 15px rgba(239, 68, 68, 0.25);
+}
+
+.modal-alert-icon svg {
+    width: 40px;
+    height: 40px;
+    color: #ef4444;
+    display: block;
+    margin: 0;
+}
+
+.btn-delete-spot {
+    color: #ef4444;
+    border-color: rgba(239, 68, 68, 0.2);
+    transition: all 0.2s ease;
+}
+
+.btn-delete-spot:hover {
+    background: rgba(239, 68, 68, 0.15);
+    border-color: #ef4444;
+    color: #fca5a5;
+}

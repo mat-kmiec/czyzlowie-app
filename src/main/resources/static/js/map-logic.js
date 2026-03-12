@@ -83,7 +83,7 @@ class MapApplication {
             lucide.createIcons();
         }
 
-        // this.setupTempDataCollector();
+        this.setupTempDataCollector();
     }
 
     async setInitialView() {
