@@ -72,7 +72,6 @@ public class ForecastCleanupScheduler {
      * historical data, improving performance and reducing storage usage.
      */
     @Scheduled(cron = "0 0 2 * * *")
-     @Scheduled(initialDelay = 3000, fixedDelay = 86400000)
     public void scheduleDataCleanup() {
         cleanupService.cleanupOldData(7);
     }
