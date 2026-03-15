@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="pl">
 <head>
     <th:block th:replace="~{fragments/head :: head-content(
-        pageTitle='Precyzyjne Dane Meteo - Wiatr, Temperatury | CzyZlowie',
+        pageTitle='Precyzyjne Dane Meteo - Wiatr, Temperatury',
         pageDescription='Szczegółowe dane meteo z profesjonalnych stacji IMGW. Sprawdzaj porywy wiatru, temperaturę gruntu i powietrza na żywo.'
     )}"></th:block>
 
@@ -113,15 +113,18 @@
                             </div>
 
                             <div th:if="${dashboard.currentReading.airTemp != null}">
-                                <h2 class="display-3 fw-black text-white mb-1 lh-1">
+                                <h2 class="display-3 fw-black text-white mb-1 lh-1" th:classappend="${dashboard.tempStale ? 'opacity-50' : ''}">
                                     <span th:text="${dashboard.currentReading.airTemp}">0.0</span><span class="fs-4 text-white opacity-50">°C</span>
                                 </h2>
-                                <span class="d-block text-uppercase fs-8 fw-bold text-meteo-violet mb-3">Temp. Powietrza</span>
-                                <div class="sensor-time-badge mb-4">
-                                    <i data-lucide="clock"></i> Zaktualizowano: <span th:text="${dashboard.lastTempTime}"></span>
+                                <span class="d-block text-uppercase fs-8 fw-bold text-meteo-violet mb-3" th:classappend="${dashboard.tempStale ? 'text-warning' : ''}">Temp. Powietrza</span>
+
+                                <div class="sensor-time-badge mb-4" th:classappend="${dashboard.tempStale ? 'border-warning text-warning bg-warning bg-opacity-10' : ''}">
+                                    <i th:attr="data-lucide=${dashboard.tempStale ? 'alert-circle' : 'clock'}"></i>
+                                    <span>Zaktualizowano: [[${dashboard.lastTempTime}]]</span>
+                                    <span th:if="${dashboard.tempStale}" class="fw-bold ms-1">(Brak nowych danych)</span>
                                 </div>
 
-                                <div th:with="trendName=${dashboard.tempTrend.name()}" class="meteo-alert mt-auto"
+                                <div th:if="${!dashboard.tempStale}" th:with="trendName=${dashboard.tempTrend.name()}" class="meteo-alert mt-auto"
                                      th:classappend="${trendName == 'RISING' ? 'text-warning border-warning bg-warning bg-opacity-10' :
                                                      (trendName == 'FALLING' ? 'text-info border-info bg-info bg-opacity-10' : 'text-success border-success bg-success bg-opacity-10')}">
                                     <i th:attr="data-lucide=${trendName == 'RISING' ? 'thermometer-sun' : (trendName == 'FALLING' ? 'thermometer-snowflake' : 'minus')}" style="width: 16px;"></i>
@@ -137,18 +140,20 @@
                             <div class="row w-100 g-4 text-center text-md-start">
 
                                 <div class="col-12 d-flex align-items-center gap-3 mb-md-2 pb-3 border-bottom border-dark-subtle border-opacity-25">
-                                    <div class="flex-shrink-0 meteo-alert-icon p-2 rounded-circle" style="background: rgba(239, 68, 68, 0.1);">
+                                    <div class="flex-shrink-0 meteo-alert-icon p-2 rounded-circle" style="background: rgba(239, 68, 68, 0.1);" th:classappend="${dashboard.windStale ? 'border border-warning border-opacity-50' : ''}">
                                         <i data-lucide="wind" class="text-danger" style="width: 32px; height: 32px;"></i>
                                     </div>
                                     <div class="w-100">
                                         <div class="d-flex justify-content-between align-items-center mb-1">
-                                            <span class="d-block text-danger fs-8 text-uppercase fw-bold">Porywy Wiatru (max)</span>
-                                            <span class="sensor-time-badge border-danger text-danger opacity-75" th:if="${dashboard.currentReading.windMaxSpeed != null}">
-                                                <i data-lucide="clock"></i> [[${dashboard.lastWindTime}]]
+                                            <span class="d-block text-danger fs-8 text-uppercase fw-bold" th:classappend="${dashboard.windStale ? 'text-warning' : ''}">Porywy Wiatru (max)</span>
+                                            <span class="sensor-time-badge border-danger text-danger opacity-75" th:if="${dashboard.currentReading.windMaxSpeed != null}" th:classappend="${dashboard.windStale ? 'border-warning text-warning bg-warning bg-opacity-10' : ''}">
+                                                <i th:attr="data-lucide=${dashboard.windStale ? 'alert-triangle' : 'clock'}"></i>
+                                                <span>[[${dashboard.lastWindTime}]]</span>
+                                                <span th:if="${dashboard.windStale}" class="ms-1 fw-bold">(Nieaktualne)</span>
                                             </span>
                                         </div>
                                         <div th:if="${dashboard.currentReading.windMaxSpeed != null}">
-                                            <span class="fs-2 fw-black text-white"><span th:text="${dashboard.currentReading.windMaxSpeed}"></span> <span class="fs-5 opacity-50">m/s</span></span>
+                                            <span class="fs-2 fw-black text-white" th:classappend="${dashboard.windStale ? 'opacity-50' : ''}"><span th:text="${dashboard.currentReading.windMaxSpeed}"></span> <span class="fs-5 opacity-50">m/s</span></span>
                                         </div>
                                         <div th:unless="${dashboard.currentReading.windMaxSpeed != null}">
                                             <span class="fs-7 fw-bold text-white opacity-50 badge bg-dark border border-secondary mt-1">Brak Czujnika Wiatru</span>
@@ -157,11 +162,11 @@
                                 </div>
 
                                 <div class="col-6 col-md-6 d-flex flex-column gap-1">
-                                    <span class="d-block meteo-text-readable fs-8 text-uppercase fw-bold mb-1">Średni (Kier. [[${dashboard.currentReading.windDirection != null ? dashboard.currentReading.windDirection + '°' : 'Brak'}]])</span>
+                                    <span class="d-block meteo-text-readable fs-8 text-uppercase fw-bold mb-1" th:classappend="${dashboard.windStale ? 'text-warning' : ''}">Średni (Kier. [[${dashboard.currentReading.windDirection != null ? dashboard.currentReading.windDirection + '°' : 'Brak'}]])</span>
                                     <div class="d-flex align-items-center justify-content-center justify-content-md-start gap-2">
                                         <i data-lucide="navigation" class="text-white opacity-50" th:style="${dashboard.currentReading.windDirection != null ? 'width: 20px; transform: rotate(' + dashboard.currentReading.windDirection + 'deg);' : 'width: 20px;'}"></i>
                                         <div th:if="${dashboard.currentReading.windAvgSpeed != null}">
-                                            <span class="fs-4 fw-bold text-white"><span th:text="${dashboard.currentReading.windAvgSpeed}"></span> <span class="fs-6 opacity-50">m/s</span></span>
+                                            <span class="fs-4 fw-bold text-white" th:classappend="${dashboard.windStale ? 'opacity-50' : ''}"><span th:text="${dashboard.currentReading.windAvgSpeed}"></span> <span class="fs-6 opacity-50">m/s</span></span>
                                         </div>
                                         <div th:unless="${dashboard.currentReading.windAvgSpeed != null}">
                                             <span class="fs-7 fw-bold text-white opacity-50 badge bg-dark border border-secondary">Brak</span>
@@ -227,143 +232,179 @@
                         <h2 class="fs-5 text-white fw-bold mb-0">Analiza Morska / Precyzyjna</h2>
                     </div>
 
-                    <div class="meteo-knowledge-item mb-4" th:if="${dashboard.currentReading.windMaxSpeed != null}" th:with="wind=${dashboard.currentReading.windMaxSpeed.doubleValue()}">
-                        <h3 class="fs-6 text-white fw-bold mb-3 d-flex align-items-center gap-2">
-                            <i data-lucide="wind" class="text-meteo-violet" style="width: 20px;"></i>
-                            Analiza Wiatru ([[${dashboard.currentReading.windMaxSpeed}]] m/s)
-                        </h3>
-
-                        <div th:if="${wind > 12.0}" class="p-3 rounded-3 border border-danger bg-danger bg-opacity-10 mb-2">
-                            <div class="d-flex align-items-center gap-2 mb-2 text-danger">
-                                <i data-lucide="alert-triangle" style="width: 20px;"></i>
-                                <span class="fw-bold text-uppercase fs-7">Zagrożenie Życia - Wichura</span>
-                            </div>
-                            <p class="meteo-text-readable fs-7 lh-lg mb-0 text-justify text-white opacity-75">
-                                <strong>Kategoryczny zakaz wypływania środkami pływającymi!</strong> Fale stają się strome i niebezpieczne. Wędkarstwo z brzegu jest skrajnie trudne i ryzykowne ze względu na spadające gałęzie w zalesionych miejscach. Zestawy są natychmiast znoszone z łowiska. Zostań w domu i zadbaj o bezpieczeństwo.
-                            </p>
-                        </div>
-
-                        <div th:if="${wind > 8.0 && wind <= 12.0}" class="p-3 rounded-3 border border-warning bg-warning bg-opacity-10 mb-2">
-                            <div class="d-flex align-items-center gap-2 mb-2 text-warning">
-                                <i data-lucide="siren" style="width: 20px;"></i>
-                                <span class="fw-bold text-uppercase fs-7">Trudne Warunki - Silny Wiatr</span>
-                            </div>
-                            <p class="meteo-text-readable fs-7 lh-lg mb-0 text-justify text-white opacity-75">
-                                <strong>Uwaga na łodziach i pontonach!</strong> Na większych zbiornikach tworzą się białe grzywy i wysoka fala. Całkowity brak możliwości precyzyjnego łowienia na spławik. Wymagane użycie bardzo ciężkich koszyczków zanętowych (feeder) na rzekach. Surfcasting możliwy tylko przy użyciu najcięższych ciężarków z wąsami. Szukaj mocno osłoniętych zatok.
-                            </p>
-                        </div>
-
-                        <div th:if="${wind > 5.0 && wind <= 8.0}">
-                            <p class="meteo-text-readable fs-7 lh-lg mb-0 text-justify">
-                                <span class="text-info fw-bold">Zauważalna fala i znoszenie.</span> Wiatr mocno odczuwalny. Idealne warunki dla wędkarzy polujących na duże drapieżniki (szczupak, sandacz) – woda jest dobrze natleniona, a drobnica zepchnięta na nawietrzny brzeg. Łowienie delikatnym spławikiem staje się frustrujące. Warto przejść na metodę gruntową lub cięższy spinning.
-                            </p>
-                        </div>
-
-                        <div th:if="${wind > 2.0 && wind <= 5.0}">
-                            <p class="meteo-text-readable fs-7 lh-lg mb-0 text-justify">
-                                <span class="text-success fw-bold">Warunki idealne (lekka marszczka).</span> Wiatr tworzy na powierzchni wody delikatną falę, która rozprasza światło wpadające pod wodę. Ryby czują się bezpieczniej i są mniej ostrożne. Doskonały czas na łowienie białorybu każdym rodzajem metody (spławik, lekki grunt) oraz okoni.
-                            </p>
-                        </div>
-
-                        <div th:if="${wind <= 2.0}">
-                            <p class="meteo-text-readable fs-7 lh-lg mb-0 text-justify">
-                                <span class="text-white opacity-50 fw-bold">Cisza na wodzie (flauta).</span> Powierzchnia wody przypomina lustro. Ryby bywają niezwykle ostrożne i płochliwe, ponieważ doskonale widzą, co dzieje się na brzegu. Wymagane są bardzo cienkie przypony, małe haczyki i bezszelestne zachowanie na stanowisku. Świetny moment na łowienie z opadu.
-                            </p>
-                        </div>
-                    </div>
-
-                    <div class="meteo-knowledge-item mb-4 pb-4 border-bottom border-dark-subtle" th:if="${dashboard.currentReading.airTemp != null}" th:with="temp=${dashboard.currentReading.airTemp.doubleValue()}, trend=${dashboard.tempTrend.name()}">
-                        <h3 class="fs-6 text-white fw-bold mb-3 d-flex align-items-center gap-2">
-                            <i data-lucide="thermometer" class="text-meteo-violet" style="width: 20px;"></i>
-                            Profil Termiczny ([[${dashboard.currentReading.airTemp}]]°C)
-                        </h3>
-
-                        <div th:if="${trend == 'RISING'}">
-                            <div th:if="${temp > 25.0}" class="p-3 rounded-3 border border-warning bg-warning bg-opacity-10 mb-2">
-                                <div class="d-flex align-items-center gap-2 mb-2 text-warning">
-                                    <i data-lucide="sun-dim" style="width: 20px;"></i>
-                                    <span class="fw-bold text-uppercase fs-7">Upał - Ryzyko Przyduchy</span>
-                                </div>
-                                <p class="meteo-text-readable fs-7 lh-lg mb-0 text-justify text-white opacity-75">
-                                    Gwałtowny wzrost temperatury podczas upałów drastycznie obniża poziom tlenu w wodzie. Białoryb staje się apatyczny, a drapieżniki schodzą w najgłębsze partie zbiornika (np. koryta rzek, głębokie rynny). <strong>Przenieś wędkowanie na świt lub późną noc.</strong> Szukaj miejsc o silnym uciągu i natlenieniu (przelewy, napowietrzacze, tamy).
-                                </p>
-                            </div>
-                            <div th:if="${temp <= 25.0}" class="p-3 rounded-3 border border-success bg-success bg-opacity-10 mb-2">
-                                <div class="d-flex align-items-center gap-2 mb-2 text-success">
-                                    <i data-lucide="thermometer-sun" style="width: 20px;"></i>
-                                    <span class="fw-bold text-uppercase fs-7">Pozytywne Ocieplenie</span>
-                                </div>
-                                <p class="meteo-text-readable fs-7 lh-lg mb-0 text-justify text-white opacity-75">
-                                    Rosnąca temperatura napędza metabolizm ryb spokojnego żeru (karp, leszcz, lin). Woda nagrzewa się od góry, co prowokuje ryby do opuszczenia głębokich kryjówek i masowego wyjścia na płycizny (blaty, piaszczyste górki). To doskonały czas na podawanie słodkich, owocowych zanęt i łowienie na płytkiej wodzie.
-                                </p>
-                            </div>
-                        </div>
-
-                        <div th:if="${trend == 'FALLING'}">
-                            <div th:if="${temp < 10.0}" class="p-3 rounded-3 border border-info bg-info bg-opacity-10 mb-2">
-                                <div class="d-flex align-items-center gap-2 mb-2 text-info">
-                                    <i data-lucide="snowflake" style="width: 20px;"></i>
-                                    <span class="fw-bold text-uppercase fs-7">Zimny Front - Letarg</span>
-                                </div>
-                                <p class="meteo-text-readable fs-7 lh-lg mb-0 text-justify text-white opacity-75">
-                                    Ochłodzenie już i tak zimnej wody "zamyka" pyszczki rybom, spowalniając ich trawienie niemal do zera. Ryby przyklejają się do dna. Wymagane jest maksymalne odchudzenie zestawów (najcieńsze przypony), podawanie minimalnych ilości punktowej, pikantnej lub mięsnej zanęty i szukanie najgłębszych, stabilnych termicznie miejsc (zimowiska).
-                                </p>
-                            </div>
-                            <div th:if="${temp >= 10.0}" class="p-3 rounded-3 border border-primary bg-primary bg-opacity-10 mb-2">
-                                <div class="d-flex align-items-center gap-2 mb-2 text-primary">
-                                    <i data-lucide="thermometer-snowflake" style="width: 20px;"></i>
-                                    <span class="fw-bold text-uppercase fs-7">Ożywcze Ochłodzenie</span>
-                                </div>
-                                <p class="meteo-text-readable fs-7 lh-lg mb-0 text-justify text-white opacity-75">
-                                    Spadek temperatury wtłacza świeży tlen i gwałtownie miesza warstwy wody. To sygnał do intensywnego żerowania dla drapieżników (szczupak, sandacz), które ruszają na polowanie. Agresywnie prowadzone przynęty spinningowe, jaskrawe kolory i mocne uderzenia w dno to klucz do udanego łowienia.
-                                </p>
-                            </div>
-                        </div>
-
-                        <div th:if="${trend != 'RISING' and trend != 'FALLING'}">
-                            <div class="p-3 rounded-3 border border-secondary bg-dark bg-opacity-50 mb-2">
-                                <div class="d-flex align-items-center gap-2 mb-2 text-white opacity-75">
-                                    <i data-lucide="minus" style="width: 20px;"></i>
-                                    <span class="fw-bold text-uppercase fs-7">Stabilizacja Termiczna</span>
-                                </div>
-                                <p class="meteo-text-readable fs-7 lh-lg mb-0 text-justify text-white opacity-75">
-                                    Brak wahań temperatury to wędkarska przewidywalność. Woda nie ulega mieszaniu (brak zjawiska konwekcji termicznej). Ryby żerują w swoich naturalnych, stałych rewirach i według normalnego zegara biologicznego. To idealny czas na dłuższą zasiadkę (karpiową lub gruntową) z regularnym budowaniem łowiska zanętą.
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="mt-auto bg-dark bg-opacity-80 p-3 rounded-3 border border-meteo-violet position-relative overflow-hidden text-center" th:with="windMax=${dashboard.currentReading.windMaxSpeed != null ? dashboard.currentReading.windMaxSpeed.doubleValue() : 0.0}">
+                    <div class="bg-dark bg-opacity-80 p-3 rounded-3 border border-meteo-violet position-relative overflow-hidden text-center">
                         <span class="d-block meteo-text-readable fs-8 text-uppercase fw-bold mb-3 text-white opacity-75">Ogólna Ocena Warunków</span>
 
-                        <div th:if="${windMax > 12.0}" class="d-flex flex-column align-items-center justify-content-center min-h-40">
-                            <i data-lucide="alert-octagon" class="text-danger mb-2" style="width: 32px; height: 32px; filter: drop-shadow(0 0 8px rgba(239,68,68,0.6));"></i>
-                            <span class="fs-4 fs-xl-3 fw-black text-danger text-glow-danger text-break lh-1 mb-2">SKRAJNIE NIEBEZPIECZNE</span>
-                            <span class="badge bg-danger text-white border border-danger fw-bold text-uppercase fs-8 py-1 px-2">Zakaz wypływania</span>
+                        <th:block th:if="${!dashboard.windStale && dashboard.currentReading.windMaxSpeed != null}">
+                            <div th:with="windMax=${dashboard.currentReading.windMaxSpeed.doubleValue()}">
+                                <div th:if="${windMax > 12.0}" class="d-flex flex-column align-items-center justify-content-center min-h-40">
+                                    <i data-lucide="alert-octagon" class="text-danger mb-2" style="width: 32px; height: 32px; filter: drop-shadow(0 0 8px rgba(239,68,68,0.6));"></i>
+                                    <span class="fs-4 fs-xl-3 fw-black text-danger text-glow-danger text-break lh-1 mb-2">SKRAJNIE NIEBEZPIECZNE</span>
+                                    <span class="badge bg-danger text-white border border-danger fw-bold text-uppercase fs-8 py-1 px-2">Zakaz wypływania</span>
+                                </div>
+
+                                <div th:if="${windMax > 8.0 && windMax <= 12.0}" class="d-flex flex-column align-items-center justify-content-center min-h-40">
+                                    <i data-lucide="siren" class="text-warning mb-2" style="width: 32px; height: 32px; filter: drop-shadow(0 0 8px rgba(245,158,11,0.6));"></i>
+                                    <span class="fs-4 fs-xl-3 fw-black text-warning text-break lh-1 mb-2">BARDZO TRUDNE</span>
+                                    <span class="badge bg-warning text-dark border border-warning fw-bold text-uppercase fs-8 py-1 px-2">Wymagany ciężki sprzęt</span>
+                                </div>
+
+                                <div th:if="${windMax > 5.0 && windMax <= 8.0}" class="d-flex flex-column align-items-center justify-content-center min-h-40">
+                                    <i data-lucide="waves" class="text-info mb-2" style="width: 32px; height: 32px; filter: drop-shadow(0 0 8px rgba(14,165,233,0.6));"></i>
+                                    <span class="fs-4 fs-xl-3 fw-black text-info text-break lh-1 mb-2">WYMAGAJĄCE (FALA)</span>
+                                    <span class="badge bg-info text-dark border border-info fw-bold text-uppercase fs-8 py-1 px-2">Czas na drapieżnika</span>
+                                </div>
+
+                                <div th:if="${windMax > 2.0 && windMax <= 5.0}" class="d-flex flex-column align-items-center justify-content-center min-h-40">
+                                    <i data-lucide="check-circle" class="text-success mb-2" style="width: 32px; height: 32px; filter: drop-shadow(0 0 8px rgba(34,197,94,0.6));"></i>
+                                    <span class="fs-4 fs-xl-3 fw-black text-success text-glow-green text-break lh-1 mb-2">IDEALNE</span>
+                                    <span class="badge bg-success text-white border border-success fw-bold text-uppercase fs-8 py-1 px-2">Lekka marszczka, pewne brania</span>
+                                </div>
+
+                                <div th:if="${windMax <= 2.0}" class="d-flex flex-column align-items-center justify-content-center min-h-40">
+                                    <i data-lucide="droplets" class="text-white opacity-50 mb-2" style="width: 32px; height: 32px;"></i>
+                                    <span class="fs-4 fs-xl-3 fw-black text-white opacity-75 text-break lh-1 mb-2">FLAUTA (CISZA)</span>
+                                    <span class="badge bg-secondary text-white border border-secondary fw-bold text-uppercase fs-8 py-1 px-2">Wymagana finezja na brzegu</span>
+                                </div>
+                            </div>
+                        </th:block>
+
+                        <th:block th:if="${dashboard.windStale || dashboard.currentReading.windMaxSpeed == null}">
+                            <div class="d-flex flex-column align-items-center justify-content-center min-h-40">
+                                <i data-lucide="server-crash" class="text-white opacity-50 mb-2" style="width: 32px; height: 32px;"></i>
+                                <span class="fs-4 fs-xl-3 fw-black text-white opacity-50 text-break lh-1 mb-2">OCZEKIWANIE...</span>
+                                <span class="badge bg-dark text-white opacity-75 border border-secondary fw-bold text-uppercase fs-8 py-1 px-2">Brak aktualnych pomiarów wiatru</span>
+                            </div>
+                        </th:block>
+                    </div>
+
+                    <div class="meteo-knowledge-item mt-4 mb-4 pb-4 border-bottom border-dark-subtle">
+                        <h3 class="fs-6 text-white fw-bold mb-3 d-flex align-items-center gap-2" th:classappend="${dashboard.windStale ? 'opacity-50' : ''}">
+                            <i data-lucide="wind" class="text-meteo-violet" style="width: 20px;"></i>
+                            Analiza Wiatru
+                        </h3>
+
+                        <div th:if="${dashboard.windStale || dashboard.currentReading.windMaxSpeed == null}" class="p-3 rounded-3 border border-warning bg-warning bg-opacity-10 mb-2">
+                            <div class="d-flex align-items-center gap-2 mb-2 text-warning">
+                                <i data-lucide="siren" style="width: 20px;"></i>
+                                <span class="fw-bold text-uppercase fs-7">Odczyt Niewiarygodny</span>
+                            </div>
+                            <p class="meteo-text-readable fs-7 lh-lg mb-0 text-justify text-white opacity-75">
+                                Anemometr (czujnik wiatru) uległ zawieszeniu lub uszkodzeniu. Analiza wyłączona ze względów bezpieczeństwa – nie możemy zagwarantować, czy warunki nad wodą nie są aktualnie skrajnie niebezpieczne.
+                            </p>
                         </div>
 
-                        <div th:if="${windMax > 8.0 && windMax <= 12.0}" class="d-flex flex-column align-items-center justify-content-center min-h-40">
-                            <i data-lucide="siren" class="text-warning mb-2" style="width: 32px; height: 32px; filter: drop-shadow(0 0 8px rgba(245,158,11,0.6));"></i>
-                            <span class="fs-4 fs-xl-3 fw-black text-warning text-break lh-1 mb-2">BARDZO TRUDNE</span>
-                            <span class="badge bg-warning text-dark border border-warning fw-bold text-uppercase fs-8 py-1 px-2">Wymagany ciężki sprzęt</span>
+                        <div th:if="${!dashboard.windStale && dashboard.currentReading.windMaxSpeed != null}" th:with="wind=${dashboard.currentReading.windMaxSpeed.doubleValue()}">
+                            <div th:if="${wind > 12.0}" class="p-3 rounded-3 border border-danger bg-danger bg-opacity-10 mb-2">
+                                <div class="d-flex align-items-center gap-2 mb-2 text-danger">
+                                    <i data-lucide="alert-triangle" style="width: 20px;"></i>
+                                    <span class="fw-bold text-uppercase fs-7">Zagrożenie Życia - Wichura</span>
+                                </div>
+                                <p class="meteo-text-readable fs-7 lh-lg mb-0 text-justify text-white opacity-75">
+                                    <strong>Kategoryczny zakaz wypływania środkami pływającymi!</strong> Fale stają się strome i niebezpieczne. Wędkarstwo z brzegu jest skrajnie trudne i ryzykowne ze względu na spadające gałęzie. Zostań w domu i zadbaj o bezpieczeństwo.
+                                </p>
+                            </div>
+
+                            <div th:if="${wind > 8.0 && wind <= 12.0}" class="p-3 rounded-3 border border-warning bg-warning bg-opacity-10 mb-2">
+                                <div class="d-flex align-items-center gap-2 mb-2 text-warning">
+                                    <i data-lucide="siren" style="width: 20px;"></i>
+                                    <span class="fw-bold text-uppercase fs-7">Trudne Warunki - Silny Wiatr</span>
+                                </div>
+                                <p class="meteo-text-readable fs-7 lh-lg mb-0 text-justify text-white opacity-75">
+                                    <strong>Uwaga na łodziach i pontonach!</strong> Na większych zbiornikach tworzą się białe grzywy i wysoka fala. Całkowity brak możliwości precyzyjnego łowienia na spławik. Wymagane użycie bardzo ciężkich koszyczków zanętowych (feeder). Szukaj osłoniętych zatok.
+                                </p>
+                            </div>
+
+                            <div th:if="${wind > 5.0 && wind <= 8.0}">
+                                <p class="meteo-text-readable fs-7 lh-lg mb-0 text-justify">
+                                    <span class="text-info fw-bold">Zauważalna fala i znoszenie.</span> Wiatr mocno odczuwalny. Idealne warunki dla wędkarzy polujących na duże drapieżniki (szczupak, sandacz) – woda jest dobrze natleniona, a drobnica zepchnięta na nawietrzny brzeg.
+                                </p>
+                            </div>
+
+                            <div th:if="${wind > 2.0 && wind <= 5.0}">
+                                <p class="meteo-text-readable fs-7 lh-lg mb-0 text-justify">
+                                    <span class="text-success fw-bold">Warunki idealne (lekka marszczka).</span> Wiatr tworzy na powierzchni wody delikatną falę, która rozprasza światło wpadające pod wodę. Ryby czują się bezpieczniej i są mniej ostrożne. Doskonały czas na łowienie białorybu.
+                                </p>
+                            </div>
+
+                            <div th:if="${wind <= 2.0}">
+                                <p class="meteo-text-readable fs-7 lh-lg mb-0 text-justify">
+                                    <span class="text-white opacity-50 fw-bold">Cisza na wodzie (flauta).</span> Powierzchnia wody przypomina lustro. Ryby bywają niezwykle ostrożne i płochliwe, ponieważ doskonale widzą, co dzieje się na brzegu. Świetny moment na łowienie z opadu i metodę spławikową.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="meteo-knowledge-item mb-4 pb-4 border-bottom border-dark-subtle">
+                        <h3 class="fs-6 text-white fw-bold mb-3 d-flex align-items-center gap-2" th:classappend="${dashboard.tempStale ? 'opacity-50' : ''}">
+                            <i data-lucide="thermometer" class="text-meteo-violet" style="width: 20px;"></i>
+                            Profil Termiczny
+                        </h3>
+
+                        <div th:if="${dashboard.tempStale || dashboard.currentReading.airTemp == null}" class="p-3 rounded-3 border border-warning bg-warning bg-opacity-10 mb-2">
+                            <div class="d-flex align-items-center gap-2 mb-2 text-warning">
+                                <i data-lucide="siren" style="width: 20px;"></i>
+                                <span class="fw-bold text-uppercase fs-7">Brak aktualnych danych</span>
+                            </div>
+                            <p class="meteo-text-readable fs-7 lh-lg mb-0 text-justify text-white opacity-75">
+                                Czujnik temperatury powietrza przestał wysyłać najświeższe dane. Analiza trendów termicznych została wstrzymana, by uniknąć błędnego prognozowania żerowania.
+                            </p>
                         </div>
 
-                        <div th:if="${windMax > 5.0 && windMax <= 8.0}" class="d-flex flex-column align-items-center justify-content-center min-h-40">
-                            <i data-lucide="waves" class="text-info mb-2" style="width: 32px; height: 32px; filter: drop-shadow(0 0 8px rgba(14,165,233,0.6));"></i>
-                            <span class="fs-4 fs-xl-3 fw-black text-info text-break lh-1 mb-2">WYMAGAJĄCE (FALA)</span>
-                            <span class="badge bg-info text-dark border border-info fw-bold text-uppercase fs-8 py-1 px-2">Czas na drapieżnika</span>
-                        </div>
+                        <div th:if="${!dashboard.tempStale && dashboard.currentReading.airTemp != null}" th:with="temp=${dashboard.currentReading.airTemp.doubleValue()}, trend=${dashboard.tempTrend.name()}">
+                            <div th:if="${trend == 'RISING'}">
+                                <div th:if="${temp > 25.0}" class="p-3 rounded-3 border border-warning bg-warning bg-opacity-10 mb-2">
+                                    <div class="d-flex align-items-center gap-2 mb-2 text-warning">
+                                        <i data-lucide="sun-dim" style="width: 20px;"></i>
+                                        <span class="fw-bold text-uppercase fs-7">Upał - Ryzyko Przyduchy</span>
+                                    </div>
+                                    <p class="meteo-text-readable fs-7 lh-lg mb-0 text-justify text-white opacity-75">
+                                        Gwałtowny wzrost temperatury podczas upałów drastycznie obniża poziom tlenu w wodzie. Białoryb staje się apatyczny, a drapieżniki schodzą w najgłębsze partie zbiornika (np. koryta rzek, głębokie rynny). <strong>Przenieś wędkowanie na świt lub późną noc.</strong>
+                                    </p>
+                                </div>
+                                <div th:if="${temp <= 25.0}" class="p-3 rounded-3 border border-success bg-success bg-opacity-10 mb-2">
+                                    <div class="d-flex align-items-center gap-2 mb-2 text-success">
+                                        <i data-lucide="thermometer-sun" style="width: 20px;"></i>
+                                        <span class="fw-bold text-uppercase fs-7">Pozytywne Ocieplenie</span>
+                                    </div>
+                                    <p class="meteo-text-readable fs-7 lh-lg mb-0 text-justify text-white opacity-75">
+                                        Rosnąca temperatura napędza metabolizm ryb spokojnego żeru (karp, leszcz, lin). Woda nagrzewa się od góry, co prowokuje ryby do opuszczenia głębokich kryjówek i masowego wyjścia na płycizny.
+                                    </p>
+                                </div>
+                            </div>
 
-                        <div th:if="${windMax > 2.0 && windMax <= 5.0}" class="d-flex flex-column align-items-center justify-content-center min-h-40">
-                            <i data-lucide="check-circle" class="text-success mb-2" style="width: 32px; height: 32px; filter: drop-shadow(0 0 8px rgba(34,197,94,0.6));"></i>
-                            <span class="fs-4 fs-xl-3 fw-black text-success text-glow-green text-break lh-1 mb-2">IDEALNE</span>
-                            <span class="badge bg-success text-white border border-success fw-bold text-uppercase fs-8 py-1 px-2">Lekka marszczka, pewne brania</span>
-                        </div>
+                            <div th:if="${trend == 'FALLING'}">
+                                <div th:if="${temp < 10.0}" class="p-3 rounded-3 border border-info bg-info bg-opacity-10 mb-2">
+                                    <div class="d-flex align-items-center gap-2 mb-2 text-info">
+                                        <i data-lucide="snowflake" style="width: 20px;"></i>
+                                        <span class="fw-bold text-uppercase fs-7">Zimny Front - Letarg</span>
+                                    </div>
+                                    <p class="meteo-text-readable fs-7 lh-lg mb-0 text-justify text-white opacity-75">
+                                        Ochłodzenie już i tak zimnej wody "zamyka" pyszczki rybom, spowalniając ich trawienie niemal do zera. Wymagane jest maksymalne odchudzenie zestawów i szukanie najgłębszych, stabilnych termicznie miejsc (zimowiska).
+                                    </p>
+                                </div>
+                                <div th:if="${temp >= 10.0}" class="p-3 rounded-3 border border-primary bg-primary bg-opacity-10 mb-2">
+                                    <div class="d-flex align-items-center gap-2 mb-2 text-primary">
+                                        <i data-lucide="thermometer-snowflake" style="width: 20px;"></i>
+                                        <span class="fw-bold text-uppercase fs-7">Ożywcze Ochłodzenie</span>
+                                    </div>
+                                    <p class="meteo-text-readable fs-7 lh-lg mb-0 text-justify text-white opacity-75">
+                                        Spadek temperatury wtłacza świeży tlen i gwałtownie miesza warstwy wody. To sygnał do intensywnego żerowania dla drapieżników (szczupak, sandacz), które ruszają na polowanie. Agresywnie prowadzone przynęty to klucz do udanego łowienia.
+                                    </p>
+                                </div>
+                            </div>
 
-                        <div th:if="${windMax <= 2.0}" class="d-flex flex-column align-items-center justify-content-center min-h-40">
-                            <i data-lucide="droplets" class="text-white opacity-50 mb-2" style="width: 32px; height: 32px;"></i>
-                            <span class="fs-4 fs-xl-3 fw-black text-white opacity-75 text-break lh-1 mb-2">FLAUTA (CISZA)</span>
-                            <span class="badge bg-secondary text-white border border-secondary fw-bold text-uppercase fs-8 py-1 px-2">Wymagana finezja na brzegu</span>
+                            <div th:if="${trend != 'RISING' and trend != 'FALLING'}">
+                                <div class="p-3 rounded-3 border border-secondary bg-dark bg-opacity-50 mb-2">
+                                    <div class="d-flex align-items-center gap-2 mb-2 text-white opacity-75">
+                                        <i data-lucide="minus" style="width: 20px;"></i>
+                                        <span class="fw-bold text-uppercase fs-7">Stabilizacja Termiczna</span>
+                                    </div>
+                                    <p class="meteo-text-readable fs-7 lh-lg mb-0 text-justify text-white opacity-75">
+                                        Brak wahań temperatury to wędkarska przewidywalność. Woda nie ulega mieszaniu. Ryby żerują w swoich naturalnych rewirach według biologicznego zegara. To idealny czas na dłuższą zasiadkę (karpiową lub gruntową).
+                                    </p>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </article>

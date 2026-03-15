@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="pl">
 <head>
     <th:block th:replace="~{fragments/head :: head-content(
-        pageTitle='Stan Wody i Przepływy - Hydrologia IMGW | CzyZlowie',
+        pageTitle='Stan Wody i Przepływy - Hydrologia IMGW',
         pageDescription='Aktualne stany wód, przepływy i zjawiska lodowe na rzekach. Dane ze stacji hydrologicznych IMGW na żywo.'
     )}"></th:block>
 
@@ -124,7 +124,7 @@
 
         <div th:if="${!dashboard.hasWaterLevelData && !dashboard.hasDischargeData}" class="alert alert-warning border-warning bg-dark text-warning">
             <i data-lucide="alert-triangle" class="me-2"></i>
-            Stacja <strong>[[${dashboard.stationName}]] (ID: [[${dashboard.stationId}]])</strong> w lokalizacji <strong>[[${dashboard.locationName}]]</strong> obecnie nie zwraca żadnych danych pomiarowych.
+            Stacja <strong>[[${dashboard.stationName}]] (ID: [[${dashboard.stationId}]])</strong> w lokalizacji <strong>[[${dashboard.locationName}]]</strong> obecnie nie zwraca żadnych danych pomiarowych. Wybierz inną stację.
         </div>
 
         <div class="row g-4 mb-4" th:if="${dashboard.hasWaterLevelData || dashboard.hasDischargeData}">
@@ -139,17 +139,18 @@
                             </div>
 
                             <div th:if="${dashboard.currentReading.waterLevel != null}">
-                                <h2 class="display-1 fw-black text-white mb-0 lh-1">
+                                <h2 class="display-1 fw-black text-white mb-0 lh-1" th:classappend="${dashboard.waterLevelStale ? 'opacity-50' : ''}">
                                     <span th:text="${dashboard.currentReading.waterLevel}">0</span><span class="fs-4 text-white opacity-50 ms-1">cm</span>
                                 </h2>
 
-                                <div class="sensor-time-badge mt-2 mb-4">
-                                    <i data-lucide="clock"></i> Zaktualizowano: <span th:text="${dashboard.lastWaterLevelTime}"></span>
+                                <div class="sensor-time-badge mt-2 mb-4" th:classappend="${dashboard.waterLevelStale ? 'border-warning text-warning bg-warning bg-opacity-10' : ''}">
+                                    <i th:attr="data-lucide=${dashboard.waterLevelStale ? 'alert-circle' : 'clock'}"></i>
+                                    <span>Zaktualizowano: [[${dashboard.lastWaterLevelTime}]]</span>
+                                    <span th:if="${dashboard.waterLevelStale}" class="fw-bold ms-1">(Brak nowych danych)</span>
                                 </div>
 
-                                <div th:with="trendName=${dashboard.waterLevelTrend.name()}" class="hydro-alert"
-                                     th:classappend="${trendName == 'RISING' ? 'text-success border-success bg-success bg-opacity-10' :
-                             (trendName == 'FALLING' ? 'text-danger border-danger bg-danger bg-opacity-10' : 'text-info border-info bg-info bg-opacity-10')}">
+                                <div th:if="${!dashboard.waterLevelStale}" th:with="trendName=${dashboard.waterLevelTrend.name()}" class="hydro-alert"
+                                     th:classappend="${trendName == 'RISING' ? 'text-success border-success bg-success bg-opacity-10' : (trendName == 'FALLING' ? 'text-danger border-danger bg-danger bg-opacity-10' : 'text-info border-info bg-info bg-opacity-10')}">
                                     <i th:attr="data-lucide=${trendName == 'RISING' ? 'trending-up' : (trendName == 'FALLING' ? 'trending-down' : 'minus')}" style="width: 16px;"></i>
                                     <span th:text="${trendName == 'RISING' ? 'Woda przybiera (korzystne)' : (trendName == 'FALLING' ? 'Woda opada' : 'Poziom stabilny')}">Trend</span>
                                 </div>
@@ -164,18 +165,20 @@
                             <div class="row w-100 g-4 text-start">
 
                                 <div class="col-12 d-flex align-items-center gap-3 mb-md-2 pb-4 border-bottom border-dark-subtle border-opacity-25">
-                                    <div class="flex-shrink-0 p-3 bg-dark bg-opacity-50 rounded-circle border border-dark-subtle">
+                                    <div class="flex-shrink-0 p-3 bg-dark bg-opacity-50 rounded-circle border border-dark-subtle" th:classappend="${dashboard.dischargeStale ? 'border-warning border-opacity-50' : ''}">
                                         <i data-lucide="droplets" class="text-hydro-blue" style="width: 28px; height: 28px;"></i>
                                     </div>
                                     <div class="w-100">
                                         <div class="d-flex justify-content-between align-items-center mb-1">
-                                            <span class="hydro-text-readable fs-8 text-uppercase fw-bold">Przepływ</span>
-                                            <span class="sensor-time-badge" th:if="${dashboard.currentReading.discharge != null}">
-                                                <i data-lucide="clock"></i> [[${dashboard.lastDischargeTime}]]
+                                            <span class="hydro-text-readable fs-8 text-uppercase fw-bold" th:classappend="${dashboard.dischargeStale ? 'text-warning' : ''}">Przepływ</span>
+                                            <span class="sensor-time-badge" th:if="${dashboard.currentReading.discharge != null}" th:classappend="${dashboard.dischargeStale ? 'border-warning text-warning' : ''}">
+                                                <i th:attr="data-lucide=${dashboard.dischargeStale ? 'alert-triangle' : 'clock'}"></i>
+                                                <span>[[${dashboard.lastDischargeTime}]]</span>
+                                                <span th:if="${dashboard.dischargeStale}" class="ms-1 fw-bold">(Nieaktualne)</span>
                                             </span>
                                         </div>
                                         <div th:if="${dashboard.currentReading.discharge != null}">
-                                            <span class="fs-2 fw-bold text-white"><span th:text="${dashboard.currentReading.discharge}"></span> <span class="fs-6 opacity-50">m³/s</span></span>
+                                            <span class="fs-2 fw-bold text-white" th:classappend="${dashboard.dischargeStale ? 'opacity-50' : ''}"><span th:text="${dashboard.currentReading.discharge}"></span> <span class="fs-6 opacity-50">m³/s</span></span>
                                         </div>
                                         <div th:unless="${dashboard.currentReading.discharge != null}">
                                             <span class="fs-7 fw-bold text-white opacity-50 badge bg-dark border border-secondary mt-1">Brak Czujnika</span>
@@ -184,18 +187,21 @@
                                 </div>
 
                                 <div class="col-6 d-flex flex-column gap-1">
-                                    <span class="d-block hydro-text-readable fs-8 text-uppercase fw-bold mb-1">Temp. Wody</span>
+                                    <div class="d-flex justify-content-between align-items-center mb-1">
+                                        <span class="d-block hydro-text-readable fs-8 text-uppercase fw-bold" th:classappend="${dashboard.temperatureStale ? 'text-warning' : ''}">Temp. Wody</span>
+                                    </div>
                                     <div class="d-flex align-items-center gap-2">
                                         <i data-lucide="thermometer" class="text-brand-green opacity-75" style="width: 20px;"></i>
                                         <div th:if="${dashboard.currentReading.waterTemperature != null}">
-                                            <span class="fs-4 fw-bold text-white"><span th:text="${dashboard.currentReading.waterTemperature}"></span>°C</span>
+                                            <span class="fs-4 fw-bold text-white" th:classappend="${dashboard.temperatureStale ? 'opacity-50' : ''}"><span th:text="${dashboard.currentReading.waterTemperature}"></span>°C</span>
                                         </div>
                                         <div th:unless="${dashboard.currentReading.waterTemperature != null}">
                                             <span class="fs-7 fw-bold text-white opacity-50 badge bg-dark border border-secondary">Brak</span>
                                         </div>
                                     </div>
-                                    <span class="sensor-time-badge mt-1 align-self-start" th:if="${dashboard.currentReading.waterTemperature != null}">
-                                        <i data-lucide="clock"></i> [[${dashboard.lastTemperatureTime}]]
+                                    <span class="sensor-time-badge mt-1 align-self-start" th:if="${dashboard.currentReading.waterTemperature != null}" th:classappend="${dashboard.temperatureStale ? 'border-warning text-warning' : ''}">
+                                        <i th:attr="data-lucide=${dashboard.temperatureStale ? 'alert-triangle' : 'clock'}"></i>
+                                        <span>[[${dashboard.lastTemperatureTime}]]</span>
                                     </span>
                                 </div>
 
@@ -238,7 +244,7 @@
                         <div class="d-flex justify-content-between align-items-center mb-2">
                             <h4 class="fs-6 text-white opacity-75 mb-0"><i data-lucide="droplets" style="width:16px;" class="me-1"></i> Przepływ (m³/s)</h4>
                             <div th:if="${dashboard.dischargeStale}" class="stale-warning" title="IMGW przestało wysyłać nowe wartości">
-                                <i data-lucide="siren" style="width:14px;"></i> Czujnik zawieszony
+                                <i data-lucide="siren" style="width:14px;"></i> Czujnik zawieszony (brak aktualizacji)
                             </div>
                         </div>
                         <div class="chart-container" style="position: relative; height: 200px; width: 100%;">
@@ -267,59 +273,239 @@
                         <h2 class="fs-5 text-white fw-bold mb-0">Ekspercka Analiza</h2>
                     </div>
 
-                    <div class="hydro-knowledge-item mb-4">
-                        <h3 class="fs-6 text-white fw-bold mb-2 d-flex align-items-center gap-2"><i data-lucide="activity" style="width: 16px;"></i> Aktywność a Trend</h3>
-                        <p class="hydro-text-readable fs-7 lh-lg mb-0 text-justify" th:switch="${dashboard.waterLevelTrend.name()}">
-                            <span th:case="'RISING'">
-                                <strong class="text-success">Rosnący poziom wody to sygnał do ataku.</strong> Nurt podmywa brzegi, uwalniając wypłukiwane robaki i larwy. Białoryb (np. klenie, jazie) podchodzi bardzo blisko brzegu na żer. Drapieżniki podążają ich śladem. Idealny czas na łowienie w płytkich rynnach rzecznych przy zalanych trawach.
-                            </span>
-                            <span th:case="'FALLING'">
-                                <strong class="text-danger">Spadająca woda wymaga ostrożności.</strong> Ryby wpadają w apatię i instynktownie cofają się z płycizn do głębszego koryta i warkoczy za główkami, obawiając się odcięcia od nurtu. Zastosuj dłuższe przypony i delikatniejsze zestawy. Szukaj ryb na przegłębieniach.
-                            </span>
-                            <span th:case="*">
-                                <strong class="text-info">Stabilna woda promuje systematyczność.</strong> Ryby ustabilizowały swoje trasy patrolowe. To idealne warunki do wielodniowego, regularnego nęcenia grubym ziarnem (kukurydza, groch), co skupi stado w jednym, wytypowanym przez Ciebie miejscu.
-                            </span>
-                        </p>
+                    <div class="mt-auto bg-dark bg-opacity-80 p-3 rounded-3 border border-info position-relative overflow-hidden text-center">
+                        <span class="d-block hydro-text-readable fs-8 text-uppercase fw-bold mb-3 text-white opacity-75">Indeks Żerowania (Woda)</span>
+
+                        <th:block th:if="${!dashboard.temperatureStale && !dashboard.waterLevelStale && dashboard.currentReading.waterLevel != null && dashboard.currentReading.waterTemperature != null}">
+                            <div th:with="trendName=${dashboard.waterLevelTrend.name()}, temp=${dashboard.currentReading.waterTemperature.doubleValue()}">
+
+                                <div th:if="${trendName == 'RISING' && temp >= 12.0}" class="d-flex flex-column align-items-center justify-content-center min-h-40">
+                                    <i data-lucide="zap" class="text-success mb-2" style="width: 32px; height: 32px; filter: drop-shadow(0 0 8px rgba(34,197,94,0.6));"></i>
+                                    <span class="fs-4 fs-xl-3 fw-black text-success text-glow-green text-break lh-1 mb-2">FENOMENALNE (10/10)</span>
+                                    <span class="badge bg-success text-white border border-success fw-bold text-uppercase fs-8 py-1 px-2">Ciepły przybór - szał na płyciznach!</span>
+                                </div>
+
+                                <div th:if="${trendName == 'RISING' && temp < 12.0}" class="d-flex flex-column align-items-center justify-content-center min-h-40">
+                                    <i data-lucide="trending-up" class="text-info mb-2" style="width: 32px; height: 32px; filter: drop-shadow(0 0 8px rgba(14,165,233,0.6));"></i>
+                                    <span class="fs-4 fs-xl-3 fw-black text-info text-glow-blue text-break lh-1 mb-2">BARDZO DOBRE (8/10)</span>
+                                    <span class="badge bg-info text-dark border border-info fw-bold text-uppercase fs-8 py-1 px-2">Zimny przybór - wyjście z zimowisk</span>
+                                </div>
+
+                                <div th:if="${trendName != 'RISING' && trendName != 'FALLING'}" class="d-flex flex-column align-items-center justify-content-center min-h-40">
+                                    <i data-lucide="anchor" class="text-white opacity-75 mb-2" style="width: 32px; height: 32px;"></i>
+                                    <span class="fs-4 fs-xl-3 fw-black text-white opacity-75 text-break lh-1 mb-2">STABILNE (6/10)</span>
+                                    <span class="badge bg-secondary text-white border border-secondary fw-bold text-uppercase fs-8 py-1 px-2">Regularne trasy - nęć w punkt</span>
+                                </div>
+
+                                <div th:if="${trendName == 'FALLING' && temp >= 10.0}" class="d-flex flex-column align-items-center justify-content-center min-h-40">
+                                    <i data-lucide="trending-down" class="text-warning mb-2" style="width: 32px; height: 32px; filter: drop-shadow(0 0 8px rgba(245,158,11,0.6));"></i>
+                                    <span class="fs-4 fs-xl-3 fw-black text-warning text-break lh-1 mb-2">WYMAGAJĄCE (4/10)</span>
+                                    <span class="badge bg-warning text-dark border border-warning fw-bold text-uppercase fs-8 py-1 px-2">Letnia niżówka - ucieczka w koryto</span>
+                                </div>
+
+                                <div th:if="${trendName == 'FALLING' && temp < 10.0}" class="d-flex flex-column align-items-center justify-content-center min-h-40">
+                                    <i data-lucide="alert-octagon" class="text-danger mb-2" style="width: 32px; height: 32px; filter: drop-shadow(0 0 8px rgba(239,68,68,0.6));"></i>
+                                    <span class="fs-4 fs-xl-3 fw-black text-danger text-glow-danger text-break lh-1 mb-2">SKRAJNIE TRUDNE (2/10)</span>
+                                    <span class="badge bg-danger text-white border border-danger fw-bold text-uppercase fs-8 py-1 px-2">Zimny spadek wody - letarg</span>
+                                </div>
+                            </div>
+                        </th:block>
+
+                        <th:block th:if="${dashboard.temperatureStale || dashboard.waterLevelStale || dashboard.currentReading.waterLevel == null || dashboard.currentReading.waterTemperature == null}">
+                            <div class="d-flex flex-column align-items-center justify-content-center min-h-40">
+                                <i data-lucide="server-crash" class="text-white opacity-50 mb-2" style="width: 32px; height: 32px;"></i>
+                                <span class="fs-4 fs-xl-3 fw-black text-white opacity-50 text-break lh-1 mb-2">OCZEKIWANIE...</span>
+                                <span class="badge bg-dark text-white opacity-75 border border-secondary fw-bold text-uppercase fs-8 py-1 px-2">Niewystarczające dane telemetryczne</span>
+                            </div>
+                        </th:block>
+
                     </div>
+                    <div class="hydro-knowledge-item mb-4 pb-4 border-bottom border-dark-subtle mt-3">
+                        <h3 class="fs-6 text-white fw-bold mb-3 d-flex align-items-center gap-2" th:classappend="${dashboard.waterLevelStale ? 'opacity-50' : ''}">
+                            <i data-lucide="waves" class="text-info" style="width: 20px;"></i>
+                            Dynamika Wodowskazu
+                        </h3>
 
-                    <div class="hydro-knowledge-item mb-4" th:if="${dashboard.currentReading.waterTemperature != null}">
-                        <h3 class="fs-6 text-white fw-bold mb-2 d-flex align-items-center gap-2"><i data-lucide="thermometer" style="width: 16px;"></i> Metabolizm (Temp: [[${dashboard.currentReading.waterTemperature}]]°C)</h3>
-                        <p class="hydro-text-readable fs-7 lh-lg mb-0 text-justify">
-                            <span th:if="${dashboard.currentReading.waterTemperature.doubleValue() < 5.0}">Woda zimowa. Metabolizm ryb jest maksymalnie spowolniony. Używaj najcieńszych żyłek, małych haczyków i żywych przynęt (pinka, ochotka). Brania będą ledwie widoczne. Szukaj najgłębszych i najspokojniejszych klatek.</span>
-                            <span th:if="${dashboard.currentReading.waterTemperature.doubleValue() >= 5.0 && dashboard.currentReading.waterTemperature.doubleValue() <= 12.0}">Wiosenne przebudzenie lub jesienne chłody. Drapieżniki (szczupak, sandacz) stają się bardzo agresywne. Białoryb zaczyna intensywnie poszukiwać pokarmu białkowego przed/po zimie. Czerwony robak i grube pellety mięsne to strzał w dziesiątkę.</span>
-                            <span th:if="${dashboard.currentReading.waterTemperature.doubleValue() > 12.0}">Ciepła woda. Ryby żerują niezwykle aktywnie na całej szerokości rzeki. To idealny moment na intensywne nęcenie słodkimi zanętami owocowymi, kukurydzą i method feederem. Uważaj na ewentualne przyduchy w płytkich starorzeczach!</span>
-                        </p>
-                    </div>
+                        <div th:if="${dashboard.waterLevelStale || dashboard.currentReading.waterLevel == null}" class="p-3 rounded-3 border border-warning bg-warning bg-opacity-10 mb-2">
+                            <div class="d-flex align-items-center gap-2 mb-2 text-warning">
+                                <i data-lucide="siren" style="width: 20px;"></i>
+                                <span class="fw-bold text-uppercase fs-7">Odczyt Niewiarygodny</span>
+                            </div>
+                            <p class="hydro-text-readable fs-7 lh-lg mb-0 text-justify text-white opacity-75">
+                                Czujnik wodowskazowy przestał przesyłać aktualne dane. Zignoruj tę analizę, dopóki telemetria IMGW nie zostanie przywrócona.
+                            </p>
+                        </div>
 
-                    <div class="hydro-knowledge-item mb-4 pb-4 border-bottom border-dark-subtle" th:if="${dashboard.currentReading.discharge != null}">
-                        <h3 class="fs-6 text-white fw-bold mb-2 d-flex align-items-center gap-2"><i data-lucide="anchor" style="width: 16px;"></i> Dobór Sprzętu (Nurt)</h3>
-                        <p class="hydro-text-readable fs-7 lh-lg mb-0 text-justify">
-                            Przy przepływie <strong>[[${dashboard.currentReading.discharge}]] m³/s</strong>,
-                            <span th:if="${dashboard.currentReading.discharge.doubleValue() > 25.0}">siła uciągu jest potężna. Skup się na łowieniu z koszyczkami z wąsami (100g+) w strefach brzegowych i klatkach między ostrogami, gdzie nurt zwalnia i powstają tzw. warkocze. Używaj długich wędzisk typu Heavy Feeder (3.90m+).</span>
-                            <span th:if="${dashboard.currentReading.discharge.doubleValue() <= 25.0 && dashboard.currentReading.discharge.doubleValue() > 10.0}">nurt jest umiarkowany. Koszyczki rzeczne o wadze 50-80g spokojnie utrzymają dno. Klasyczny feeder sprawdzi się tu idealnie na skraju głównego nurtu.</span>
-                            <span th:if="${dashboard.currentReading.discharge.doubleValue() <= 10.0}">uciąg jest znikomy. To świetne warunki do finezyjnego łowienia (lekki feeder 30g, spławik na przepływankę). Możesz celować w samo koryto rzeki.</span>
-                        </p>
-                    </div>
+                        <div th:if="${!dashboard.waterLevelStale && dashboard.currentReading.waterLevel != null}" th:with="trend=${dashboard.waterLevelTrend.name()}">
+                            <div th:if="${trend == 'RISING'}" class="p-3 rounded-3 border border-success bg-success bg-opacity-10 mb-2">
+                                <div class="d-flex align-items-center gap-2 mb-2 text-success">
+                                    <i data-lucide="trending-up" style="width: 20px;"></i>
+                                    <span class="fw-bold text-uppercase fs-7">Woda Rosnąca (Przybrana) - Agresywny Żer</span>
+                                </div>
+                                <p class="hydro-text-readable fs-7 lh-lg mb-0 text-justify text-white opacity-75">
+                                    <strong>Otwarcie stołówki!</strong> Świeża, podnosząca się woda wymywa z burt brzegowych dżdżownice, pędraki i owady. Białoryb (klenie, jazie, brzany) masowo opuszcza koryto i wchodzi w zalane trawy, na płytkie opaski i do klatek między ostrogami. Za nimi ciągnie drapieżnik (wąsaty sum i szczupak).
+                                    <br><br>
+                                    <span class="text-white opacity-100 fw-bold"><i data-lucide="target" style="width: 14px; display: inline;"></i> Taktyka:</span> Szukaj ryb dosłownie pod nogami, na granicy nurtu i spokojnej wody.
+                                </p>
+                            </div>
 
-                    <div class="mt-auto bg-dark bg-opacity-80 p-3 rounded-3 border border-brand-green position-relative overflow-hidden text-center">
-                        <span class="d-block hydro-text-readable fs-8 text-uppercase fw-bold mb-1">Ocena Warunków Żerowych</span>
+                            <div th:if="${trend == 'FALLING'}" class="p-3 rounded-3 border border-warning bg-warning bg-opacity-10 mb-2">
+                                <div class="d-flex align-items-center gap-2 mb-2 text-warning">
+                                    <i data-lucide="trending-down" style="width: 20px;"></i>
+                                    <span class="fw-bold text-uppercase fs-7">Woda Opadająca - Ewakuacja i Ostrożność</span>
+                                </div>
+                                <p class="hydro-text-readable fs-7 lh-lg mb-0 text-justify text-white opacity-75">
+                                    <strong>Instynkt przetrwania!</strong> Nawet minimalny spadek wody wywołuje u ryb panikę przed odcięciem na płyciznach. Ryby gwałtownie wycofują się do bezpiecznego, głębokiego koryta (rynny, przykosy, warkocze za główkami).
+                                    <br><br>
+                                    <span class="text-white opacity-100 fw-bold"><i data-lucide="target" style="width: 14px; display: inline;"></i> Taktyka:</span> Zrezygnuj z obławiania płytkich przelewów. Wydłuż przypony i szukaj drapieżników w najgłębszych dołkach.
+                                </p>
+                            </div>
 
-                        <div th:with="trendName=${dashboard.waterLevelTrend.name()}, temp=${dashboard.currentReading.waterTemperature != null ? dashboard.currentReading.waterTemperature.doubleValue() : 10.0}"
-                             class="d-flex align-items-center justify-content-center mt-2 min-h-40">
-
-                            <span class="fs-4 fs-xl-3 fw-black text-success text-glow-green text-break lh-1"
-                                  th:if="${trendName == 'RISING' && temp > 10.0}">IDEALNE (10/10)</span>
-
-                            <span class="fs-4 fs-xl-3 fw-black text-success text-glow-green text-break lh-1"
-                                  th:if="${trendName == 'RISING' && temp <= 10.0}">B. DOBRE (8/10)</span>
-
-                            <span class="fs-4 fs-xl-3 fw-black text-info text-glow-blue text-break lh-1"
-                                  th:if="${trendName == 'STABLE'}">DOBRE (6/10)</span>
-
-                            <span class="fs-4 fs-xl-3 fw-black text-warning text-break lh-1"
-                                  th:if="${trendName == 'FALLING'}">TRUDNE (4/10)</span>
+                            <div th:if="${trend != 'RISING' and trend != 'FALLING'}" class="p-3 rounded-3 border border-info bg-info bg-opacity-10 mb-2">
+                                <div class="d-flex align-items-center gap-2 mb-2 text-info">
+                                    <i data-lucide="arrow-right" style="width: 20px;"></i>
+                                    <span class="fw-bold text-uppercase fs-7">Stabilny Poziom - Regularność</span>
+                                </div>
+                                <p class="hydro-text-readable fs-7 lh-lg mb-0 text-justify text-white opacity-75">
+                                    <strong>Zegarmistrzowska precyzja.</strong> Brak wahań wodowskazu to sygnał, że ryby czują się bezpiecznie. Ustalają stałe, codzienne trasy patrolowe.
+                                    <br><br>
+                                    <span class="text-white opacity-100 fw-bold"><i data-lucide="target" style="width: 14px; display: inline;"></i> Taktyka:</span> Wymarzony moment na długoterminowe nęcenie grubą frakcją w punkt.
+                                </p>
+                            </div>
                         </div>
                     </div>
+
+                    <div class="hydro-knowledge-item mb-4 pb-4 border-bottom border-dark-subtle">
+                        <h3 class="fs-6 text-white fw-bold mb-3 d-flex align-items-center gap-2" th:classappend="${dashboard.temperatureStale ? 'opacity-50' : ''}">
+                            <i data-lucide="droplets" class="text-meteo-violet" style="width: 20px;"></i>
+                            Metabolizm i Termika Wody
+                        </h3>
+
+                        <div th:if="${dashboard.temperatureStale || dashboard.currentReading.waterTemperature == null}" class="p-3 rounded-3 border border-warning bg-warning bg-opacity-10 mb-2">
+                            <div class="d-flex align-items-center gap-2 mb-2 text-warning">
+                                <i data-lucide="siren" style="width: 20px;"></i>
+                                <span class="fw-bold text-uppercase fs-7">Brak aktualnych danych</span>
+                            </div>
+                            <p class="hydro-text-readable fs-7 lh-lg mb-0 text-justify text-white opacity-75">
+                                Ostatnie pomiary są przestarzałe. Analiza wędkarska oparta na zdezaktualizowanej temperaturze mogłaby błędnie zasugerować zanęty i zestawy.
+                            </p>
+                        </div>
+
+                        <div th:if="${!dashboard.temperatureStale && dashboard.currentReading.waterTemperature != null}" th:with="temp=${dashboard.currentReading.waterTemperature.doubleValue()}">
+                            <div th:if="${temp < 4.0}" class="p-3 rounded-3 border border-primary bg-primary bg-opacity-10 mb-2">
+                                <div class="d-flex align-items-center gap-2 mb-2 text-primary">
+                                    <i data-lucide="snowflake" style="width: 20px;"></i>
+                                    <span class="fw-bold text-uppercase fs-7">Letarg Zimowy - Minimalny Metabolizm</span>
+                                </div>
+                                <p class="hydro-text-readable fs-7 lh-lg mb-0 text-justify text-white opacity-75">
+                                    Funkcje życiowe ryb są spowolnione niemal do zera. Szukaj głębokich, stabilnych zimowisk. Łowienie ekstremalnie finezyjne (haczyki nr 20-22, pojedyncza pinka).
+                                </p>
+                            </div>
+                            <div th:if="${temp >= 4.0 && temp < 10.0}" class="p-3 rounded-3 border border-info bg-info bg-opacity-10 mb-2">
+                                <div class="d-flex align-items-center gap-2 mb-2 text-info">
+                                    <i data-lucide="thermometer-snowflake" style="width: 20px;"></i>
+                                    <span class="fw-bold text-uppercase fs-7">Zimna Woda - Szukanie Białka</span>
+                                </div>
+                                <p class="hydro-text-readable fs-7 lh-lg mb-0 text-justify text-white opacity-75">
+                                    Wiosenne przebudzenie lub przygotowania do zimy. Zrezygnuj ze słodkich zanęt na rzecz ochotki i zapachów mięsnych. Drapieżnik żeruje w najlepsze.
+                                </p>
+                            </div>
+                            <div th:if="${temp >= 10.0 && temp < 16.0}" class="p-3 rounded-3 border border-success bg-success bg-opacity-10 mb-2">
+                                <div class="d-flex align-items-center gap-2 mb-2 text-success">
+                                    <i data-lucide="activity" style="width: 20px;"></i>
+                                    <span class="fw-bold text-uppercase fs-7">Optymalna Aktywność - Żerowanie</span>
+                                </div>
+                                <p class="hydro-text-readable fs-7 lh-lg mb-0 text-justify text-white opacity-75">
+                                    Idealne warunki! Ryby wychodzą na płytsze blaty. Śmiało stosuj Method Feeder i mieszane smaki.
+                                </p>
+                            </div>
+                            <div th:if="${temp >= 16.0 && temp < 22.0}" class="p-3 rounded-3 border border-warning bg-warning bg-opacity-10 mb-2">
+                                <div class="d-flex align-items-center gap-2 mb-2 text-warning">
+                                    <i data-lucide="sun" style="width: 20px;"></i>
+                                    <span class="fw-bold text-uppercase fs-7">Ciepła Woda - Królestwo Karpiowatych</span>
+                                </div>
+                                <p class="hydro-text-readable fs-7 lh-lg mb-0 text-justify text-white opacity-75">
+                                    Przemiana materii na najwyższych obrotach. Nęć grubo i słodko. Przesuń wędkowanie na poranek i noc.
+                                </p>
+                            </div>
+                            <div th:if="${temp >= 22.0}" class="p-3 rounded-3 border border-danger bg-danger bg-opacity-10 mb-2">
+                                <div class="d-flex align-items-center gap-2 mb-2 text-danger">
+                                    <i data-lucide="alert-triangle" style="width: 20px;"></i>
+                                    <span class="fw-bold text-uppercase fs-7">Letni Ukrop - Ryzyko Przyduchy</span>
+                                </div>
+                                <p class="hydro-text-readable fs-7 lh-lg mb-0 text-justify text-white opacity-75">
+                                    Woda "się gotuje", ryby osowiałe. Szukaj mocnego nurtu i napowietrzonej wody (tamy, wlewy, bystrza).
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="hydro-knowledge-item mb-4 pb-4 border-bottom border-dark-subtle">
+                        <h3 class="fs-6 text-white fw-bold mb-3 d-flex align-items-center gap-2" th:classappend="${dashboard.dischargeStale ? 'opacity-50' : ''}">
+                            <i data-lucide="anchor" class="text-info" style="width: 20px;"></i>
+                            Przepływ i Dobór Sprzętu
+                        </h3>
+
+                        <div th:if="${dashboard.dischargeStale || dashboard.currentReading.discharge == null}" class="p-3 rounded-3 border border-warning bg-warning bg-opacity-10 mb-2">
+                            <div class="d-flex align-items-center gap-2 mb-2 text-warning">
+                                <i data-lucide="siren" style="width: 20px;"></i>
+                                <span class="fw-bold text-uppercase fs-7">Brak danych o nurcie</span>
+                            </div>
+                            <p class="hydro-text-readable fs-7 lh-lg mb-0 text-justify text-white opacity-75">
+                                Stacja nie publikuje bieżących danych o przepływie. Może to być przerwa zimowa na stacji hydro lub oblodzenie rzeki powodujące zawieszenie pomiarów przez IMGW. Analiza uciągu wody zablokowana dla Twojego bezpieczeństwa.
+                            </p>
+                        </div>
+
+                        <div th:if="${!dashboard.dischargeStale && dashboard.currentReading.discharge != null}" th:with="flow=${dashboard.currentReading.discharge.doubleValue()}">
+                            <div th:if="${flow > 40.0}" class="p-3 rounded-3 border border-danger bg-danger bg-opacity-10 mb-2">
+                                <div class="d-flex align-items-center gap-2 mb-2 text-danger">
+                                    <i data-lucide="alert-triangle" style="width: 20px;"></i>
+                                    <span class="fw-bold text-uppercase fs-7">Rzeka Rwie - Ekstremalny Nurt</span>
+                                </div>
+                                <p class="hydro-text-readable fs-7 lh-lg mb-0 text-justify text-white opacity-75">
+                                    Potężna siła uciągu. Uciekaj z głównego nurtu w strefy brzegowe i cofki. Koszyki 120g+ z pazurami to absolutne minimum.
+                                </p>
+                            </div>
+                            <div th:if="${flow > 25.0 && flow <= 40.0}" class="p-3 rounded-3 border border-warning bg-warning bg-opacity-10 mb-2">
+                                <div class="d-flex align-items-center gap-2 mb-2 text-warning">
+                                    <i data-lucide="fast-forward" style="width: 20px;"></i>
+                                    <span class="fw-bold text-uppercase fs-7">Silny Uciąg</span>
+                                </div>
+                                <p class="hydro-text-readable fs-7 lh-lg mb-0 text-justify text-white opacity-75">
+                                    Żwawy nurt. Heavy Feeder i mocno doklejona zanęta gliną. Szukaj warkoczy i granicy nurtu.
+                                </p>
+                            </div>
+                            <div th:if="${flow > 10.0 && flow <= 25.0}" class="p-3 rounded-3 border border-success bg-success bg-opacity-10 mb-2">
+                                <div class="d-flex align-items-center gap-2 mb-2 text-success">
+                                    <i data-lucide="move-right" style="width: 20px;"></i>
+                                    <span class="fw-bold text-uppercase fs-7">Umiarkowany Nurt</span>
+                                </div>
+                                <p class="hydro-text-readable fs-7 lh-lg mb-0 text-justify text-white opacity-75">
+                                    Książkowy przepływ. Klasyczny Medium Feeder (40-70g) da radę obłowić koryto rzeki.
+                                </p>
+                            </div>
+                            <div th:if="${flow > 3.0 && flow <= 10.0}" class="p-3 rounded-3 border border-info bg-info bg-opacity-10 mb-2">
+                                <div class="d-flex align-items-center gap-2 mb-2 text-info">
+                                    <i data-lucide="waves" style="width: 20px;"></i>
+                                    <span class="fw-bold text-uppercase fs-7">Leniwy Nurt - Czas na Finezję</span>
+                                </div>
+                                <p class="hydro-text-readable fs-7 lh-lg mb-0 text-justify text-white opacity-75">
+                                    Woda leniwie się sączy. Odchudź zestawy (Picker, koszyczki 20g). Gruba żyłka spłoszy ryby.
+                                </p>
+                            </div>
+                            <div th:if="${flow <= 3.0}" class="p-3 rounded-3 border border-secondary bg-dark bg-opacity-50 mb-2">
+                                <div class="d-flex align-items-center gap-2 mb-2 text-white opacity-75">
+                                    <i data-lucide="circle-dot" style="width: 20px;"></i>
+                                    <span class="fw-bold text-uppercase fs-7">Zastoisko - Łowienie jeziorowe</span>
+                                </div>
+                                <p class="hydro-text-readable fs-7 lh-lg mb-0 text-justify text-white opacity-75">
+                                    Brak prądu wody. Użyj klasycznego Method Feedera na rzece!
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+
                 </article>
             </aside>
         </div>

@@ -2,8 +2,8 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="pl">
 <head>
     <th:block th:replace="~{fragments/head :: head-content(
-        pageTitle='Dane Synoptyczne IMGW | CzyZlowie',
-        pageDescription='Aktualne dane ze stacji synoptycznych IMGW na żywo. Analizuj ciśnienie, wiatr i temperaturę.'
+        pageTitle='Dane Synoptyczne od IMGW',
+        pageDescription='Aktualne dane ze stacji synoptycznych IMGW. Analizuj ciśnienie, wiatr i temperaturę.'
     )}"></th:block>
 
     <link rel="stylesheet" th:href="@{/css/essentials/synop.css}">
@@ -65,7 +65,7 @@
                         </div>
                     </form>
                     <div class="mt-2 pe-3 text-white opacity-50 fs-8 text-end" th:if="${dashboard != null}">
-                        <i data-lucide="crosshair" style="width: 12px;"></i> Dane ze stacji oddalonej o <span th:text="${dashboard.distanceKm}"></span> km
+                        <i data-lucide="crosshair" style="width: 12px;"></i> Dane ze stacji oddalonej o <span th:text="${#numbers.formatDecimal(dashboard.distanceKm, 1, 1)}"></span> km
                     </div>
                 </div>
             </div>
@@ -78,15 +78,15 @@
                 <div class="synop-glass-panel p-0 mb-4 overflow-hidden position-relative">
                     <div class="row g-0 position-relative z-1">
                         <div class="col-md-5 p-4 p-md-5 text-center text-md-start synop-border-end d-flex flex-column justify-content-center">
-                            <div class="d-flex justify-content-between align-items-center mb-3">
-                                <span class="text-uppercase fw-bold fs-7 synop-text-readable" style="letter-spacing: 1px;">
-                                    Aktualnie <span th:if="${dashboard.stationType == 'STACJA WIRTUALNA'}" class="badge bg-warning text-dark ms-2" style="font-size: 0.6rem;">Wirtualna</span>
+                            <div class="d-flex justify-content-between align-items-start mb-3 gap-2">
+                                <span class="text-uppercase fw-bold fs-7 synop-text-readable flex-shrink-0" style="letter-spacing: 1px;">
+                                    Aktualnie <span th:if="${dashboard.stationType == 'STACJA WIRTUALNA'}" class="badge bg-warning text-dark ms-1" style="font-size: 0.6rem;">Wirtualna</span>
                                 </span>
-                                <span class="synop-location-badge" th:text="${dashboard.locationName}">Miasto</span>
+                                <span class="synop-location-badge text-end lh-sm" th:text="${dashboard.locationName}">Miasto</span>
                             </div>
 
                             <h2 class="display-2 fw-black text-white mb-0 lh-1">
-                                <span th:text="${dashboard.currentReading.temperature != null ? dashboard.currentReading.temperature : '--'}">-2.6</span><span class="fs-3 text-white opacity-50">°C</span>
+                                <span th:text="${dashboard.currentReading.temperature != null ? #numbers.formatDecimal(dashboard.currentReading.temperature, 1, 1) : '--'}">-2.6</span><span class="fs-3 text-white opacity-50">°C</span>
                             </h2>
                             <p class="fs-7 text-synop-cyan fw-bold mt-2 mb-4 d-flex align-items-center justify-content-center justify-content-md-start gap-2">
                                 <i data-lucide="clock" style="width: 14px;"></i> Odczyt: <span th:text="${dashboard.currentReading.timeLabel}"></span>
@@ -94,51 +94,54 @@
                         </div>
 
                         <div class="col-md-7 p-4 p-md-5 synop-condition-bg d-flex align-items-center justify-content-center">
-                            <div class="row w-100 g-4 text-center text-md-start">
-                                <div class="col-6 col-md-12 d-flex align-items-center gap-3 mb-md-2">
-                                    <div class="flex-shrink-0">
-                                        <i data-lucide="gauge" class="text-synop-cyan" style="width: 32px; height: 32px;"></i>
+                            <div class="row w-100 g-4 text-start">
+
+                                <div class="col-12 d-flex align-items-center gap-3 mb-md-2 pb-4 border-bottom border-dark-subtle border-opacity-25">
+                                    <div class="flex-shrink-0 p-3 bg-dark bg-opacity-50 rounded-circle border border-dark-subtle">
+                                        <i data-lucide="gauge" class="text-synop-cyan" style="width: 28px; height: 28px;"></i>
                                     </div>
-                                    <div>
+                                    <div class="w-100">
                                         <span class="d-block synop-text-readable fs-8 text-uppercase fw-bold mb-1">Ciśnienie atmosferyczne</span>
-                                        <span class="fs-3 fw-bold text-white">
-                                            <span th:text="${dashboard.currentReading.pressure != null ? dashboard.currentReading.pressure : '--'}">1025.4</span>
-                                            <span class="fs-6 opacity-50">hPa</span>
-                                        </span>
+                                        <span class="fs-2 fw-bold text-white lh-1">
+                    <span th:text="${dashboard.currentReading.pressure != null ? #numbers.formatDecimal(dashboard.currentReading.pressure, 1, 1) : '--'}">1025.4</span>
+                    <span class="fs-5 opacity-50">hPa</span>
+                </span>
                                     </div>
                                 </div>
-                                <div class="col-6 col-md-6 d-flex flex-column gap-1">
+
+                                <div class="col-6 d-flex flex-column gap-1">
                                     <span class="d-block synop-text-readable fs-8 text-uppercase fw-bold mb-1">Wiatr (Kier. <span th:text="${dashboard.currentReading.windDirection != null ? dashboard.currentReading.windDirection + '°' : '--'}">30°</span>)</span>
-                                    <div class="d-flex align-items-center justify-content-center justify-content-md-start gap-2">
-                                        <i data-lucide="wind" class="text-white opacity-50" style="width: 20px;"></i>
-                                        <span class="fs-4 fw-bold text-white">
-                                            <span th:text="${dashboard.currentReading.windSpeed != null ? dashboard.currentReading.windSpeed : '--'}">5.0</span>
-                                            <span class="fs-6 opacity-50">m/s</span>
-                                        </span>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <i data-lucide="wind" class="text-white opacity-50 flex-shrink-0" style="width: 20px;"></i>
+                                        <span class="fs-4 fw-bold text-white lh-1">
+                    <span th:text="${dashboard.currentReading.windSpeed != null ? #numbers.formatDecimal(dashboard.currentReading.windSpeed, 1, 1) : '--'}">5.0</span>
+                    <span class="fs-6 opacity-50">m/s</span>
+                </span>
                                     </div>
                                 </div>
-                                <div class="col-6 col-md-6 d-flex flex-column gap-1">
+
+                                <div class="col-6 d-flex flex-column gap-1">
                                     <span class="d-block synop-text-readable fs-8 text-uppercase fw-bold mb-1">Wilgotność / Opad</span>
-                                    <div class="d-flex align-items-center justify-content-center justify-content-md-start gap-2">
-                                        <i data-lucide="droplets" class="text-white opacity-50" style="width: 20px;"></i>
-                                        <div class="d-flex flex-column text-start">
-                                            <span class="fs-4 fw-bold text-white lh-1">
-                                                <span th:text="${dashboard.currentReading.humidity != null ? dashboard.currentReading.humidity : '--'}">59.8</span>
-                                                <span class="fs-6 opacity-50">%</span>
-                                            </span>
-                                            <span class="fs-8 text-synop-cyan fw-bold mt-1">
-                                                Opad: <span th:text="${dashboard.currentReading.precipitation != null ? dashboard.currentReading.precipitation : '0.0'}">0.0</span> mm
-                                            </span>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <i data-lucide="droplets" class="text-white opacity-50 flex-shrink-0" style="width: 20px;"></i>
+                                        <div class="d-flex flex-column">
+                    <span class="fs-4 fw-bold text-white lh-1">
+                        <span th:text="${dashboard.currentReading.humidity != null ? #numbers.formatDecimal(dashboard.currentReading.humidity, 1, 1) : '--'}">59.8</span>
+                        <span class="fs-6 opacity-50">%</span>
+                    </span>
+                                            <span class="fs-8 text-synop-cyan fw-bold mt-1 lh-1">
+                        Opad: <span th:text="${dashboard.currentReading.precipitation != null ? #numbers.formatDecimal(dashboard.currentReading.precipitation, 1, 1) : '0.0'}">0.0</span> mm
+                    </span>
                                         </div>
                                     </div>
                                 </div>
+
                             </div>
                         </div>
                     </div>
                 </div>
 
                 <div class="synop-glass-panel p-4">
-
                     <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 pb-3 border-bottom border-dark-subtle gap-3">
                         <h3 class="fs-5 text-white fw-bold mb-0 d-flex align-items-center gap-2">
                             <i data-lucide="line-chart" class="text-synop-cyan" style="width: 20px;"></i> Historia
@@ -167,29 +170,128 @@
             </div>
 
             <aside class="col-lg-4">
-                <article class="synop-glass-panel p-4 h-100 d-flex flex-column">
+                <article class="synop-glass-panel p-4 h-100 d-flex flex-column border-top border-4 border-synop-cyan">
                     <div class="mb-4 d-flex align-items-center gap-2 text-synop-cyan border-bottom border-dark-subtle pb-3">
                         <i data-lucide="brain-circuit" style="width: 24px; height: 24px;"></i>
-                        <h2 class="fs-5 text-white fw-bold mb-0">Analiza Warunków</h2>
-                    </div>
-
-                    <div class="synop-knowledge-item mb-4">
-                        <h3 class="fs-6 text-white fw-bold mb-2">Gęstość Powietrza</h3>
-                        <p class="synop-text-readable fs-7 lh-lg mb-0">
-                            Odczytane ciśnienie (<strong class="text-white" th:text="${dashboard.currentReading.pressure != null ? dashboard.currentReading.pressure + ' hPa' : '--'}"></strong>) wpływa na pęcherz pławny. Skoki ciśnienia wywołują u ryb dekompresję lub kompresję, zmieniając ich strefę żerowania.
-                        </p>
+                        <h2 class="fs-5 text-white fw-bold mb-0">Ekspercka Analiza Synoptyczna</h2>
                     </div>
 
                     <div class="synop-knowledge-item mb-4 pb-4 border-bottom border-dark-subtle">
-                        <h3 class="fs-6 text-white fw-bold mb-2">Wpływ Wiatru</h3>
-                        <p class="synop-text-readable fs-7 lh-lg mb-0">
-                            Wiatr <strong class="text-white" th:text="${dashboard.currentReading.windSpeed != null ? dashboard.currentReading.windSpeed + ' m/s' : '--'}"></strong> z kierunku <strong th:text="${dashboard.currentReading.windDirection != null ? dashboard.currentReading.windDirection + '°' : '--'}"></strong> natlenia wodę i tworzy prądy wsteczne na łowisku, przynosząc pokarm.
-                        </p>
+                        <h3 class="fs-6 text-white fw-bold mb-3 d-flex align-items-center gap-2">
+                            <i data-lucide="gauge" class="text-info" style="width: 20px;"></i>
+                            Gęstość Powietrza i Ciśnienie
+                        </h3>
+
+                        <div th:if="${dashboard.currentReading.pressure == null}" class="p-3 rounded-3 border border-warning bg-warning bg-opacity-10 mb-2">
+                            <div class="d-flex align-items-center gap-2 mb-2 text-warning">
+                                <i data-lucide="siren" style="width: 20px;"></i>
+                                <span class="fw-bold text-uppercase fs-7">Brak danych o ciśnieniu</span>
+                            </div>
+                            <p class="synop-text-readable fs-7 lh-lg mb-0 text-justify text-white opacity-75">
+                                Stacja przestała raportować zmiany barometryczne. Analiza pęcherza pławnego u ryb jest chwilowo niemożliwa.
+                            </p>
+                        </div>
+
+                        <div th:if="${dashboard.currentReading.pressure != null}" th:with="press=${dashboard.currentReading.pressure.doubleValue()}">
+
+                            <div th:if="${press > 1020.0}" class="p-3 rounded-3 border border-primary bg-primary bg-opacity-10 mb-2">
+                                <div class="d-flex align-items-center gap-2 mb-2 text-primary">
+                                    <i data-lucide="arrow-up-circle" style="width: 20px;"></i>
+                                    <span class="fw-bold text-uppercase fs-7">Silny Wyż (>1020 hPa)</span>
+                                </div>
+                                <p class="synop-text-readable fs-7 lh-lg mb-0 text-justify text-white opacity-75">
+                                    <strong>Kompresja pęcherza.</strong> Wysokie ciśnienie atmosferyczne wtłacza się w wodę, dociskając ryby do dna. Drapieżniki (szczupak, sandacz) często stają się apatyczne i "przyklejają" się do twardego podłoża.
+                                    <br><br>
+                                    <span class="text-white opacity-100 fw-bold"><i data-lucide="target" style="width: 14px; display: inline;"></i> Taktyka:</span> Zrezygnuj z łowienia w toni. Przynęty prowadź leniwie po samym dnie. Zestawy gruntowe i ciężki opad to najlepszy wybór.
+                                </p>
+                            </div>
+
+                            <div th:if="${press > 1005.0 && press <= 1020.0}" class="p-3 rounded-3 border border-success bg-success bg-opacity-10 mb-2">
+                                <div class="d-flex align-items-center gap-2 mb-2 text-success">
+                                    <i data-lucide="check-circle" style="width: 20px;"></i>
+                                    <span class="fw-bold text-uppercase fs-7">Optymalne Ciśnienie</span>
+                                </div>
+                                <p class="synop-text-readable fs-7 lh-lg mb-0 text-justify text-white opacity-75">
+                                    <strong>Swoboda w toni!</strong> Książkowe ciśnienie sprawia, że ryby mogą swobodnie zmieniać głębokość bez utraty ogromnej ilości energii na wyrównywanie gazu w pęcherzu pławnym.
+                                    <br><br>
+                                    <span class="text-white opacity-100 fw-bold"><i data-lucide="target" style="width: 14px; display: inline;"></i> Taktyka:</span> Każda metoda jest dozwolona. Szukaj ryb zarówno przy dnie, jak i w środkowej strefie wody (np. spławik, przynęty zawieszone w toni).
+                                </p>
+                            </div>
+
+                            <div th:if="${press <= 1005.0}" class="p-3 rounded-3 border border-warning bg-warning bg-opacity-10 mb-2">
+                                <div class="d-flex align-items-center gap-2 mb-2 text-warning">
+                                    <i data-lucide="arrow-down-circle" style="width: 20px;"></i>
+                                    <span class="fw-bold text-uppercase fs-7">Głęboki Niż (<1005 hPa)</span>
+                                </div>
+                                <p class="synop-text-readable fs-7 lh-lg mb-0 text-justify text-white opacity-75">
+                                    <strong>Dekompresja.</strong> Niskie ciśnienie najczęściej zwiastuje pogorszenie pogody i front burzowy. Ryby odczuwają "puchnięcie" pęcherza. Przed samym nadejściem niżu następuje często szaleńcze żerowanie, ale gdy niż się ustabilizuje – ryby przestają jeść.
+                                    <br><br>
+                                    <span class="text-white opacity-100 fw-bold"><i data-lucide="target" style="width: 14px; display: inline;"></i> Taktyka:</span> Szukaj ryb na płytszej wodzie. Wykorzystaj "okno pogodowe" przed deszczem – to szansa na życiówkę.
+                                </p>
+                            </div>
+                        </div>
                     </div>
 
-                    <div class="mt-auto bg-dark bg-opacity-50 p-3 rounded-3 border border-dark-subtle text-center">
-                        <span class="d-block synop-text-readable fs-8 text-uppercase fw-bold mb-1">Status Źródła</span>
-                        <span class="fs-4 fw-black text-synop-cyan text-glow-cyan" th:text="${dashboard.stationType}">SYNOP</span>
+                    <div class="synop-knowledge-item mb-4 pb-4 border-bottom border-dark-subtle">
+                        <h3 class="fs-6 text-white fw-bold mb-3 d-flex align-items-center gap-2">
+                            <i data-lucide="wind" class="text-synop-cyan" style="width: 20px;"></i>
+                            Dynamika Wiatru i Fali
+                        </h3>
+
+                        <div th:if="${dashboard.currentReading.windSpeed == null}" class="p-3 rounded-3 border border-warning bg-warning bg-opacity-10 mb-2">
+                            <div class="d-flex align-items-center gap-2 mb-2 text-warning">
+                                <i data-lucide="siren" style="width: 20px;"></i>
+                                <span class="fw-bold text-uppercase fs-7">Brak pomiaru wiatru</span>
+                            </div>
+                        </div>
+
+                        <div th:if="${dashboard.currentReading.windSpeed != null}" th:with="wind=${dashboard.currentReading.windSpeed.doubleValue()}">
+
+                            <div th:if="${wind > 8.0}" class="p-3 rounded-3 border border-danger bg-danger bg-opacity-10 mb-2">
+                                <div class="d-flex align-items-center gap-2 mb-2 text-danger">
+                                    <i data-lucide="waves" style="width: 20px;"></i>
+                                    <span class="fw-bold text-uppercase fs-7">Silny Wiatr / Prądy</span>
+                                </div>
+                                <p class="synop-text-readable fs-7 lh-lg mb-0 text-justify text-white opacity-75">
+                                    Wiatr z kierunku <strong>[[${dashboard.currentReading.windDirection != null ? dashboard.currentReading.windDirection + '°' : '--'}]]</strong> potężnie natlenia wodę, ale tworzy trudne warunki brzegowe. Zepchnięty plankton i drobnica gromadzą się pod nawietrznym brzegiem (tam gdzie wieje w twarz). Tam też podążają drapieżniki!
+                                </p>
+                            </div>
+
+                            <div th:if="${wind > 3.0 && wind <= 8.0}" class="p-3 rounded-3 border border-info bg-info bg-opacity-10 mb-2">
+                                <div class="d-flex align-items-center gap-2 mb-2 text-info">
+                                    <i data-lucide="wind" style="width: 20px;"></i>
+                                    <span class="fw-bold text-uppercase fs-7">Umiarkowany (Marszczka)</span>
+                                </div>
+                                <p class="synop-text-readable fs-7 lh-lg mb-0 text-justify text-white opacity-75">
+                                    Idealne warunki! Rozbita powierzchnia wody maskuje wędkarza. Ryby są ufniejsze i chętniej opuszczają bezpieczne kryjówki, aby żerować na płyciznach.
+                                </p>
+                            </div>
+
+                            <div th:if="${wind <= 3.0}" class="p-3 rounded-3 border border-secondary bg-dark bg-opacity-50 mb-2">
+                                <div class="d-flex align-items-center gap-2 mb-2 text-white opacity-75">
+                                    <i data-lucide="cloud" style="width: 20px;"></i>
+                                    <span class="fw-bold text-uppercase fs-7">Słaby Wiatr (Flauta)</span>
+                                </div>
+                                <p class="synop-text-readable fs-7 lh-lg mb-0 text-justify text-white opacity-75">
+                                    Woda stoi. Doskonała widoczność pod wodą wymaga cienkich przyponów, małych haczyków i absolutnej ciszy na brzegu. Każde tupnięcie odstraszy stado.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-auto bg-dark bg-opacity-80 p-3 rounded-3 border border-synop-cyan position-relative overflow-hidden text-center d-flex flex-column align-items-center justify-content-center">
+                        <span class="d-block synop-text-readable fs-8 text-uppercase fw-bold mb-2 text-white opacity-75">Zaufanie Danych</span>
+                        <div class="d-flex align-items-center justify-content-center gap-2 mb-2">
+                            <i data-lucide="radio-tower" class="text-synop-cyan" style="width: 24px;"></i>
+                            <span class="fs-4 fw-black text-synop-cyan text-glow-cyan text-uppercase" th:text="${dashboard.stationType}">SYNOP</span>
+                        </div>
+
+                        <th:block th:if="${dashboard.stationType == 'STACJA WIRTUALNA'}">
+                            <span class="badge bg-warning text-dark border border-warning fw-bold fs-8 py-1 px-2">Interpolacja Danych (Możliwy Margines Błędu)</span>
+                        </th:block>
+                        <th:block th:if="${dashboard.stationType != 'STACJA WIRTUALNA'}">
+                            <span class="badge bg-success text-white border border-success fw-bold fs-8 py-1 px-2">Bezpośredni Odczyt z Czujników IMGW</span>
+                        </th:block>
                     </div>
                 </article>
             </aside>
@@ -201,7 +303,7 @@
                 <div class="alert alert-warning text-center border-synop-cyan-subtle bg-dark text-white p-5">
                     <i data-lucide="satellite-dish" class="text-synop-cyan mb-3" style="width: 48px; height: 48px;"></i><br>
                     <h3 class="fs-4 fw-bold">Brak danych dla wybranej lokalizacji lub dnia</h3>
-                    <p class="text-muted mt-2">Stacje mogły nie wysłać raportu lub wybrana data wybiega poza archiwa.</p>
+                    <p class="text-muted mt-2">Stacja mogła nie wysłać raportu lub podana nazwa jest nieprawidłowa.</p>
                 </div>
             </div>
         </div>
@@ -216,138 +318,6 @@
 <script th:inline="javascript">
     document.addEventListener('DOMContentLoaded', () => {
         lucide.createIcons();
-
-        /*<![CDATA[*/
-        const rawLabels = /*[[${dashboard != null ? dashboard.chartLabels : '[]'}]]*/ [];
-        const rawTimestamps = /*[[${dashboard != null ? dashboard.chartTimestamps : '[]'}]]*/ [];
-        const rawTemp = /*[[${dashboard != null ? dashboard.chartTemperatures : '[]'}]]*/ [];
-        const rawWind = /*[[${dashboard != null ? dashboard.chartWindSpeeds : '[]'}]]*/ [];
-        /*]]>*/
-
-        const fullLabels = typeof rawLabels === 'string' ? JSON.parse(rawLabels || '[]') : rawLabels;
-        const fullTimestamps = typeof rawTimestamps === 'string' ? JSON.parse(rawTimestamps || '[]') : rawTimestamps;
-        const fullTemp = typeof rawTemp === 'string' ? JSON.parse(rawTemp || '[]') : rawTemp;
-        const fullWind = typeof rawWind === 'string' ? JSON.parse(rawWind || '[]') : rawWind;
-
-        let chartInstance = null;
-        let currentRangeHours = 24;
-        let currentDatasetType = 'temp';
-
-        function updateChart() {
-            const ctxNode = document.getElementById('synopChart');
-            if(!ctxNode || fullLabels.length === 0) return;
-            const ctx = ctxNode.getContext('2d');
-            const now = new Date().getTime();
-            const cutoffTime = now - (currentRangeHours * 60 * 60 * 1000);
-
-            let sliceStart = fullTimestamps.findIndex(ts => {
-                if(!ts) return false;
-                const safeTs = ts.includes('T') && !ts.endsWith('Z') ? ts + 'Z' : ts;
-                const time = new Date(safeTs).getTime();
-                return !isNaN(time) && time >= cutoffTime;
-            });
-
-            if (sliceStart === -1) {
-                sliceStart = Math.max(0, fullTimestamps.length - currentRangeHours);
-            }
-            const slicedLabels = fullLabels.slice(sliceStart);
-            const dataToShow = currentDatasetType === 'temp'
-                ? fullTemp.slice(sliceStart)
-                : fullWind.slice(sliceStart);
-
-            const isTemp = currentDatasetType === 'temp';
-            const themeColor = isTemp ? '#00f2ff' : '#a855f7';
-            const yLabel = isTemp ? 'Temperatura (°C)' : 'Prędkość Wiatru (m/s)';
-
-            let gradient = ctx.createLinearGradient(0, 0, 0, 300);
-            gradient.addColorStop(0, `rgba(${isTemp ? '0, 242, 255' : '168, 85, 247'}, 0.3)`);
-            gradient.addColorStop(1, `rgba(${isTemp ? '0, 242, 255' : '168, 85, 247'}, 0.0)`);
-
-            if(chartInstance) chartInstance.destroy();
-
-            chartInstance = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: slicedLabels,
-                    datasets: [{
-                        label: yLabel,
-                        data: dataToShow,
-                        borderColor: themeColor,
-                        backgroundColor: gradient,
-                        borderWidth: 3,
-                        pointBackgroundColor: '#010409',
-                        pointBorderColor: themeColor,
-                        pointBorderWidth: 2,
-                        pointRadius: 3,
-                        pointHoverRadius: 6,
-                        fill: 'start',
-
-                        tension: 0.4
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: { display: false },
-                        tooltip: {
-                            backgroundColor: 'rgba(13, 17, 23, 0.95)',
-                            titleColor: '#94a3b8',
-                            bodyColor: themeColor,
-                            bodyFont: { weight: 'bold', size: 15 },
-                            padding: 14,
-                            borderColor: themeColor,
-                            borderWidth: 1,
-                            displayColors: false,
-                            callbacks: {
-                                label: function(context) {
-                                    return context.parsed.y + (isTemp ? ' °C' : ' m/s');
-                                }
-                            }
-                        }
-                    },
-                    scales: {
-                        y: {
-                            grid: { color: 'rgba(255, 255, 255, 0.05)' },
-                            ticks: { color: '#94a3b8', font: { size: 12 } },
-                            border: { display: false }
-                        },
-                        x: {
-                            grid: { display: false },
-                            ticks: {
-                                color: '#94a3b8',
-                                font: { size: 11 },
-                                maxTicksLimit: currentRangeHours > 48 ? 8 : 12
-                            },
-                            border: { display: false }
-                        }
-                    },
-                    layout: { padding: { left: 0, bottom: 0 } }
-                }
-            });
-        }
-
-        document.querySelectorAll('.chart-range-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                document.querySelectorAll('.chart-range-btn').forEach(b => {
-                    b.classList.remove('active', 'border-info');
-                    b.classList.add('border-secondary');
-                });
-                e.target.classList.add('active', 'border-info');
-                e.target.classList.remove('border-secondary');
-                currentRangeHours = parseInt(e.target.dataset.range);
-                updateChart();
-            });
-        });
-
-        document.querySelectorAll('input[name="chartType"]').forEach(radio => {
-            radio.addEventListener('change', (e) => {
-                currentDatasetType = e.target.value;
-                updateChart();
-            });
-        });
-
-        if (fullLabels.length > 0) updateChart();
 
         const form = document.getElementById('synop-search-form');
         if (form) {
@@ -386,6 +356,161 @@
                     btn.disabled = false;
                 }
             });
+        }
+
+        const hasDashboard = /*[[${dashboard != null}]]*/ false;
+
+        if (hasDashboard) {
+            const rawLabels = /*[[${dashboard?.chartLabels}]]*/ [];
+            const rawTimestamps = /*[[${dashboard?.chartTimestamps}]]*/ [];
+            const rawTemp = /*[[${dashboard?.chartTemperatures}]]*/ [];
+            const rawWind = /*[[${dashboard?.chartWindSpeeds}]]*/ [];
+
+            const fullLabels = typeof rawLabels === 'string' ? JSON.parse(rawLabels || '[]') : (rawLabels || []);
+            const fullTimestamps = typeof rawTimestamps === 'string' ? JSON.parse(rawTimestamps || '[]') : (rawTimestamps || []);
+            const fullTemp = typeof rawTemp === 'string' ? JSON.parse(rawTemp || '[]') : (rawTemp || []);
+            const fullWind = typeof rawWind === 'string' ? JSON.parse(rawWind || '[]') : (rawWind || []);
+
+            let chartInstance = null;
+            let currentRangeHours = 24;
+            let currentDatasetType = 'temp';
+
+            function updateChart() {
+                const ctxNode = document.getElementById('synopChart');
+                if(!ctxNode || fullLabels.length === 0) return;
+                const ctx = ctxNode.getContext('2d');
+                const now = new Date().getTime();
+                const cutoffTime = now - (currentRangeHours * 60 * 60 * 1000);
+
+                let sliceStart = fullTimestamps.findIndex(ts => {
+                    if(!ts) return false;
+                    const safeTs = ts.includes('T') && !ts.endsWith('Z') ? ts + 'Z' : ts;
+                    const time = new Date(safeTs).getTime();
+                    return !isNaN(time) && time >= cutoffTime;
+                });
+
+                if (sliceStart === -1) {
+                    sliceStart = Math.max(0, fullTimestamps.length - currentRangeHours);
+                }
+                const slicedLabels = fullLabels.slice(sliceStart);
+                const dataToShow = currentDatasetType === 'temp'
+                    ? fullTemp.slice(sliceStart)
+                    : fullWind.slice(sliceStart);
+
+                const isTemp = currentDatasetType === 'temp';
+
+                const windColor = '#a855f7';
+                const tempWarmColor = '#f59e0b';
+                const tempColdColor = '#00f2ff';
+
+                let gradient = ctx.createLinearGradient(0, 0, 0, 300);
+                if (isTemp) {
+                    gradient.addColorStop(0, 'rgba(245, 158, 11, 0.2)');
+                    gradient.addColorStop(1, 'rgba(0, 242, 255, 0.05)');
+                } else {
+                    gradient.addColorStop(0, 'rgba(168, 85, 247, 0.3)');
+                    gradient.addColorStop(1, 'rgba(168, 85, 247, 0.0)');
+                }
+
+                if(chartInstance) chartInstance.destroy();
+
+                chartInstance = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: slicedLabels,
+                        datasets: [{
+                            label: isTemp ? 'Temperatura (°C)' : 'Prędkość Wiatru (m/s)',
+                            data: dataToShow,
+                            backgroundColor: gradient,
+                            borderWidth: 3,
+                            pointBackgroundColor: '#010409',
+                            pointBorderWidth: 2,
+                            pointRadius: 3,
+                            pointHoverRadius: 6,
+                            fill: 'start',
+                            tension: 0.4,
+                            segment: {
+                                borderColor: context => {
+                                    if (!isTemp) return windColor;
+                                    return context.p1.parsed.y < 0 ? tempColdColor : tempWarmColor;
+                                }
+                            },
+                            pointBorderColor: context => {
+                                if (!isTemp) return windColor;
+                                const val = context.raw;
+                                return val < 0 ? tempColdColor : tempWarmColor;
+                            }
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: {
+                                backgroundColor: 'rgba(13, 17, 23, 0.95)',
+                                titleColor: '#94a3b8',
+                                bodyFont: { weight: 'bold', size: 15 },
+                                padding: 14,
+                                borderWidth: 1,
+                                displayColors: false,
+                                borderColor: context => {
+                                    if (!isTemp) return windColor;
+                                    return context.tooltip.dataPoints[0].raw < 0 ? tempColdColor : tempWarmColor;
+                                },
+                                callbacks: {
+                                    labelTextColor: context => {
+                                        if (!isTemp) return windColor;
+                                        return context.raw < 0 ? tempColdColor : tempWarmColor;
+                                    },
+                                    label: context => {
+                                        return context.parsed.y + (isTemp ? ' °C' : ' m/s');
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            y: {
+                                grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                                ticks: { color: '#94a3b8', font: { size: 12 } },
+                                border: { display: false }
+                            },
+                            x: {
+                                grid: { display: false },
+                                ticks: {
+                                    color: '#94a3b8',
+                                    font: { size: 11 },
+                                    maxTicksLimit: currentRangeHours > 48 ? 8 : 12
+                                },
+                                border: { display: false }
+                            }
+                        },
+                        layout: { padding: { left: 0, bottom: 0 } }
+                    }
+                });
+            }
+
+            document.querySelectorAll('.chart-range-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    document.querySelectorAll('.chart-range-btn').forEach(b => {
+                        b.classList.remove('active', 'border-info');
+                        b.classList.add('border-secondary');
+                    });
+                    e.target.classList.add('active', 'border-info');
+                    e.target.classList.remove('border-secondary');
+                    currentRangeHours = parseInt(e.target.dataset.range);
+                    updateChart();
+                });
+            });
+
+            document.querySelectorAll('input[name="chartType"]').forEach(radio => {
+                radio.addEventListener('change', (e) => {
+                    currentDatasetType = e.target.value;
+                    updateChart();
+                });
+            });
+
+            if (fullLabels.length > 0) updateChart();
         }
     });
 </script>
