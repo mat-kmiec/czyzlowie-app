@@ -2,27 +2,17 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="pl">
 <head>
     <th:block th:replace="~{fragments/head :: head-content(
-        pageTitle='Cele Wędkarskie | CzyZlowie',
+        pageTitle='Cele Wędkarskie',
         pageDescription='Tablica wyzwań i kontraktów. Ustalaj wędkarskie cele, śledź postępy i zdobywaj swoje prywatne trofea.',
         currentUrl='https://czyzlowie.pl/cele'
     )}"></th:block>
 
     <link rel="stylesheet" th:href="@{/css/profil/panel.css}">
     <link rel="stylesheet" th:href="@{/css/profil/fishing-goals.css}">
-
 </head>
 <body class="algo-page">
 
 <nav th:replace="~{fragments/navbar :: navbar(activeTab='cele')}"></nav>
-
-<div class="algo-bg-container" aria-hidden="true">
-    <picture>
-        <img src="/assets/drapiezniki.jpg" alt="Tło osiągnięć" class="algo-bg-image" loading="lazy">
-    </picture>
-    <div class="algo-bg-overlay"></div>
-    <div class="algo-glow glow-top-left"></div>
-    <div class="algo-glow glow-bottom-right"></div>
-</div>
 
 <main class="container-xl position-relative z-2 pb-5" style="margin-top: 90px;">
 
@@ -33,29 +23,33 @@
                     <i data-lucide="target" style="color: var(--bounty-gold); width: 32px; height: 32px;"></i>
                 </div>
                 <div>
-                    <h1 class="display-5 fw-black text-white mb-0" style="text-shadow: 0 0 15px var(--bounty-gold-glow); letter-spacing: -1px;">Tablica Kontraktów</h1>
-                    <p class="fs-7 mb-0 text-secondary-custom">Wyznaczaj nowe granice. Śledź swoje postępy i zdobywaj wędkarskie trofea.</p>
+                    <h1 class="display-5 fw-black text-white mb-0" style="text-shadow: 0 0 15px var(--bounty-gold-glow); letter-spacing: -1px;">Cele Wędkarskie</h1>
+                    <p class="fs-7 mb-0 text-secondary-custom">Podejmuj nowe wyzwania nad wodą. Ustalaj osobiste rekordy, śledź postępy i zdobywaj prestiżowe trofea do swojej kolekcji.</p>
                 </div>
             </div>
-            <button class="btn btn-algo btn-gold d-xl-none" type="button" data-bs-toggle="collapse" data-bs-target="#createBountyForm" aria-expanded="false" style="width: auto;">
-                <i data-lucide="award"></i> Wystaw Kontrakt
-            </button>
         </div>
 
         <div class="top-stats-grid border-top border-secondary border-opacity-25 pt-4">
             <div class="top-stat-box">
-                <span class="stat-label"><i data-lucide="award" style="width: 12px;"></i> Zdobyte Trofea (Ukończone)</span>
-                <span class="stat-value">4 <span class="fs-8 text-secondary fw-normal">wykonane</span></span>
+                <span class="stat-label"><i data-lucide="award" style="width: 12px;"></i> Zdobyte Trofea</span>
+                <span class="stat-value"><th:block th:text="${completedCount}">0</th:block> <span class="fs-8 text-secondary fw-normal">wykonane</span></span>
             </div>
             <div class="top-stat-box blue">
                 <span class="stat-label"><i data-lucide="crosshair" style="width: 12px;"></i> Aktywne Wyzwania</span>
-                <span class="stat-value">2 <span class="fs-8 text-secondary fw-normal">w toku</span></span>
-            </div>
-            <div class="top-stat-box green">
-                <span class="stat-label"><i data-lucide="trending-up" style="width: 12px;"></i> Globalny Postęp</span>
-                <span class="stat-value">66%</span>
+                <span class="stat-value"><th:block th:text="${activeCount}">0</th:block> <span class="fs-8 text-secondary fw-normal">w toku</span></span>
             </div>
         </div>
+        <div th:if="${success}" class="alert alert-success alert-dismissible fade show mb-4" role="alert" style="background: rgba(16, 185, 129, 0.1); border: 1px solid var(--success-green); color: white;">
+            <i data-lucide="check-circle" class="me-2 text-success"></i> <span th:text="${success}">Sukces</span>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        <div th:if="${error}" class="alert alert-danger alert-dismissible fade show mb-4" role="alert" style="background: rgba(239, 68, 68, 0.1); border: 1px solid var(--danger-red); color: white;">
+            <i data-lucide="alert-circle" class="me-2 text-danger"></i> <span th:text="${error}">Błąd</span>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        <button class="btn btn-algo btn-gold d-xl-none mt-3" type="button" data-bs-toggle="collapse" data-bs-target="#createBountyForm" aria-expanded="false" style="width: auto;">
+            <i data-lucide="award"></i> Wystaw Kontrakt
+        </button>
     </header>
 
     <div class="row g-4">
@@ -64,24 +58,24 @@
             <div class="collapse d-xl-block" id="createBountyForm">
                 <div class="algo-glass-panel p-4 h-auto position-sticky" style="top: 100px;">
                     <h2 class="section-header m-0 mb-4" style="border-bottom-color: rgba(234, 179, 8, 0.2);">
-                        <i data-lucide="crosshair" style="color: var(--bounty-gold);"></i> Wystaw Nowy Kontrakt
+                        <i data-lucide="medal" style="color: var(--bounty-gold);"></i> Wystaw Nowy Cel
                     </h2>
 
-                    <form action="#" method="post">
+                    <form th:action="@{/cele/dodaj}" th:object="${goalRequest}" method="post">
 
-                        <label class="input-label"><i data-lucide="flag"></i> Nazwa Operacji / Tytuł</label>
+                        <label class="input-label"><i data-lucide="flag"></i> Nazwa Celu / Tytuł</label>
                         <div class="algo-input-group">
-                            <input type="text" name="bountyTitle" class="algo-input" placeholder="np. Klub Metrówki, Wiosenny Worek..." required>
+                            <input type="text" th:field="*{title}" class="algo-input" placeholder="np. Klub Metrówki..." required>
                             <i data-lucide="pen-tool" class="input-icon"></i>
                         </div>
 
                         <label class="input-label"><i data-lucide="layers"></i> Klasyfikacja Wymogu</label>
                         <div class="algo-input-group">
-                            <select name="bountyType" class="algo-input" required>
-                                <option value="length">Długość (PB - Rekord)</option>
-                                <option value="weight">Waga (Ciężar okazu)</option>
-                                <option value="quantity">Ilość (Sztuki w sezonie)</option>
-                                <option value="trips">Wyprawy (Liczba zasiadek)</option>
+                            <select th:field="*{type}" class="algo-input" required>
+                                <option value="LENGTH">Długość (PB - Rekord)</option>
+                                <option value="WEIGHT">Waga (Ciężar okazu)</option>
+                                <option value="QUANTITY">Ilość (Sztuki w sezonie)</option>
+                                <option value="TRIPS">Wyprawy (Liczba zasiadek)</option>
                             </select>
                             <i data-lucide="chevron-down" class="select-arrow"></i>
                             <i data-lucide="filter" class="input-icon"></i>
@@ -89,15 +83,21 @@
 
                         <div class="input-row">
                             <div>
-                                <label class="input-label"><i data-lucide="target"></i> Cel (Target)</label>
+                                <label class="input-label"><i data-lucide="target"></i> Twój Cel</label>
                                 <div class="algo-input-group">
-                                    <input type="number" name="targetValue" class="algo-input" placeholder="np. 100" required>
+                                    <input type="number"
+                                           step="0.01"
+                                           min="0"
+                                           th:field="*{targetValue}"
+                                           class="algo-input"
+                                           placeholder="np. 100"
+                                           required>
                                 </div>
                             </div>
                             <div>
                                 <label class="input-label"><i data-lucide="tag"></i> Jednostka</label>
                                 <div class="algo-input-group">
-                                    <select name="unit" class="algo-input" required style="padding-left: 1rem;">
+                                    <select th:field="*{unit}" class="algo-input" required style="padding-left: 1rem;">
                                         <option value="cm">cm</option>
                                         <option value="kg">kg</option>
                                         <option value="szt">sztuk</option>
@@ -107,14 +107,14 @@
                             </div>
                         </div>
 
-                        <label class="input-label"><i data-lucide="calendar"></i> Czas Operacyjny (Opcjonalnie)</label>
+                        <label class="input-label"><i data-lucide="calendar"></i> Czas Na Wykonanie (Opcjonalnie)</label>
                         <div class="algo-input-group">
-                            <input type="date" name="deadline" class="algo-input">
+                            <input type="date" th:field="*{deadline}" class="algo-input">
                             <i data-lucide="clock" class="input-icon"></i>
                         </div>
 
                         <button type="submit" class="btn-algo btn-gold w-100 mt-2">
-                            <i data-lucide="check-circle" style="width: 20px;"></i> Autoryzuj Kontrakt
+                            <i data-lucide="check-circle" style="width: 20px;"></i> Rozpocznij Wyzwanie
                         </button>
                     </form>
                 </div>
@@ -124,71 +124,102 @@
         <div class="col-xl-8">
 
             <h2 class="fs-5 fw-bold text-white mb-4 ps-2 border-start border-3" style="border-color: var(--brand-blue) !important;">
-                <i data-lucide="activity" style="width: 20px; color: var(--brand-blue); margin-right: 8px;"></i> Aktywne Kontrakty (W toku)
+                <i data-lucide="activity" style="width: 20px; color: var(--brand-blue); margin-right: 8px;"></i> Aktywne Cele (W toku)
             </h2>
 
             <div class="bounty-grid">
-
-                <div class="bounty-card">
+                <div class="bounty-card" th:each="goal : ${activeGoalsPage.content}">
                     <div class="bounty-header">
                         <div>
-                            <div class="bounty-badge"><i data-lucide="ruler" style="width:12px;"></i> PB Długość</div>
-                            <h3 class="bounty-title">Klub Metrówki (Szczupak)</h3>
-                            <div class="bounty-deadline"><i data-lucide="clock"></i> Czas nieokreślony</div>
+                            <div class="bounty-badge">
+                                <i th:if="${goal.type.name() == 'LENGTH'}" data-lucide="ruler" style="width:12px;"></i>
+                                <i th:if="${goal.type.name() == 'WEIGHT'}" data-lucide="scale" style="width:12px;"></i>
+                                <i th:if="${goal.type.name() == 'QUANTITY'}" data-lucide="hash" style="width:12px;"></i>
+                                <i th:if="${goal.type.name() == 'TRIPS'}" data-lucide="map" style="width:12px;"></i>
+
+                                <th:block th:switch="${goal.type.name()}">
+                                    <span th:case="'LENGTH'">Długość</span>
+                                    <span th:case="'WEIGHT'">Waga</span>
+                                    <span th:case="'QUANTITY'">Ilość</span>
+                                    <span th:case="'TRIPS'">Wyprawy</span>
+                                    <span th:case="*">Inne</span>
+                                </th:block>
+
+                                <span th:if="${goal.visibility.name() == 'GLOBAL'}" class="ms-1 text-warning fw-bold">(GLOBALNY)</span>
+                            </div>
+                            <h3 class="bounty-title" th:text="${goal.title}">Tytuł Celu</h3>
+                            <div class="bounty-deadline">
+                                <th:block th:if="${goal.deadline == null}">
+                                    <i data-lucide="clock"></i> Czas nieokreślony
+                                </th:block>
+                                <th:block th:if="${goal.deadline != null}">
+                                    <i data-lucide="calendar-off" style="color: var(--danger-red);"></i>
+                                    Koniec: <span th:text="${#temporals.format(goal.deadline, 'dd MMM yyyy')}"></span>
+                                </th:block>
+                            </div>
                         </div>
                     </div>
 
                     <div class="bounty-progress-container">
                         <div class="bounty-numbers">
                             <div>
-                                <span class="b-current">82</span>
-                                <span class="b-target">/ 100 <span class="b-unit">cm</span></span>
+                                <span class="b-current" th:text="${goal.currentValue}">0</span>
+                                <span class="b-target">/ <th:block th:text="${goal.targetValue}"></th:block> <span class="b-unit" th:text="${goal.unit}">cm</span></span>
                             </div>
-                            <span class="b-percent">82%</span>
+                            <span class="b-percent" th:text="${goal.completionPercentage + '%'}">0%</span>
                         </div>
                         <div class="b-track">
-                            <div class="b-fill" style="width: 82%;"></div>
+                            <div class="b-fill" th:style="|width: ${goal.completionPercentage}%;|"></div>
                         </div>
                     </div>
 
                     <div class="bounty-actions">
-                        <button class="btn-bounty-action btn-bounty-update trigger-update-modal" data-title="Klub Metrówki" data-unit="cm" data-current="82" data-target="100">
+                        <button class="btn-bounty-action btn-bounty-update trigger-update-modal"
+                                th:data-id="${goal.goalId}"
+                                th:data-title="${goal.title}"
+                                th:data-unit="${goal.unit}"
+                                th:data-current="${goal.currentValue}"
+                                th:data-target="${goal.targetValue}">
                             <i data-lucide="arrow-up-circle"></i> Aktualizuj
                         </button>
-                        <button class="btn-bounty-action"><i data-lucide="trash-2"></i> Porzuć</button>
+
+                        <button type="button" class="btn-bounty-action trigger-reset-modal"
+                                th:data-url="@{/cele/{id}/reset(id=${goal.goalId})}">
+                            <i data-lucide="rotate-ccw"></i> Resetuj
+                        </button>
+
+                        <button th:if="${goal.visibility.name() == 'PRIVATE'}" type="button" class="btn-bounty-action trigger-delete-modal"
+                                th:data-url="@{/cele/{id}/usun(id=${goal.goalId})}">
+                            <i data-lucide="trash-2"></i> Usuń
+                        </button>
                     </div>
                 </div>
 
-                <div class="bounty-card">
-                    <div class="bounty-header">
-                        <div>
-                            <div class="bounty-badge"><i data-lucide="hash" style="width:12px;"></i> Ilość</div>
-                            <h3 class="bounty-title">50 Okoni w Sezonie</h3>
-                            <div class="bounty-deadline"><i data-lucide="calendar-off" style="color: var(--danger-red);"></i> Koniec: 31 Gru 2026</div>
-                        </div>
-                    </div>
-
-                    <div class="bounty-progress-container">
-                        <div class="bounty-numbers">
-                            <div>
-                                <span class="b-current">18</span>
-                                <span class="b-target">/ 50 <span class="b-unit">szt</span></span>
-                            </div>
-                            <span class="b-percent">36%</span>
-                        </div>
-                        <div class="b-track">
-                            <div class="b-fill" style="width: 36%;"></div>
-                        </div>
-                    </div>
-
-                    <div class="bounty-actions">
-                        <button class="btn-bounty-action btn-bounty-update trigger-update-modal" data-title="50 Okoni w Sezonie" data-unit="szt" data-current="18" data-target="50">
-                            <i data-lucide="arrow-up-circle"></i> Aktualizuj
-                        </button>
-                        <button class="btn-bounty-action"><i data-lucide="trash-2"></i> Porzuć</button>
-                    </div>
+                <div th:if="${activeGoalsPage.empty}" class="text-center p-4 text-secondary">
+                    Nie masz żadnych aktywnych wyzwań. Wyznacz sobie nowy cel!
                 </div>
+            </div>
 
+            <div th:if="${activeGoalsPage.totalPages > 1}" class="d-flex justify-content-center mt-4 mb-5 algo-pagination">
+                <nav aria-label="Nawigacja aktywnych celów">
+                    <ul class="pagination pagination-blue mb-0">
+                        <li class="page-item" th:classappend="${activeGoalsPage.first ? 'disabled' : ''}">
+                            <a class="page-link" th:href="@{/cele(activePage=${activeGoalsPage.number - 1}, completedPage=${completedGoalsPage.number})}" aria-label="Poprzednia">
+                                <i data-lucide="chevron-left" style="width:18px;"></i>
+                            </a>
+                        </li>
+
+                        <li class="page-item" th:each="pageNum : ${#numbers.sequence(0, activeGoalsPage.totalPages - 1)}" th:classappend="${pageNum == activeGoalsPage.number ? 'active' : ''}">
+                            <a class="page-link" th:href="@{/cele(activePage=${pageNum}, completedPage=${completedGoalsPage.number})}" th:text="${pageNum + 1}">1</a>
+                        </li>
+
+                        <li class="page-item" th:classappend="${activeGoalsPage.last ? 'disabled' : ''}">
+                            <a class="page-link" th:href="@{/cele(activePage=${activeGoalsPage.number + 1}, completedPage=${completedGoalsPage.number})}" aria-label="Następna">
+                                <i data-lucide="chevron-right" style="width:18px;"></i>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
             </div>
 
             <h2 class="fs-5 fw-bold text-white mb-4 ps-2 border-start border-3" style="border-color: var(--bounty-gold) !important; margin-top: 2rem;">
@@ -196,23 +227,26 @@
             </h2>
 
             <div class="bounty-grid">
-
-                <div class="bounty-card completed">
+                <div class="bounty-card completed" th:each="goal : ${completedGoalsPage.content}">
                     <i data-lucide="shield-check" class="completed-stamp"></i>
 
                     <div class="bounty-header">
                         <div>
-                            <div class="bounty-badge"><i data-lucide="check-circle" style="width:12px;"></i> Osiągnięcie Odlokowane</div>
-                            <h3 class="bounty-title">Życiówka Okonia</h3>
-                            <div class="bounty-deadline" style="color: var(--bounty-gold);"><i data-lucide="award"></i> Ukończono: 12 Wrz 2025</div>
+                            <div class="bounty-badge">
+                                <i data-lucide="check-circle" style="width:12px;"></i> Osiągnięcie Odblokowane
+                            </div>
+                            <h3 class="bounty-title" th:text="${goal.title}">Życiówka Okonia</h3>
+                            <div class="bounty-deadline" style="color: var(--bounty-gold);">
+                                <i data-lucide="award"></i> Ukończono: <span th:text="${#temporals.format(goal.completedAt, 'dd MMM yyyy')}"></span>
+                            </div>
                         </div>
                     </div>
 
                     <div class="bounty-progress-container">
                         <div class="bounty-numbers">
                             <div>
-                                <span class="b-current" style="color: var(--bounty-gold);">42</span>
-                                <span class="b-target">/ 40 <span class="b-unit">cm</span></span>
+                                <span class="b-current" style="color: var(--bounty-gold);" th:text="${goal.currentValue}">42</span>
+                                <span class="b-target">/ <th:block th:text="${goal.targetValue}"></th:block> <span class="b-unit" th:text="${goal.unit}">cm</span></span>
                             </div>
                             <span class="b-percent">MAX</span>
                         </div>
@@ -221,12 +255,51 @@
                         </div>
                     </div>
 
-                    <div class="bounty-actions">
-                        <button class="btn-bounty-action">Zrealizowano</button>
-                        <button class="btn-bounty-action unlock" title="Cofnij status ukończenia"><i data-lucide="rotate-ccw"></i></button>
+                    <div class="bounty-actions" style="justify-content: flex-end;">
+                        <button class="btn-bounty-action me-auto" disabled style="flex: 1;">
+                            <i data-lucide="check"></i> Zrealizowano
+                        </button>
+
+                        <button type="button" class="btn-bounty-action unlock trigger-reset-modal"
+                                th:data-url="@{/cele/{id}/reset(id=${goal.goalId})}"
+                                title="Cofnij status ukończenia">
+                            <i data-lucide="rotate-ccw"></i>
+                        </button>
+
+                        <button th:if="${goal.visibility.name() == 'PRIVATE'}" type="button" class="btn-bounty-action unlock trigger-delete-modal"
+                                th:data-url="@{/cele/{id}/usun(id=${goal.goalId})}"
+                                style="color: var(--danger-red); border-color: rgba(239,68,68,0.3);"
+                                title="Usuń całkowicie">
+                            <i data-lucide="trash-2"></i>
+                        </button>
                     </div>
                 </div>
 
+                <div th:if="${completedGoalsPage.empty}" class="text-center p-4 text-secondary">
+                    Twoja tablica trofeów czeka na pierwsze zdobyte kontrakty!
+                </div>
+            </div>
+
+            <div th:if="${completedGoalsPage.totalPages > 1}" class="d-flex justify-content-center mt-4 algo-pagination">
+                <nav aria-label="Nawigacja trofeów">
+                    <ul class="pagination pagination-gold mb-0">
+                        <li class="page-item" th:classappend="${completedGoalsPage.first ? 'disabled' : ''}">
+                            <a class="page-link" th:href="@{/cele(activePage=${activeGoalsPage.number}, completedPage=${completedGoalsPage.number - 1})}" aria-label="Poprzednia">
+                                <i data-lucide="chevron-left" style="width:18px;"></i>
+                            </a>
+                        </li>
+
+                        <li class="page-item" th:each="pageNum : ${#numbers.sequence(0, completedGoalsPage.totalPages - 1)}" th:classappend="${pageNum == completedGoalsPage.number ? 'active' : ''}">
+                            <a class="page-link" th:href="@{/cele(activePage=${activeGoalsPage.number}, completedPage=${pageNum})}" th:text="${pageNum + 1}">1</a>
+                        </li>
+
+                        <li class="page-item" th:classappend="${completedGoalsPage.last ? 'disabled' : ''}">
+                            <a class="page-link" th:href="@{/cele(activePage=${activeGoalsPage.number}, completedPage=${completedGoalsPage.number + 1})}" aria-label="Następna">
+                                <i data-lucide="chevron-right" style="width:18px;"></i>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
             </div>
 
         </div>
@@ -238,28 +311,32 @@
 <div class="modal fade modal-glass" id="updateProgressModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
-
             <div class="modal-header border-bottom border-secondary border-opacity-25" style="background: rgba(14, 165, 233, 0.1);">
                 <h5 class="modal-title fw-black d-flex align-items-center gap-2 text-uppercase ls-1 text-white">
                     <i data-lucide="upload-cloud" style="color: var(--brand-blue);"></i> Zgłoś Nowy Wynik
                 </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-
-            <form action="#" method="post">
+            <form th:action="@{/cele/aktualizuj}" method="post">
+                <input type="hidden" name="goalId" id="modalGoalIdHidden" value="">
                 <div class="modal-body p-4">
                     <div class="text-center mb-4">
                         <h4 class="fw-bold text-white mb-1" id="modalGoalTitle">Tytuł Celu</h4>
                         <div class="fs-7 text-secondary">Obecny stan: <span id="modalCurrentVal" class="text-white fw-bold">--</span> / <span id="modalTargetVal">--</span> <span id="modalUnit">--</span></div>
                     </div>
-
                     <label class="input-label"><i data-lucide="crosshair"></i> Wprowadź Nową Wartość</label>
                     <div class="algo-input-group mb-0">
-                        <input type="number" step="0.1" name="newProgress" id="newProgressInput" class="algo-input" style="font-size: 1.5rem; font-weight: 900; text-align: center; padding-left: 1rem;" required>
+                        <input type="number"
+                               step="0.01"
+                               min="0"
+                               name="newProgress"
+                               id="newProgressInput"
+                               class="algo-input"
+                               style="font-size: 1.5rem; font-weight: 900; text-align: center; padding-left: 1rem;"
+                               required>
                     </div>
-                    <div class="fs-8 text-muted mt-2 text-center">System automatycznie nadpisze stary wynik i przeliczy procenty. Jeśli przekroczysz cel, kontrakt zostanie oznaczony jako Zrealizowany.</div>
+                    <div class="fs-8 text-secondary mt-2 text-center">System automatycznie nadpisze stary wynik i przeliczy procenty. Jeśli przekroczysz cel, kontrakt zostanie oznaczony jako Zrealizowany.</div>
                 </div>
-
                 <div class="modal-footer">
                     <div class="modal-action-btns">
                         <button type="button" class="btn btn-outline-secondary border-secondary text-white" data-bs-dismiss="modal">Anuluj</button>
@@ -269,41 +346,121 @@
                     </div>
                 </div>
             </form>
-
         </div>
     </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script src="https://unpkg.com/lucide@latest"></script>
+<div class="modal fade modal-glass" id="resetConfirmModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header border-bottom border-secondary border-opacity-25" style="background: rgba(245, 158, 11, 0.1);">
+                <h5 class="modal-title fw-black d-flex align-items-center gap-2 text-uppercase ls-1 text-white">
+                    <i data-lucide="rotate-ccw" style="color: var(--warning-yellow);"></i> Potwierdź Reset
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-4 text-center">
+                <div class="mb-3">
+                    <i data-lucide="refresh-cw" style="width: 48px; height: 48px; color: var(--warning-yellow); opacity: 0.8;"></i>
+                </div>
+                <h4 class="fw-bold text-white mb-2">Zerowanie Postępu</h4>
+                <p class="text-secondary mb-0">Czy na pewno chcesz wyzerować swój postęp? Kontrakt zostanie przywrócony do stanu początkowego, a zdobyte statystyki (jeśli to trofeum) zostaną cofnięte.</p>
+            </div>
+            <div class="modal-footer">
+                <form id="resetForm" th:action="@{/cele}" method="post" class="w-100 m-0">
+                    <div class="modal-action-btns">
+                        <button type="button" class="btn btn-outline-secondary border-secondary text-white" data-bs-dismiss="modal">Anuluj</button>
+                        <button type="submit" class="btn-algo" style="width: auto; background-image: linear-gradient(90deg, #d97706, #f59e0b, #d97706); box-shadow: 0 0 15px rgba(245, 158, 11, 0.3); border: 1px solid rgba(245, 158, 11, 0.4);">
+                            <i data-lucide="rotate-ccw" style="width:18px;"></i> Resetuj
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade modal-glass" id="deleteConfirmModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header border-bottom border-secondary border-opacity-25" style="background: rgba(239, 68, 68, 0.1);">
+                <h5 class="modal-title fw-black d-flex align-items-center gap-2 text-uppercase ls-1 text-white">
+                    <i data-lucide="alert-triangle" style="color: var(--danger-red);"></i> Potwierdź Usunięcie
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-4 text-center">
+                <div class="mb-3">
+                    <i data-lucide="trash-2" style="width: 48px; height: 48px; color: var(--danger-red); opacity: 0.8;"></i>
+                </div>
+                <h4 class="fw-bold text-white mb-2">Czy na pewno?</h4>
+                <p class="text-secondary mb-0">Chcesz całkowicie usunąć ten cel? Tej operacji nie można cofnąć, a wszystkie zapisane na jego temat dane po prostu przepadną.</p>
+            </div>
+            <div class="modal-footer">
+                <form id="deleteForm" th:action="@{/cele}" method="post" class="w-100 m-0">
+                    <div class="modal-action-btns">
+                        <button type="button" class="btn btn-outline-secondary border-secondary text-white" data-bs-dismiss="modal">Anuluj</button>
+                        <button type="submit" class="btn-algo" style="width: auto; background-image: linear-gradient(90deg, #e11d48, #f43f5e, #e11d48); box-shadow: 0 0 15px rgba(244, 63, 94, 0.3); border: 1px solid rgba(244, 63, 94, 0.4);">
+                            <i data-lucide="trash-2" style="width:18px;"></i> Usuń Cel
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
 
 <script>
     document.addEventListener('DOMContentLoaded', () => {
         lucide.createIcons();
 
-        // Obsługa modalu aktualizacji progresu
         const updateModal = new bootstrap.Modal(document.getElementById('updateProgressModal'));
         const modalTitle = document.getElementById('modalGoalTitle');
         const modalCurrent = document.getElementById('modalCurrentVal');
         const modalTarget = document.getElementById('modalTargetVal');
         const modalUnit = document.getElementById('modalUnit');
         const inputNewProgress = document.getElementById('newProgressInput');
+        const inputGoalId = document.getElementById('modalGoalIdHidden');
 
         document.querySelectorAll('.trigger-update-modal').forEach(btn => {
             btn.addEventListener('click', function() {
+                const id = this.getAttribute('data-id');
                 const title = this.getAttribute('data-title');
                 const unit = this.getAttribute('data-unit');
                 const current = this.getAttribute('data-current');
                 const target = this.getAttribute('data-target');
 
+                inputGoalId.value = id;
                 modalTitle.innerText = title;
                 modalCurrent.innerText = current;
                 modalTarget.innerText = target;
                 modalUnit.innerText = unit;
-                inputNewProgress.value = current; // Domyślnie wpisana aktualna wartość
-                inputNewProgress.setAttribute('min', current); // Zabezpieczenie HTML5, żeby nie wpisać mniej niż było (opcjonalne)
+                inputNewProgress.value = current;
+                inputNewProgress.setAttribute('min', current);
 
                 updateModal.show();
+            });
+        });
+
+        const resetModal = new bootstrap.Modal(document.getElementById('resetConfirmModal'));
+        const resetForm = document.getElementById('resetForm');
+
+        document.querySelectorAll('.trigger-reset-modal').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const actionUrl = this.getAttribute('data-url');
+                resetForm.setAttribute('action', actionUrl);
+                resetModal.show();
+            });
+        });
+
+        const deleteModal = new bootstrap.Modal(document.getElementById('deleteConfirmModal'));
+        const deleteForm = document.getElementById('deleteForm');
+
+        document.querySelectorAll('.trigger-delete-modal').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const actionUrl = this.getAttribute('data-url');
+                deleteForm.setAttribute('action', actionUrl);
+                deleteModal.show();
             });
         });
     });

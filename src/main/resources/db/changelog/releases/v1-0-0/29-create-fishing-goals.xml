@@ -1,0 +1,52 @@
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.0.xsd">
+
+    <changeSet id="001-create-fishing-goals" author="mateusz kmiec">
+        <createTable tableName="fishing_goals">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="title" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="goal_type" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="visibility" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="target_value" type="DECIMAL(10,2)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="unit" type="VARCHAR(20)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="deadline" type="DATE"/>
+            <column name="creator_id" type="BIGINT"/> <column name="created_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP"/>
+        </createTable>
+
+        <createTable tableName="user_goal_progress">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="user_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="goal_id" type="BIGINT">
+                <constraints nullable="false" foreignKeyName="fk_progress_goal" referencedTableName="fishing_goals" referencedColumnNames="id"/>
+            </column>
+            <column name="current_value" type="DECIMAL(10,2)" defaultValueNumeric="0.00">
+                <constraints nullable="false"/>
+            </column>
+            <column name="is_completed" type="BOOLEAN" defaultValueBoolean="false">
+                <constraints nullable="false"/>
+            </column>
+            <column name="completed_at" type="TIMESTAMP"/>
+            <column name="updated_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP"/>
+        </createTable>
+
+        <addUniqueConstraint tableName="user_goal_progress" columnNames="user_id, goal_id" constraintName="uq_user_goal"/>
+    </changeSet>
+
+</databaseChangeLog>

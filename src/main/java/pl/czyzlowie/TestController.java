@@ -29,10 +29,6 @@ public class TestController {
 //        return "profil/trip-calendar";
 //    }
 //
-//    @GetMapping("/ulubione-miejscowki")
-//    public String ulubioneMiejsca(){
-//        return "profil/favorite-places";
-//    }
 //
 //    @GetMapping("/lista-przynet")
 //    public String listaPrzynet(){
@@ -49,10 +45,6 @@ public class TestController {
 //        return "profil/equipment-checklist";
 //    }
 //
-//    @GetMapping("/cele-wedkarskie")
-//    public String celeWedkarskie(){
-//        return "profil/fishing-goals";
-//    }
 
 
 
