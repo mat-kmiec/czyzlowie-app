@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="pl">
 <head>
     <th:block th:replace="~{fragments/head :: head-content(
-        pageTitle='Dokładna Prognoza Brań Ryb - Kalibrator Algorytmu | CzyZlowie',
+        pageTitle='Dokładna Prognoza Brań Ryb - Kalibrator Algorytmu',
         pageDescription='Sprawdź, czy ryby biorą! Skonfiguruj zaawansowany algorytm wędkarski. Wybierz łowisko, gatunek ryby i sprawdź aktywność na podstawie danych IMGW i faz księżyca.'
     )}"></th:block>
 
@@ -34,7 +34,6 @@
 </head>
 <body class="algo-page">
 
-<!--<nav th:replace="~{fragments/navbar :: navbar}"></nav>-->
 <nav th:replace="~{fragments/navbar :: navbar(activeTab='prognoza')}"></nav>
 
 <div class="algo-bg-container" aria-hidden="true">
@@ -144,25 +143,45 @@
                     </div>
 
                     <div class="row g-4">
-                        <div class="col-md-6">
-                            <h3 class="h6 fw-bold mb-3 d-flex align-items-center gap-2 category-title-predator">
-                                <i data-lucide="swords" style="width:16px;"></i> Ryby Drapieżne
-                            </h3>
-                            <div class="fish-grid">
-                                <th:block th:each="fish : ${allFish}" th:if="${fish.category.name() == 'PREDATOR'}">
-                                    <label class="fish-card card-predator">
-                                        <input type="checkbox" class="fish-selector" name="targetFishSpeciesIds" th:value="${fish.id}">
-                                        <div>
-                                            <i data-lucide="fish"></i> <span th:text="${fish.name}">Nazwa Ryby</span>
-                                        </div>
-                                    </label>
-                                </th:block>
+                        <div class="col-md-6 d-flex flex-column gap-4">
+
+                            <div>
+                                <h3 class="h6 fw-bold mb-3 d-flex align-items-center gap-2 category-title-predator">
+                                    <i data-lucide="swords" style="width:16px;"></i> Ryby Drapieżne
+                                </h3>
+                                <div class="fish-grid">
+                                    <th:block th:each="fish : ${allFish}" th:if="${fish.category.name() == 'PREDATOR'}">
+                                        <label class="fish-card card-predator">
+                                            <input type="checkbox" class="fish-selector" name="targetFishSpeciesIds" th:value="${fish.id}">
+                                            <div>
+                                                <i data-lucide="fish"></i> <span th:text="${fish.name}">Nazwa Ryby</span>
+                                            </div>
+                                        </label>
+                                    </th:block>
+                                </div>
                             </div>
+
+                            <div>
+                                <h3 class="h6 fw-bold mb-3 d-flex align-items-center gap-2 category-title-salmonid text-info">
+                                    <i data-lucide="waves" style="width:16px;"></i> Łososiowate i Lipieniowate
+                                </h3>
+                                <div class="fish-grid">
+                                    <th:block th:each="fish : ${allFish}" th:if="${fish.category.name() == 'SALMONID'}">
+                                        <label class="fish-card card-salmonid">
+                                            <input type="checkbox" class="fish-selector" name="targetFishSpeciesIds" th:value="${fish.id}">
+                                            <div>
+                                                <i data-lucide="fish"></i> <span th:text="${fish.name}">Nazwa Ryby</span>
+                                            </div>
+                                        </label>
+                                    </th:block>
+                                </div>
+                            </div>
+
                         </div>
 
                         <div class="col-md-6 border-start-md fish-border-divider">
                             <h3 class="h6 fw-bold mb-3 d-flex align-items-center gap-2 ps-md-2 category-title-peaceful">
-                                <i data-lucide="leaf" style="width:16px;"></i> Ryby Spokojnego Żeru
+                                <i data-lucide="leaf" style="width:16px;"></i> Spokojnego Żeru
                             </h3>
                             <div class="fish-grid ps-md-2">
                                 <th:block th:each="fish : ${allFish}" th:if="${fish.category.name() == 'PEACEFUL'}">

@@ -3,6 +3,9 @@
     --brand-green-glow: rgba(46, 204, 113, 0.25);
     --predator-red: #ef4444;
     --predator-red-glow: rgba(239, 68, 68, 0.25);
+    --salmonid-blue: #0ea5e9;
+    --salmonid-blue-glow: rgba(14, 165, 233, 0.25);
+
     --ignore-orange: #f59e0b;
     --ignore-orange-glow: rgba(245, 158, 11, 0.2);
     --bg-dark-base: #0f172a;
@@ -69,6 +72,7 @@
 .alert-custom { background: rgba(0, 0, 0, 0.3); border-radius: 12px; box-shadow: inset 0 0 10px rgba(0,0,0,0.5); border: 0; }
 .category-title-predator { color: var(--predator-red); text-transform: uppercase; font-size: 0.85rem; letter-spacing: 1px; }
 .category-title-peaceful { color: var(--brand-green); text-transform: uppercase; font-size: 0.85rem; letter-spacing: 1px; }
+.category-title-salmonid { color: var(--salmonid-blue); text-transform: uppercase; font-size: 0.85rem; letter-spacing: 1px; } /* NOWE: Tytuł kategorii */
 .fish-border-divider { border-color: rgba(255,255,255,0.05) !important; }
 
 .fish-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 0.75rem; }
@@ -81,14 +85,15 @@
 .fish-card i { color: #64748b; transition: 0.3s; margin-bottom: 0.5rem; }
 .fish-card span { color: var(--text-secondary); font-size: 0.8rem; font-weight: 700; transition: 0.3s; line-height: 1.1; }
 .fish-card:hover { background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.2); transform: translateY(-2px); }
-
 .card-predator:has(input:checked) { border-color: var(--predator-red); background: rgba(239, 68, 68, 0.08); box-shadow: inset 0 0 20px var(--predator-red-glow); }
 .card-predator input:checked + div i { color: var(--predator-red); filter: drop-shadow(0 0 8px var(--predator-red)); transform: scale(1.1); }
 .card-predator input:checked + div span { color: #fff; }
-
 .card-whitefish:has(input:checked) { border-color: var(--brand-green); background: rgba(46, 204, 113, 0.08); box-shadow: inset 0 0 20px var(--brand-green-glow); }
 .card-whitefish input:checked + div i { color: var(--brand-green); filter: drop-shadow(0 0 8px var(--brand-green)); transform: scale(1.1); }
 .card-whitefish input:checked + div span { color: #fff; }
+.card-salmonid:has(input:checked) { border-color: var(--salmonid-blue); background: rgba(14, 165, 233, 0.08); box-shadow: inset 0 0 20px var(--salmonid-blue-glow); }
+.card-salmonid input:checked + div i { color: var(--salmonid-blue); filter: drop-shadow(0 0 8px var(--salmonid-blue)); transform: scale(1.1); }
+.card-salmonid input:checked + div span { color: #fff; }
 
 .text-ignore-orange { color: var(--ignore-orange); }
 .algo-switch-wrapper {
