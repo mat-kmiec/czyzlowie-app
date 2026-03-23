@@ -156,3 +156,35 @@ body.spot-page {
     border-radius: 14px; padding: 12px;
 }
 .btn-glow:hover { transform: translateY(-3px); box-shadow: 0 15px 25px rgba(14, 165, 233, 0.5); }
+
+.btn-weather {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+    border-width: 1px;
+    border-style: solid;
+    font-weight: 500;
+}
+.btn-weather:hover:not(.disabled) {
+    transform: translateX(5px);
+}
+
+/* Barometr (Ciśnienie) - Fioletowy */
+.btn-barometr { border-color: #8b5cf6; background-color: rgba(139, 92, 246, 0.1); }
+.btn-barometr:hover:not(.disabled) { background-color: rgba(139, 92, 246, 0.25); box-shadow: 0 0 10px rgba(139, 92, 246, 0.3); }
+.btn-barometr i { color: #a78bfa; }
+
+/* Hydro (Woda) - Niebieski */
+.btn-hydro { border-color: #0ea5e9; background-color: rgba(14, 165, 233, 0.1); }
+.btn-hydro:hover:not(.disabled) { background-color: rgba(14, 165, 233, 0.25); box-shadow: 0 0 10px rgba(14, 165, 233, 0.3); }
+.btn-hydro i { color: #38bdf8; }
+
+/* Meteo (Pogoda ogólna) - Zielony */
+.btn-meteo { border-color: #10b981; background-color: rgba(16, 185, 129, 0.1); }
+.btn-meteo:hover:not(.disabled) { background-color: rgba(16, 185, 129, 0.25); box-shadow: 0 0 10px rgba(16, 185, 129, 0.3); }
+.btn-meteo i { color: #34d399; }
+
+/* Synop (Temperatura/Słońce) - Pomarańczowy */
+.btn-synop { border-color: #f59e0b; background-color: rgba(245, 158, 11, 0.1); }
+.btn-synop:hover:not(.disabled) { background-color: rgba(245, 158, 11, 0.25); box-shadow: 0 0 10px rgba(245, 158, 11, 0.3); }
+.btn-synop i { color: #fbbf24; }
