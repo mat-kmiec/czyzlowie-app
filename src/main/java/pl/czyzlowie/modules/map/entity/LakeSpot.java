@@ -5,6 +5,14 @@ import lombok.Getter;
 import lombok.Setter;
 
 
+/**
+ * Represents a specific type of map spot related to a lake.
+ * Extends the MapSpot class and provides additional attributes
+ * specific to lake features and characteristics.
+ *
+ * This entity is mapped to the "map_lakes" database table and uses
+ * a discriminator value of "LAKE" to differentiate it from other map spots.
+ */
 @Entity
 @Table(name = "map_lakes")
 @DiscriminatorValue("LAKE")

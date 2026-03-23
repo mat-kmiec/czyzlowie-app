@@ -8,6 +8,42 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
 
+/**
+ * Represents a user entity within the system. This class is mapped to the "users" table in the database
+ * and uses JPA annotations to define the structure and relationships with other entities.
+ *
+ * The User class contains attributes that uniquely identify a user and manage their authentication, permissions,
+ * and state within the system. It also maintains relationships with associated entities, such as user consents
+ * and user statistics. Auditing fields are included for tracking creation and modification times.
+ *
+ * Fields:
+ * - id: Unique identifier for the user.
+ * - email: The email address of the user. Must be unique and not null.
+ * - username: The username of the user. Must be unique, not null, and have a maximum length of 50.
+ * - passwordHash: The hashed password of the user.
+ * - provider: Enum representing the authentication provider for the user.
+ * - providerId: Identifier associated with the user's authentication provider.
+ * - role: Enum representing the role assigned to the user.
+ * - isEnabled: Indicates whether the user account is active or temporarily disabled. Defaults to true.
+ * - isEmailVerified: Indicates whether the user's email has been verified. Defaults to false.
+ * - isLocked: Indicates whether the user's account is locked due to security reasons. Defaults to false.
+ * - failedLoginAttempts: Tracks the number of failed login attempts by the user. Defaults to 0.
+ * - createdAt: Timestamp of when the user entity was created. Not updatable.
+ * - updatedAt: Timestamp of when the user entity was last updated.
+ * - consents: A one-to-one relationship with UserConsents to manage user consent preferences.
+ * - statistics: A one-to-one relationship with UserStatistics to store user activity and performance data.
+ *
+ * Relationships:
+ * - consents: Bi-directional one-to-one mapping with the UserConsents entity. Automatically updates the user reference in UserConsents.
+ * - statistics: Bi-directional one-to-one mapping with the UserStatistics entity. Automatically updates the user reference in UserStatistics.
+ *
+ * Auditing:
+ * This entity uses Spring Data JPA's auditing functionality to automatically populate createdAt and updatedAt fields.
+ *
+ * Additional methods:
+ * - setConsents: Sets the UserConsents entity for the user and ensures the bi-directional relationship is maintained.
+ * - setStatistics: Sets the UserStatistics entity for the user and ensures the bi-directional relationship is maintained.
+ */
 @Entity
 @Table(name = "users")
 @EntityListeners(AuditingEntityListener.class)

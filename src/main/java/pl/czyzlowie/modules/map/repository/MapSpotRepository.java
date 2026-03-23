@@ -13,6 +13,14 @@ import pl.czyzlowie.modules.map.entity.SpotType;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Repository interface for managing {@link MapSpot} entities.
+ *
+ * This interface provides methods for performing CRUD operations
+ * and custom queries on the MapSpot table. It extends Spring Data's
+ * {@link JpaRepository} and {@link JpaSpecificationExecutor}
+ * interfaces for standard and specification-based queries.
+ */
 @Repository
 public interface MapSpotRepository extends JpaRepository<MapSpot, Long>, JpaSpecificationExecutor<MapSpot> {
 
@@ -27,6 +35,4 @@ public interface MapSpotRepository extends JpaRepository<MapSpot, Long>, JpaSpec
     );
 
     Optional<MapSpot> findBySlugAndSpotType(String slug, SpotType spotType);
-
-    Page<MapSpot> findBySpotType(SpotType spotType, Pageable pageable);
 }

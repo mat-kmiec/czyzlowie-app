@@ -4,6 +4,12 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
+/**
+ * The ProfileRequests class contains nested record definitions representing various
+ * user profile update requests. These records are used as data transfer objects
+ * for validating and handling input data related to user profile modifications,
+ * including username, email, and password changes.
+ */
 public class ProfileRequests {
 
     public record ChangeUsernameRequest(

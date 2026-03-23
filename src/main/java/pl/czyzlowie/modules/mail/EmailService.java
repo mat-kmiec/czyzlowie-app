@@ -14,6 +14,11 @@ import org.springframework.stereotype.Service;
 
 import java.io.UnsupportedEncodingException;
 
+/**
+ * Service responsible for sending emails asynchronously.
+ * Utilizes JavaMailSender to compose and send email messages with optional inline
+ * resources such as images or attachments.
+ */
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -24,6 +29,14 @@ public class EmailService implements EmailSender {
     @Value("${app.mail.from}")
     private String fromEmail;
 
+    /**
+     * Sends an email asynchronously with the specified recipient, subject, and HTML content.
+     * The email also includes an embedded logo image for branding purposes.
+     *
+     * @param to the recipient's email address
+     * @param subject the subject of the email
+     * @param htmlContent the HTML content of the email
+     */
     @Override
     @Async
     public void sendEmail(String to, String subject, String htmlContent) {

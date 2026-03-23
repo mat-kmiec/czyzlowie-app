@@ -10,6 +10,19 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
+/**
+ * A class responsible for mapping barometric data from {@link StationBarometerStats}
+ * and other related information such as location name into a {@link BarometerViewDto} object.
+ *
+ * The class evaluates multiple aspects, including current pressure, pressure trends,
+ * stability, and forecasted changes, to provide summarized conditions for the user.
+ *
+ * Includes methods to:
+ * - Transform station barometer statistics into a data transfer object.
+ * - Analyze and assign user-friendly condition titles, descriptions, and styles based on the data.
+ * - Evaluate pressure trends, forecast changes, and pressure stability indices.
+ * - Format dates and translate pressure trends to user-readable formats.
+ */
 @Component
 public class BarometerViewMapper {
 
@@ -20,6 +33,13 @@ public class BarometerViewMapper {
     private static final double SIGNIFICANT_CHANGE_THRESHOLD = 7.0;
     private static final double FORECAST_CHANGE_THRESHOLD = 5.0;
 
+    /**
+     * Converts the data from a StationBarometerStats object and location name into a BarometerViewDto.
+     *
+     * @param stats        the StationBarometerStats object containing barometric data and trends.
+     * @param locationName the name of the location associated with the barometric data.
+     * @return a BarometerViewDto object constructed using the provided barometric data and location name.
+     */
     public BarometerViewDto toDto(StationBarometerStats stats, String locationName) {
         var conditionUI = evaluateCondition(stats);
         var forecastUI = evaluateForecast(stats);
@@ -38,6 +58,15 @@ public class BarometerViewMapper {
                 .build();
     }
 
+    /**
+     * Evaluates the current barometric conditions using the data in the provided StationBarometerStats
+     * and creates a ConditionUI object representing the observed weather condition and associated details.
+     *
+     * @param stats the StationBarometerStats object containing barometric data such as current pressure,
+     *              24-hour pressure delta, stability index, and front approaching status.
+     * @return a ConditionUI object encapsulating the title, description, and CSS class indicating
+     *         the evaluated barometric weather condition.
+     */
     private ConditionUI evaluateCondition(StationBarometerStats stats) {
         if (Boolean.TRUE.equals(stats.getFrontApproaching())) {
             return new ConditionUI(
@@ -104,6 +133,16 @@ public class BarometerViewMapper {
         );
     }
 
+    /**
+     * Evaluates the barometric forecast conditions based on the provided station barometer statistics.
+     * Generates a ConditionUI object carrying information about the forecasted weather pattern including
+     * its title, description, and a representative CSS class.
+     *
+     * @param stats the StationBarometerStats object containing barometric data and forecast trends,
+     *              such as the status of an approaching front and forecasted pressure changes.
+     * @return a ConditionUI object that describes the forecasted condition, including a title,
+     *         descriptive text, and CSS style information.
+     */
     private ConditionUI evaluateForecast(StationBarometerStats stats) {
         if (Boolean.TRUE.equals(stats.getFrontApproaching())) {
             return new ConditionUI("Gwałtowna Zmiana", "Prognozowane tąpnięcie ciśnienia. Przygotuj się na nagłe załamanie pogody.", "text-danger");
@@ -120,6 +159,19 @@ public class BarometerViewMapper {
         return new ConditionUI("Stabilny Horyzont", "W nadchodzących dniach nie przewidujemy nagłych zmian. Ciśnienie pozostanie na zbliżonym poziomie.", "text-brand-green");
     }
 
+    /**
+     * Calculates the delta between the current atmospheric pressure and the forecasted
+     * atmospheric pressure for the next 24 hours.
+     *
+     * This method extracts the current pressure and the pressure value from the last
+     * data point in the 24-hour forecast, then computes the difference (future - current).
+     * If the necessary data is unavailable, it returns 0.0.
+     *
+     * @param stats the {@code StationBarometerStats} object containing current pressure
+     *              and 24-hour forecasted pressure data.
+     * @return the difference between the forecasted pressure and current pressure
+     *         as a {@code double}, or 0.0 if data is insufficient or unavailable.
+     */
     private double calculateForecastDelta24h(StationBarometerStats stats) {
         if (stats.getChartData() == null || stats.getChartData().getForecast24h() == null) return 0.0;
 
@@ -132,10 +184,29 @@ public class BarometerViewMapper {
         return future - current;
     }
 
+    /**
+     * Formats the given LocalDateTime object into a string representation
+     * using a predefined date format. If the input dateTime is null,
+     * it returns a default string indicating no data.
+     *
+     * @param dateTime the LocalDateTime object to be formatted; may be null
+     * @return a string representing the formatted date, or "Brak danych" if dateTime is null
+     */
     private String formatDate(LocalDateTime dateTime) {
         return (dateTime != null) ? dateTime.format(DATE_FORMATTER) : "Brak danych";
     }
 
+    /**
+     * Translates a given pressure trend into a localized string representation.
+     *
+     * This method provides a human-readable description of the specified {@code PressureTrend} value.
+     * If the input trend is {@code null}, a default message indicating lack of data is returned.
+     *
+     * @param trend the {@code PressureTrend} enum value representing the barometric pressure trend.
+     *              Possible values include:
+     *              {@code RISING_FAST}, {@code RISING}, {@code STABLE}, {@code FALLING}, {@code FALLING_FAST}.
+     * @return a localized string that describes the specified pressure trend, or "Brak danych" if the trend is {@code null}.
+     */
     private String translateTrend(PressureTrend trend) {
         if (trend == null) return "Brak danych";
         return switch (trend) {
@@ -147,6 +218,12 @@ public class BarometerViewMapper {
         };
     }
 
+    /**
+     * Determines the appropriate trend icon based on the given pressure trend.
+     *
+     * @param trend the pressure trend, which can be null or one of the defined trend states such as RISING, STABLE, or FALLING
+     * @return a string representing the icon name corresponding to the trend; for example, "trending-up" for rising, "minus" for stable, or "trending-down" for falling
+     */
     private String getTrendIcon(PressureTrend trend) {
         if (trend == null) return "minus";
         return switch (trend) {

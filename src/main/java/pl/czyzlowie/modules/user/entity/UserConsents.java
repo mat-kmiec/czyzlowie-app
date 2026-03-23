@@ -7,6 +7,22 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
 
+/**
+ * Represents the consent preferences of a user.
+ * This entity is used to record the consents that a user has provided, including acceptance of terms, newsletters, and marketing communications.
+ *
+ * An instance of this class is linked to a specific {@link User}, and each consent record corresponds to a single user.
+ *
+ * The consents include:
+ * - Acceptance of terms and conditions.
+ * - Version of the terms accepted.
+ * - Acceptance of receiving newsletters.
+ * - Acceptance of receiving marketing communications.
+ *
+ * The date and time of consent are recorded upon entity creation.
+ *
+ * This entity is audited automatically, and it requires a database table named "user_consents".
+ */
 @Entity
 @Table(name = "user_consents")
 @EntityListeners(AuditingEntityListener.class)

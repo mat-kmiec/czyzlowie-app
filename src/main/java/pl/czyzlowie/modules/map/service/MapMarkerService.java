@@ -20,6 +20,11 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
+/**
+ * Service class responsible for managing and providing map marker data.
+ * This class fetches and processes geographic data from various repositories
+ * to generate map marker information for specified bounds or all markers.
+ */
 @Slf4j
 @Service
 @RequiredArgsConstructor
