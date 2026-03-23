@@ -41,6 +41,7 @@ public class RegistrationService {
                 .provider(AuthProvider.LOCAL)
                 .role(Role.USER)
                 .isEmailVerified(false)
+                .createdAt(LocalDateTime.now())
                 .build();
 
         newUser.setConsents(UserConsents.builder().termsAccepted(dto.isTermsAccepted()).termsVersion("v1.0").build());

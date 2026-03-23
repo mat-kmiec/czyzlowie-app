@@ -14,8 +14,15 @@ class MapApplication {
         this.tempCollectedPoints = [];
         this.tempMarkersGroup = L.layerGroup();
 
-        const defaultInactive = ['me'];
-        this.activeCategories = new Set(Object.keys(this.categories).filter(k => !defaultInactive.includes(k)));
+        const urlParams = new URLSearchParams(window.location.search);
+        const urlCats = urlParams.get('cat');
+
+        if (urlCats) {
+            this.activeCategories = new Set(urlCats.split(','));
+        } else {
+            const defaultInactive = ['me'];
+            this.activeCategories = new Set(Object.keys(this.categories).filter(k => !defaultInactive.includes(k)));
+        }
 
         this.baseLayers = {
             standard: L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -67,6 +74,8 @@ class MapApplication {
         await this.setInitialView();
 
         this.map.on('moveend', () => {
+            this.updateUrlState(); // <-- DODAJ TĘ LINIJKĘ
+
             if (this.allDataLoaded) {
                 this.updateSidebarForCurrentBounds();
                 return;
@@ -87,15 +96,25 @@ class MapApplication {
     }
 
     async setInitialView() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const lat = urlParams.get('lat');
+        const lng = urlParams.get('lng');
+        const z = urlParams.get('z');
+
+        if (lat && lng && z) {
+            this.map.setView([parseFloat(lat), parseFloat(lng)], parseInt(z));
+            return this.fetchLocationsForCurrentBounds();
+        }
+
         this.toggleLoader(true, 'Szukam Twojej pozycji...');
         return new Promise((resolve) => {
             if ("geolocation" in navigator) {
                 navigator.geolocation.getCurrentPosition(
                     (position) => {
-                        const lat = position.coords.latitude;
-                        const lng = position.coords.longitude;
-                        this.map.setView([lat, lng], 12);
-                        this.handleLocationFound({ latlng: { lat, lng } });
+                        const userLat = position.coords.latitude;
+                        const userLng = position.coords.longitude;
+                        this.map.setView([userLat, userLng], 12);
+                        this.handleLocationFound({ latlng: { lat: userLat, lng: userLng } });
                         resolve();
                     },
                     (error) => {
@@ -192,21 +211,18 @@ class MapApplication {
             listEl.innerHTML = this.tempCollectedPoints.map((p, i) =>
                 `<div style="margin-bottom: 4px;"><strong>${i+1}. ${p.name}</strong><br/>${p.lat}, ${p.lng}</div>`
             ).join('');
-            listEl.scrollTop = listEl.scrollHeight; // Auto-scroll w dół
+            listEl.scrollTop = listEl.scrollHeight;
         };
 
-        // Nasłuchiwanie na PPM (contextmenu)
         this.map.on('contextmenu', (e) => {
             const lat = e.latlng.lat.toFixed(6);
             const lng = e.latlng.lng.toFixed(6);
 
-            // Pytaj o nazwę
             const name = prompt(`Podaj nazwę dla punktu (${lat}, ${lng}):`);
 
             if (name) {
                 this.tempCollectedPoints.push({ name, lat, lng });
 
-                // Dodaj wyraźną tymczasową pinezkę
                 const marker = L.marker([lat, lng], {
                     icon: L.divIcon({
                         className: 'temp-marker-icon',
@@ -228,13 +244,11 @@ class MapApplication {
             }
         });
 
-        // Obsługa przycisków
         document.getElementById('temp-copy-btn').addEventListener('click', () => {
             if (this.tempCollectedPoints.length === 0) {
                 alert('Nie ma czego kopiować!');
                 return;
             }
-            // Formatuj jako ładny JSON
             const dataStr = JSON.stringify(this.tempCollectedPoints, null, 2);
             navigator.clipboard.writeText(dataStr).then(() => {
                 alert(`Skopiowano ${this.tempCollectedPoints.length} obiektów do schowka!`);
@@ -244,7 +258,7 @@ class MapApplication {
         document.getElementById('temp-clear-btn').addEventListener('click', () => {
             if (confirm('Na pewno wyczyścić zebraną listę i znaczniki? Upewnij się, że skopiowałeś dane!')) {
                 this.tempCollectedPoints = [];
-                this.tempMarkersGroup.clearLayers(); // Usuń pinezki
+                this.tempMarkersGroup.clearLayers();
                 updateUI();
             }
         });
@@ -259,7 +273,6 @@ class MapApplication {
         const navBtn = this.createBtn(container, 'navigation', 'Moja lokalizacja / Śledzenie', () => {
             const icon = navBtn.querySelector('i');
             if (this.isTracking) {
-                // Wyłącz śledzenie
                 this.map.stopLocate();
                 this.isTracking = false;
                 if (icon) icon.style.color = '';
@@ -500,15 +513,14 @@ class MapApplication {
     }
 
     updateMapMarkersVisibility() {
-        const query = document.getElementById('mapSearch')?.value.toLowerCase() || '';
         const clusterItems = [];
 
         this.mainClusterGroup.clearLayers();
         this.polygonsGroup.clearLayers();
 
         this.locations.forEach(loc => {
+            // Zostawiamy tylko filtrowanie po aktywnych kategoriach
             if (!this.activeCategories.has(loc.cat)) return;
-            if (query && !loc.name.toLowerCase().includes(query)) return;
 
             const item = this.markersCache[loc.id];
             if (item) {
@@ -526,11 +538,11 @@ class MapApplication {
 
     updateSidebarForCurrentBounds() {
         const bounds = this.map.getBounds();
-        const query = document.getElementById('mapSearch')?.value.toLowerCase() || '';
 
         const visibleAndFiltered = this.locations.filter(loc => {
+            // Zostawiamy tylko filtrowanie po kategoriach i widocznym obszarze
             if (!this.activeCategories.has(loc.cat)) return false;
-            if (query && !loc.name.toLowerCase().includes(query)) return false;
+
             if (loc.cat === 'restriction' && this.polygonCache[loc.id]) {
                 return bounds.intersects(this.polygonCache[loc.id].getBounds());
             }
@@ -651,10 +663,21 @@ class MapApplication {
             });
         }
 
-        if(searchBtn) {
+        if (searchInput) {
+            searchInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    this.searchGlobal(searchInput.value);
+                }
+            });
+        }
+
+        if (searchBtn) {
             searchBtn.addEventListener('click', (e) => {
                 e.preventDefault();
-                this.searchGlobal(searchInput.value);
+                if (searchInput) {
+                    this.searchGlobal(searchInput.value);
+                }
             });
         }
 
@@ -704,6 +727,27 @@ class MapApplication {
                 }
             });
         });
+    }
+
+    updateUrlState() {
+        if (!this.map) return;
+
+        const center = this.map.getCenter();
+        const zoom = this.map.getZoom();
+        const params = new URLSearchParams(window.location.search);
+
+        // Zapisz pozycję i zoom (zaokrąglone do 5 miejsc po przecinku)
+        params.set('lat', center.lat.toFixed(5));
+        params.set('lng', center.lng.toFixed(5));
+        params.set('z', zoom);
+
+        // Zapisz aktywne kategorie (filtry)
+        const activeCatsArray = Array.from(this.activeCategories);
+        params.set('cat', activeCatsArray.join(','));
+
+        // Zaktualizuj URL bez przeładowywania strony
+        const newUrl = `${window.location.pathname}?${params.toString()}`;
+        window.history.replaceState({}, '', newUrl);
     }
 
     async searchGlobal(query) {

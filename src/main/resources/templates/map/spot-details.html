@@ -134,7 +134,7 @@
                             <li th:if="${spot.navigationalAlerts}"><i data-lucide="alert-triangle" class="rule-icon text-danger"></i> <div><strong class="text-danger">Ostrzeżenia:</strong> <br>[[${spot.navigationalAlerts}]]</div></li>
                         </ul>
 
-                        <div class="spot-tags-container" th:if="${spot.hasMooringPier or spot.unitLimit}">
+                        <div class="spot-tags-container" th:if="${spot.hasMooringPier or (spot.unitLimit ?: false)}">
                             <span class="spot-tag tag-success" th:if="${spot.hasMooringPier}"><i data-lucide="ship" style="width: 14px;"></i> Pomost cumowniczy</span>
                             <span class="spot-tag tag-info" th:if="${spot.unitLimit}"><i data-lucide="hash" style="width: 14px;"></i> Limit: [[${spot.unitLimit}]]</span>
                         </div>
