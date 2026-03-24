@@ -34,12 +34,18 @@
             color: var(--predator-red);
             font-weight: bold;
         }
-        /* Nowa klasa dla pozycjonowania przycisku usuwania na mobilkach */
+
         .delete-btn-wrapper {
             position: absolute;
             top: 20px;
-            right: 20px;
+            right: 110px;
             z-index: 10;
+        }
+
+        @media (max-width: 576px) {
+            .delete-btn-wrapper {
+                right: 110px;
+            }
         }
     </style>
 </head>
@@ -148,6 +154,7 @@
                                 <option value="szczupak">Szczupak</option>
                                 <option value="sandacz">Sandacz</option>
                                 <option value="okon">Okoń</option>
+                                <option value="bolen">Boleń</option>
                                 <option value="karp">Karp</option>
                                 <option value="leszcz">Leszcz</option>
                                 <option value="inny">Inny</option>
@@ -232,11 +239,14 @@
                 <p class="text-secondary mb-0">Zarejestruj swój pierwszy połów korzystając z formularza obok.</p>
             </div>
 
-            <div th:each="catch : ${catchesPage.content}" class="catch-card mb-4 position-relative pe-5"> <div class="catch-thumbnail image-popup-trigger" title="Powiększ zdjęcie" th:if="${catch.photoUrl != null and !catch.photoUrl.isEmpty()}">
-                <img th:src="${catch.photoUrl}" alt="Zdjęcie połowu" loading="lazy">
-            </div>
-                <div th:unless="${catch.photoUrl != null and !catch.photoUrl.isEmpty()}" class="catch-thumbnail" style="background: rgba(15, 23, 42, 0.4); border: 1px dashed rgba(255,255,255,0.1); cursor: default; position: relative;">
-                    <i data-lucide="fish" style="width: 36px; height: 36px; color: #475569; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);"></i>
+            <div th:each="catch : ${catchesPage.content}" class="catch-card mb-4 position-relative pe-5">
+
+                <div class="catch-thumbnail image-popup-trigger" title="Powiększ zdjęcie" th:if="${catch.photoUrl != null and !catch.photoUrl.isEmpty()}" style="position: absolute; top: 20px; right: 20px; width: 80px; height: 80px; border-radius: 12px; overflow: hidden; z-index: 5;">
+                    <img th:src="${catch.photoUrl}" alt="Zdjęcie połowu" loading="lazy" style="width: 100%; height: 100%; object-fit: cover;">
+                </div>
+
+                <div th:unless="${catch.photoUrl != null and !catch.photoUrl.isEmpty()}" class="catch-thumbnail d-flex align-items-center justify-content-center" style="width: 80px; height: 80px; background: rgba(15, 23, 42, 0.6); border: 1px dashed rgba(255,255,255,0.2); border-radius: 12px; cursor: default; position: absolute; top: 20px; right: 20px; z-index: 5;">
+                    <i data-lucide="camera-off" style="width: 28px; height: 28px; color: #64748b;"></i>
                 </div>
 
                 <div class="catch-category-badge"
@@ -255,7 +265,8 @@
                     </button>
                 </div>
 
-                <div class="catch-header pe-3"> <h3 class="fish-name text-capitalize" th:text="${catch.species}">Szczupak</h3>
+                <div class="catch-header pe-3" style="padding-right: 100px !important;">
+                    <h3 class="fish-name text-capitalize" th:text="${catch.species}">Szczupak</h3>
                     <div class="fish-meta">
                         <span><i data-lucide="calendar" style="width: 12px;"></i> <span th:text="${#temporals.format(catch.catchDate, 'dd.MM.yyyy, HH:mm')}"></span></span>
                         <span><i data-lucide="map-pin" style="width: 12px;"></i> <span th:text="${catch.locationName}"></span></span>
