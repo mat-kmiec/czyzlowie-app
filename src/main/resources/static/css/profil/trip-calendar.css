@@ -68,3 +68,130 @@
 .mission-item-actions .btn { padding: 4px 8px; font-size: 0.75rem; }
 .missions-container { max-height: 500px; overflow-y: auto; }
 @keyframes pulseAlert { 0% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.4); } 70% { box-shadow: 0 0 0 10px rgba(245, 158, 11, 0); } 100% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0); } }
+.btn-edit-custom {
+    background: rgba(14, 165, 233, 0.1);
+    color: #0ea5e9;
+    border: 1px solid rgba(14, 165, 233, 0.4);
+    border-radius: 8px;
+    padding: 0.4rem 0.8rem;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.3s ease;
+}
+.btn-edit-custom:hover {
+    background: #0ea5e9;
+    color: #fff;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(14, 165, 233, 0.3);
+}
+
+input[type="datetime-local"].algo-input {
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+    font-size: 0.9rem;
+    letter-spacing: -0.5px;
+}
+
+
+.btn-delete-custom {
+    background: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
+    border: 1px solid rgba(239, 68, 68, 0.4);
+    border-radius: 8px;
+    padding: 0.4rem 0.8rem;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.3s ease;
+}
+.btn-delete-custom:hover {
+    background: #ef4444;
+    color: #fff;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+}
+
+.btn-icon-input {
+    background: transparent;
+    border: none;
+    color: #94a3b8;
+    padding: 0.4rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    border-radius: 6px;
+}
+.btn-icon-input:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--ignore-orange);
+}
+.btn-icon-input.geo-hover:hover {
+    color: #0ea5e9;
+}
+
+.btn-glass-cancel {
+    background: rgba(255, 255, 255, 0.05);
+    color: #cbd5e1;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    padding: 0.5rem 1rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+.btn-glass-cancel:hover {
+    background: rgba(255, 255, 255, 0.15);
+    color: #fff;
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+.modal-glass .modal-content {
+    background: rgba(15, 23, 42, 0.95);
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    color: #f8fafc;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+}
+.modal-glass .modal-header {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px 16px 0 0;
+    padding: 1.5rem;
+}
+.modal-glass .modal-body {
+    padding: 1.5rem;
+}
+.modal-glass .modal-footer {
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 0 0 16px 16px;
+    padding: 1.25rem 1.5rem;
+}
+.modal-glass .btn-close {
+    filter: invert(1) grayscale(100%) brightness(200%);
+    opacity: 0.7;
+}
+.modal-glass .btn-close:hover {
+    opacity: 1;
+}
+.modal-glass .input-label {
+    color: #cbd5e1;
+    font-size: 0.85rem;
+    margin-bottom: 0.25rem;
+    display: block;
+}
+
+@media (max-width: 768px) {
+    .mission-card .d-flex.justify-content-between {
+        flex-direction: column;
+        gap: 1rem;
+    }
+    .mission-card .action-buttons {
+        width: 100%;
+        display: flex;
+        justify-content: flex-start;
+        gap: 0.5rem;
+    }
+}

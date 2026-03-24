@@ -10,6 +10,7 @@
     <link rel="stylesheet" th:href="@{/css/profil/panel.css}">
     <link rel="stylesheet" th:href="@{/css/profil/trip-calendar.css}">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+
 </head>
 <body class="algo-page">
 
@@ -25,15 +26,6 @@
 </div>
 
 <main class="container-xl position-relative z-2 pb-5" style="margin-top: 90px;">
-
-    <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert">
-        <span th:text="${success}"></span>
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-    </div>
-    <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
-        <span th:text="${error}"></span>
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-    </div>
 
     <header class="algo-glass-panel p-4 mb-4 h-auto">
         <div class="d-flex flex-wrap justify-content-between align-items-center gap-4 mb-4">
@@ -51,7 +43,7 @@
             </button>
         </div>
 
-        <div class="top-stats-grid border-top border-secondary border-opacity-25 pt-4">
+        <div class="top-stats-grid border-top border-secondary border-opacity-25 pt-4 mb-3">
             <div class="top-stat-box">
                 <span class="stat-label">Nadchodzące Wyprawy</span>
                 <span class="stat-value" th:text="${totalTrips ?: 0}">0</span> <span class="fs-8 text-secondary fw-normal">wyjazdy</span>
@@ -61,6 +53,17 @@
                 <span class="stat-value" th:if="${nextTrip != null}" th:text="${nextTripCountdown}">Za 3 dni</span>
                 <span class="stat-value" th:if="${nextTrip == null}">Brak</span>
             </div>
+        </div>
+
+        <div th:if="${success}" class="alert alert-success alert-dismissible fade show shadow-sm" role="alert" style="border-radius: 12px;">
+            <i data-lucide="check-circle" style="width: 20px; vertical-align: middle; margin-right: 8px;"></i>
+            <span th:text="${success}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        <div th:if="${error}" class="alert alert-danger alert-dismissible fade show shadow-sm" role="alert" style="border-radius: 12px;">
+            <i data-lucide="alert-triangle" style="width: 20px; vertical-align: middle; margin-right: 8px;"></i>
+            <span th:text="${error}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
     </header>
 
@@ -76,38 +79,43 @@
                     <form th:action="@{/kalendarz-wypraw}" method="post">
 
                         <label class="input-label">Kryptonim Łowienia / Tytuł</label>
-                        <div class="algo-input-group">
+                        <div class="algo-input-group mb-3">
                             <input type="text" name="name" class="algo-input" placeholder="np. Wiosenny Leszcz..." required>
                             <i data-lucide="flag" class="input-icon"></i>
                         </div>
 
                         <label class="input-label">Lokalizacja</label>
-                        <div class="algo-input-group">
-                            <input type="text" name="location" id="inputLocation" class="algo-input" placeholder="Kliknij mapę lub wpisz..." required>
+                        <div class="algo-input-group mb-3 position-relative">
+                            <input type="text" name="location" id="inputLocation" class="algo-input" style="padding-right: 75px;" placeholder="Wpisz lub wybierz..." required>
                             <i data-lucide="map-pin" class="input-icon"></i>
-                            <button type="button" class="btn btn-sm btn-outline-warning position-absolute" id="openMapBtn" style="right: 10px; top: 50%; transform: translateY(-50%);">📍</button>
-                            <button type="button" class="btn btn-sm btn-outline-info position-absolute" id="geolocateBtn" style="right: 50px; top: 50%; transform: translateY(-50%);">📡</button>
+
+                            <div class="position-absolute d-flex gap-1" style="right: 6px; top: 50%; transform: translateY(-50%); z-index: 10;">
+                                <button type="button" class="btn-icon-input geo-hover" id="geolocateBtn" title="Użyj mojej lokalizacji">
+                                    <i data-lucide="navigation" style="width: 18px; height: 18px;"></i>
+                                </button>
+                                <button type="button" class="btn-icon-input" id="openMapBtn" title="Wybierz na mapie">
+                                    <i data-lucide="map" style="width: 18px; height: 18px;"></i>
+                                </button>
+                            </div>
                         </div>
 
-                        <div class="row g-2 mb-3">
-                            <div class="col-12">
-                                <label class="input-label">Planowany Start</label>
-                                <div class="algo-input-group" style="margin-bottom:0;">
+                        <div class="row g-0 mb-3">
+                            <div class="col-12 mb-3">
+                                <label class="input-label">Start</label>
+                                <div class="algo-input-group m-0">
                                     <input type="datetime-local" name="startDate" id="startDateInput" class="algo-input" required>
-                                    <i data-lucide="calendar-plus" class="input-icon"></i>
                                 </div>
                             </div>
-                            <div class="col-12 mt-2">
-                                <label class="input-label">Planowane Zakończenie</label>
-                                <div class="algo-input-group" style="margin-bottom:0;">
+                            <div class="col-12">
+                                <label class="input-label">Zakończenie</label>
+                                <div class="algo-input-group m-0">
                                     <input type="datetime-local" name="endDate" id="endDateInput" class="algo-input" required>
-                                    <i data-lucide="calendar-minus" class="input-icon"></i>
                                 </div>
                             </div>
                         </div>
 
                         <label class="input-label">Metoda</label>
-                        <div class="algo-input-group">
+                        <div class="algo-input-group mb-3">
                             <select name="method" class="algo-input" required>
                                 <option value="">-- Wybierz metodę --</option>
                                 <option value="SPINNING">Spinning</option>
@@ -120,13 +128,13 @@
                         </div>
 
                         <label class="input-label">Skład Osobowy (Ekipa)</label>
-                        <div class="algo-input-group">
+                        <div class="algo-input-group mb-3">
                             <input type="text" name="team" class="algo-input" placeholder="np. Kolega Tomek, Kolega Jacek...">
                             <i data-lucide="users" class="input-icon"></i>
                         </div>
 
                         <label class="input-label">Wytyczne / Lista Sprzętu</label>
-                        <div class="algo-input-group">
+                        <div class="algo-input-group mb-3">
                             <textarea name="notes" class="algo-input" rows="3" maxlength="255" placeholder="Co zabrać, taktyka, ustalenia..."></textarea>
                         </div>
 
@@ -143,7 +151,7 @@
 
         <div class="col-xl-8">
 
-            <div class="calendar-container">
+            <div class="calendar-container mb-5">
                 <div class="calendar-header">
                     <button class="calendar-nav-btn" id="prevMonth" type="button"><i data-lucide="chevron-left"></i></button>
                     <h2 class="calendar-title" id="currentMonthYear">Marzec 2026</h2>
@@ -160,48 +168,54 @@
             <h2 class="fs-5 fw-bold text-white mb-4 ps-2 border-start border-3 border-warning"><i data-lucide="clock" style="width: 20px; color: var(--ignore-orange); margin-right: 8px;"></i> Najbliższe Zaplanowane Łowienia</h2>
 
             <div th:if="${nextTrip != null}">
-                <div class="mission-card imminent">
-                    <div class="mission-header">
+                <div class="mission-card imminent p-4 mb-4">
+                    <div class="mission-header d-flex flex-wrap justify-content-between align-items-start gap-3">
                         <div>
                             <h3 class="mission-title" th:text="${nextTrip.name}">--</h3>
-                            <div class="mission-meta">
+                            <div class="mission-meta mt-2">
                                 <span><i data-lucide="calendar"></i> <span th:text="${#temporals.format(nextTrip.startDate, 'dd MMM yyyy HH:mm')}">--</span> - <span th:text="${#temporals.format(nextTrip.endDate, 'dd MMM yyyy HH:mm')}">--</span></span>
                                 <span><i data-lucide="map-pin"></i> <span th:text="${nextTrip.location}">--</span></span>
                                 <span><i data-lucide="crosshair"></i> <span th:text="${nextTrip.method}">--</span></span>
-                                <span th:if="${nextTrip.team != null}"><i data-lucide="users"></i> <span th:text="${nextTrip.team}">--</span></span>
+                                <span th:if="${nextTrip.team != null and !nextTrip.team.isEmpty()}"><i data-lucide="users"></i> <span th:text="${nextTrip.team}">--</span></span>
                             </div>
                         </div>
                         <div class="countdown-badge"><i data-lucide="timer"></i> <span th:text="${nextTripCountdown}">Za X dni</span></div>
                     </div>
-                    <div class="mission-notes" th:if="${nextTrip.notes != null}" th:text="${nextTrip.notes}">--</div>
-                    <div class="mt-3 pt-2 border-top border-secondary border-opacity-25 d-flex gap-2">
-                        <button class="btn btn-sm btn-outline-info edit-trip-btn" th:attr="data-id=${nextTrip.id}"><i data-lucide="edit-3" style="width: 14px;"></i> Edytuj</button>
-                        <form th:action="@{/kalendarz-wypraw/{id}/usun(id=${nextTrip.id})}" method="post" class="m-0" onsubmit="return confirm('Czy na pewno chcesz usunąć tę wyprawę?');">
-                            <button type="submit" class="btn btn-sm btn-outline-danger"><i data-lucide="trash-2" style="width: 14px;"></i> Usuń</button>
-                        </form>
+
+                    <div class="mission-notes mt-3" th:if="${nextTrip.notes != null and !nextTrip.notes.isEmpty()}" th:text="${nextTrip.notes}">--</div>
+
+                    <div class="mt-4 pt-3 border-top border-secondary border-opacity-25 d-flex gap-2 action-buttons">
+                        <button type="button" class="btn-edit-custom edit-trip-btn" th:attr="data-id=${nextTrip.id}">
+                            <i data-lucide="edit-3" style="width: 16px;"></i> Edytuj
+                        </button>
+                        <button type="button" class="btn-delete-custom delete-trip-btn" th:attr="data-id=${nextTrip.id}">
+                            <i data-lucide="trash-2" style="width: 16px;"></i> Usuń
+                        </button>
                     </div>
                 </div>
 
                 <div th:if="${!upcomingTrips.isEmpty()}">
                     <h3 class="fs-6 fw-bold text-white mb-3 mt-5 ps-2 border-start border-3" style="border-color: var(--brand-blue);">Kolejne Wyprawy</h3>
 
-                    <div th:each="trip : ${upcomingTrips}" class="mission-card" style="border-left-color: var(--brand-blue);">
+                    <div th:each="trip : ${upcomingTrips}" class="mission-card p-4 mb-3" style="border-left-color: var(--brand-blue);">
                         <div class="d-flex justify-content-between align-items-start">
                             <div>
-                                <h4 class="mission-title" th:text="${trip.name}" style="font-size: 1rem; margin-bottom: 0.5rem;">--</h4>
+                                <h4 class="mission-title" th:text="${trip.name}" style="font-size: 1.1rem; margin-bottom: 0.5rem;">--</h4>
                                 <div class="mission-meta">
                                     <span><i data-lucide="calendar"></i> <span th:text="${#temporals.format(trip.startDate, 'dd MMM HH:mm')}">--</span> do <span th:text="${#temporals.format(trip.endDate, 'dd MMM HH:mm')}">--</span></span>
                                     <span><i data-lucide="map-pin"></i> <span th:text="${trip.location}">--</span></span>
                                     <span><i data-lucide="crosshair"></i> <span th:text="${trip.method}">--</span></span>
-                                    <span th:if="${trip.team != null}"><i data-lucide="users"></i> <span th:text="${trip.team}">--</span></span>
                                 </div>
-                                <div class="mission-notes" th:if="${trip.notes != null}" th:text="${trip.notes}">--</div>
+                                <div class="mission-notes mt-2" th:if="${trip.notes != null and !trip.notes.isEmpty()}" th:text="${trip.notes}">--</div>
                             </div>
-                            <div class="d-flex flex-column gap-2">
-                                <button class="btn btn-sm btn-outline-info edit-trip-btn" th:attr="data-id=${trip.id}"><i data-lucide="edit-3" style="width: 14px;"></i></button>
-                                <form th:action="@{/kalendarz-wypraw/{id}/usun(id=${trip.id})}" method="post" class="m-0" onsubmit="return confirm('Czy na pewno usunąć?');">
-                                    <button type="submit" class="btn btn-sm btn-outline-danger"><i data-lucide="trash-2" style="width: 14px;"></i></button>
-                                </form>
+
+                            <div class="d-flex gap-2 action-buttons mt-3 mt-md-0">
+                                <button type="button" class="btn-edit-custom edit-trip-btn" th:attr="data-id=${trip.id}" title="Edytuj">
+                                    <i data-lucide="edit-3" style="width: 16px;"></i><span class="d-none d-sm-inline ms-1">Edytuj</span>
+                                </button>
+                                <button type="button" class="btn-delete-custom delete-trip-btn" th:attr="data-id=${trip.id}" title="Usuń">
+                                    <i data-lucide="trash-2" style="width: 16px;"></i><span class="d-none d-sm-inline ms-1">Usuń</span>
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -214,7 +228,11 @@
                 </div>
             </div>
 
-            <div th:if="${nextTrip == null}" class="text-center text-secondary py-5">Brak nadchodzących wypraw. Czas coś zaplanować!</div>
+            <div th:if="${nextTrip == null}" class="text-center py-5 rounded-4 mt-4" style="background: rgba(255,255,255,0.02); border: 1px dashed rgba(255,255,255,0.1);">
+                <i data-lucide="calendar-x" class="text-secondary mb-3" style="width: 48px; height: 48px; opacity: 0.5;"></i>
+                <h4 class="text-white">Brak nadchodzących wypraw</h4>
+                <p class="text-secondary">Czas otworzyć mapę, sprawdzić pogodę i coś zaplanować!</p>
+            </div>
 
         </div>
     </div>
@@ -229,16 +247,18 @@
     <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title fw-bold"><i data-lucide="radar"></i> Oznacz Punkt na Mapie</h5>
+                <h5 class="modal-title fw-bold text-white"><i data-lucide="radar" class="me-2 text-warning"></i> Oznacz Punkt na Mapie</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body p-0">
-                <div id="map" style="width: 100%; height: 400px;"></div>
+                <div id="map" style="width: 100%; height: 400px; z-index: 1;"></div>
             </div>
-            <div class="modal-footer">
-                <span class="fs-8 text-secondary" id="mapSelectedInfo">Kliknij na mapie...</span>
-                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Anuluj</button>
-                <button type="button" class="btn btn-primary" id="btnConfirmMap">Zatwierdź</button>
+            <div class="modal-footer flex-column flex-sm-row justify-content-sm-between p-3 gap-3">
+                <span class="fs-8 text-info fw-medium w-100 text-center text-sm-start" id="mapSelectedInfo">Kliknij na mapie...</span>
+                <div class="d-grid gap-2 d-sm-flex w-100 w-sm-auto">
+                    <button type="button" class="btn-glass-cancel m-0" data-bs-dismiss="modal">Anuluj</button>
+                    <button type="button" class="btn btn-algo btn-orange m-0" id="btnConfirmMap">Zatwierdź lokalizację</button>
+                </div>
             </div>
         </div>
     </div>
@@ -247,73 +267,125 @@
 <div class="modal fade modal-glass" id="missionDetailModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content">
-            <div class="modal-header" style="background: rgba(245, 158, 11, 0.1);">
-                <h5 class="modal-title" id="mdTitle">Szczegóły Misji</h5>
+            <div class="modal-header">
+                <h5 class="modal-title fw-bold text-white" id="mdTitle">Szczegóły Misji</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-            <div class="modal-body p-4" id="mdBody">
+            <div class="modal-body" id="mdBody">
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-primary w-100" data-bs-dismiss="modal">OK</button>
+            <div class="modal-footer p-3">
+                <button type="button" class="btn btn-algo btn-orange w-100 m-0" data-bs-dismiss="modal">Zamknij</button>
             </div>
         </div>
     </div>
 </div>
 
 <div class="modal fade modal-glass" id="editTripModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title fw-bold"><i data-lucide="edit-3"></i> Edytuj Łowienie</h5>
+                <h5 class="modal-title fw-bold text-white"><i data-lucide="edit-3" class="me-2 text-info"></i> Edytuj Łowienie</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <form id="editTripForm" method="post">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
                 <div class="modal-body">
+
                     <label class="input-label">Kryptonim Łowienia / Tytuł</label>
-                    <input type="text" name="name" id="editName" class="algo-input mb-3" required>
+                    <div class="algo-input-group mb-3">
+                        <input type="text" name="name" id="editName" class="algo-input" required>
+                        <i data-lucide="flag" class="input-icon"></i>
+                    </div>
 
                     <label class="input-label">Lokalizacja</label>
-                    <input type="text" name="location" id="editLocation" class="algo-input mb-3" required>
+                    <div class="algo-input-group mb-3">
+                        <input type="text" name="location" id="editLocation" class="algo-input" required>
+                        <i data-lucide="map-pin" class="input-icon"></i>
+                    </div>
 
                     <div class="row g-2 mb-3">
-                        <div class="col-12">
+                        <div class="col-12 col-md-6">
                             <label class="input-label">Start</label>
-                            <input type="datetime-local" name="startDate" id="editStartDate" class="algo-input" required>
+                            <div class="algo-input-group m-0">
+                                <input type="datetime-local" name="startDate" id="editStartDate" class="algo-input" required>
+                            </div>
                         </div>
-                        <div class="col-12 mt-2">
+                        <div class="col-12 col-md-6 mt-2 mt-md-0">
                             <label class="input-label">Zakończenie</label>
-                            <input type="datetime-local" name="endDate" id="editEndDate" class="algo-input" required>
+                            <div class="algo-input-group m-0">
+                                <input type="datetime-local" name="endDate" id="editEndDate" class="algo-input" required>
+                            </div>
                         </div>
                     </div>
 
-                    <label class="input-label">Metoda</label>
-                    <select name="method" id="editMethod" class="algo-input mb-3" required>
-                        <option value="SPINNING">Spinning</option>
-                        <option value="KARPIOWANIE">Karpiowanie</option>
-                        <option value="FEEDER">Feeder / Grunt</option>
-                        <option value="SPLAWIK">Spławik</option>
-                        <option value="MORSKIE">Morskie</option>
-                    </select>
+                    <div class="row g-3 mb-3">
+                        <div class="col-12 col-md-6">
+                            <label class="input-label">Metoda</label>
+                            <div class="algo-input-group m-0">
+                                <select name="method" id="editMethod" class="algo-input" required>
+                                    <option value="SPINNING">Spinning</option>
+                                    <option value="KARPIOWANIE">Karpiowanie</option>
+                                    <option value="FEEDER">Feeder / Grunt</option>
+                                    <option value="SPLAWIK">Spławik</option>
+                                    <option value="MORSKIE">Morskie</option>
+                                </select>
+                                <i data-lucide="crosshair" class="input-icon"></i>
+                            </div>
+                        </div>
 
-                    <label class="input-label">Skład Osobowy</label>
-                    <input type="text" name="team" id="editTeam" class="algo-input mb-3">
+                        <div class="col-12 col-md-6">
+                            <label class="input-label">Skład Osobowy</label>
+                            <div class="algo-input-group m-0">
+                                <input type="text" name="team" id="editTeam" class="algo-input" placeholder="np. Tomek, Jacek">
+                                <i data-lucide="users" class="input-icon"></i>
+                            </div>
+                        </div>
+                    </div>
 
-                    <label class="input-label">Notatki</label>
-                    <textarea name="notes" id="editNotes" class="algo-input mb-3" rows="2"></textarea>
+                    <label class="input-label">Notatki / Wytyczne</label>
+                    <div class="algo-input-group mb-0">
+                        <textarea name="notes" id="editNotes" class="algo-input" rows="3" placeholder="Co zabrać, taktyka..."></textarea>
+                    </div>
 
                     <input type="hidden" name="latitude" id="editLat">
                     <input type="hidden" name="longitude" id="editLng">
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Anuluj</button>
-                    <button type="submit" class="btn btn-primary">Zapisz Zmiany</button>
+
+                <div class="modal-footer d-grid gap-2 d-sm-flex justify-content-sm-end p-3">
+                    <button type="button" class="btn-glass-cancel m-0" data-bs-dismiss="modal">Anuluj</button>
+                    <button type="submit" class="btn btn-algo btn-orange m-0"><i data-lucide="save" class="me-2" style="width: 18px;"></i> Zapisz Zmiany</button>
                 </div>
             </form>
         </div>
     </div>
 </div>
 
-<script src="https://unpkg.com/lucide@latest"></script>
+<div class="modal fade modal-glass" id="deleteConfirmModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+        <div class="modal-content" style="border-color: rgba(239, 68, 68, 0.3);">
+            <div class="modal-header border-0 pb-0 justify-content-center">
+                <div class="icon-box rounded-circle p-3 mt-3" style="background: rgba(239, 68, 68, 0.1); color: #ef4444;">
+                    <i data-lucide="alert-triangle" style="width: 40px; height: 40px;"></i>
+                </div>
+            </div>
+            <div class="modal-body text-center pt-3 pb-4">
+                <h5 class="fw-bold text-white mb-3">Usunąć wyprawę?</h5>
+                <p class="mb-0 text-secondary fs-7">Tej operacji nie można cofnąć. Zaplanowany wyjazd zostanie trwale usunięty z Twojego kalendarza.</p>
+            </div>
+            <div class="modal-footer d-grid gap-2 d-sm-flex justify-content-sm-center border-0 pt-0 pb-4">
+                <button type="button" class="btn-glass-cancel m-0" data-bs-dismiss="modal">Anuluj</button>
+                <form id="deleteForm" method="post" class="m-0 d-grid d-sm-block">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+
+                    <button type="submit" class="btn btn-danger w-100 m-0">
+                        <i data-lucide="trash-2" class="me-2" style="width: 18px;"></i> Usuń
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
 <script>
@@ -417,7 +489,6 @@
         function showMissionsModal(dayMissions, cellDate) {
             const modal = new bootstrap.Modal(document.getElementById('missionDetailModal'));
             const body = document.querySelector('#missionDetailModal .modal-body');
-
             const dateString = cellDate.toLocaleDateString('pl-PL');
 
             let html = '<div style="max-height: 400px; overflow-y: auto;">';
@@ -427,13 +498,13 @@
 
                 html += `
                 <div style="margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid rgba(255,255,255,0.1);">
-                    <h5 style="color: var(--ignore-orange); margin-bottom: 0.5rem;">${m.title}</h5>
-                    <ul class="mission-detail-list" style="margin: 0;">
-                        <li><strong>Termin</strong>: ${startDateStr} - ${endDateStr}</li>
-                        <li><strong>Lokalizacja</strong>: ${m.location}</li>
-                        <li><strong>Metoda</strong>: ${m.method}</li>
-                        <li><strong>Zespół</strong>: ${m.team || 'Brak'}</li>
-                        <li><strong>Notatki</strong>: ${m.notes || '--'}</li>
+                    <h5 style="color: var(--ignore-orange); margin-bottom: 1rem;">${m.title}</h5>
+                    <ul class="mission-detail-list" style="margin: 0; padding-left: 0; list-style: none;">
+                        <li class="mb-2"><strong class="text-secondary">Termin:</strong> ${startDateStr} - ${endDateStr}</li>
+                        <li class="mb-2"><strong class="text-secondary">Lokalizacja:</strong> ${m.location}</li>
+                        <li class="mb-2"><strong class="text-secondary">Metoda:</strong> ${m.method}</li>
+                        <li class="mb-2"><strong class="text-secondary">Zespół:</strong> ${m.team || 'Brak'}</li>
+                        <li class="mb-2"><strong class="text-secondary">Notatki:</strong> ${m.notes || '--'}</li>
                     </ul>
                 </div>
             `;
@@ -503,14 +574,22 @@
         document.getElementById('btnConfirmMap').addEventListener('click', () => {
             const info = document.getElementById('mapSelectedInfo');
             const city = info.dataset.city || info.innerText;
-            document.getElementById('inputLocation').value = city;
-            document.getElementById('inputLat').value = info.dataset.lat || '';
-            document.getElementById('inputLng').value = info.dataset.lng || '';
+            if (city !== 'Kliknij na mapie...') {
+                document.getElementById('inputLocation').value = city;
+                document.getElementById('inputLat').value = info.dataset.lat || '';
+                document.getElementById('inputLng').value = info.dataset.lng || '';
+            }
             mapModal.hide();
         });
 
         document.getElementById('geolocateBtn').addEventListener('click', (e) => {
             e.preventDefault();
+            const btn = e.currentTarget;
+
+            const originalHTML = btn.innerHTML;
+
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm text-info" role="status" aria-hidden="true"></span>';
+
             if(navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(
                     (pos) => {
@@ -524,15 +603,27 @@
                             .then(d => {
                                 const city = d.address.city || d.address.town || d.address.village || 'Moja lokalizacja';
                                 document.getElementById('inputLocation').value = city;
+                                btn.innerHTML = originalHTML;
                             })
                             .catch(() => {
                                 document.getElementById('inputLocation').value = `${lat.toFixed(4)}, ${lng.toFixed(4)}`;
+                                btn.innerHTML = originalHTML;
                             });
                     },
-                    (err) => alert('Błąd geolokacji: ' + err.message)
+                    (err) => {
+                        let msg = 'Wystąpił nieznany błąd.';
+                        if(err.code === 1) msg = 'Odmowa dostępu do lokalizacji. Sprawdź uprawnienia w przeglądarce.';
+                        else if(err.code === 2) msg = 'Pozycja niedostępna (brak sygnału GPS/sieci).';
+                        else if(err.code === 3) msg = 'Przekroczono czas oczekiwania na lokalizację.';
+
+                        alert('Błąd geolokacji: ' + msg);
+                        btn.innerHTML = originalHTML;
+                    },
+                    { timeout: 10000, enableHighAccuracy: true }
                 );
             } else {
                 alert('Twoja przeglądarka nie obsługuje geolokacji');
+                btn.innerHTML = originalHTML;
             }
         });
 
@@ -558,6 +649,17 @@
                 }
             });
         });
+
+        const deleteConfirmModal = new bootstrap.Modal(document.getElementById('deleteConfirmModal'));
+        document.querySelectorAll('.delete-trip-btn').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.preventDefault();
+                const tripId = this.getAttribute('data-id');
+                document.getElementById('deleteForm').action = '/kalendarz-wypraw/' + tripId + '/usun';
+                deleteConfirmModal.show();
+            });
+        });
+
     });
 </script>
 

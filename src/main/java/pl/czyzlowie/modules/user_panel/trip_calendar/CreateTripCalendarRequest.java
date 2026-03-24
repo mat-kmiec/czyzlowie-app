@@ -8,7 +8,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 /**
- * DTO for creating a new trip calendar entry.
+ * Request object for creating a new trip calendar entry.
  */
 @Data
 public class CreateTripCalendarRequest {

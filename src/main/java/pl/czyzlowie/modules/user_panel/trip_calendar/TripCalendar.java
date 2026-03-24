@@ -11,7 +11,30 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 /**
- * Represents a trip calendar entry for planning fishing trips.
+ * Entity representing a calendar entry for a trip, used to plan and manage fishing trips.
+ * This entity is mapped to the "trip_calendar" table in the database and includes details
+ * such as trip name, location, timing, fishing method, and additional notes.
+ *
+ * Relationships:
+ * - user: A many-to-one relationship with the User entity, representing the user who created the trip.
+ *
+ * Fields:
+ * - id: Unique identifier for each trip calendar entry.
+ * - user: The user associated with this trip.
+ * - name: The name of the trip.
+ * - location: Location of the trip.
+ * - latitude: Latitude coordinates of the trip location.
+ * - longitude: Longitude coordinates of the trip location.
+ * - startDate: Start date and time of the trip.
+ * - endDate: End date and time of the trip.
+ * - method: The fishing method used during the trip, based on the FishingMethod enum.
+ * - team: Names of team members participating, if applicable.
+ * - notes: Additional notes or details about the trip.
+ * - createdAt: Timestamp denoting when this entry was created. This field is not updatable.
+ * - updatedAt: Timestamp denoting the last modification of this entry.
+ *
+ * Auditing:
+ * This entity uses Spring Data JPA auditing to automatically populate createdAt and updatedAt fields.
  */
 @Entity
 @Table(name = "trip_calendar")
