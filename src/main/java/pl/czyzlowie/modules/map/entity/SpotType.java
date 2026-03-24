@@ -32,7 +32,8 @@ public enum SpotType {
     SPECIFIC_SPOT("Miejscówka", "miejscowka"),
     SLIP("Slip", "miejsce-wodowania"),
     RESERVOIR("Zbiornik zaporowy", "zbiornik-zaporowy"),
-    RESTRICTION("Zakaz", "zakaz");
+    RESTRICTION("Zakaz", "zakaz"),
+    FISHING_SHOP("Sklep wędkarski", "sklep-wedkarski");
 
     private final String displayName;
     private final String urlPath;
