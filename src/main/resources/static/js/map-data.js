@@ -15,8 +15,9 @@ export const CATEGORIES = {
     oxbow: { name: 'Starorzecze', icon: 'worm', color: '#309129' },
     slip: { name: 'Slip (Wodowanie)', icon: 'anchor', color: '#ff5900' },
     specific_spot: { name: 'Miejscówka', icon: 'fish', color: '#b568f4' },
-    // fishery: { name: 'Łowisko', icon: 'fish', color: '#b568f4' },
     commercial: { name: 'Łowisko komercyjne', icon: 'coins', color: '#ec4899' },
+    rentals: { name: 'Wypożyczalnie', icon: 'sailboat', color: '#0d9488' },
+    fishing_shop: { name: 'Sklep wędkarski', icon: 'store', color: '#ea580c' },
     restriction: { name: 'Zakazy i ograniczenia', icon: 'shield-off', color: '#ef4444' },
     partial_limit: { name: 'Ograniczenie', icon: 'shield-off', color: 'rgba(255,89,0,0.94)' },
     me: { name: 'Moja lokalizacja', icon: 'circle-user', color: '#22c55e' }

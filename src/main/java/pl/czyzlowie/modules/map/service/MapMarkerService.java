@@ -129,6 +129,7 @@ public class MapMarkerService {
                 .slug(spot.getSlug())
                 .lat(spot.getLatitude())
                 .lng(spot.getLongitude())
+                .description(spot.getDescription())
                 .build();
     }
 

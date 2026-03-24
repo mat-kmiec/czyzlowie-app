@@ -35,6 +35,7 @@
     <include file="db/changelog/releases/v1-0-0/28-add-indexes-for-forecast-cleanup.xml"/>
     <include file="db/changelog/releases/v1-0-0/29-create-fishing-goals.xml"/>
     <include file="db/changelog/releases/v1-0-0/30-create-trip-calendar-schema.xml"/>
+    <include file="db/changelog/releases/v1-0-0/31-add-new-map-spot.xml"/>
 
 
 </databaseChangeLog>

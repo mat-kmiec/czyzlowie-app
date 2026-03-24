@@ -12,7 +12,7 @@ class MapApplication {
         this.allDataLoaded = false;
         this.isTracking = false;
         this.tempCollectedPoints = [];
-        this.tempMarkersGroup = L.layerGroup();
+        // this.tempMarkersGroup = L.layerGroup();
 
         const urlParams = new URLSearchParams(window.location.search);
         const urlCats = urlParams.get('cat');
@@ -482,6 +482,10 @@ class MapApplication {
 
                 marker = L.marker([loc.lat, loc.lng], { icon: htmlIcon });
 
+                const popupBodyContent = (loc.cat === 'rentals' || loc.cat === 'fishing_shop')
+                    ? `<div class="popup-desc" style="margin-top: 10px;">${loc.description || 'Brak szczegółowych informacji.'}</div>`
+                    : `<a href="${loc.url}" class="popup-btn">Szczegóły <i data-lucide="arrow-right"></i></a>`;
+
                 const popupContent = `
                     <div class="popup-header">
                         <div class="popup-title">${loc.name}</div>
@@ -490,7 +494,7 @@ class MapApplication {
                         </div>
                     </div>
                     <div class="popup-body">
-                        <a href="${loc.url}" class="popup-btn">Szczegóły <i data-lucide="arrow-right"></i></a>
+                        ${popupBodyContent}
                     </div>
                 `;
 

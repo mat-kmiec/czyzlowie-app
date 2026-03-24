@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="create-rental-spot-table" author="mateusz kmiec">
+        <createTable tableName="rental_spot">
+            <column name="id" type="BIGINT">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+        </createTable>
+
+        <addForeignKeyConstraint baseColumnNames="id"
+                                 baseTableName="rental_spot"
+                                 constraintName="fk_rental_spot_map_spots"
+                                 referencedColumnNames="id"
+                                 referencedTableName="map_spots"/>
+    </changeSet>
+    <changeSet id="create-fishing-shop-spot-table" author="mateusz kmiec">
+        <createTable tableName="fishing_shop_spot">
+            <column name="id" type="BIGINT">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+        </createTable>
+
+        <addForeignKeyConstraint baseColumnNames="id"
+                                 baseTableName="fishing_shop_spot"
+                                 constraintName="fk_fishing_shop_map_spots"
+                                 referencedColumnNames="id"
+                                 referencedTableName="map_spots"/>
+    </changeSet>
+</databaseChangeLog>
