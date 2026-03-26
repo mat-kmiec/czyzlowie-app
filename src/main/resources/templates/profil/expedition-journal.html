@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="pl">
 <head>
     <th:block th:replace="~{fragments/head :: head-content(
-        pageTitle='Historia Wypraw | CzyZlowie',
+        pageTitle='Historia Wypraw',
         pageDescription='Dziennik Twoich wędkarskich wypraw i zasiadek. Analizuj czas nad wodą, warunki i wyniki swoich misji.',
         currentUrl='https://czyzlowie.pl/wyprawy'
     )}"></th:block>
@@ -191,7 +191,7 @@
 
                 <div th:if="${tripPage.isEmpty()}" class="algo-glass-panel p-5 text-center">
                     <i data-lucide="tent" class="text-secondary opacity-50 mb-3 mx-auto d-block" style="width: 48px; height: 48px;"></i>
-                    <h3 class="text-white">Brak zapisanych wypraw</h3>
+                    <h3 class="text-secondary">Brak zapisanych wypraw</h3>
                     <p class="text-secondary">Zapisz swoją pierwszą misję korzystając z formularza obok.</p>
                 </div>
 

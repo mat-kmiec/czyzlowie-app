@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="pl">
 <head>
     <th:block th:replace="~{fragments/head :: head-content(
-        pageTitle='Wędkarski Barometr Ciśnienia - ' + ${barometer.locationName} + ' | CzyZlowie',
+        pageTitle='Wędkarski Barometr Ciśnienia - ' + ${barometer.locationName},
         pageDescription='Sprawdź aktualne ciśnienie atmosferyczne w ' + ${barometer.locationName} + '. Monitoruj wykres barometryczny i przewiduj okienka żerowania drapieżników i białorybu.'
     )}"></th:block>
 

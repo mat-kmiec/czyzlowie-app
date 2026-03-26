@@ -17,125 +17,6 @@
     </script>
 
     <link rel="stylesheet" th:href="@{/css/home-hero.css}">
-    <style>
-        .spot-card {
-            background: rgba(15, 23, 42, 0.6);
-            border: 1px solid rgba(255,255,255,0.05);
-            border-radius: 16px;
-            overflow: hidden;
-            transition: all 0.3s ease;
-        }
-        .spot-card:hover {
-            transform: translateY(-5px);
-            border-color: var(--brand-blue);
-            box-shadow: 0 10px 30px rgba(14, 165, 233, 0.15);
-        }
-        .spot-img-wrapper {
-            position: relative;
-            height: 200px;
-            overflow: hidden;
-        }
-        .spot-img-wrapper img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            transition: transform 0.5s ease;
-        }
-        .spot-card:hover .spot-img-wrapper img {
-            transform: scale(1.05);
-        }
-        .spot-badge {
-            position: absolute;
-            top: 15px;
-            right: 15px;
-            background: rgba(0,0,0,0.7);
-            backdrop-filter: blur(5px);
-            padding: 5px 12px;
-            border-radius: 20px;
-            font-size: 0.75rem;
-            font-weight: 700;
-            border: 1px solid rgba(255,255,255,0.1);
-        }
-
-        .coffee-section {
-            background: linear-gradient(0deg, rgba(15, 23, 42, 1) 0%, rgba(15, 23, 42, 0) 100%);
-            border-top: 1px solid rgba(255,255,255,0.03);
-        }
-        .coffee-card {
-            background: linear-gradient(145deg, rgba(245, 158, 11, 0.05), rgba(0,0,0,0.5));
-            border: 1px solid rgba(245, 158, 11, 0.2);
-            border-radius: 24px;
-            padding: 3rem;
-            position: relative;
-            overflow: hidden;
-        }
-        .coffee-card::before {
-            content: '';
-            position: absolute;
-            top: -50%; right: -20%;
-            width: 300px; height: 300px;
-            background: radial-gradient(circle, rgba(245, 158, 11, 0.15) 0%, rgba(0,0,0,0) 70%);
-            border-radius: 50%;
-            pointer-events: none;
-        }
-        .btn-coffee {
-            background: linear-gradient(90deg, #d97706, #f59e0b);
-            color: #000;
-            font-weight: 800;
-            border: none;
-            box-shadow: 0 0 20px rgba(245, 158, 11, 0.3);
-            transition: all 0.3s;
-        }
-        .btn-coffee:hover {
-            transform: scale(1.05);
-            color: #000;
-            box-shadow: 0 0 30px rgba(245, 158, 11, 0.5);
-        }
-
-        /* --- Style dla Modalu Ostrzegawczego BETA --- */
-        .beta-modal-content {
-            background: rgba(15, 23, 42, 0.95);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(239, 68, 68, 0.3);
-            box-shadow: 0 15px 50px rgba(0,0,0,0.8), 0 0 30px rgba(239, 68, 68, 0.15);
-            border-radius: 24px;
-            overflow: hidden;
-        }
-        .beta-icon-ring {
-            width: 80px;
-            height: 80px;
-            border-radius: 50%;
-            background: rgba(239, 68, 68, 0.1);
-            border: 1px solid rgba(239, 68, 68, 0.3);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 1.5rem auto;
-            position: relative;
-        }
-        .beta-icon-ring::after {
-            content: '';
-            position: absolute;
-            width: 100%; height: 100%;
-            border-radius: 50%;
-            border: 1px solid #ef4444;
-            animation: radarPulse 2s infinite;
-        }
-        .btn-beta-confirm {
-            background: linear-gradient(90deg, #ef4444, #b91c1c);
-            color: white;
-            border: none;
-            font-weight: 800;
-            letter-spacing: 1px;
-            box-shadow: 0 5px 15px rgba(239, 68, 68, 0.3);
-            transition: 0.3s;
-        }
-        .btn-beta-confirm:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(239, 68, 68, 0.5);
-            color: white;
-        }
-    </style>
 </head>
 <body class="bg-dark hero-page-body">
 
@@ -173,17 +54,17 @@
             <div class="trust-metrics mt-4 d-flex flex-wrap justify-content-center justify-content-lg-start gap-3 gap-md-4 reveal-anim" style="animation-delay: 0.5s;">
                 <div class="metric-item">
                     <span class="metric-val text-white fw-black font-mono">IMGW</span>
-                    <span class="metric-label text-muted text-uppercase fw-bold">Dane Synop</span>
+                    <span class="metric-label text-uppercase fw-bold">Dane Synop</span>
                 </div>
                 <div class="metric-divider border-start border-white-10"></div>
                 <div class="metric-item">
                     <span class="metric-val text-white fw-black font-mono">NOAA</span>
-                    <span class="metric-label text-muted text-uppercase fw-bold">Modele Meteo</span>
+                    <span class="metric-label text-uppercase fw-bold">Modele Meteo</span>
                 </div>
                 <div class="metric-divider border-start border-white-10"></div>
                 <div class="metric-item">
                     <span class="metric-val text-neon fw-black font-mono">LIVE</span>
-                    <span class="metric-label text-muted text-uppercase fw-bold">Stany Hydro</span>
+                    <span class="metric-label  text-uppercase fw-bold">Stany Hydro</span>
                 </div>
             </div>
         </div>
@@ -305,48 +186,10 @@
 
 <footer th:replace="~{fragments/footer :: footer}"></footer>
 
-<div class="modal fade" id="betaDisclaimerModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="betaDisclaimerTitle" aria-hidden="true" style="z-index: 9999;">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content beta-modal-content">
-            <div class="modal-body p-5 text-center">
-
-                <div class="beta-icon-ring">
-                    <i data-lucide="flask-conical" class="text-danger" style="width: 36px; height: 36px;"></i>
-                </div>
-
-                <h3 class="text-white fw-black mb-2" id="betaDisclaimerTitle" style="letter-spacing: -0.5px;">Wersja BETA Systemu</h3>
-                <p class="text-danger fw-bold small text-uppercase tracking-widest mb-4">Faza wczesnych testów</p>
-
-                <p class="text-secondary small lh-lg mb-5 text-start px-2">
-                    Aplikacja <strong>CzyZlowie.pl</strong> znajduje się obecnie we wczesnej fazie rozwoju (BETA). <br><br>
-                    Trwa intensywna kalibracja algorytmów predykcyjnych, podpinanie stacji hydro/meteo oraz masowe zasilanie bazy katalogu łowisk. Mogą występować przerwy w dostępie do niektórych danych lub błędy w prognozach.
-                </p>
-
-                <button type="button" class="btn btn-beta-confirm w-100 py-3 rounded-3" id="btnAcceptBeta">
-                    ROZUMIEM, WCHODZĘ
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
-
 <script th:inline="javascript">
     document.addEventListener('DOMContentLoaded', () => {
         if (typeof lucide !== 'undefined') lucide.createIcons();
 
-        const betaKey = 'czyzlowie_beta_accepted';
-
-        if (!localStorage.getItem(betaKey)) {
-            const betaModalElement = document.getElementById('betaDisclaimerModal');
-            if(typeof bootstrap !== 'undefined') {
-                const betaModal = new bootstrap.Modal(betaModalElement);
-                betaModal.show();
-                document.getElementById('btnAcceptBeta').addEventListener('click', () => {
-                    localStorage.setItem(betaKey, 'true');
-                    betaModal.hide();
-                });
-            }
-        }
         const targetsLayer = document.getElementById('radar-targets-layer');
         function spawnTarget() {
             if(!targetsLayer) return;

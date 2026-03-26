@@ -6,7 +6,7 @@
         baseTitle=${categoryName != 'Wszystkie ryby' ? categoryName + ' - Atlas Ryb' : 'Atlas Ryb'}">
 
         <th:block th:replace="~{fragments/head :: head-content(
-            pageTitle=${baseTitle} + ${pageSuffix} + ' | czyzlowie.pl',
+            pageTitle=${baseTitle} + ${pageSuffix},
             pageDescription='Przeglądaj największy atlas ryb w Polsce. Kategoria: ' + ${categoryName} + '. Sprawdź okresy ochronne, rekordy i techniki łowienia.' + ${pageSuffix},
             currentUrl='https://czyzlowie.pl/ryby' + ${currentUrlPath} + ${fishPage.number > 0 ? '?page=' + fishPage.number : ''}
         )}"></th:block>

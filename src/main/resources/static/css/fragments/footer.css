@@ -60,46 +60,19 @@
     transition: all 0.2s ease-in-out;
     display: inline-flex;
     align-items: center;
-    padding: 6px 0; /* Zwiększony obszar klikalny dla palca */
+    padding: 6px 0;
 }
 
-/* Domyślny hover dla desktopu (przesunięcie w prawo) */
 .footer-links a:hover {
     color: #2ecc71;
     transform: translateX(5px);
 }
 
-.social-icon {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 40px;
-    height: 40px;
-    background-color: rgba(255, 255, 255, 0.05);
-    color: #94a3b8;
-    border-radius: 10px;
-    transition: all 0.3s ease;
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    text-decoration: none;
-}
-
-.social-icon i {
-    width: 20px;
-    height: 20px;
-}
-
-.social-icon:hover {
-    background-color: rgba(46, 204, 113, 0.1);
-    color: #2ecc71;
-    border-color: rgba(46, 204, 113, 0.3);
-    transform: translateY(-3px);
-}
 
 .footer-bottom {
     border-top: 1px solid rgba(255, 255, 255, 0.08);
 }
 
-/* --- RESPONSYWNOŚĆ (Wymuszenie stosu i wyśrodkowania) --- */
 @media (max-width: 991px) {
     .main-footer {
         padding-top: 30px;
@@ -110,8 +83,8 @@
         margin-bottom: 15px;
     }
 
-    /* Przy wyśrodkowanym tekście przesuwanie w prawo wygląda źle, zmieniamy na uniesienie */
     .footer-links a:hover {
         transform: translateY(-2px);
     }
 }
+

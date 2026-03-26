@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="pl">
 <head>
     <th:block th:replace="~{fragments/head :: head-content(
-        pageTitle='Prywatne Notatki | CzyZlowie',
+        pageTitle='Prywatne Notatki',
         pageDescription='Twoje wędkarskie zapiski, przemyślenia taktyczne i plany zakupowe w jednym, bezpiecznym miejscu.',
         currentUrl='https://czyzlowie.pl/notatki'
     )}"></th:block>
@@ -13,15 +13,6 @@
 <body class="algo-page">
 
 <nav th:replace="~{fragments/navbar :: navbar(activeTab='notatki')}"></nav>
-
-<div class="algo-bg-container" aria-hidden="true">
-    <picture>
-        <img th:src="@{/assets/drapiezniki.jpg}" alt="Tło notatek" class="algo-bg-image" loading="lazy">
-    </picture>
-    <div class="algo-bg-overlay"></div>
-    <div class="algo-glow glow-top-left"></div>
-    <div class="algo-glow glow-bottom-right"></div>
-</div>
 
 <main class="container-xl position-relative z-2 pb-5" style="margin-top: 90px;">
 
@@ -112,10 +103,10 @@
                 <i data-lucide="folder-open" style="width: 20px; color: var(--intel-purple); margin-right: 8px;"></i> Rejestr Wpisów
             </h2>
 
-            <div th:if="${notesPage.empty}" class="algo-glass-panel p-5 text-center">
+            <div th:if="${notesPage.empty}" class="algo-glass-panel p-5 text-center d-flex flex-column align-items-center justify-content-center">
                 <i data-lucide="file-question" style="width: 48px; height: 48px; color: #64748b; margin-bottom: 1rem;"></i>
-                <h4 class="text-white mb-2">Pusty Rejestr</h4>
-                <p class="text-secondary-custom mb-0">Nie zapisałeś jeszcze żadnych notatek. Użyj panelu po lewej, aby dodać swój pierwszy wpis.</p>
+                <h4 class="text-secondary mb-2">Pusty Rejestr</h4>
+                <p class="text-secondary mb-0">Nie zapisałeś jeszcze żadnych notatek. Użyj panelu po lewej, aby dodać swój pierwszy wpis.</p>
             </div>
 
             <div class="notes-grid" th:if="${!notesPage.empty}">

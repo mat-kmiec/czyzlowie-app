@@ -527,3 +527,13 @@ html, body.hero-page-body {
 .size-sm { width: 14px; height: 14px; }
 .size-lg { width: 32px; height: 32px; }
 
+.spot-img-wrapper img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+}
+.spot-card:hover .spot-img-wrapper img {
+    transform: scale(1.05);
+}
+
