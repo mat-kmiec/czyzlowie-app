@@ -17,9 +17,63 @@
     </script>
 
     <link rel="stylesheet" th:href="@{/css/home-hero.css}">
+
+    <link rel="manifest" th:href="@{/manifest.json}">
+    <meta name="theme-color" content="#020617">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="CzyZlowie">
+    <link rel="apple-touch-icon" href="/assets/icons/icon-180x180.png">
+    <link rel="apple-touch-startup-image" media="screen and (device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3)" th:href="@{/assets/splash/iPhone_17e__iPhone_16e__iPhone_14__iPhone_13_Pro__iPhone_13__iPhone_12_Pro__iPhone_12_portrait.png}">
+
+    <style>
+        #custom-splash-screen {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-color: #020617;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            transition: opacity 0.6s ease-out, visibility 0.6s ease-out;
+        }
+
+        .splash-logo {
+            width: 120px;
+            height: auto;
+            animation: pulseLogo 2s infinite ease-in-out;
+        }
+
+        .splash-spinner {
+            margin-top: 30px;
+            width: 40px; height: 40px;
+            border: 4px solid rgba(46, 204, 113, 0.2);
+            border-top-color: #2ecc71;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes pulseLogo {
+            0% { transform: scale(0.95); opacity: 0.8; }
+            50% { transform: scale(1.05); opacity: 1; filter: drop-shadow(0 0 15px rgba(46,204,113,0.5)); }
+            100% { transform: scale(0.95); opacity: 0.8; }
+        }
+
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+
+        .splash-hidden {
+            opacity: 0;
+            visibility: hidden;
+        }
+    </style>
+    <script src="/js/pwa-setup.js" defer></script>
 </head>
 <body class="bg-dark hero-page-body">
-
+<div id="custom-splash-screen">
+    <img src="/assets/logo.png" alt="CzyZlowie" class="splash-logo">
+    <div class="splash-spinner"></div>
+</div>
 <nav th:replace="~{fragments/navbar :: navbar(activeTab='home')}"></nav>
 
 <div class="tactical-ambient-bg" aria-hidden="true"></div>
