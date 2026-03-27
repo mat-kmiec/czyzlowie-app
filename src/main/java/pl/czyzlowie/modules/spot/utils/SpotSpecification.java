@@ -22,26 +22,33 @@ public class SpotSpecification {
      * to database queries, enabling flexibility in fetching data according to the provided criteria.
      *
      * @param filter an instance of {@code SpotFilterDto} containing the filter criteria such as name,
-     *               province, spot type, and nearest city to narrow down the search results.
+     * province, spot type, and nearest city to narrow down the search results.
      * @return a {@code Specification<MapSpot>} instance that can be used to query the database for
-     *         spots matching the given filter criteria.
+     * spots matching the given filter criteria.
      */
     public static Specification<MapSpot> withFilter(SpotFilterDto filter) {
         return (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
+            if (filter.getSpotType() != null) {
+                predicates.add(cb.equal(root.get("spotType"), filter.getSpotType()));
+            } else {
+                List<SpotType> excludedTypes = List.of(
+                        SpotType.RESTRICTION,
+                        SpotType.SLIP,
+                        SpotType.FISHING_SHOP,
+                        SpotType.RENTALS
+                );
+                predicates.add(cb.not(root.get("spotType").in(excludedTypes)));
+            }
 
-            predicates.add(cb.notEqual(root.get("spotType"), SpotType.RESTRICTION));
+            // 2. Reszta filtrów
             if (filter.getName() != null && !filter.getName().isBlank()) {
                 predicates.add(cb.like(cb.lower(root.get("name")), "%" + filter.getName().toLowerCase() + "%"));
             }
 
             if (filter.getProvince() != null && !filter.getProvince().isBlank()) {
                 predicates.add(cb.equal(root.get("province"), filter.getProvince()));
-            }
-
-            if (filter.getSpotType() != null) {
-                predicates.add(cb.equal(root.get("spotType"), filter.getSpotType()));
             }
 
             if (filter.getNearestCity() != null && !filter.getNearestCity().isBlank()) {

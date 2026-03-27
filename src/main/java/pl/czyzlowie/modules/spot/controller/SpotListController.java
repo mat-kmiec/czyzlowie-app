@@ -29,7 +29,7 @@ import java.util.List;
  * Request mappings:
  * - "/lowiska": Displays the full list of spots.
  * - "/lowiska/{urlPath}": Displays a filtered list of spots based on the type
- *   derived from the provided URL path.
+ * derived from the provided URL path.
  */
 @Controller
 @RequestMapping("/lowiska")
@@ -43,7 +43,7 @@ public class SpotListController {
      * and optional URL path to determine the spot type.
      *
      * @param urlPath an optional path variable used to identify the type of spots to filter; if null or blank,
-     *                no specific type filtering is applied
+     * no specific type filtering is applied
      * @param filter an object containing filtering criteria for the spots (e.g., type, properties)
      * @param pageable pageable information to handle pagination and sorting (e.g., page size, sort criteria)
      * @param model a holder for attributes that need to be passed to the view for rendering
@@ -71,8 +71,15 @@ public class SpotListController {
             typeName = filter.getSpotType().getDisplayName();
         }
 
+        List<SpotType> hiddenTypes = List.of(
+                SpotType.RESTRICTION,
+                SpotType.SLIP,
+                SpotType.FISHING_SHOP,
+                SpotType.RENTALS
+        );
+
         List<SpotType> availableTypes = java.util.Arrays.stream(SpotType.values())
-                .filter(type -> type != SpotType.RESTRICTION)
+                .filter(type -> !hiddenTypes.contains(type))
                 .toList();
 
         Page<SpotListElementDto> spotsPage = spotListService.getFilteredSpots(filter, pageable);

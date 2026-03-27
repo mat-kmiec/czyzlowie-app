@@ -356,7 +356,7 @@ class MapApplication {
                 if (!this.locationIds.has(marker.id)) {
                     this.locationIds.add(marker.id);
 
-                    const typeLower = marker.type ? marker.type.toLowerCase() : '';
+                    const typeLower = marker.type ? marker.type.toLowerCase().trim() : '';
                     let finalUrl = '';
 
                     if (['hydro', 'meteo', 'synop'].includes(typeLower)) {

@@ -79,7 +79,7 @@ public class SpotDetailsController {
      * @param model the model object used to pass data to the view
      * @return the name of the view to be rendered
      */
-    @GetMapping("/miejsce-wodowania/{slug}")
+    @GetMapping("/slip/{slug}")
     public String showSlipDetails(@PathVariable String slug, Model model) {
         return processSpotRequest(slug, SpotType.SLIP, model);
     }

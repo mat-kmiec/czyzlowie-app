@@ -24,9 +24,14 @@ import java.util.Optional;
 @Repository
 public interface MapSpotRepository extends JpaRepository<MapSpot, Long>, JpaSpecificationExecutor<MapSpot> {
 
+//    @Query("SELECT s FROM MapSpot s WHERE " +
+//            "(s.latitude BETWEEN :south AND :north AND s.longitude BETWEEN :west AND :east) " +
+//            "OR TYPE(s) = RestrictionSpot" +
+//            "OR TYPE(s) = BoatSlip"
+//    )
     @Query("SELECT s FROM MapSpot s WHERE " +
             "(s.latitude BETWEEN :south AND :north AND s.longitude BETWEEN :west AND :east) " +
-            "OR TYPE(s) = RestrictionSpot")
+            "OR TYPE(s) IN (RestrictionSpot, BoatSlip, FishingShopSpot, RentalSpot)")
     List<MapSpot> findInBounds(
             @Param("south") Double south,
             @Param("north") Double north,
