@@ -3,7 +3,6 @@ spring:
     name: czyzlowie
   config:
     import: optional:classpath:application-secrets.yml
-
   datasource:
     url: jdbc:postgresql://localhost:5432/czyzlowie
     username: user
@@ -104,7 +103,6 @@ imgw:
     meteo-url: https://danepubliczne.imgw.pl/api/data/meteo
     synop-url: https://danepubliczne.imgw.pl/api/data/synop
     hydro-url: https://danepubliczne.imgw.pl/api/data/hydro
-  # Co 30 minut, równo z zegarem
   scheduler:
     meteo:
       cron: 0 0,30 * * * *
@@ -116,3 +114,5 @@ imgw:
 forecast:
   api:
     url: "https://api.open-meteo.com/v1/forecast"
+
+
