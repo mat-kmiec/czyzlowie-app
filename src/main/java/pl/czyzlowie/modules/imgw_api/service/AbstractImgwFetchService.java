@@ -54,11 +54,19 @@ public abstract class AbstractImgwFetchService<DTO, S, D> {
      */
     @Transactional
     public int fetchAndProcess() {
-        List<DTO> dtos = fetchFromApi();
-        if (dtos == null || dtos.isEmpty()) {
+        List<DTO> rawDtos = fetchFromApi();
+        if (rawDtos == null || rawDtos.isEmpty()) {
             log.info("Brak danych z API.");
             return 0;
         }
+
+        Collection<DTO> dtos = rawDtos.stream()
+                .collect(Collectors.toMap(
+                        this::getStationIdFromDto,
+                        Function.identity(),
+                        (existing, replacement) -> replacement
+                ))
+                .values();
 
         Set<String> affectedStationIds = dtos.stream()
                 .map(this::getStationIdFromDto)

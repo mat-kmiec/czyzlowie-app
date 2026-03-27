@@ -13,6 +13,7 @@ import pl.czyzlowie.modules.imgw_api.entity.ImgwSynopStation;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -92,17 +93,20 @@ public interface WeatherForecastMapper {
         int size = hourly.getTime().size();
         List<WeatherForecast> list = new ArrayList<>(size);
         LocalDateTime now = LocalDateTime.now();
+        ZoneId warsawZone = ZoneId.of("Europe/Warsaw");
 
         for (int i = 0; i < size; i++) {
             WeatherForecast entity = new WeatherForecast();
 
             String timeStr = getSafe(hourly.getTime(), i);
             if (timeStr != null) {
-                LocalDateTime forecastTime = LocalDateTime.parse(timeStr, ISO_FORMATTER);
-                entity.setForecastTime(forecastTime);
+                LocalDateTime rawForecastTime = LocalDateTime.parse(timeStr, ISO_FORMATTER);
+                LocalDateTime normalizedForecastTime = rawForecastTime.atZone(warsawZone).toLocalDateTime();
+
+                entity.setForecastTime(normalizedForecastTime);
 
                 if (daily != null && daily.getTime() != null) {
-                    int dayIndex = findDayIndex(daily.getTime(), forecastTime);
+                    int dayIndex = findDayIndex(daily.getTime(), normalizedForecastTime);
                     if (dayIndex != -1) {
                         entity.setSunrise(parseDateTime(getSafe(daily.getSunrise(), dayIndex)));
                         entity.setSunset(parseDateTime(getSafe(daily.getSunset(), dayIndex)));
@@ -150,12 +154,16 @@ public interface WeatherForecastMapper {
         VirtualStationData entity = new VirtualStationData();
         entity.setVirtualStation(station);
         entity.setFetchedAt(LocalDateTime.now());
+        ZoneId warsawZone = ZoneId.of("Europe/Warsaw");
 
         if (current.getTime() != null) {
             LocalDateTime apiTime = LocalDateTime.parse(current.getTime(), ISO_FORMATTER);
-            entity.setMeasurementTime(apiTime.truncatedTo(ChronoUnit.HOURS));
+            LocalDateTime normalizedApiTime = apiTime.atZone(warsawZone).toLocalDateTime();
+            entity.setMeasurementTime(normalizedApiTime.truncatedTo(ChronoUnit.HOURS));
         } else {
-            entity.setMeasurementTime(LocalDateTime.now().truncatedTo(ChronoUnit.HOURS));
+            LocalDateTime now = LocalDateTime.now();
+            LocalDateTime normalizedNow = now.atZone(warsawZone).toLocalDateTime();
+            entity.setMeasurementTime(normalizedNow.truncatedTo(ChronoUnit.HOURS));
         }
 
         entity.setTemperature(toBigDecimal(current.getTemperature()));

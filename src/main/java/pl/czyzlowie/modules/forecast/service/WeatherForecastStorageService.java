@@ -30,20 +30,24 @@ public class WeatherForecastStorageService {
     private final WeatherForecastRepository forecastRepository;
     private final WeatherForecastMapper mapper;
 
-    /**
-     * Saves or updates a list of incoming weather forecasts in the database. The method checks for
-     * existing forecasts within the given time range and updates them if found; otherwise,
-     * it saves the new forecasts. It processes either Synop station data or virtual station data
-     * based on the isSynop flag.
-     *
-     * @param incomingForecasts the list of weather forecasts to be saved or updated
-     * @param isSynop a flag indicating whether the forecasts are for Synop stations (true)
-     *                or virtual stations (false)
-     */
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public void saveForecasts(List<WeatherForecast> incomingForecasts, boolean isSynop) {
-        if (incomingForecasts.isEmpty()) return;
 
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void saveForecasts(List<WeatherForecast> incomingForecastsRaw, boolean isSynop) {
+        if (incomingForecastsRaw.isEmpty()) return;
+
+        // KROK 1: Deduplikacja w locie. Open-Meteo potrafi zwrócić duplikaty w jednej paczce.
+        // Zbieramy to do mapy. Jeśli klucze się powtórzą, bierzemy ten nowszy (replacement).
+        Map<String, WeatherForecast> deduplicatedIncoming = incomingForecastsRaw.stream()
+                .collect(Collectors.toMap(
+                        this::generateUniqueKey,
+                        Function.identity(),
+                        (existing, replacement) -> replacement
+                ));
+
+        // Nadpisujemy listę wyczyszczonymi, unikalnymi danymi
+        List<WeatherForecast> incomingForecasts = new ArrayList<>(deduplicatedIncoming.values());
+
+        // KROK 2: Standardowa logika sprawdzania bazy (Twój oryginalny kod)
         LocalDateTime minDate = incomingForecasts.stream()
                 .map(WeatherForecast::getForecastTime)
                 .min(LocalDateTime::compareTo).orElseThrow();
