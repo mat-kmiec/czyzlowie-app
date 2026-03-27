@@ -1,18 +1,107 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="pl">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <!-- SEO Meta Tags -->
+    <title>Prognoza Brań Ryb - Kalkulator Wędkarski Online | CzyZlowie.pl</title>
+    <meta name="description" content="CzyZlowie - Profesjonalna prognoza brań ryb i kalkulator wędkarski. Analiza danych meteo, hydro i IMGW w czasie rzeczywistym. Dowiedz się kiedy łowić szczupaka, sandacza i białoryba.">
+    <meta name="keywords" content="prognoza brań, kalkulator wędkarski, ryby, szczupak, sandacz, barometr, prognoza meteo hydro, IMGW, wędkowanie">
+    <meta name="author" content="CzyZlowie">
+    <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
+    <link rel="canonical" href="https://czyzlowie.pl/">
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://czyzlowie.pl/">
+    <meta property="og:title" content="Prognoza Brań Ryb - Profesjonalny Kalkulator Wędkarski | CzyZlowie.pl">
+    <meta property="og:description" content="Jedyny taki kalkulator wędkarski w Polsce. Przetwarzamy dane meteo, hydro i IMGW aby wyliczyć dokładny kalendarz brań drapieżników i białorybu.">
+    <meta property="og:image" content="https://czyzlowie.pl/assets/og-preview.jpg">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:locale" content="pl_PL">
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://czyzlowie.pl/">
+    <meta property="twitter:title" content="Prognoza Brań Ryb - Kalkulator Wędkarski | CzyZlowie.pl">
+    <meta property="twitter:description" content="Analiza na żywo danych meteo, hydro i IMGW. Odkryj matematycznie wyliczone okienka żerowania ryb.">
+    <meta property="twitter:image" content="https://czyzlowie.pl/assets/og-preview.jpg">
+
+    <!-- Google Site Verification -->
+    <meta name="google-site-verification" content="">
+
+    <!-- Additional Meta Tags -->
+    <meta name="format-detection" content="telephone=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="CzyZlowie">
+
+    <!-- Prefetch DNS, preconnect for performance -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="dns-prefetch" href="https://cdn.jsdelivr.net">
+
     <th:block th:replace="~{fragments/head :: head-content}"></th:block>
 
+    <!-- Structured Data - WebApplication -->
     <script type="application/ld+json">
         {
             "@context": "https://schema.org",
             "@type": "WebApplication",
-            "name": "CzyZlowie.pl - Profesjonalna Prognoza Brań i Barometr",
+            "name": "CzyZlowie - Prognoza Brań i Kalkulator Wędkarski",
             "url": "https://czyzlowie.pl",
-            "description": "Najdokładniejszy kalendarz brań w Polsce. Analiza na żywo danych meteo, stanów rzek (hydro) oraz stacji IMGW (synop).",
+            "description": "Profesjonalna prognoza brań ryb. Analiza na żywo danych meteo, stanów rzek (hydro) oraz stacji IMGW (synop).",
             "applicationCategory": "SportsApplication",
             "operatingSystem": "Web",
-            "author": { "@type": "Organization", "name": "CzyZlowie" }
+            "browserRequirements": "Requires JavaScript",
+            "offers": {
+                "@type": "Offer",
+                "price": "0",
+                "priceCurrency": "PLN",
+                "availability": "https://schema.org/InStock"
+            },
+            "author": {
+                "@type": "Organization",
+                "name": "CzyZlowie",
+                "url": "https://czyzlowie.pl",
+                "logo": "https://czyzlowie.pl/assets/logo.png"
+            }
+        }
+    </script>
+
+    <!-- Structured Data - Organization -->
+    <script type="application/ld+json">
+        {
+            "@context": "https://schema.org",
+            "@type": "Organization",
+            "name": "CzyZlowie",
+            "url": "https://czyzlowie.pl",
+            "logo": "https://czyzlowie.pl/assets/logo.png",
+            "description": "Najdokładniejszy kalendarz brań i kalkulator wędkarski w Polsce",
+            "sameAs": [
+                "https://www.facebook.com/czyzlowie",
+                "https://www.instagram.com/czyzlowie",
+                "https://www.youtube.com/c/czyzlowie"
+            ]
+        }
+    </script>
+
+    <!-- Structured Data - LocalBusiness -->
+    <script type="application/ld+json">
+        {
+            "@context": "https://schema.org",
+            "@type": "LocalBusiness",
+            "name": "CzyZlowie",
+            "url": "https://czyzlowie.pl",
+            "logo": "https://czyzlowie.pl/assets/logo.png",
+            "areaServed": {
+                "@type": "Country",
+                "name": "Poland"
+            },
+            "serviceType": "Wędkowanie, Prognoza Brań, Kalkulator Wędkarski"
         }
     </script>
 
@@ -20,9 +109,6 @@
 
     <link rel="manifest" th:href="@{/manifest.json}">
     <meta name="theme-color" content="#020617">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="CzyZlowie">
     <link rel="apple-touch-icon" href="/assets/icons/icon-180x180.png">
     <link rel="apple-touch-startup-image" media="screen and (device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3)" th:href="@{/assets/splash/iPhone_17e__iPhone_16e__iPhone_14__iPhone_13_Pro__iPhone_13__iPhone_12_Pro__iPhone_12_portrait.png}">
 
@@ -173,11 +259,11 @@
 
         <header class="text-center mb-5 mb-lg-6 scroll-reveal">
             <h2 class="section-title fw-black text-white mb-3 lh-sm">
-                Wędkowanie to fizyka, <br class="d-md-none">
-                <span class="text-gradient-neon">nie zgadywanka.</span>
+                Wędkowanie to Fizyka<br class="d-md-none">
+                <span class="text-gradient-neon">Nasza Technologia Analizuje Każdy Parametr.</span>
             </h2>
             <p class="section-subtitle text-light-muted mx-auto lh-lg">
-                Nasz algorytm nie opiera się na fazach księżyca z ludowych wierzeń. Pobieramy i krzyżujemy ze sobą twarde dane z systemów meteo i hydro, aby wyliczyć dokładny kalendarz brań.
+                Zapomnij o fazach księżyca z ludowych wierzeń. Nasz algorytm pobiera i krzyżuje tysiące pomiarów meteo i hydro ze stacji IMGW, aby wyliczyć dokładny kalendarz brań drapieżników.
             </p>
         </header>
 
@@ -235,6 +321,165 @@
         </div>
     </div>
 </section>
+
+<section id="korzyści" class="features-section position-relative z-2 py-5 py-xl-6 mt-4">
+    <div class="container-xl">
+        <header class="text-center mb-5 mb-lg-6 scroll-reveal">
+            <h2 class="section-title fw-black text-white mb-3 lh-sm">
+                Oszczędzaj Czas i Pieniądze.<br class="d-md-none">
+                <span class="text-gradient-neon">Łów Kiedy Ryby Żerują.</span>
+            </h2>
+            <p class="section-subtitle text-light-muted mx-auto lh-lg">
+                Każdy moment na wodzie ma znaczenie. Nasza prognoza mówi Ci dokładnie, kiedy będzie branie.
+            </p>
+        </header>
+
+        <div class="row g-4 justify-content-center">
+            <div class="col-md-6 col-xl-3 scroll-reveal" style="transition-delay: 0.1s;">
+                <article class="cyber-card h-100 p-4 d-flex flex-column">
+                    <div class="card-icon-wrapper mb-4">
+                        <i data-lucide="zap" class="neon-icon"></i>
+                    </div>
+                    <h3 class="card-title text-white fw-bold h5 mb-3">Oszczędzaj Czas</h3>
+                    <p class="card-text text-secondary small lh-lg mb-0 mt-auto">
+                        Zamiast czekać całymi godzinami, wiesz dokładnie kiedy ryby będą aktywne. Łów w optymalnych momentach.
+                    </p>
+                </article>
+            </div>
+
+            <div class="col-md-6 col-xl-3 scroll-reveal" style="transition-delay: 0.2s;">
+                <article class="cyber-card h-100 p-4 d-flex flex-column">
+                    <div class="card-icon-wrapper mb-4">
+                        <i data-lucide="brain" class="neon-icon text-info"></i>
+                    </div>
+                    <h3 class="card-title text-white fw-bold h5 mb-3">Podejmuj Lepsze Decyzje</h3>
+                    <p class="card-text text-secondary small lh-lg mb-0 mt-auto">
+                        Algorytm podpowiada nie tylko kiedy łowić, ale też jakie techniki będą najskuteczniejsze.
+                    </p>
+                </article>
+            </div>
+
+            <div class="col-md-6 col-xl-3 scroll-reveal" style="transition-delay: 0.3s;">
+                <article class="cyber-card h-100 p-4 d-flex flex-column">
+                    <div class="card-icon-wrapper mb-4">
+                        <i data-lucide="trending-up" class="neon-icon text-warning"></i>
+                    </div>
+                    <h3 class="card-title text-white fw-bold h5 mb-3">Lepsze Połowy</h3>
+                    <p class="card-text text-secondary small lh-lg mb-0 mt-auto">
+                        Sprawdzone na tysiącach wędkarzy. Prognoza znacznie zwiększa szansę na sukces.
+                    </p>
+                </article>
+            </div>
+
+            <div class="col-md-6 col-xl-3 scroll-reveal" style="transition-delay: 0.4s;">
+                <article class="cyber-card active-card h-100 p-4 d-flex flex-column position-relative overflow-hidden">
+                    <div class="card-glow-bg"></div>
+                    <div class="card-icon-wrapper mb-4 position-relative z-1">
+                        <i data-lucide="check-circle" class="neon-icon text-success"></i>
+                    </div>
+                    <h3 class="card-title text-white fw-bold h5 mb-3 position-relative z-1">100% Darmowe</h3>
+                    <p class="card-text text-secondary small lh-lg mb-0 mt-auto position-relative z-1">
+                        Bez ukrytych opłat, bez limitów. Pełna funkcjonalność dostępna dla wszystkich wędkarzy.
+                    </p>
+                </article>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section id="jak-to-dziala" class="features-section position-relative z-2 py-5 py-xl-6 mt-4">
+    <div class="container-xl">
+        <header class="text-center mb-5 mb-lg-6 scroll-reveal">
+            <h2 class="section-title fw-black text-white mb-3 lh-sm">
+                Trzy Proste Kroki.<br class="d-md-none">
+                <span class="text-gradient-neon">Od Wyboru do Prognozy.</span>
+            </h2>
+            <p class="section-subtitle text-light-muted mx-auto lh-lg">
+                Prognoza brań na wyciągnięcie ręki - zaledwie kilka kliknięć
+            </p>
+        </header>
+
+        <div class="row g-4 justify-content-center">
+            <div class="col-md-6 col-xl-3 scroll-reveal" style="transition-delay: 0.1s;">
+                <article class="cyber-card active-card h-100 p-4 d-flex flex-column position-relative overflow-hidden">
+                    <div class="card-glow-bg"></div>
+                    <div class="card-icon-wrapper mb-4 position-relative z-1">
+                        <i data-lucide="map-pin" class="neon-icon text-danger"></i>
+                    </div>
+                    <h3 class="card-title text-white fw-bold h5 mb-3 position-relative z-1">Wybierz Lokalizację</h3>
+                    <p class="card-text text-secondary small lh-lg mb-0 mt-auto position-relative z-1">
+                        Wskaż swoją lokalizację. System pobiera dane z najbliższych stacji IMGW w czasie rzeczywistym.
+                    </p>
+                </article>
+            </div>
+
+            <div class="col-md-6 col-xl-3 scroll-reveal" style="transition-delay: 0.2s;">
+                <article class="cyber-card h-100 p-4 d-flex flex-column">
+                    <div class="card-icon-wrapper mb-4">
+                        <i data-lucide="fish" class="neon-icon text-info"></i>
+                    </div>
+                    <h3 class="card-title text-white fw-bold h5 mb-3">Wybierz Gatunek Ryby</h3>
+                    <p class="card-text text-secondary small lh-lg mb-0 mt-auto">
+                        Szczupak, sandacz, karp czy okoń. Każdy gatunek ma własne parametry i preferencje.
+                    </p>
+                </article>
+            </div>
+
+            <div class="col-md-6 col-xl-3 scroll-reveal" style="transition-delay: 0.3s;">
+                <article class="cyber-card h-100 p-4 d-flex flex-column">
+                    <div class="card-icon-wrapper mb-4">
+                        <i data-lucide="bar-chart-2" class="neon-icon text-success"></i>
+                    </div>
+                    <h3 class="card-title text-white fw-bold h5 mb-3">Czytaj Prognozę Brań</h3>
+                    <p class="card-text text-secondary small lh-lg mb-0 mt-auto">
+                        Otrzymaj wskaźnik od 0-100% dla każdej godziny. Proste, czytelne, natychmiast.
+                    </p>
+                </article>
+            </div>
+
+            <div class="col-md-6 col-xl-3 scroll-reveal" style="transition-delay: 0.4s;">
+                <article class="cyber-card h-100 p-4 d-flex flex-column">
+                    <div class="card-icon-wrapper mb-4">
+                        <i data-lucide="send" class="neon-icon text-warning"></i>
+                    </div>
+                    <h3 class="card-title text-white fw-bold h5 mb-3">Idź na Łowienie</h3>
+                    <p class="card-text text-secondary small lh-lg mb-0 mt-auto">
+                        Zabierz prognozę i łów kiedy algorytm przewiduje szczyty brania.
+                    </p>
+                </article>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+        {
+            "@type": "ListItem",
+            "position": 1,
+            "name": "Strona główna",
+            "item": "https://czyzlowie.pl"
+        },
+        {
+            "@type": "ListItem",
+            "position": 2,
+            "name": "Prognoza brań",
+            "item": "https://czyzlowie.pl/prognoza"
+        },
+        {
+            "@type": "ListItem",
+            "position": 3,
+            "name": "Atlas ryb",
+            "item": "https://czyzlowie.pl/ryby"
+        }
+    ]
+}
+</script>
+
+
 
 <div th:replace="~{fragments/coffe :: coffee-section}"></div>
 
@@ -326,5 +571,8 @@
         observer.observe(el);
     });
 </script>
+
+<footer th:replace="~{fragments/footer :: footer}"></footer>
+
 </body>
 </html>
