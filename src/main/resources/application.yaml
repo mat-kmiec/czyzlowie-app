@@ -68,6 +68,18 @@ spring:
 server:
   tomcat:
     max-part-count: 25
+    # Performance optimizations
+    compression:
+      enabled: true
+      min-response-size: 1024
+      excluded-mime-types: image/png,image/jpeg,image/gif,image/svg+xml
+    threads:
+      max: 200
+      min-spare: 10
+  compression:
+    enabled: true
+    min-response-size: 1024
+    excluded-mime-types: image/png,image/jpeg,image/gif,image/svg+xml
 
 
 app:

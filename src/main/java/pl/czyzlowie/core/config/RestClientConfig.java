@@ -6,7 +6,7 @@ import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestTemplate;
 
-import java.time.Duration;
+
 
 @Configuration
 public class RestClientConfig {

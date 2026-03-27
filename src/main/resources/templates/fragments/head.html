@@ -24,26 +24,36 @@
 
     <title th:text="${pageTitle != null ? pageTitle + ' | CzyZlowie.pl' : 'CzyZlowie.pl | Kalkulator Brań'}">CzyZlowie.pl</title>
 
+    <!-- DNS Prefetch dla zewnętrznych zasobów -->
+    <link rel="dns-prefetch" href="https://fonts.googleapis.com">
+    <link rel="dns-prefetch" href="https://fonts.gstatic.com">
+    <link rel="dns-prefetch" href="https://www.googletagmanager.com">
+    <link rel="dns-prefetch" href="https://unpkg.com">
+
+    <!-- Preconnect dla fontów (wymagane dla wydajności) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="canonical" th:href="${currentUrl != null ? currentUrl : '/'}">
 
     <link rel="icon" type="image/png" th:href="@{/assets/favicon-32x32.png}">
 
+    <!-- CSS - łąduj normalnie (nie zmień!) -->
     <link rel="stylesheet" th:href="@{/webjars/bootstrap/5.3.2/css/bootstrap.min.css}">
     <link rel="stylesheet" th:href="@{/webjars/bootstrap-icons/1.11.1/font/bootstrap-icons.css}">
     <link rel="stylesheet" th:href="@{/css/fragments/navbar.css}">
     <link rel="stylesheet" th:href="@{/css/fragments/footer.css}">
     <link rel="stylesheet" th:href="@{/css/fragments/coffe.css}">
 
+    <!-- JS - ze defer (nie zmień!) -->
     <script th:src="@{/webjars/bootstrap/5.3.2/js/bootstrap.bundle.min.js}" defer></script>
     <script src="https://unpkg.com/lucide@latest" defer></script>
+
+    <!-- Google Analytics - async dla nie-blokujące ładowania -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-Y3PMV7LB0W"></script>
     <script>
         window.dataLayer = window.dataLayer || [];
         function gtag(){dataLayer.push(arguments);}
         gtag('js', new Date());
-
         gtag('config', 'G-Y3PMV7LB0W');
     </script>
 
