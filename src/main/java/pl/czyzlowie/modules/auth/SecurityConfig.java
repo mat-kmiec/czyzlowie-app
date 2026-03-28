@@ -40,6 +40,7 @@ public class SecurityConfig {
                                 "/powiadomienia/**",
                                 "/dziennik-wypraw/**",
                                 "/moje-polowy/**",
+                                "/cele/**",
                                 "/statystyki/**",
                                 "/cele-wedkarskie/**",
                                 "/kalendarz-wypraw/**",
@@ -52,6 +53,9 @@ public class SecurityConfig {
                         ).authenticated()
 
                         .anyRequest().permitAll()
+                )
+                .headers(headers -> headers
+                        .cacheControl(cache -> cache.disable())
                 )
                 .formLogin(form -> form
                         .loginPage("/login")
