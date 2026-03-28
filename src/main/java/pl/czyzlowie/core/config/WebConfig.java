@@ -12,9 +12,14 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
+        // Obsługa uploadów (catches i inne pliki)
         Path uploadDir = Paths.get("uploads");
         String uploadPath = uploadDir.toFile().getAbsolutePath();
         registry.addResourceHandler("/uploads/**")
                 .addResourceLocations("file:" + uploadPath + "/");
+        
+        // Obsługa robots.txt i sitemap.xml - pliki SEO w static resources
+        registry.addResourceHandler("/robots.txt", "/sitemap.xml")
+                .addResourceLocations("classpath:/static/");
     }
 }

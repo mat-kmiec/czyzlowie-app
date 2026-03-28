@@ -2,8 +2,8 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="pl">
 <head>
     <th:block th:replace="~{fragments/head :: head-content(
-        pageTitle='Dane Synoptyczne od IMGW',
-        pageDescription='Aktualne dane ze stacji synoptycznych IMGW. Analizuj ciśnienie, wiatr i temperaturę.'
+        pageTitle='Dane Synoptyczne IMGW do Prognozy Brań',
+        pageDescription='Aktualne dane ze stacji synoptycznych IMGW - ciśnienie, wiatr i temperatura. Parametry kluczowe dla prognozy brań i decyzji kiedy łowić ryby.'
     )}"></th:block>
 
     <link rel="stylesheet" th:href="@{/css/essentials/synop.css}">
@@ -43,7 +43,7 @@
                         <div class="synop-icon-pulse">
                             <i data-lucide="satellite" class="text-synop-cyan" style="width: 32px; height: 32px;"></i>
                         </div>
-                        <h1 class="display-5 fw-black text-white mb-0 synop-title-glow">Dane Synoptyczne</h1>
+                        <h1 class="display-5 fw-black text-white mb-0 synop-title-glow">Dane Synoptyczne - Prognoza Brań</h1>
                     </div>
                     <p class="synop-text-readable fs-5 mb-0">
                         Monitoruj pogodę ze stacji <span class="text-synop-cyan fw-bold text-glow-cyan">IMGW</span> lub stacji Wirtualnych.

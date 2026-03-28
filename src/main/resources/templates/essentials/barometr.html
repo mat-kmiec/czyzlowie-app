@@ -2,8 +2,8 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="pl">
 <head>
     <th:block th:replace="~{fragments/head :: head-content(
-        pageTitle='Wędkarski Barometr Ciśnienia - ' + ${barometer.locationName},
-        pageDescription='Sprawdź aktualne ciśnienie atmosferyczne w ' + ${barometer.locationName} + '. Monitoruj wykres barometryczny i przewiduj okienka żerowania drapieżników i białorybu.'
+        pageTitle='Barometr Wędkarski do Prognozy Brań - ' + ${barometer.locationName},
+        pageDescription='Barometr wędkarski z aktualnym ciśnieniem atmosferycznym w ' + ${barometer.locationName} + '. Monitoruj wykres barometryczny i przewiduj okienka żerowania. Narzędzie do prognozy brań.'
     )}"></th:block>
 
     <link rel="stylesheet" th:href="@{/css/essentials/barometr.css}">
@@ -41,7 +41,7 @@
                             <i data-lucide="gauge" class="text-brand-green" style="width: 28px; height: 28px;"></i>
                         </div>
                         <h1 class="display-5 fw-black text-white mb-0 baro-title-glow">
-                            Barometr Wędkarski
+                            Barometr Wędkarski - Prognoza Brań
                         </h1>
                     </div>
                     <p class="baro-text-readable fs-5 fs-md-4 mb-0 lh-base">

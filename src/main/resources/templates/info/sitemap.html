@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pl">
+<head>
+    <th:block th:replace="~{fragments/head :: head-content(
+        pageTitle='Mapa Strony - CzyZlowie.pl',
+        pageDescription='Pełna mapa strony CzyZlowie. Wszystkie sekcje aplikacji: prognoza brań, kalendarz brań, narzędzia wędkarskie i informacje.'
+    )}"></th:block>
+
+    <link rel="stylesheet" th:href="@{/css/document.css}">
+    <style>
+        .sitemap-container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .sitemap-section {
+            margin-bottom: 3rem;
+        }
+
+        .sitemap-section h2 {
+            color: #34d399;
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 2px solid #34d399;
+        }
+
+        .sitemap-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .sitemap-list li {
+            margin-bottom: 0.75rem;
+        }
+
+        .sitemap-list a {
+            color: #e0e7ff;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 0;
+        }
+
+        .sitemap-list a:hover {
+            color: #34d399;
+            padding-left: 0.5rem;
+        }
+
+        .sitemap-list a::before {
+            content: "→";
+            display: inline-block;
+            width: 1rem;
+            text-align: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .sitemap-list a:hover::before {
+            opacity: 1;
+        }
+
+        .sitemap-intro {
+            background: rgba(52, 211, 153, 0.1);
+            border-left: 4px solid #34d399;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            border-radius: 0.5rem;
+        }
+
+        .sitemap-intro p {
+            margin: 0;
+            color: #e0e7ff;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body class="document-page">
+
+<nav th:replace="~{fragments/navbar :: navbar('')}"></nav>
+
+<div class="doc-bg-container">
+    <div class="container-xl pt-5 mt-3 pb-5">
+        <div class="doc-header mb-5">
+            <h1 class="page-title text-white fw-black mb-3">
+                <i data-lucide="map" style="display: inline; width: 32px; height: 32px; margin-right: 0.5rem; color: #34d399;"></i>
+                Mapa Strony - Prognoza Brań i Kalendarz Brań
+            </h1>
+            <p class="text-secondary fs-5">Odkryj wszystkie sekcje i funkcjonalności aplikacji CzyZlowie</p>
+        </div>
+
+        <div class="sitemap-intro">
+            <p>
+                Mapa strony zawiera linki do wszystkich głównych sekcji aplikacji.
+                Niezależnie od tego, czy szukasz prognozy brań, narzędzi wędkarskich czy informacji -
+                tutaj znajdziesz szybkie linki do każdej funkcji.
+            </p>
+        </div>
+
+        <div class="sitemap-container">
+
+            <div class="sitemap-section">
+                <h2>Główne Funkcje</h2>
+                <ul class="sitemap-list">
+                    <li><a th:href="@{/}">Strona Główna</a></li>
+                    <li><a th:href="@{/prognoza}">Prognoza Brań - Kalkulator Wędkarski</a></li>
+                    <li><a th:href="@{/prognoza/kalibrator}">Kalibrator Algorytmu Brań</a></li>
+                    <li><a th:href="@{/mapa}">Interaktywna Mapa Łowisk</a></li>
+                </ul>
+            </div>
+
+            <div class="sitemap-section">
+                <h2>Atlas Ryb</h2>
+                <ul class="sitemap-list">
+                    <li><a th:href="@{/ryby}">Atlas Ryb - Wszystkie Gatunki</a></li>
+                    <li><a th:href="@{/ryby/szczupak}">Szczupak - Kalendarz Brań</a></li>
+                    <li><a th:href="@{/ryby/sandacz}">Sandacz - Prognoza Brań</a></li>
+                    <li><a th:href="@{/ryby/bialoryb}">Białoryb - Kiedy Łowić</a></li>
+                    <li><a th:href="@{/ryby/okon}">Okoń</a></li>
+                    <li><a th:href="@{/ryby/leszcz}">Leszcz</a></li>
+                    <li><a th:href="@{/ryby/sliz}">Śliz</a></li>
+                </ul>
+            </div>
+
+            <div class="sitemap-section">
+                <h2>Narzędzia Wędkarskie</h2>
+                <ul class="sitemap-list">
+                    <li><a th:href="@{/niezbednik/barometr}">Barometr Wędkarski - Ciśnienie Atmosferyczne</a></li>
+                    <li><a th:href="@{/niezbednik/hydro}">Stan Wody i Przepływy - Hydro IMGW</a></li>
+                    <li><a th:href="@{/niezbednik/meteo}">Dane Meteo - Warunki Pogodowe</a></li>
+                    <li><a th:href="@{/niezbednik/synop}">Dane Synoptyczne IMGW</a></li>
+                    <li><a th:href="@{/niezbednik/ksiezyc}">Kalendarz Solunarny - Fazy Księżyca</a></li>
+                    <li><a th:href="@{/niezbednik/slonce}">Wschody i Zachody Słońca</a></li>
+                </ul>
+            </div>
+
+            <div class="sitemap-section">
+                <h2>Informacje</h2>
+                <ul class="sitemap-list">
+                    <li><a th:href="@{/info/about}">O Aplikacji CzyZlowie</a></li>
+                    <li><a th:href="@{/info/contact}">Kontakt i Pomoc</a></li>
+                    <li><a th:href="@{/info/privacy}">Polityka Prywatności</a></li>
+                    <li><a th:href="@{/info/terms}">Regulamin Serwisu</a></li>
+                </ul>
+            </div>
+
+            <div class="sitemap-section">
+                <h2>Zasoby dla Wyszukiwarek</h2>
+                <ul class="sitemap-list">
+                    <li><a th:href="@{/sitemap.xml}" target="_blank">Sitemap XML - dla Google, Bing</a></li>
+                    <li><a th:href="@{/robots.txt}" target="_blank">Robots.txt - Instrukcje dla crawlerów</a></li>
+                </ul>
+            </div>
+
+            <div class="sitemap-section">
+                <h2>Popularne Tagi SEO</h2>
+                <ul class="sitemap-list">
+                    <li><a th:href="@{/prognoza}">Prognoza Brań</a></li>
+                    <li><a th:href="@{/prognoza}">Kalendarz Brań</a></li>
+                    <li><a th:href="@{/prognoza}">Kiedy Łowić Szczupaka</a></li>
+                    <li><a th:href="@{/prognoza}">Kalkulator Wędkarski</a></li>
+                    <li><a th:href="@{/niezbednik/barometr}">Barometr Wędkarski</a></li>
+                    <li><a th:href="@{/niezbednik/ksiezyc}">Kalendarz Solunarny</a></li>
+                </ul>
+            </div>
+
+        </div>
+
+        <div class="mt-5 pt-5 border-top border-secondary">
+            <div class="row">
+                <div class="col-md-6">
+                    <h5 class="text-white fw-bold mb-3">Informacje</h5>
+                    <p class="text-secondary small mb-2">
+                        <strong>Ostatnia aktualizacja:</strong> 28.03.2026
+                    </p>
+                    <p class="text-secondary small">
+                        Ta mapa strony zawiera linki do wszystkich głównych sekcji aplikacji CzyZlowie.
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <h5 class="text-white fw-bold mb-3">Szukaj po Słowach Kluczowych</h5>
+                    <p class="text-secondary small">
+                        Prognoza brań • Kalendarz brań • Kiedy łowić • Kalkulator wędkarski •
+                        Barometr • Hydro • Meteo • Fazy księżyca • Mapa łowisk
+                    </p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<footer th:replace="~{fragments/footer :: footer}"></footer>
+
+<script>
+    document.querySelectorAll('.sitemap-list a').forEach(link => {
+        link.addEventListener('click', function(e) {
+            if (this.getAttribute('target') !== '_blank') {
+            }
+        });
+    });
+
+    lucide.createIcons();
+</script>
+
+</body>
+</html>
+
+

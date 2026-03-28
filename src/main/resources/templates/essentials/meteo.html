@@ -2,8 +2,8 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="pl">
 <head>
     <th:block th:replace="~{fragments/head :: head-content(
-        pageTitle='Precyzyjne Dane Meteo - Wiatr, Temperatury',
-        pageDescription='Szczegółowe dane meteo z profesjonalnych stacji IMGW. Sprawdzaj porywy wiatru, temperaturę gruntu i powietrza na żywo.'
+        pageTitle='Dane Meteo do Prognozy Brań - Wiatr, Temperatury IMGW',
+        pageDescription='Szczegółowe dane meteo z profesjonalnych stacji IMGW na żywo. Wiatr, temperatura, zachmurzenie - parametry do prognozy brań i decyzji kiedy łowić.'
     )}"></th:block>
 
     <link rel="stylesheet" th:href="@{/css/essentials/meteo.css}">
@@ -70,7 +70,7 @@
                         <div class="meteo-icon-pulse">
                             <i data-lucide="wind" class="text-meteo-violet" style="width: 32px; height: 32px;"></i>
                         </div>
-                        <h1 class="display-5 fw-black text-white mb-0 meteo-title-glow">Dane Meteo</h1>
+                        <h1 class="display-5 fw-black text-white mb-0 meteo-title-glow">Dane Meteo - Prognoza Brań</h1>
                     </div>
                     <p class="meteo-text-readable fs-5 mb-0">
                         Szczegółowa analiza profilu termicznego oraz dynamiki wiatru ze stacji <span class="text-meteo-violet fw-bold text-glow-violet">IMGW</span>.

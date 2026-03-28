@@ -3,8 +3,8 @@
 <th:block th:fragment="head-content">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" th:content="${pageDescription != null ? pageDescription : 'Najdokładniejszy kalkulator brań online. Analizujemy dane hydrologiczne i meteo, by wskazać Ci idealny czas na ryby.'}">
-    <meta name="keywords" content="kalkulator brań, barometr wędkarski, fazy księżyca ryby, kiedy na ryby">
+    <meta name="description" th:content="${pageDescription != null ? pageDescription : 'Prognoza brań i kalendarz brań ryb online. Najdokładniejszy kalkulator brań w Polsce. Dowiedz się kiedy łowić szczupaka, sandacza i białoryba. Analiza IMGW, meteo i hydro.'}">
+    <meta name="keywords" content="prognoza brań, kalendarz brań, kiedy łowić, kalkulator brań, kalkulator wędkarski, barometr wędkarski, fazy księżyca ryby, kiedy na ryby">
     <meta name="robots" content="index, follow">
     <meta name="language" content="pl">
     <meta name="geo.region" content="PL">
@@ -22,34 +22,42 @@
     <meta property="og:description" th:content="${pageDescription != null ? pageDescription : 'Planujesz wyprawę na ryby? Sprawdź aktualną prognozę brań i warunki meteo!'}">
     <meta property="og:image" th:content="@{/assets/og-preview.jpg}">
 
+    <!-- Twitter / X Card -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" th:content="${currentUrl != null ? currentUrl : '/'}">
+    <meta property="twitter:title" th:content="${pageTitle != null ? pageTitle : 'CzyZlowie | Prognoza Brań'}">
+    <meta property="twitter:description" th:content="${pageDescription != null ? pageDescription : 'Najdokładniejszy kalkulator brań ryb. Dowiedz się kiedy łowić szczupaka, sandacza i białoryba.'}">
+    <meta property="twitter:image" th:content="@{/assets/og-preview.jpg}">
+    <meta property="twitter:creator" content="@CzyZlowie">
+
     <title th:text="${pageTitle != null ? pageTitle + ' | CzyZlowie.pl' : 'CzyZlowie.pl | Kalkulator Brań'}">CzyZlowie.pl</title>
 
-    <!-- DNS Prefetch dla zewnętrznych zasobów -->
+    <!-- DNS Prefetch -->
     <link rel="dns-prefetch" href="https://fonts.googleapis.com">
     <link rel="dns-prefetch" href="https://fonts.gstatic.com">
     <link rel="dns-prefetch" href="https://www.googletagmanager.com">
     <link rel="dns-prefetch" href="https://unpkg.com">
 
-    <!-- Preconnect dla fontów (wymagane dla wydajności) -->
+    <!-- Preconnect -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="canonical" th:href="${currentUrl != null ? currentUrl : '/'}">
 
     <link rel="icon" type="image/png" th:href="@{/assets/favicon-32x32.png}">
 
-    <!-- CSS - łąduj normalnie (nie zmień!) -->
+    <!-- CSS -->
     <link rel="stylesheet" th:href="@{/webjars/bootstrap/5.3.2/css/bootstrap.min.css}">
     <link rel="stylesheet" th:href="@{/webjars/bootstrap-icons/1.11.1/font/bootstrap-icons.css}">
     <link rel="stylesheet" th:href="@{/css/fragments/navbar.css}">
     <link rel="stylesheet" th:href="@{/css/fragments/footer.css}">
     <link rel="stylesheet" th:href="@{/css/fragments/coffe.css}">
 
-    <!-- JS - ze defer (nie zmień!) -->
+    <!-- JS --->
     <script th:src="@{/webjars/bootstrap/5.3.2/js/bootstrap.bundle.min.js}" defer></script>
     <script src="https://unpkg.com/lucide@latest" defer></script>
     <script th:src="@{/js/auth-session.js}" defer></script>
 
-    <!-- Google Analytics - async dla nie-blokujące ładowania -->
+    <!-- Google Analytics  -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-Y3PMV7LB0W"></script>
     <script>
         window.dataLayer = window.dataLayer || [];

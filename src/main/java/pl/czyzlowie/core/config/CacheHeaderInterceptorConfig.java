@@ -46,6 +46,12 @@ public class CacheHeaderInterceptorConfig implements WebMvcConfigurer {
                 response.setHeader("Pragma", "no-cache");
                 response.setHeader("Expires", "0");
             }
+            else if (path.equals("/robots.txt") || path.equals("/sitemap.xml")) {
+                CacheControl cc = CacheControl.maxAge(24, TimeUnit.HOURS)
+                        .cachePublic()
+                        .mustRevalidate();
+                response.setHeader("Cache-Control", cc.getHeaderValue());
+            }
             else if (path.equals("/sw.js") || path.equals("/manifest.json")) {
                 CacheControl cc = CacheControl.maxAge(1, TimeUnit.HOURS)
                         .cachePublic()

@@ -1,116 +1,12 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="pl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-
-    <!-- SEO Meta Tags -->
-    <title>Prognoza Brań Ryb - Kalkulator Wędkarski Online | CzyZlowie.pl</title>
-    <meta name="description" content="CzyZlowie - Profesjonalna prognoza brań ryb i kalkulator wędkarski. Analiza danych meteo, hydro i IMGW w czasie rzeczywistym. Dowiedz się kiedy łowić szczupaka, sandacza i białoryba.">
-    <meta name="keywords" content="prognoza brań, kalkulator wędkarski, ryby, szczupak, sandacz, barometr, prognoza meteo hydro, IMGW, wędkowanie">
-    <meta name="author" content="CzyZlowie">
-    <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
-    <link rel="canonical" href="https://czyzlowie.pl/">
-
-    <!-- Open Graph / Facebook -->
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="https://czyzlowie.pl/">
-    <meta property="og:title" content="Prognoza Brań Ryb - Profesjonalny Kalkulator Wędkarski | CzyZlowie.pl">
-    <meta property="og:description" content="Jedyny taki kalkulator wędkarski w Polsce. Przetwarzamy dane meteo, hydro i IMGW aby wyliczyć dokładny kalendarz brań drapieżników i białorybu.">
-    <meta property="og:image" content="https://czyzlowie.pl/assets/og-preview.jpg">
-    <meta property="og:image:width" content="1200">
-    <meta property="og:image:height" content="630">
-    <meta property="og:locale" content="pl_PL">
-
-    <!-- Twitter -->
-    <meta property="twitter:card" content="summary_large_image">
-    <meta property="twitter:url" content="https://czyzlowie.pl/">
-    <meta property="twitter:title" content="Prognoza Brań Ryb - Kalkulator Wędkarski | CzyZlowie.pl">
-    <meta property="twitter:description" content="Analiza na żywo danych meteo, hydro i IMGW. Odkryj matematycznie wyliczone okienka żerowania ryb.">
-    <meta property="twitter:image" content="https://czyzlowie.pl/assets/og-preview.jpg">
-
-    <!-- Google Site Verification -->
-    <meta name="google-site-verification" content="">
-
-    <!-- Additional Meta Tags -->
-    <meta name="format-detection" content="telephone=no">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="CzyZlowie">
-
-    <!-- Prefetch DNS, preconnect for performance -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="dns-prefetch" href="https://cdn.jsdelivr.net">
-
-    <th:block th:replace="~{fragments/head :: head-content}"></th:block>
-
-    <!-- Structured Data - WebApplication -->
-    <script type="application/ld+json">
-        {
-            "@context": "https://schema.org",
-            "@type": "WebApplication",
-            "name": "CzyZlowie - Prognoza Brań i Kalkulator Wędkarski",
-            "url": "https://czyzlowie.pl",
-            "description": "Profesjonalna prognoza brań ryb. Analiza na żywo danych meteo, stanów rzek (hydro) oraz stacji IMGW (synop).",
-            "applicationCategory": "SportsApplication",
-            "operatingSystem": "Web",
-            "browserRequirements": "Requires JavaScript",
-            "offers": {
-                "@type": "Offer",
-                "price": "0",
-                "priceCurrency": "PLN",
-                "availability": "https://schema.org/InStock"
-            },
-            "author": {
-                "@type": "Organization",
-                "name": "CzyZlowie",
-                "url": "https://czyzlowie.pl",
-                "logo": "https://czyzlowie.pl/assets/logo.png"
-            }
-        }
-    </script>
-
-    <!-- Structured Data - Organization -->
-    <script type="application/ld+json">
-        {
-            "@context": "https://schema.org",
-            "@type": "Organization",
-            "name": "CzyZlowie",
-            "url": "https://czyzlowie.pl",
-            "logo": "https://czyzlowie.pl/assets/logo.png",
-            "description": "Najdokładniejszy kalendarz brań i kalkulator wędkarski w Polsce",
-            "sameAs": [
-                "https://www.facebook.com/czyzlowie",
-                "https://www.instagram.com/czyzlowie",
-                "https://www.youtube.com/c/czyzlowie"
-            ]
-        }
-    </script>
-
-    <!-- Structured Data - LocalBusiness -->
-    <script type="application/ld+json">
-        {
-            "@context": "https://schema.org",
-            "@type": "LocalBusiness",
-            "name": "CzyZlowie",
-            "url": "https://czyzlowie.pl",
-            "logo": "https://czyzlowie.pl/assets/logo.png",
-            "areaServed": {
-                "@type": "Country",
-                "name": "Poland"
-            },
-            "serviceType": "Wędkowanie, Prognoza Brań, Kalkulator Wędkarski"
-        }
-    </script>
+    <th:block th:replace="~{fragments/head :: head-content(
+        pageTitle='Prognoza Brań Kalendarz Brań - Kalkulator Wędkarski Online',
+        pageDescription='Najdokładniejszy kalendarz brań ryb w Polsce. Prognoza brań szczupaka, sandacza i białoryba na dziś. Kiedy łowić? Kalkulator wędkarski z analizą IMGW, stanu wody i pogody.'
+    )}"></th:block>
 
     <link rel="stylesheet" th:href="@{/css/home-hero.css}">
-
-    <link rel="manifest" th:href="@{/manifest.json}">
-    <meta name="theme-color" content="#020617">
-    <link rel="apple-touch-icon" href="/assets/icons/icon-180x180.png">
-    <link rel="apple-touch-startup-image" media="screen and (device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3)" th:href="@{/assets/splash/iPhone_17e__iPhone_16e__iPhone_14__iPhone_13_Pro__iPhone_13__iPhone_12_Pro__iPhone_12_portrait.png}">
 
     <style>
         #custom-splash-screen {
@@ -172,8 +68,8 @@
         <div class="col-lg-6 hero-content-col order-1 order-lg-0 text-center text-lg-start z-3 mt-5 mt-lg-0">
 
             <h1 class="hero-title fw-black text-white mb-3 mb-md-4 lh-sm reveal-anim" style="animation-delay: 0.2s;">
-                Profesjonalna Prognoza Brań.<br>
-                <span class="text-gradient-neon">Przestań zgadywać.</span>
+                Prognoza Brań Kalendarz Brań.<br>
+                <span class="text-gradient-neon">Kiedy łowić? Poznaj odpowiedź.</span>
             </h1>
 
             <p class="hero-subtitle text-light-muted mb-4 mb-md-5 lh-lg reveal-anim mx-auto mx-lg-0" style="animation-delay: 0.3s;">
@@ -326,11 +222,11 @@
     <div class="container-xl">
         <header class="text-center mb-5 mb-lg-6 scroll-reveal">
             <h2 class="section-title fw-black text-white mb-3 lh-sm">
-                Oszczędzaj Czas i Pieniądze.<br class="d-md-none">
-                <span class="text-gradient-neon">Łów Kiedy Ryby Żerują.</span>
+                Kiedy Łowić Szczupaka i Sandacza?<br class="d-md-none">
+                <span class="text-gradient-neon">Odpowiedź w Naszym Kalendarzu Brań.</span>
             </h2>
             <p class="section-subtitle text-light-muted mx-auto lh-lg">
-                Każdy moment na wodzie ma znaczenie. Nasza prognoza mówi Ci dokładnie, kiedy będzie branie.
+                Prognoza brań ryb na każdy dzień i godzinę. Wiesz dokładnie kiedy będą żerować drapieżniki.
             </p>
         </header>
 
@@ -479,98 +375,53 @@
 }
 </script>
 
+<script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+        {
+            "@type": "Question",
+            "name": "Kiedy łowić szczupaka?",
+            "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Szczupak żeruje najaktywniej podczas skoku ciśnienia atmosferycznego i opadającej wody. Nasz kalkulator brań precyzyjnie określa te okienka dla Twojej lokalizacji i dnia."
+            }
+        },
+        {
+            "@type": "Question",
+            "name": "Jaki jest kalendarz brań ryb?",
+            "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Kalendarz brań to prognoza aktywności żerowania ryb na podstawie analizy pogody (meteo), stanu wód (hydro) i danych synoptycznych IMGW. CzyZlowie wykorzystuje autorski algorytm do wyliczenia dokładnego wskaźnika brań od 0 do 100%."
+            }
+        },
+        {
+            "@type": "Question",
+            "name": "Jak prognoza brań wpływa na połowy?",
+            "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Wiedza o tym, kiedy ryby żerują, pozwala zaplanować wyjazd w optymalnym momencie. Badania pokazują, że łowienie podczas prognozowanych szczytów brań zwiększa szansę na połów nawet o 300%."
+            }
+        },
+        {
+            "@type": "Question",
+            "name": "Co to jest ciśnienie atmosferyczne w wędkarstwie?",
+            "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Ciśnienie atmosferyczne bezpośrednio wpływa na metabolizm i zachowanie ryb. Szybkie skoki ciśnienia powodują, że ryby są bardziej aktywne i chętnie żerują. Nasz kalkulator monitoruje te zmiany na żywo."
+            }
+        }
+    ]
+}
+</script>
+
 
 
 <div th:replace="~{fragments/coffe :: coffee-section}"></div>
 
 <footer th:replace="~{fragments/footer :: footer}"></footer>
 
-<script th:inline="javascript">
-    document.addEventListener('DOMContentLoaded', () => {
-        if (typeof lucide !== 'undefined') lucide.createIcons();
-
-        const targetsLayer = document.getElementById('radar-targets-layer');
-        function spawnTarget() {
-            if(!targetsLayer) return;
-
-            const angle = Math.random() * Math.PI * 2;
-            const distancePercent = 15 + Math.random() * 30;
-
-            const posX = 50 + (Math.cos(angle) * distancePercent);
-            const posY = 50 + (Math.sin(angle) * distancePercent);
-
-            const target = document.createElement('div');
-            target.className = 'f-target';
-
-            const rotation = Math.floor(Math.random() * 360);
-
-            target.innerHTML = `
-                <svg style="transform: rotate(${rotation}deg); width: 100%; height: 100%;"
-                     xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
-                     fill="none" stroke="currentColor" stroke-width="2.5"
-                     stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M2 16s9-15 20-4C11 23 2 8 2 8"/>
-                </svg>
-            `;
-
-            if(Math.random() > 0.8) {
-                target.classList.add('f-predator');
-            }
-
-            target.style.left = `${posX}%`;
-            target.style.top = `${posY}%`;
-
-            targetsLayer.appendChild(target);
-
-            setTimeout(() => target.remove(), 3500);
-        }
-
-        setInterval(spawnTarget, 1200);
-
-        const updateSensor = (selector, variability, decimals, interval) => {
-            setInterval(() => {
-                document.querySelectorAll(selector).forEach(el => {
-                    let current = parseFloat(el.innerText);
-                    if(!isNaN(current)) {
-                        let change = (Math.random() - 0.5) * variability;
-                        el.innerText = (current + change).toFixed(decimals);
-                    }
-                });
-            }, interval);
-        };
-
-        updateSensor('.dyn-msl', 0.4, 1, 2500);
-        updateSensor('.dyn-temp', 0.2, 1, 4000);
-
-        setInterval(() => {
-            document.querySelectorAll('.dyn-hydro').forEach(el => {
-                if(Math.random() > 0.7) {
-                    let current = parseInt(el.innerText);
-                    el.innerText = current + (Math.random() > 0.5 ? 1 : -1);
-                }
-            });
-        }, 5000);
-    });
-
-    const observerOptions = {
-        root: null,
-        rootMargin: '0px',
-        threshold: 0.15
-    };
-
-    const observer = new IntersectionObserver((entries, observer) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                entry.target.classList.add('is-visible');
-                observer.unobserve(entry.target);
-            }
-        });
-    }, observerOptions);
-
-    document.querySelectorAll('.scroll-reveal').forEach(el => {
-        observer.observe(el);
-    });
-</script>
-
 </body>
 </html>
+

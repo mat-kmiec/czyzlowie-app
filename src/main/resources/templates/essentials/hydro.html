@@ -2,8 +2,8 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="pl">
 <head>
     <th:block th:replace="~{fragments/head :: head-content(
-        pageTitle='Stan Wody i Przepływy - Hydrologia IMGW',
-        pageDescription='Aktualne stany wód, przepływy i zjawiska lodowe na rzekach. Dane ze stacji hydrologicznych IMGW na żywo.'
+        pageTitle='Stan Wody i Przepływy - Prognoza Brań i Hydro IMGW',
+        pageDescription='Aktualne stany wód, przepływy i temperatury z rzek IMGW na żywo. Kluczowe dane do prognozy brań i decyzji kiedy łowić.'
     )}"></th:block>
 
     <link rel="stylesheet" th:href="@{/css/essentials/hydro.css}">
@@ -96,7 +96,7 @@
                         <div class="hydro-icon-pulse">
                             <i data-lucide="waves" class="text-hydro-blue" style="width: 32px; height: 32px;"></i>
                         </div>
-                        <h1 class="display-5 fw-black text-white mb-0 hydro-title-glow">Stany Wód</h1>
+                        <h1 class="display-5 fw-black text-white mb-0 hydro-title-glow">Stan Wody - Prognoza Brań</h1>
                     </div>
                     <p class="hydro-text-readable fs-5 mb-0">
                         Zaawansowana telemetria rzek ze stacji <span class="text-hydro-blue fw-bold text-glow-blue">IMGW</span>.

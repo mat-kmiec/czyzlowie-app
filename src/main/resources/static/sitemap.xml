@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+   Sitemap XML dla CzyZlowie.pl
+   Format: XML Sitemap standard (https://www.sitemaps.org/protocol.html)
+-->
+<urlset>
+
+    <!-- Strona główna - Prognoza Brań -->
+    <url>
+        <loc>https://czyzlowie.pl/</loc>
+        <lastmod>2026-03-28</lastmod>
+        <changefreq>daily</changefreq>
+        <priority>1.0</priority>
+    </url>
+
+    <!-- Mapa Strony HTML -->
+    <url>
+        <loc>https://czyzlowie.pl/sitemap</loc>
+        <lastmod>2026-03-28</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.80</priority>
+    </url>
+
+    <!-- Kalkulator Brań / Prognoza -->
+    <url>
+        <loc>https://czyzlowie.pl/prognoza</loc>
+        <lastmod>2026-03-28</lastmod>
+        <changefreq>daily</changefreq>
+        <priority>0.95</priority>
+    </url>
+
+    <!-- Kalibrator Algorytmu -->
+    <url>
+        <loc>https://czyzlowie.pl/prognoza/kalibrator</loc>
+        <lastmod>2026-03-28</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.90</priority>
+    </url>
+
+    <!-- Atlas Ryb -->
+    <url>
+        <loc>https://czyzlowie.pl/ryby</loc>
+        <lastmod>2026-03-28</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.85</priority>
+    </url>
+
+    <!-- Niezbędnik - Barometr Wędkarski -->
+    <url>
+        <loc>https://czyzlowie.pl/niezbednik/barometr</loc>
+        <lastmod>2026-03-28</lastmod>
+        <changefreq>daily</changefreq>
+        <priority>0.90</priority>
+    </url>
+
+    <!-- Niezbędnik - Stan Wody (Hydro) -->
+    <url>
+        <loc>https://czyzlowie.pl/niezbednik/hydro</loc>
+        <lastmod>2026-03-28</lastmod>
+        <changefreq>daily</changefreq>
+        <priority>0.85</priority>
+    </url>
+
+    <!-- Niezbędnik - Dane Meteo -->
+    <url>
+        <loc>https://czyzlowie.pl/niezbednik/meteo</loc>
+        <lastmod>2026-03-28</lastmod>
+        <changefreq>daily</changefreq>
+        <priority>0.85</priority>
+    </url>
+
+    <!-- Niezbędnik - Dane Synoptyczne -->
+    <url>
+        <loc>https://czyzlowie.pl/niezbednik/synop</loc>
+        <lastmod>2026-03-28</lastmod>
+        <changefreq>daily</changefreq>
+        <priority>0.85</priority>
+    </url>
+
+    <!-- Niezbędnik - Kalendarz Solunarny (Księżyc) -->
+    <url>
+        <loc>https://czyzlowie.pl/niezbednik/ksiezyc</loc>
+        <lastmod>2026-03-28</lastmod>
+        <changefreq>daily</changefreq>
+        <priority>0.80</priority>
+    </url>
+
+    <!-- Niezbędnik - Wschody/Zachody Słońca -->
+    <url>
+        <loc>https://czyzlowie.pl/niezbednik/slonce</loc>
+        <lastmod>2026-03-28</lastmod>
+        <changefreq>daily</changefreq>
+        <priority>0.80</priority>
+    </url>
+
+    <!-- Informacje - O nas -->
+    <url>
+        <loc>https://czyzlowie.pl/info/o-nas</loc>
+        <lastmod>2026-03-28</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.70</priority>
+    </url>
+
+    <!-- Informacje - Kontakt -->
+    <url>
+        <loc>https://czyzlowie.pl/info/kontakt</loc>
+        <lastmod>2026-03-28</lastmod>
+        <changefreq>yearly</changefreq>
+        <priority>0.65</priority>
+    </url>
+
+    <!-- Informacje - Polityka Prywatności -->
+    <url>
+        <loc>https://czyzlowie.pl/info/prywatnosc</loc>
+        <lastmod>2026-03-28</lastmod>
+        <changefreq>yearly</changefreq>
+        <priority>0.50</priority>
+    </url>
+
+    <!-- Informacje - Warunki Używania -->
+    <url>
+        <loc>https://czyzlowie.pl/info/warunki</loc>
+        <lastmod>2026-03-28</lastmod>
+        <changefreq>yearly</changefreq>
+        <priority>0.50</priority>
+    </url>
+
+</urlset>
+
+

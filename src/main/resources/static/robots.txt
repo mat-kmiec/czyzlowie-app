@@ -1,0 +1,46 @@
+# CzyZlowie - Prognoza Brań i Kalkulator Wędkarski
+# Optimization for web crawlers
+
+User-agent: *
+Allow: /
+Allow: /prognoza
+Allow: /prognoza/kalibrator
+Allow: /sitemap
+Allow: /ryby
+Allow: /niezbednik
+Allow: /info
+Allow: /info/about
+Allow: /info/contact
+Allow: /info/privacy
+Allow: /info/terms
+
+Disallow: /admin
+Disallow: /api
+Disallow: /static
+Disallow: *.json
+Disallow: *?page=
+Disallow: /auth
+
+# Sitemap
+Sitemap: https://czyzlowie.pl/sitemap.xml
+
+# Crawl delay (in seconds)
+Crawl-delay: 1
+Request-rate: 30/60
+
+# Google-specific
+User-agent: Googlebot
+Allow: /
+Crawl-delay: 0.5
+
+# Bing-specific
+User-agent: Bingbot
+Allow: /
+Crawl-delay: 1
+
+# Yandex
+User-agent: YandexBot
+Allow: /
+Crawl-delay: 2
+
+
