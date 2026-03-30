@@ -66,6 +66,7 @@ spring:
           facebook:
             user-info-uri: https://graph.facebook.com/me?fields=id,name,email,picture
 server:
+  forward-headers-strategy: native
   tomcat:
     max-part-count: 25
     # Performance optimizations
